@@ -359,9 +359,6 @@ def run_quantum_ensemble_simulation(mu, sigma, n_competitors=120, season_weight=
         "anti_herd_score": anti_herd_score
     }
 
-# ---------------------------------------------------------------------------------
-# 🌐 모든 웹 브라우저/모바일/뷰어에서 100% 열리는 공식 규격 HTML 인쇄/PDF 문서 생성기
-# ---------------------------------------------------------------------------------
 def generate_official_printable_html(cur_d, q_res, comp, st_pack):
     inst = cur_d.get("수요기관") or cur_d.get("발주기관", "수요기관")
     return f"""<!DOCTYPE html>
@@ -387,36 +384,17 @@ def generate_official_printable_html(cur_d, q_res, comp, st_pack):
 </head>
 <body>
     <button class="btn-print" onclick="window.print()">🖨️ 이 양식 바로 인쇄하기 (또는 PDF로 저장)</button>
-    
     <div class="header">
         <h1>시설공사 적격심사신청서 및 자기평가표</h1>
         <p>[조달청 시설공사 적격심사 세부기준 별지 제1호 및 제2호 공식 규격]</p>
     </div>
-
     <h3>1. 공사 및 신청인 개요</h3>
     <table>
-        <tr>
-            <th>공 고 명</th>
-            <td colspan="3"><b>{cur_d.get('공고명')}</b></td>
-        </tr>
-        <tr>
-            <th>수요(발주)기관</th>
-            <td>{inst}</td>
-            <th>입 찰 일 시</th>
-            <td>2026년 11월 12일</td>
-        </tr>
-        <tr>
-            <th>상    호</th>
-            <td>{comp['name']}</td>
-            <th>사업자등록번호</th>
-            <td>{comp['biz_no']}</td>
-        </tr>
-        <tr>
-            <th>본점 소재지</th>
-            <td colspan="3">{comp['region']}</td>
-        </tr>
+        <tr><th>공 고 명</th><td colspan="3"><b>{cur_d.get('공고명')}</b></td></tr>
+        <tr><th>수요(발주)기관</th><td>{inst}</td><th>입 찰 일 시</th><td>2026년 11월 12일</td></tr>
+        <tr><th>상    호</th><td>{comp['name']}</td><th>사업자등록번호</th><td>{comp['biz_no']}</td></tr>
+        <tr><th>본점 소재지</th><td colspan="3">{comp['region']}</td></tr>
     </table>
-
     <h3>2. 적격심사 배점 총괄표 (전자동 확정)</h3>
     <table>
         <tr class="highlight">
@@ -425,46 +403,15 @@ def generate_official_printable_html(cur_d, q_res, comp, st_pack):
             <th class="center" style="width:20%;">자 기 평 점</th>
             <th class="center" style="width:30%;">산 출 및 적 용 근 거</th>
         </tr>
-        <tr>
-            <td><b>경영상태 평가</b></td>
-            <td class="center">{q_res['max_mgmt']:.0f} 점</td>
-            <td class="center"><b>{q_res['final_mgmt_score']:.2f} 점</b></td>
-            <td>{q_res['selected_method']}</td>
-        </tr>
-        <tr>
-            <td><b>시공실적 평가</b></td>
-            <td class="center">{q_res['max_perf']:.0f} 점</td>
-            <td class="center"><b>{q_res['perf_score']:.2f} 점</b></td>
-            <td>추정가격 대비 {q_res['perf_ratio']:.2f}배 (1.0배 만점 충족)</td>
-        </tr>
-        <tr>
-            <td><b>시공능력평가액 요건</b></td>
-            <td class="center">필수 요건</td>
-            <td class="center"><b>적격 (통과)</b></td>
-            <td>시평액 {comp['cap_amount']:,}원 (추정가격의 {q_res['cap_ratio']:.2f}배)</td>
-        </tr>
-        <tr>
-            <td><b>신인도 가·감점</b></td>
-            <td class="center">±3.0 점</td>
-            <td class="center"><b>{q_res['net_sinindo']:+.2f} 점</b></td>
-            <td>일자리창출 우수기업 (+0.5점) 반영</td>
-        </tr>
-        <tr class="highlight">
-            <td class="center"><b>수행능력평가 소계</b></td>
-            <td class="center"><b>{(q_res['max_mgmt']+q_res['max_perf']):.0f} 점</b></td>
-            <td class="center"><b style="color:#059669; font-size:15px;">{q_res['total_ability']:.2f} 점</b></td>
-            <td><b>🏆 적격심사 통과 확실</b></td>
-        </tr>
+        <tr><td><b>경영상태 평가</b></td><td class="center">{q_res['max_mgmt']:.0f} 점</td><td class="center"><b>{q_res['final_mgmt_score']:.2f} 점</b></td><td>{q_res['selected_method']}</td></tr>
+        <tr><td><b>시공실적 평가</b></td><td class="center">{q_res['max_perf']:.0f} 점</td><td class="center"><b>{q_res['perf_score']:.2f} 점</b></td><td>추정가격 대비 {q_res['perf_ratio']:.2f}배 (1.0배 만점 충족)</td></tr>
+        <tr><td><b>시공능력평가액 요건</b></td><td class="center">필수 요건</td><td class="center"><b>적격 (통과)</b></td><td>시평액 {comp['cap_amount']:,}원 (추정가격의 {q_res['cap_ratio']:.2f}배)</td></tr>
+        <tr><td><b>신인도 가·감점</b></td><td class="center">±3.0 점</td><td class="center"><b>{q_res['net_sinindo']:+.2f} 점</b></td><td>일자리창출 우수기업 (+0.5점) 반영</td></tr>
+        <tr class="highlight"><td class="center"><b>수행능력평가 소계</b></td><td class="center"><b>{(q_res['max_mgmt']+q_res['max_perf']):.0f} 점</b></td><td class="center"><b style="color:#059669; font-size:15px;">{q_res['total_ability']:.2f} 점</b></td><td><b>🏆 적격심사 통과 확실</b></td></tr>
     </table>
-
     <h3>3. 증빙서류 편철 일람표 (제출 목록)</h3>
     <table>
-        <tr class="highlight">
-            <th class="center" style="width:10%;">순번</th>
-            <th class="center" style="width:25%;">구분</th>
-            <th class="center" style="width:45%;">서 류 명</th>
-            <th class="center" style="width:20%;">발행처 / 첨부유무</th>
-        </tr>
+        <tr class="highlight"><th class="center" style="width:10%;">순번</th><th class="center" style="width:25%;">구분</th><th class="center" style="width:45%;">서 류 명</th><th class="center" style="width:20%;">발행처 / 첨부유무</th></tr>
         <tr><td class="center">1</td><td>신청서식</td><td>시설공사 적격심사신청서 및 자기평가표</td><td>본사 날인 [ 유 ]</td></tr>
         <tr><td class="center">2</td><td>경영상태</td><td>공공입찰용 기업신용평가등급 확인서 원본</td><td>지정신용평가사 [ G2B연계/유 ]</td></tr>
         <tr><td class="center">3</td><td>시공실적</td><td>건설공사 실적증명서 (최근 5개년 누적실적)</td><td>관할협회 원본 [ 유 ]</td></tr>
@@ -472,7 +419,6 @@ def generate_official_printable_html(cur_d, q_res, comp, st_pack):
         <tr><td class="center">5</td><td>기업기본</td><td>사업자등록증 사본 및 법인등기부등본 원본</td><td>세무서/등기소 [ 유 ]</td></tr>
         <tr><td class="center">6</td><td>완납증명</td><td>국세·지방세 및 4대 사회보험료 완납증명서</td><td>홈택스/공단 [ 유 ]</td></tr>
     </table>
-
     <div class="sign-area">
         <p>위와 같이 적격심사 서류 및 증빙자료를 첨부하여 신청서를 제출합니다.</p>
         <p style="margin-top: 25px;">2026년 11월 12일</p>
@@ -482,38 +428,120 @@ def generate_official_printable_html(cur_d, q_res, comp, st_pack):
 </body>
 </html>"""
 
-def generate_decision_report_text(cur_d, q_res, comp, st_pack, chosen_r, bid_amt, net_p):
-    return f"""================================================================================
-【공식 사정률 심의 의결서 및 입찰 가격 결정 보고서】
-================================================================================
-1. 사업 개요
-   - 공 고 명 : {cur_d.get('공고명')}
-   - 발주기관 : {st_pack.get('inst_name')}
-   - 기초금액 : {st_pack['b_val']:,} 원
-   - A값(국민연금 등) : {st_pack['a_val']:,} 원
-   - 낙찰하한율 : {st_pack['l_rate']*100:.3f} %
+# ---------------------------------------------------------------------------------
+# 🏛️ [신규] 경영진 결재선 탑재 A4 1페이지 규격 사정률 심의 의결서 (HTML/PDF)
+# ---------------------------------------------------------------------------------
+def generate_decision_report_html(cur_d, q_res, comp, st_pack, chosen_r, bid_amt, net_p, cost_mat, cost_lab, cost_exp, cost_adm, total_exec):
+    inst = cur_d.get("수요기관") or cur_d.get("발주기관", "수요기관")
+    b_val = st_pack['b_val']
+    act_pct = (bid_amt / b_val) * 100.0 if b_val > 0 else 0.0
+    margin_pct = ((bid_amt - total_exec) / bid_amt) * 100.0 if bid_amt > 0 else 0.0
+    
+    return f"""<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>사정률심의의결서_{comp['name']}</title>
+    <style>
+        @page {{ size: A4 portrait; margin: 18mm; }}
+        body {{ font-family: 'Malgun Gothic', '맑은 고딕', 'Pretendard', sans-serif; line-height: 1.5; color: #111; background: #fff; }}
+        .header {{ display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 20px; }}
+        .header-title h1 {{ font-size: 22px; margin: 0; letter-spacing: 1.5px; }}
+        .header-title p {{ font-size: 12px; color: #555; margin-top: 4px; }}
+        .approval-table {{ width: 220px; border-collapse: collapse; font-size: 11px; text-align: center; }}
+        .approval-table th, .approval-table td {{ border: 1px solid #333; padding: 4px; }}
+        .approval-table th {{ background: #f8fafc; font-weight: bold; width: 30px; }}
+        .sign-cell {{ height: 45px; }}
+        table.data-table {{ width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 12.5px; }}
+        table.data-table th, table.data-table td {{ border: 1px solid #333; padding: 6px 10px; }}
+        table.data-table th {{ background: #f1f5f9; font-weight: bold; width: 24%; }}
+        .center {{ text-align: center; }}
+        .right {{ text-align: right; }}
+        .highlight {{ background-color: #e2e8f0; font-weight: bold; }}
+        .btn-print {{ display: block; width: 100%; padding: 12px; background: #059669; color: #fff; font-size: 15px; font-weight: bold; text-align: center; border: none; border-radius: 6px; cursor: pointer; margin-bottom: 15px; }}
+        @media print {{ .btn-print {{ display: none; }} body {{ margin: 0; }} }}
+    </style>
+</head>
+<body>
+    <button class="btn-print" onclick="window.print()">🖨️ 심의 의결서 바로 인쇄하기 (또는 PDF로 저장)</button>
+    
+    <div class="header">
+        <div class="header-title">
+            <h1>사정률 심의 의결서 및 입찰 품의서</h1>
+            <p>문서번호: BID-{datetime.now().strftime('%Y%m%d')}-01 | 기안일자: {datetime.now().strftime('%Y년 %m월 %d일')}</p>
+        </div>
+        <table class="approval-table">
+            <tr>
+                <th rowspan="2">결<br>재</th>
+                <td>담당/입찰</td>
+                <td>팀장/이사</td>
+                <td>대표이사</td>
+            </tr>
+            <tr class="sign-cell">
+                <td>(인)</td>
+                <td>(인)</td>
+                <td>(인)</td>
+            </tr>
+        </table>
+    </div>
 
-2. 적격심사 수행능력 사전 검증 결과
-   - 회사명 : {comp['name']} (사업자: {comp['biz_no']})
-   - 경영상태/실적 점수 : {q_res['total_ability']:.2f} / 30.0 점 만점 충족 (통과 확실)
+    <h4 style="margin: 0 0 8px 0;">1. 대상 공고 및 발주처 정보</h4>
+    <table class="data-table">
+        <tr><th>공  고  명</th><td colspan="3"><b>{cur_d.get('공고명')}</b></td></tr>
+        <tr><th>수요(발주)처</th><td>{inst}</td><th>입찰 마감일시</th><td>{cur_d.get('입찰마감일시', '2026-11-12 10:00')}</td></tr>
+        <tr><th>기 초 금 액</th><td><b>{b_val:,} 원</b></td><th>A값(국민연금 등)</th><td>{st_pack['a_val']:,} 원</td></tr>
+        <tr><th>낙찰하한율</th><td>{st_pack['l_rate']*100:.3f}%</td><th>적격심사 판정</th><td><b style="color:#059669;">{q_res['total_ability']:.2f}점 만점 (통과)</b></td></tr>
+    </table>
 
-3. 조달청 실시간 전수 데이터 기반 앙상블 분석 결과
-   - 발주처 실제 개찰 평균 사정률(μ) : {st_pack.get('inst_mu'):.3f}%
-   - 경쟁사 과밀 데드존(동가추첨 위험) : {st_pack['dead_zone_range'][0]:.3f}% ~ {st_pack['dead_zone_range'][1]:.3f}%
-   - 최종 채택 사정률 : {chosen_r:.3f} %
-   - 최종 결정 투찰금액 : {bid_amt:,} 원 (기초대비 {(bid_amt/st_pack['b_val'])*100:.3f}%)
+    <h4 style="margin: 0 0 8px 0;">2. 퀀트 앙상블 분석 및 최종 의결 투찰가</h4>
+    <table class="data-table">
+        <tr>
+            <th>발주처 개찰 평균 사정률(μ)</th>
+            <td>{st_pack.get('inst_mu'):.3f}%</td>
+            <th>경쟁사 과밀 데드존</th>
+            <td style="color:#dc2626;">{st_pack['dead_zone_range'][0]:.3f}% ~ {st_pack['dead_zone_range'][1]:.3f}%</td>
+        </tr>
+        <tr class="highlight">
+            <th>최종 채택 사정률</th>
+            <td style="font-size: 14px; color: #2563eb;"><b>{chosen_r:.3f} %</b></td>
+            <th>최종 결정 투찰금액</th>
+            <td style="font-size: 14px; color: #2563eb;"><b>{bid_amt:,} 원</b></td>
+        </tr>
+        <tr>
+            <th>기초금액 대비 투찰률</th>
+            <td><b>{act_pct:.3f} %</b></td>
+            <th>동일가 추첨 위험 억제선</th>
+            <td>위험도 억제 완료 (단독낙찰 타겟)</td>
+        </tr>
+    </table>
 
-4. 공사원가 및 손익 분기선 (BOM 추정)
-   - 예상 실행원가 (88.5%) : {round(st_pack['b_val']*0.885):,} 원
-   - 세전 공사 이익 : {bid_amt - round(st_pack['b_val']*0.885):,} 원
-   - 세후 실수령 순이익 (법인세 22% 차감) : {net_p:,} 원
-   - 영업이익률 : {((bid_amt - round(st_pack['b_val']*0.885))/bid_amt)*100:.2f} %
+    <h4 style="margin: 0 0 8px 0;">3. 공사 비목별 원가 집행 및 손익 분기 계획 (BOM)</h4>
+    <table class="data-table">
+        <tr class="highlight">
+            <th class="center" style="width:25%;">비  목</th>
+            <th class="center" style="width:20%;">구성비</th>
+            <th class="center" style="width:30%;">집행 예정 금액</th>
+            <th class="center" style="width:25%;">관리 포인트</th>
+        </tr>
+        <tr><td>1. 직접재료비</td><td class="center">42.0%</td><td class="right">{cost_mat:,} 원</td><td>자재 단가 사전 확정</td></tr>
+        <tr><td>2. 직접노무비</td><td class="center">28.0%</td><td class="right">{cost_lab:,} 원</td><td>현장 직영 및 근로공제</td></tr>
+        <tr><td>3. 산재·경비 등</td><td class="center">14.0%</td><td class="right">{cost_exp:,} 원</td><td>4대보험 법정 정산</td></tr>
+        <tr><td>4. 일반관리비</td><td class="center">4.5%</td><td class="right">{cost_adm:,} 원</td><td>본사 운영비 배부</td></tr>
+        <tr class="highlight"><td>총 실행원가 소계</td><td class="center">88.5%</td><td class="right"><b>{total_exec:,} 원</b></td><td>원가 분기 마지노선</td></tr>
+        <tr style="background:#ecfdf5;">
+            <td><b>🏆 세후 순이익(22%)</b></td>
+            <td class="center"><b>{margin_pct:.2f}%</b></td>
+            <td class="right"><b style="color:#059669; font-size:13.5px;">+{net_p:,} 원</b></td>
+            <td><b>최종 실수령 이익금</b></td>
+        </tr>
+    </table>
 
-위와 같이 조달청 개찰 실데이터와 원가 분석에 기반하여 최종 투찰 가격을 의결합니다.
-
-2026년 11월 12일
-심의위원 / 대표이사 : {comp['name']} (인)
-================================================================================"""
+    <div style="margin-top: 25px; text-align: center; font-size: 13px;">
+        <p>위와 같이 조달청 개찰 실데이터와 실행원가 분석에 기반하여 최종 투찰 가격을 품의·의결합니다.</p>
+        <p style="margin-top: 15px; font-weight: bold; font-size: 14px;">기안부서: {comp['name']} 입찰관리팀 | 심의의결 대표이사 (인)</p>
+    </div>
+</body>
+</html>"""
 
 def execute_full_autonomous_pipeline(comp, doc_input=None, auto_save=True, competitors_count=120, season_weight=0.015):
     if not comp:
@@ -938,6 +966,9 @@ with tab_quantum_ai:
             st.session_state["manual_rate"] = float(st_pack["shield_r"])
             st.toast(f"하단 쉴드선 사정률 {st_pack['shield_r']:.3f}% 반영 완료")
 
+# ========================================================
+# 🎛️ [시뮬레이터] 0.001% 감도 & 비목별 원가 분석 탭
+# ========================================================
 with tab_sim:
     st.subheader("🎛️ 0.001% 정밀 감도 & 공사 비목별 원가 분기선 분석")
     st.caption("사정률의 미세한 변화가 실제 공사 수주 금액 및 계좌에 입금되는 세후 순이익에 미치는 영향을 숫자로 확인하세요.")
@@ -986,14 +1017,20 @@ with tab_sim:
     ])
     st.table(cost_df)
 
+    # 🏛️ 신규 A4 규격 HTML 심의의결서 생성
+    decision_html_doc = generate_decision_report_html(
+        data, q_auto, comp, st_pack, sim_rate_input, sim_target_bid, net_tax_profit,
+        cost_mat, cost_lab, cost_exp, cost_adm, total_exec
+    )
+
     st.markdown("---")
-    st.markdown("##### 📄 사정률 심의 의결서 & 내부 품의 보고서 (원클릭 출력)")
-    report_text = generate_decision_report_text(data, q_auto, comp, st_pack, sim_rate_input, sim_target_bid, net_tax_profit)
+    st.markdown("##### 📄 사정률 심의 의결서 & 내부 결재 품의서 (공식 규격 인쇄용)")
+    st.caption("대표이사 및 임원진 결재용 공식 문서입니다. 다운로드 후 클릭 시 결재란이 포함된 서식으로 바로 인쇄/PDF 저장됩니다.")
     st.download_button(
-        label="📥 사정률 심의 의결서 및 입찰 보고서 다운로드 (.txt)",
-        data=report_text.encode("utf-8"),
-        file_name=f"사정률_심의의결서_{comp['name']}.txt",
-        mime="text/plain",
+        label="📥 사정률 심의 의결서 및 입찰 품의서 인쇄용 다운로드 (.html)",
+        data=decision_html_doc.encode("utf-8"),
+        file_name=f"사정률_심의의결서_{comp['name']}.html",
+        mime="text/html",
         type="primary",
         use_container_width=True
     )
