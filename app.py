@@ -65,15 +65,10 @@ INDUSTRY_BENCHMARK_DB = {
 }
 
 def fetch_association_company_data(query_text, api_key=""):
-    """
-    공공데이터포털 / KISCON / 건설공제조합 연동 모듈 (실서비스 및 Fallback 파이프라인)
-    """
     clean_query = query_text.replace("-", "").strip()
-    
-    # 1. 실제 공공데이터 API 키가 존재할 경우 REST API 질의 시도
     if api_key and len(api_key) > 10:
         try:
-            url = f"https://apis.data.go.kr/1613000/CnstrBizMngService/getCnstrBizMngInfo"
+            url = "https://apis.data.go.kr/1613000/CnstrBizMngService/getCnstrBizMngInfo"
             params = {
                 "serviceKey": api_key,
                 "brno": clean_query if clean_query.isdigit() else "",
@@ -103,7 +98,6 @@ def fetch_association_company_data(query_text, api_key=""):
         except Exception:
             pass
 
-    # 2. 비즈니스 프리셋 및 지능형 매핑 Fallback
     time.sleep(0.7)
     return {
         "name": query_text if not clean_query.isdigit() else "(주)태양전기건설",
@@ -206,7 +200,8 @@ def run_automated_qualification(inst_name, target_price, primary_industry, comp)
         bracket = "추정가격 50억 이상 (종합평가)"
         pass_cut, max_mgmt, max_perf, max_price = 95.0, 20.0, 20.0, 60.0
 
-    credit_tier = {"AAA": 1.0, "AA": 1.0, "A+": 1.0, "A0": 1.0, "A-": 1.0, "BBB+", 1.0, "BBB0": 1.0, "BBB-": 1.0, "BB+": 0.96, "BB0": 0.93, "BB-": 0.90, "B 이하": 0.80}
+    # 문법 오류 수정 완료: 콜론(:) 적용
+    credit_tier = {"AAA": 1.0, "AA": 1.0, "A+": 1.0, "A0": 1.0, "A-": 1.0, "BBB+": 1.0, "BBB0": 1.0, "BBB-": 1.0, "BB+": 0.96, "BB0": 0.93, "BB-": 0.90, "B 이하": 0.80}
     score_credit = max_mgmt * credit_tier.get(comp.get("credit_grade", "A-"), 0.93)
 
     d_ratio = (comp.get("debt_ratio", 100.0) / avg_debt) * 100.0
@@ -403,15 +398,15 @@ else:
     st.sidebar.error("⚠️ 기업 마스터 적격 스펙이 입력되어야 결과 파이프라인이 열립니다.")
 
 # --------------------------------------------------------
-# 🔒 1단계: 기업 적격심사 마스터 항목 등록 화면 (자동 수집 기능 탑재)
+# 🔒 1단계: 기업 적격심사 마스터 등록 (자동 스크랩 지원)
 # --------------------------------------------------------
 if not is_profile_ready:
     st.title("🔒 1단계: 기업 적격심사 마스터 항목 등록")
-    st.info("💡 **기업 적격심사 항목(신용등급, 재무비율, 시평액, 실적누계 등)이 선행 확정되어야** 비로소 맞춤형 적격 배점 및 골디락스 투찰 결과가 산출됩니다.")
+    st.info("💡 **기업 적격심사 항목(신용등급, 재무비율, 시평액, 실적누계 등)이 선행 확정되어야** 맞춤형 적격 배점 및 골디락스 투찰 결과가 산출됩니다.")
 
     st.markdown("### 🔍 1-Click 공공망 / 협회 전산망 자동 연동 조회")
     q_col1, q_col2 = st.columns([3, 1])
-    search_q = q_col1.text_input("기업명 또는 사업자등록번호 입력 (예: 221-81-12345 또는 (주)태양전기건설)", value="", placeholder="사업자등록번호 또는 법인명")
+    search_q = q_col1.text_input("기업명 또는 사업자등록번호 입력", value="", placeholder="예: 221-81-12345 또는 (주)태양전기건설")
     if q_col2.button("🔍 협회/공공망 자동 스크랩", type="primary", use_container_width=True):
         if search_q.strip():
             with st.spinner("국토부 KISCON 및 협회 전산망에서 시평액/실적/면허 데이터를 수집하는 중..."):
@@ -435,7 +430,7 @@ if not is_profile_ready:
     }
 
     if st.session_state["scraped_data"]:
-        st.success(f"🌐 **자동 스크랩 완료 출처**: {st.session_state['scraped_data'].get('source')} | 면허·시평액·실적값이 폼에 자동 입력되었습니다.")
+        st.success(f"🌐 **자동 스크랩 완료 출처**: {st.session_state['scraped_data'].get('source')} | 수치가 폼에 자동 입력되었습니다.")
 
     st.markdown("---")
 
