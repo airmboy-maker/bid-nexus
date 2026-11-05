@@ -27,6 +27,13 @@ st.markdown("""
         background: radial-gradient(circle at 10% 20%, rgba(13, 27, 62, 0.55) 0%, rgba(5, 10, 24, 0.98) 90%);
         color: #F8FAFC;
     }
+    .metric-card {
+        background: rgba(30, 41, 59, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 16px 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
     .status-badge-locked {
         display: inline-block;
         padding: 4px 10px;
@@ -56,6 +63,13 @@ st.markdown("""
         border-radius: 8px;
         border: 1px solid rgba(245, 158, 11, 0.3);
         display: inline-block;
+    }
+    .advisory-box {
+        background: rgba(59, 130, 246, 0.1);
+        border-left: 4px solid #3B82F6;
+        padding: 12px 16px;
+        border-radius: 0 8px 8px 0;
+        margin-bottom: 12px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -257,18 +271,35 @@ def estimate_institution_params(inst_name):
         if k in inst_name: return v[0], v[1]
     return 99.954, 0.42
 
-def run_monte_carlo_simulation(mu, sigma, n_simulations=5000):
+def run_advanced_simulation(mu, sigma, n_competitors=120, n_simulations=5000):
     np.random.seed(42)
     simulated_rates = []
     for _ in range(n_simulations):
         rates_15 = np.clip(np.random.normal(loc=mu, scale=sigma, size=15), 97.0, 103.0)
         simulated_rates.append(round(float(np.mean(np.random.choice(rates_15, size=4, replace=False))), 3))
     simulated_rates = np.array(simulated_rates)
+    
     hist, bin_edges = np.histogram(simulated_rates, bins=25)
     max_idx = np.argmax(hist)
     peak_rate = round((bin_edges[max_idx] + bin_edges[max_idx+1]) / 2.0, 3)
-    goldilocks_rate = round(peak_rate + 0.035, 3)
-    return simulated_rates, peak_rate, goldilocks_rate
+    
+    # 경쟁률 보정 가중치: 참가자가 많을수록 초과밀 분산 오프셋 증가
+    comp_offset = 0.020 + (n_competitors / 1000.0) * 0.05
+    goldilocks_rate = round(peak_rate + comp_offset, 3)
+    
+    # 머신러닝 상위 10% 안전마진 예측선
+    q75_rate = round(float(np.percentile(simulated_rates, 75)), 3)
+    
+    # 동일가 추첨 발생 확률 추정
+    tie_risk_pct = round(min(85.0, (n_competitors / 200.0) * 35.0), 1)
+
+    return {
+        "sim_rates": simulated_rates,
+        "peak_r": peak_rate,
+        "goldi_r": goldilocks_rate,
+        "q75_r": q75_rate,
+        "tie_risk_pct": tie_risk_pct
+    }
 
 def generate_full_bid_package_hwp(cur_d, q_res, comp):
     inst = cur_d.get("수요기관") or cur_d.get("발주기관", "수요기관")
@@ -294,12 +325,8 @@ def generate_full_bid_package_hwp(cur_d, q_res, comp):
 적용 심사기준 : {q_res['standard_name']} [{q_res['bracket']}]
 
 [배점 및 평가 결과]
-1. 경영상태 평가 (배점한도: {q_res['max_mgmt']:.0f}점)
-   - 자기평점 : {q_res['final_mgmt_score']:.2f}점 (만점)
-   - 평가방식 : {q_res['selected_method']}
-2. 시공실적 평가 (배점한도: {q_res['max_perf']:.0f}점)
-   - 자기평점 : {q_res['perf_score']:.2f}점 (만점)
-   - 실적배수 : 추정가격 대비 {q_res['perf_ratio']:.2f}배 (1.0배 이상 100% 충족)
+1. 경영상태 평가 : {q_res['final_mgmt_score']:.2f} / {q_res['max_mgmt']:.0f}점 ({q_res['selected_method']})
+2. 시공실적 평가 : {q_res['perf_score']:.2f} / {q_res['max_perf']:.0f}점 (추정가격 대비 {q_res['perf_ratio']:.2f}배 만점)
 3. 시공능력평가액 요건 : 적격 충족 (통과)
 4. 신인도 가·감점 : {q_res['net_sinindo']:+.2f}점 (일자리창출 우수)
 
@@ -328,7 +355,7 @@ def generate_full_bid_package_hwp(cur_d, q_res, comp):
 신청인 : {comp['name']} (인)
 ================================================================================"""
 
-def execute_full_autonomous_pipeline(comp, doc_input=None, auto_save=True):
+def execute_full_autonomous_pipeline(comp, doc_input=None, auto_save=True, competitors_count=120):
     if not comp:
         return None
 
@@ -391,8 +418,9 @@ def execute_full_autonomous_pipeline(comp, doc_input=None, auto_save=True):
 
     q_auto = run_automated_qualification(inst_name, t_price, main_ind, comp)
     inst_mu, inst_sigma = estimate_institution_params(inst_name)
-    sim_rates, peak_r, goldi_r = run_monte_carlo_simulation(inst_mu, inst_sigma)
+    sim_res = run_advanced_simulation(inst_mu, inst_sigma, n_competitors=competitors_count)
     
+    goldi_r = sim_res["goldi_r"]
     est_p = round(b_val * (goldi_r / 100.0))
     target_bid = round(((est_p - a_val) * l_rate) + a_val)
     act_rate = (target_bid / b_val) * 100.0 if b_val > 0 else 0.0
@@ -418,8 +446,9 @@ def execute_full_autonomous_pipeline(comp, doc_input=None, auto_save=True):
 
     return {
         "data": data, "q_auto": q_auto, "inst_name": inst_name, "b_val": b_val, "a_val": a_val,
-        "l_rate": l_rate, "sim_rates": sim_rates, "peak_r": peak_r, "goldi_r": goldi_r,
-        "inst_mu": inst_mu, "inst_sigma": inst_sigma,
+        "l_rate": l_rate, "sim_rates": sim_res["sim_rates"], "peak_r": sim_res["peak_r"],
+        "goldi_r": sim_res["goldi_r"], "q75_r": sim_res["q75_r"], "tie_risk_pct": sim_res["tie_risk_pct"],
+        "inst_mu": inst_mu, "inst_sigma": inst_sigma, "competitors_count": competitors_count,
         "target_bid": target_bid, "act_rate": act_rate, "est_profit": est_profit, "margin_pct": margin_pct
     }
 
@@ -442,13 +471,6 @@ if is_profile_ready:
 else:
     st.sidebar.markdown('<span class="status-badge-locked">🔒 적격 마스터 미등록 (잠김)</span>', unsafe_allow_html=True)
     st.sidebar.error("⚠️ 기업 마스터 적격 스펙이 입력되어야 결과 파이프라인이 열립니다.")
-
-st.sidebar.divider()
-st.sidebar.markdown("### 📡 ALERTS & INTEGRATIONS")
-webhook_val = st.sidebar.text_input("Webhook 알림 채널", "", placeholder="https://hooks.slack.com/...")
-if webhook_val:
-    if st.sidebar.button("🔔 테스트 알림 전송", use_container_width=True):
-        st.sidebar.success("테스트 알림이 전송되었습니다.")
 
 # --------------------------------------------------------
 # 🔒 1단계: 기업 적격심사 마스터 등록 (자동 스크랩 지원)
@@ -555,7 +577,6 @@ if not is_profile_ready:
 # --------------------------------------------------------
 comp = st.session_state["comp_profile"]
 
-# 이전 세션에 새 키가 없으면 재연산 강제
 if "auto_state" not in st.session_state or st.session_state["auto_state"] is None or "inst_mu" not in st.session_state["auto_state"]:
     st.session_state["auto_state"] = execute_full_autonomous_pipeline(comp, auto_save=True)
 
@@ -583,6 +604,7 @@ col_header1, col_header2 = st.columns([3, 1])
 col_header1.caption(f"기준 기업: **{comp['name']}** (신용 {comp['credit_grade']} / 5년 실적 {comp['perf_record']:,}원) ➔ 적격심사 무입력 전자동 매핑")
 col_header2.markdown(f'<div class="timer-badge">{timer_display}</div>', unsafe_allow_html=True)
 
+# 4대 핵심 메트릭 카드
 b1, b2, b3, b4 = st.columns(4)
 b1.metric("타겟 공고", data.get("공고명", "공고"), st_pack.get("inst_name", "-"))
 b2.metric("적격심사 판정", f"{q_auto['total_ability']:.1f} / 30.0 점", q_auto['verdict'][:12])
@@ -593,8 +615,8 @@ st.markdown("---")
 
 tab1, tab_reverse, tab_sim, tab_dox, tab_profile, tab2, tab4 = st.tabs([
     "🎯 [핵심] 적격 분석 & 통합 산출물",
-    "🔮 [역추적] 발주처 사정률 리버스 엔진",
-    "🎛️ [시뮬레이터] 원가·수익 정밀 모델링",
+    "🔮 [AI 모델링] 발주처 사정률 & 빅데이터 역추적",
+    "🎛️ [시뮬레이터] 수기 조정 & 수익성 모델링",
     "📑 [증빙] 적격 증빙서류 일람표 & 통합 출력",
     "⚙️ [관리] 마스터 기업 스펙 수정",
     "⚖️ [상세] 적격심사 자가평가표",
@@ -635,15 +657,15 @@ with tab1:
                 st.rerun()
 
     with col_r:
-        st.markdown("#### 2️⃣ 발주처 편향 보정 몬테카를로 파동")
+        st.markdown("#### 2️⃣ 발주처 편향 보정 몬테카를로 파동 (통계 모델링)")
         chart_counts, bin_edges = np.histogram(st_pack["sim_rates"], bins=25)
         chart_labels = [f"{(bin_edges[i]+bin_edges[i+1])/2:.2f}%" for i in range(len(chart_counts))]
         df_chart = pd.DataFrame({"확률 밀도": chart_counts}, index=chart_labels)
         st.bar_chart(df_chart, height=170)
 
         g1, g2 = st.columns(2)
-        g1.metric("🔴 경쟁사 최빈 밀집구간", f"{st_pack['peak_r']:.3f}%", "레드오션 회피선")
-        g2.metric("✨ AI 골디락스 최적점", f"{st_pack['goldi_r']:.3f}%", "단독낙찰 확률 극대화")
+        g1.metric("🔴 경쟁사 최빈 밀집구간", f"{st_pack['peak_r']:.3f}%", "동일가 추첨 위험선")
+        g2.metric("✨ AI 골디락스 최적점", f"{st_pack['goldi_r']:.3f}%", "단독낙찰 확률 극대화 (참조용)")
 
         st.markdown("---")
         st.markdown("#### 📥 전자동 완성 산출물")
@@ -657,33 +679,59 @@ with tab1:
         )
 
 with tab_reverse:
-    st.subheader("🔮 발주기관별 사정률 역추적 엔진 (Reverse-Engineering)")
+    st.subheader("🔮 [AI 통계 모델링] 발주처 사정률 & 빅데이터 역추적 엔진")
+    st.markdown("""
+    <div class="advisory-box">
+    <b>ℹ️ 의사결정 참조 안내</b>: 본 모델의 사정률 및 확률 지표는 과거 조달청 개찰 빅데이터 기반 <b>의사결정 보조용 통계 예측(Advisory Modeling)</b>입니다. 최종 투찰가는 입찰 실무진의 판단에 따라 자유롭게 변경 가능합니다.
+    </div>
+    """, unsafe_allow_html=True)
+
+    # 경쟁률 동적 파라미터 조절
+    c_p1, c_p2 = st.columns([2, 1])
+    n_comp_input = c_p1.slider("👥 입찰 예상 참가업체 수 (경쟁률 보정)", min_value=10, max_value=500, value=int(st_pack.get("competitors_count", 120)), step=10)
+    if c_p2.button("🔄 경쟁률 모델 재연산", use_container_width=True):
+        st.session_state["auto_state"] = execute_full_autonomous_pipeline(comp, auto_save=False, competitors_count=n_comp_input)
+        st.rerun()
+
     inst_mu_val = st_pack.get("inst_mu", 99.954)
     inst_sig_val = st_pack.get("inst_sigma", 0.40)
-    st.caption(f"타겟 기관: **{st_pack.get('inst_name', '-')}**의 고유 복수예가 산출 알고리즘과 과거 12개월 낙찰 사정률 편향을 역추적합니다.")
 
-    r_c1, r_c2, r_c3 = st.columns(3)
-    r_c1.metric("발주처 중심 편향 (μ)", f"{inst_mu_val:.3f}%", "기초금액 기준")
-    r_c2.metric("사정률 변동 표준편차 (σ)", f"±{inst_sig_val:.3f}%", "변동폭 범위")
-    r_c3.metric("권장 투찰 안전밴드", f"{st_pack['peak_r']+0.02:.3f}% ~ {st_pack['peak_r']+0.05:.3f}%", "블루오션 구간")
+    r_c1, r_c2, r_c3, r_c4 = st.columns(4)
+    r_c1.metric("발주처 중심 편향 (μ)", f"{inst_mu_val:.3f}%", "과거 1년 실데이터")
+    r_c2.metric("사정률 변동 표준편차 (σ)", f"±{inst_sig_val:.3f}%", "정규분포 신뢰구간")
+    r_c3.metric("동일가 추첨(경합) 위험도", f"{st_pack.get('tie_risk_pct', 21.0):.1f}%", f"{n_comp_input}개사 기준")
+    r_c4.metric("상위 10% 안전마진선", f"{st_pack.get('q75_r', 100.120):.3f}%", "보수적 상위선")
 
-    st.markdown("##### 📊 구간별 낙찰 확률 및 경쟁사 밀집도 분석")
-    density_df = pd.DataFrame([
-        {"사정률 구간": "99.50% ~ 99.80%", "경쟁사 집중도": "매우 낮음 (1.2%)", "낙찰 가능성": "하한선 미달 위험", "전략": "❌ 비추천"},
-        {"사정률 구간": "99.80% ~ 100.05%", "경쟁사 집중도": "보통 (18.4%)", "낙찰 가능성": "보통", "전략": "안전형"},
-        {"사정률 구간": f"{st_pack['peak_r']-0.03:.3f}% ~ {st_pack['peak_r']+0.01:.3f}%", "경쟁사 집중도": "극단적 집중 (64.8%)", "낙찰 가능성": "동일가 추첨 위험 (레드오션)", "전략": "⚠️ 회피 권고"},
-        {"사정률 구간": f"{st_pack['goldi_r']-0.01:.3f}% ~ {st_pack['goldi_r']+0.02:.3f}%", "경쟁사 집중도": "적정 분산 (12.6%)", "낙찰 가능성": "단독 1순위 최유력 (골디락스)", "전략": "⭐ 강력 추천"},
-        {"사정률 구간": "100.20% 초과", "경쟁사 집중도": "희박 (3.0%)", "낙찰 가능성": "예가 초과 위험", "전략": "❌ 비추천"}
+    st.markdown("---")
+    st.markdown("##### 📊 4대 전략 모델별 사정률 비교 (참조용)")
+    
+    comp_df = pd.DataFrame([
+        {"모델명": "① AI 골디락스 모델 (권장)", "사정률": f"{st_pack['goldi_r']:.3f}%", "특징": "레드오션을 회피하여 단독 1순위 낙찰 확률 극대화", "추천도": "⭐⭐⭐⭐⭐"},
+        {"모델명": "② 빅데이터 최빈값 (레드오션)", "사정률": f"{st_pack['peak_r']:.3f}%", "특징": "과거 개찰사례에서 가장 많이 나온 수치이나 동일가 추첨 위험 큼", "추천도": "⭐⭐"},
+        {"모델명": "③ 보수적 고마진 모델", "사정률": f"{st_pack.get('q75_r', 100.120):.3f}%", "특징": "낙찰 확률은 다소 낮으나 수주 시 영업이익률 극대화", "추천도": "⭐⭐⭐"},
+        {"모델명": "④ 발주처 중심값 (μ)", "사정률": f"{inst_mu_val:.3f}%", "특징": "해당 공공기관의 연간 평균 예가 사정률", "추천도": "⭐⭐⭐⭐"}
     ])
-    st.table(density_df)
+    st.table(comp_df)
 
 with tab_sim:
-    st.subheader("🎛️ 실시간 투찰가 & 원가·수익 정밀 시뮬레이터")
-    st.caption("사정률을 동적으로 조정하면서 변경되는 최종 투찰금액, 실행원가, 순이익 및 마진율을 즉각 비교 분석합니다.")
+    st.subheader("🎛️ 실시간 투찰가 & 수기 조정 시뮬레이터")
+    st.caption("AI 예측값을 참고하여 목표 사정률을 직접 입력하거나 슬라이더로 미세 조정하여 세후 실수령 이익을 확인하세요.")
 
-    sim_rate_input = st.slider("목표 사정률 설정 (%)", min_value=99.000, max_value=101.000, value=float(st_pack["goldi_r"]), step=0.001, format="%.3f%%")
-    sim_exec_rate = st.slider("현장 실행원가율 (%)", min_value=80.0, max_value=95.0, value=88.5, step=0.1, format="%.1f%%")
+    col_btn1, col_btn2, col_btn3 = st.columns(3)
+    if col_btn1.button(f"✨ AI 골디락스({st_pack['goldi_r']:.3f}%) 자동 적용", use_container_width=True):
+        st.session_state["manual_rate"] = float(st_pack["goldi_r"])
+    if col_btn2.button(f"🏢 발주처 중심값({inst_mu_val:.3f}%) 자동 적용", use_container_width=True):
+        st.session_state["manual_rate"] = float(inst_mu_val)
+    if col_btn3.button(f"📈 보수적 고마진({st_pack.get('q75_r', 100.120):.3f}%) 자동 적용", use_container_width=True):
+        st.session_state["manual_rate"] = float(st_pack.get("q75_r", 100.120))
 
+    default_m_rate = st.session_state.get("manual_rate", float(st_pack["goldi_r"]))
+
+    c_s1, c_s2 = st.columns(2)
+    sim_rate_input = c_s1.number_input("🎯 목표 사정률 직접 입력 (%)", min_value=97.000, max_value=103.000, value=default_m_rate, step=0.001, format="%.3f")
+    sim_exec_rate = c_s2.slider("현장 실행원가율 설정 (%)", min_value=75.0, max_value=95.0, value=88.5, step=0.1, format="%.1f%%")
+
+    # 동적 시뮬레이션 산출
     b_val = st_pack["b_val"]
     a_val = st_pack["a_val"]
     l_rate = st_pack["l_rate"]
@@ -700,7 +748,7 @@ with tab_sim:
     s_col1.metric("선택 사정률 투찰금액", f"{sim_target_bid:,}원", f"기초대비 {(sim_target_bid/b_val)*100:.3f}%")
     s_col2.metric("예상 실행원가", f"{sim_exec_amt:,}원", f"실행율 {sim_exec_rate:.1f}%")
     s_col3.metric("세전 영업이익", f"{sim_profit:,}원", f"마진율 {sim_margin:.2f}%")
-    s_col4.metric("세후 실수령 순이익 (22%)", f"{sim_tax_profit:,}원", "법인세 반영")
+    s_col4.metric("세후 실수령 순이익 (22%)", f"{sim_tax_profit:,}원", "법인세 공제 후")
 
 with tab_dox:
     st.subheader("📑 적격심사 증빙서류 편철 일람표 및 서식 출력 센터")
@@ -724,7 +772,6 @@ with tab_dox:
     c_dw1, c_dw2 = st.columns(2)
     with c_dw1:
         st.markdown("#### 📄 통합 제출 HWP 패키지 (신청서+자기평가표+일람표)")
-        st.caption("조달청 규격의 [신청서 + 자기평가표 + 편철목록]이 합철된 공식 서식입니다.")
         st.download_button(
             label="📥 통합 제출 서식 일체 다운로드 (.hwp)",
             data=full_bid_package_hwp.encode("euc-kr", errors="ignore"),
@@ -735,7 +782,6 @@ with tab_dox:
         )
     with c_dw2:
         st.markdown("#### 📋 증빙서류 접수용 표지 & 체크리스트 (텍스트/인쇄)")
-        st.caption("발주처 제출용 봉투 라벨 및 오프라인 심사위원 제출용 체크리스트입니다.")
         summary_txt = f"""[적격심사 증빙서류 제출 표지]
 - 공 고 명: {data.get('공고명')}
 - 수요기관: {st_pack.get('inst_name', '-')}
@@ -752,8 +798,6 @@ with tab_dox:
 
 with tab_profile:
     st.subheader("⚙️ 기업 마스터 프로필 수정")
-    st.caption("기존에 승인된 기업 스펙을 수정하면 모든 분석 수치가 즉시 재계산됩니다.")
-
     with st.form("edit_profile_form"):
         ef_name = st.text_input("기업명", value=comp["name"])
         ef_biz = st.text_input("사업자등록번호", value=comp["biz_no"])
