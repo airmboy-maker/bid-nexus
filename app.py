@@ -89,6 +89,43 @@ client = genai.Client()
 DB_PATH = os.path.expanduser("~/bidding_history.db")
 PROFILE_JSON_PATH = os.path.expanduser("~/company_profile.json")
 
+# ---------------------------------------------------------------------------------
+# 🔍 한글 초성 분해 및 인크리멘탈 검색 알고리즘
+# ---------------------------------------------------------------------------------
+CHOSUNG_LIST = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ']
+
+def decompose_hangul_chosung(text):
+    result = []
+    for char in text:
+        if '가' <= char <= '힣':
+            chosung_idx = (ord(char) - ord('가')) // 588
+            result.append(CHOSUNG_LIST[chosung_idx])
+        else:
+            result.append(char)
+    return "".join(result)
+
+COMPANY_SAMPLE_POOL = [
+    {"name": "(주)태양전기건설", "biz_no": "221-81-12345", "region": "강원특별자치도 춘천시 공지로 312", "lics": ["건축공사업", "전기공사업"], "credit_grade": "A-", "debt_ratio": 92.5, "cur_ratio": 145.0, "cap_amount": 6800000000, "perf_record": 4500000000, "sanction_days": 0},
+    {"name": "태양정보통신(주)", "biz_no": "114-81-98765", "region": "경기도 수원시 영통구 광교로 140", "lics": ["정보통신공사업"], "credit_grade": "BBB+", "debt_ratio": 88.0, "cur_ratio": 160.0, "cap_amount": 3400000000, "perf_record": 2800000000, "sanction_days": 0},
+    {"name": "(주)태양토건", "biz_no": "105-86-45678", "region": "서울특별시 마포구 마포대로 52", "lics": ["토목공사업", "건축공사업"], "credit_grade": "A0", "debt_ratio": 105.0, "cur_ratio": 138.0, "cap_amount": 9500000000, "perf_record": 7200000000, "sanction_days": 0},
+    {"name": "강원건설(주)", "biz_no": "221-86-55443", "region": "강원특별자치도 원주시 서원대로 120", "lics": ["건축공사업"], "credit_grade": "BBB0", "debt_ratio": 115.0, "cur_ratio": 125.0, "cap_amount": 5100000000, "perf_record": 3900000000, "sanction_days": 0},
+    {"name": "(주)대한소방이엔지", "biz_no": "120-81-67890", "region": "서울특별시 영등포구 여의대로 24", "lics": ["소방시설공사업"], "credit_grade": "A-", "debt_ratio": 82.0, "cur_ratio": 175.0, "cap_amount": 4200000000, "perf_record": 3100000000, "sanction_days": 0}
+]
+
+def search_companies_incremental(query_text):
+    q = query_text.strip()
+    if not q:
+        return []
+    q_chosung = decompose_hangul_chosung(q)
+    matches = []
+    for comp_item in COMPANY_SAMPLE_POOL:
+        name = comp_item["name"]
+        biz = comp_item["biz_no"]
+        name_chosung = decompose_hangul_chosung(name)
+        if q in name or q in biz or q_chosung in name_chosung:
+            matches.append(comp_item)
+    return matches[:8]
+
 INDUSTRY_BENCHMARK_DB = {
     "전기공사업": {"avg_debt": 118.4, "avg_cur": 132.8, "association": "한국전기공사협회"},
     "정보통신공사업": {"avg_debt": 95.2, "avg_cur": 154.1, "association": "한국정보통신공사협회"},
@@ -154,7 +191,13 @@ def fetch_association_company_data(query_text, api_key=""):
         except Exception:
             pass
 
-    time.sleep(0.7)
+    time.sleep(0.5)
+    matches = search_companies_incremental(query_text)
+    if matches:
+        res = matches[0].copy()
+        res["source"] = "인크리멘탈 동종 데이터베이스 매핑"
+        return res
+
     return {
         "name": query_text if not clean_query.isdigit() else "(주)태양전기건설",
         "biz_no": query_text if clean_query.isdigit() else "221-81-12345",
@@ -168,9 +211,6 @@ def fetch_association_company_data(query_text, api_key=""):
         "source": "건설CALS & 공공데이터포털(KISCON) 실시간 수신"
     }
 
-# =================================================================================
-# 📡 [고도화] 5대 선택형 리스트 기반 나라장터 공고 수집 엔진
-# =================================================================================
 def fetch_live_g2b_bids_advanced(lic_selected, region_selected, scale_selected, inst_type_selected, sort_selected, api_key=""):
     results = []
     
@@ -178,12 +218,8 @@ def fetch_live_g2b_bids_advanced(lic_selected, region_selected, scale_selected, 
         try:
             url = "https://apis.data.go.kr/1230000/BidPublicInfoService04/getBidPblancListInfoCnstwkPPSSrch01"
             params = {
-                "serviceKey": api_key,
-                "numOfRows": "20",
-                "pageNo": "1",
-                "inqryDiv": "1",
-                "indstrytyNm": lic_selected,
-                "_type": "json"
+                "serviceKey": api_key, "numOfRows": "20", "pageNo": "1", "inqryDiv": "1",
+                "indstrytyNm": lic_selected, "_type": "json"
             }
             res = requests.get(url, params=params, timeout=3.0)
             if res.status_code == 200:
@@ -191,7 +227,6 @@ def fetch_live_g2b_bids_advanced(lic_selected, region_selected, scale_selected, 
                 for it in items:
                     b_amt = int(float(it.get("bsisPrc", 2500000000)))
                     inst_nm = it.get("dminsttNm", "발주기관")
-                    reg_nm = it.get("rnAddr", "강원특별자치도")
                     results.append({
                         "공고번호": it.get("bidNtceNo", "202611-001"),
                         "공고명": it.get("bidNtceNm", "시설공사 공고"),
@@ -225,7 +260,6 @@ def fetch_live_g2b_bids_advanced(lic_selected, region_selected, scale_selected, 
         if inst_type_selected != "전체 발주처":
             filtered = [b for b in filtered if b.get("기관유형") == inst_type_selected]
             
-        # 규모 필터링
         if scale_selected == "10억 미만 (간이적격)":
             filtered = [b for b in filtered if b["기초금액"] < 1000000000]
         elif scale_selected == "10억 이상 ~ 50억 미만 (일반적격)":
@@ -237,7 +271,6 @@ def fetch_live_g2b_bids_advanced(lic_selected, region_selected, scale_selected, 
             
         results = filtered if filtered else [b for b in db_master if b["필요면허"] == lic_selected][:3]
 
-    # 정렬 필터 적용
     if sort_selected == "💰 기초금액 높은순":
         results = sorted(results, key=lambda x: x["기초금액"], reverse=True)
     elif sort_selected == "💵 기초금액 낮은순":
@@ -255,12 +288,8 @@ def fetch_g2b_real_open_bids(inst_name, api_key=""):
         try:
             url = "https://apis.data.go.kr/1230000/ScsbidResultInfoService/getOpengovScsbidListSttus"
             params = {
-                "serviceKey": api_key,
-                "numOfRows": "10",
-                "pageNo": "1",
-                "inqryDiv": "1",
-                "dminsttNm": inst_name[:6] if inst_name else "춘천",
-                "_type": "json"
+                "serviceKey": api_key, "numOfRows": "10", "pageNo": "1", "inqryDiv": "1",
+                "dminsttNm": inst_name[:6] if inst_name else "춘천", "_type": "json"
             }
             res = requests.get(url, params=params, timeout=3.5)
             if res.status_code == 200:
@@ -359,19 +388,10 @@ def call_gemini_with_fallback(contents):
             except Exception:
                 time.sleep(1.2)
     return json.dumps({
-        "공고명": "소양초 공간재구조화 조성공사",
-        "수요기관": "강원특별자치도춘천교육지원청",
-        "발주기관": "강원특별자치도춘천교육지원청",
-        "주요공종": "건축공사업",
-        "기초금액": 3605411000,
-        "A값_합산액": 170640956,
-        "낙찰하한율": 88.745,
-        "순공사원가": 0,
-        "추정가격": 3277646364,
-        "지역제한": "강원특별자치도",
-        "입찰마감일시": "2026-11-12 10:00",
-        "필요면허": ["건축공사업"],
-        "독소조항": [{"title": "물가변동 배제 특약", "desc": "실착공 이후 물가변동 미반영 특약 주의", "level": "위험"}],
+        "공고명": "소양초 공간재구조화 조성공사", "수요기관": "강원특별자치도춘천교육지원청", "발주기관": "강원특별자치도춘천교육지원청",
+        "주요공종": "건축공사업", "기초금액": 3605411000, "A값_합산액": 170640956, "낙찰하한율": 88.745,
+        "순공사원가": 0, "추정가격": 3277646364, "지역제한": "강원특별자치도", "입찰마감일시": "2026-11-12 10:00",
+        "필요면허": ["건축공사업"], "독소조항": [{"title": "물가변동 배제 특약", "desc": "실착공 이후 물가변동 미반영 특약 주의", "level": "위험"}],
         "위험도점수": 25
     }, ensure_ascii=False)
 
@@ -737,31 +757,42 @@ else:
     st.sidebar.markdown('<span class="status-badge-locked">🔒 적격 마스터 미등록 (잠김)</span>', unsafe_allow_html=True)
     st.sidebar.error("⚠️ 기업 마스터 적격 스펙이 입력되어야 결과 파이프라인이 열립니다.")
 
-# 🔒 1단계: 기업 적격심사 마스터 등록
+# 🔒 1단계: 기업 적격심사 마스터 등록 (인크리멘탈 검색 지원)
 if not is_profile_ready:
     st.title("🔒 1단계: 기업 적격심사 마스터 항목 등록")
-    st.info("💡 **기업 적격심사 항목(신용등급, 재무비율, 시평액, 실적누계 등)이 선행 확정되어야** 맞춤형 적격 배점 및 골디락스 투찰 결과가 산출됩니다.")
+    st.info("💡 **기업명 또는 초성(예: '태', '태양', 'ㅌㅇ')을 1글자만 쳐도** 등록된 동종 기업 후보가 실시간으로 자동 완성되어 즉각 반영됩니다.")
 
-    st.markdown("### 🔍 1-Click 공공망 / 협회 전산망 자동 연동 조회")
+    st.markdown("### 🔍 1-Click 인크리멘탈 동종 기업명 자동 검색")
     q_col1, q_col2 = st.columns([3, 1])
-    search_q = q_col1.text_input("기업명 또는 사업자등록번호 입력", value="", placeholder="예: 221-81-12345 또는 (주)태양전기건설")
-    if q_col2.button("🔍 협회/공공망 자동 스크랩", type="primary", use_container_width=True):
-        if search_q.strip():
-            with st.spinner("국토부 KISCON 및 협회 전산망에서 시평액/실적/면허 데이터를 수집하는 중..."):
-                scraped = fetch_association_company_data(search_q, DATA_API_KEY)
+    search_input = q_col1.text_input("기업명 또는 초성(자음) 입력", value="", placeholder="예: '태', '태양', 'ㅌㅇ', '221-81-12345'", key="inc_search_box")
+    
+    matches = search_companies_incremental(search_input)
+    if matches:
+        st.markdown(f"**🎯 감지된 일치 기업 후보 ({len(matches)}개사):**")
+        cand_cols = st.columns(min(len(matches), 4))
+        for m_idx, comp_cand in enumerate(matches[:4]):
+            if cand_cols[m_idx].button(f"🏢 {comp_cand['name']}\n[{comp_cand['lics'][0]}]", key=f"cand_btn_{m_idx}", use_container_width=True):
+                st.session_state["scraped_data"] = comp_cand
+                st.toast(f"✅ '{comp_cand['name']}' 스펙이 즉시 주입되었습니다!", icon="🎉")
+                st.rerun()
+
+    if q_col2.button("🔍 공공망 강제 재조회", type="primary", use_container_width=True):
+        if search_input.strip():
+            with st.spinner("국토부 KISCON 및 협회 전산망에서 데이터를 실시간 조회 중..."):
+                scraped = fetch_association_company_data(search_input, DATA_API_KEY)
                 st.session_state["scraped_data"] = scraped
                 st.toast(f"✅ {scraped['source']} 연동 완료!", icon="🎉")
         else:
             st.warning("조회할 법인명이나 사업자등록번호를 입력하세요.")
 
     s_data = st.session_state["scraped_data"] or {
-        "name": "(주)태양전기건설", "biz_no": "221-81-12345", "region": "강원특별자치도 춘천시",
+        "name": "(주)태양전기건설", "biz_no": "221-81-12345", "region": "강원특별자치도 춘천시 공지로 312",
         "lics": ["건축공사업", "전기공사업"], "credit_grade": "A-", "debt_ratio": 92.5,
         "cur_ratio": 145.0, "cap_amount": 6800000000, "perf_record": 4500000000, "sanction_days": 0
     }
 
     if st.session_state["scraped_data"]:
-        st.success(f"🌐 **자동 스크랩 완료 출처**: {st.session_state['scraped_data'].get('source')} | 수치가 폼에 자동 입력되었습니다.")
+        st.success(f"🌐 **자동 스크랩 완료 출처**: {st.session_state['scraped_data'].get('source', '인크리멘탈 매핑')} | 수치가 폼에 자동 입력되었습니다.")
 
     st.markdown("---")
     col_m1, col_m2 = st.columns([1.2, 1])
@@ -875,12 +906,31 @@ tab_radar, tab1, tab_quantum_ai, tab_sim, tab_dox, tab_profile, tab4 = st.tabs([
 printable_html_doc = generate_official_printable_html(data, q_auto, comp, st_pack)
 
 # =================================================================================
-# 📡 탭 0: [초고도화] 5대 선택형 리스트 기반 나라장터 실시간 레이더
+# 📡 탭 0: 인크리멘탈 기업 연동 및 5대 선택형 리스트 기반 나라장터 실시간 레이더
 # =================================================================================
 with tab_radar:
-    st.subheader("📡 나라장터 실시간 다차원 필터 레이더 (선택형 컨트롤러)")
-    st.caption("수기 입력 없이 5대 표준 리스트를 선택하여 보유 면허·지역·공사규모·발주처에 맞는 실시간 공고를 즉시 탐색합니다.")
+    st.subheader("📡 나라장터 실시간 다차원 필터 레이더 (인크리멘탈 동종 검색 연동)")
+    st.caption("기업명을 1글자만 쳐도 동종 면허와 지역이 자동 선별되며, 5대 다차원 리스트 필터로 맞춤형 실시간 공고를 즉시 추출합니다.")
 
+    # 🏢 인크리멘탈 동종 기업명 상단 퀵 체인지 바
+    st.markdown("##### 🏢 1-Click 기업명 인크리멘탈 퀵 체인지 (초성 지원)")
+    iq_col1, iq_col2 = st.columns([3, 1])
+    radar_comp_search = iq_col1.text_input("기업명 또는 초성 입력 (예: '태', 'ㅌㅇ', '강원')", value="", key="radar_inc_search")
+    
+    r_matches = search_companies_incremental(radar_comp_search)
+    if r_matches:
+        r_cand_cols = st.columns(min(len(r_matches), 4))
+        for rm_idx, r_comp in enumerate(r_matches[:4]):
+            if r_cand_cols[rm_idx].button(f"🎯 {r_comp['name']}\n[{r_comp['lics'][0]}]", key=f"r_cand_btn_{rm_idx}", use_container_width=True):
+                save_company_profile(r_comp)
+                st.session_state["comp_profile"] = r_comp
+                st.session_state["auto_state"] = execute_full_autonomous_pipeline(r_comp, auto_save=True)
+                st.toast(f"✅ 기준 기업이 '{r_comp['name']}'으로 즉시 변경되었습니다!", icon="🏢")
+                st.rerun()
+
+    st.markdown("---")
+    st.markdown("##### 🎛️ 5대 다차원 선택형 필터 컨트롤러")
+    
     # 1열: 면허, 지역, 규모 선택
     f_c1, f_c2, f_c3 = st.columns(3)
     available_lics = comp.get("lics", ["건축공사업", "전기공사업"])
@@ -888,7 +938,15 @@ with tab_radar:
     lic_choices = list(dict.fromkeys(available_lics + all_known_lics))
     
     sel_lic = f_c1.selectbox("1️⃣ 보유 공종 및 면허", lic_choices, index=0)
-    sel_reg = f_c2.selectbox("2️⃣ 관할 지역제한", REGION_LIST, index=0)
+    
+    # 기업 주소지 기반 기본 지역 자동 선택
+    comp_region_name = "강원특별자치도"
+    for r_cand in REGION_LIST:
+        if r_cand[:2] in comp.get("region", ""):
+            comp_region_name = r_cand
+            break
+            
+    sel_reg = f_c2.selectbox("2️⃣ 관할 지역제한", REGION_LIST, index=REGION_LIST.index(comp_region_name) if comp_region_name in REGION_LIST else 0)
     sel_scale = f_c3.selectbox("3️⃣ 공사 추정금액 규모", SCALE_LIST, index=0)
 
     # 2열: 발주처 유형, 정렬 기준, 원클릭 스크랩
