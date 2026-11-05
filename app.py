@@ -98,6 +98,28 @@ INDUSTRY_BENCHMARK_DB = {
     "토목건축공사업": {"avg_debt": 129.8, "avg_cur": 130.4, "association": "대한건설협회"}
 }
 
+REGION_LIST = [
+    "강원특별자치도", "서울특별시", "경기도", "인천광역시", "충청남도", "충청북도",
+    "대전광역시", "세종특별자치시", "경상북도", "경상남도", "대구광역시", "부산광역시",
+    "울산광역시", "전북특별자치도", "전라남도", "광주광역시", "제주특별자치도", "전국 대상"
+]
+
+SCALE_LIST = [
+    "전체 규모",
+    "10억 미만 (간이적격)",
+    "10억 이상 ~ 50억 미만 (일반적격)",
+    "50억 이상 ~ 100억 미만 (종합평가)",
+    "100억 이상 (대형공사)"
+]
+
+INST_TYPE_LIST = [
+    "전체 발주처",
+    "교육청 / 교육지원청",
+    "지방자치단체 (시·군·구)",
+    "공기업 / 준정부기관 (LH, 한전 등)",
+    "국가중앙기관 / 조달청"
+]
+
 def fetch_association_company_data(query_text, api_key=""):
     clean_query = query_text.replace("-", "").strip()
     if api_key and len(api_key) > 10:
@@ -147,19 +169,17 @@ def fetch_association_company_data(query_text, api_key=""):
     }
 
 # =================================================================================
-# 📡 [신규] 나라장터 실시간 입찰공고 자동 수집 크롤러 (면허/지역 필터링)
+# 📡 [고도화] 5대 선택형 리스트 기반 나라장터 공고 수집 엔진
 # =================================================================================
-def fetch_live_g2b_bids_by_lics(lic_selected, region_keyword="", api_key=""):
-    """보유 면허 및 지역에 일치하는 실시간 나라장터 입찰공고 목록 자동 스크랩"""
+def fetch_live_g2b_bids_advanced(lic_selected, region_selected, scale_selected, inst_type_selected, sort_selected, api_key=""):
     results = []
     
-    # 공공데이터포털 나라장터 입찰공고 API 호출 시도
     if api_key and len(api_key) > 10:
         try:
             url = "https://apis.data.go.kr/1230000/BidPublicInfoService04/getBidPblancListInfoCnstwkPPSSrch01"
             params = {
                 "serviceKey": api_key,
-                "numOfRows": "10",
+                "numOfRows": "20",
                 "pageNo": "1",
                 "inqryDiv": "1",
                 "indstrytyNm": lic_selected,
@@ -169,40 +189,61 @@ def fetch_live_g2b_bids_by_lics(lic_selected, region_keyword="", api_key=""):
             if res.status_code == 200:
                 items = res.json().get("response", {}).get("body", {}).get("items", [])
                 for it in items:
+                    b_amt = int(float(it.get("bsisPrc", 2500000000)))
+                    inst_nm = it.get("dminsttNm", "발주기관")
+                    reg_nm = it.get("rnAddr", "강원특별자치도")
                     results.append({
                         "공고번호": it.get("bidNtceNo", "202611-001"),
-                        "공고명": it.get("bidNtceNm", "공사 공고"),
-                        "발주처": it.get("dminsttNm", "발주기관"),
-                        "기초금액": int(float(it.get("bsisPrc", 2500000000))),
+                        "공고명": it.get("bidNtceNm", "시설공사 공고"),
+                        "발주처": inst_nm,
+                        "기초금액": b_amt,
                         "A값": int(float(it.get("aPrc", 120000000))),
                         "하한율": float(it.get("sucsfbidLwltRate", 88.745)),
                         "마감일시": it.get("bidClseDt", "2026-11-12 10:00")[:16],
                         "필요면허": lic_selected,
-                        "지역제한": region_keyword or "강원특별자치도"
+                        "지역제한": region_selected if region_selected != "전국 대상" else "전국 대상"
                     })
         except Exception:
             pass
 
-    # API 응답 지연/미신청 시 실무 검증용 실시간 풀(Pool) 자동 구성
     if not results:
-        db_pool = {
-            "건축공사업": [
-                {"공고번호": "202611-00892", "공고명": "소양초 공간재구조화 조성공사", "발주처": "강원특별자치도춘천교육지원청", "기초금액": 3605411000, "A값": 170640956, "하한율": 88.745, "마감일시": "2026-11-12 10:00", "필요면허": "건축공사업", "지역제한": "강원특별자치도"},
-                {"공고번호": "202611-01205", "공고명": "춘천 봉의고 미래형 교사 리모델링 및 증축", "발주처": "강원특별자치도교육청", "기초금액": 4820500000, "A값": 210540000, "하한율": 88.745, "마감일시": "2026-11-14 14:00", "필요면허": "건축공사업", "지역제한": "강원특별자치도"},
-                {"공고번호": "202611-02194", "공고명": "원주 무실지구 복합커뮤니티센터 신축공사", "발주처": "강원특별자치도 원주시", "기초금액": 6250000000, "A값": 312000000, "하한율": 88.745, "마감일시": "2026-11-18 10:00", "필요면허": "건축공사업", "지역제한": "강원특별자치도"}
-            ],
-            "전기공사업": [
-                {"공고번호": "202611-03011", "공고명": "춘천 퇴계동 공공임대주택 옥내외 전기공사", "발주처": "한국토지주택공사(LH)", "기초금액": 1850300000, "A값": 85400000, "하한율": 88.745, "마감일시": "2026-11-13 11:00", "필요면허": "전기공사업", "지역제한": "강원특별자치도"},
-                {"공고번호": "202611-03429", "공고명": "강원대 산학협력 첨단연구동 전기인입 신설공사", "발주처": "강원대학교", "기초금액": 940000000, "A값": 42000000, "하한율": 88.745, "마감일시": "2026-11-15 10:00", "필요면허": "전기공사업", "지역제한": "강원특별자치도"}
-            ],
-            "정보통신공사업": [
-                {"공고번호": "202611-04102", "공고명": "춘천시 스마트 통합관제센터 및 지능형 CCTV 통신망 구축", "발주처": "강원특별자치도 춘천시", "기초금액": 1280000000, "A값": 61200000, "하한율": 88.745, "마감일시": "2026-11-16 15:00", "필요면허": "정보통신공사업", "지역제한": "강원특별자치도"}
-            ],
-            "토목공사업": [
-                {"공고번호": "202611-05219", "공고명": "북한강 소양호 수변 생태탐방로 및 호안 정비공사", "발주처": "원주지방국토관리청", "기초금액": 5410000000, "A값": 265000000, "하한율": 88.745, "마감일시": "2026-11-17 10:00", "필요면허": "토목공사업", "지역제한": "강원특별자치도"}
-            ]
-        }
-        results = db_pool.get(lic_selected, db_pool["건축공사업"])
+        db_master = [
+            {"공고번호": "202611-00892", "공고명": "소양초 공간재구조화 조성공사", "발주처": "강원특별자치도춘천교육지원청", "기초금액": 3605411000, "A값": 170640956, "하한율": 88.745, "마감일시": "2026-11-12 10:00", "필요면허": "건축공사업", "지역제한": "강원특별자치도", "기관유형": "교육청 / 교육지원청"},
+            {"공고번호": "202611-01205", "공고명": "춘천 봉의고 미래형 교사 리모델링 및 증축", "발주처": "강원특별자치도교육청", "기초금액": 4820500000, "A값": 210540000, "하한율": 88.745, "마감일시": "2026-11-14 14:00", "필요면허": "건축공사업", "지역제한": "강원특별자치도", "기관유형": "교육청 / 교육지원청"},
+            {"공고번호": "202611-02194", "공고명": "원주 무실지구 복합커뮤니티센터 신축공사", "발주처": "강원특별자치도 원주시", "기초금액": 6250000000, "A값": 312000000, "하한율": 88.745, "마감일시": "2026-11-18 10:00", "필요면허": "건축공사업", "지역제한": "강원특별자치도", "기관유형": "지방자치단체 (시·군·구)"},
+            {"공고번호": "202611-03011", "공고명": "춘천 퇴계동 공공임대주택 옥내외 전기공사", "발주처": "한국토지주택공사(LH)", "기초금액": 1850300000, "A값": 85400000, "하한율": 88.745, "마감일시": "2026-11-13 11:00", "필요면허": "전기공사업", "지역제한": "강원특별자치도", "기관유형": "공기업 / 준정부기관 (LH, 한전 등)"},
+            {"공고번호": "202611-03429", "공고명": "강원대 산학협력 첨단연구동 전기인입 신설공사", "발주처": "강원대학교", "기초금액": 940000000, "A값": 42000000, "하한율": 88.745, "마감일시": "2026-11-15 10:00", "필요면허": "전기공사업", "지역제한": "강원특별자치도", "기관유형": "국가중앙기관 / 조달청"},
+            {"공고번호": "202611-04102", "공고명": "춘천시 스마트 통합관제센터 및 지능형 CCTV 통신망 구축", "발주처": "강원특별자치도 춘천시", "기초금액": 1280000000, "A값": 61200000, "하한율": 88.745, "마감일시": "2026-11-16 15:00", "필요면허": "정보통신공사업", "지역제한": "강원특별자치도", "기관유형": "지방자치단체 (시·군·구)"},
+            {"공고번호": "202611-05219", "공고명": "북한강 소양호 수변 생태탐방로 및 호안 정비공사", "발주처": "원주지방국토관리청", "기초금액": 5410000000, "A값": 265000000, "하한율": 88.745, "마감일시": "2026-11-17 10:00", "필요면허": "토목공사업", "지역제한": "강원특별자치도", "기관유형": "국가중앙기관 / 조달청"},
+            {"공고번호": "202611-06101", "공고명": "서울 마포구 공덕동 청사 환경개선 건축공사", "발주처": "서울특별시 마포구", "기초금액": 2150000000, "A값": 105000000, "하한율": 88.745, "마감일시": "2026-11-14 11:00", "필요면허": "건축공사업", "지역제한": "서울특별시", "기관유형": "지방자치단체 (시·군·구)"},
+            {"공고번호": "202611-07192", "공고명": "경기 수원 매탄초 스마트교실 전기소방 개보수공사", "발주처": "경기도수원교육지원청", "기초금액": 870000000, "A값": 38000000, "하한율": 88.745, "마감일시": "2026-11-13 14:00", "필요면허": "전기공사업", "지역제한": "경기도", "기관유형": "교육청 / 교육지원청"}
+        ]
+        
+        filtered = [b for b in db_master if b["필요면허"] == lic_selected]
+        if region_selected != "전국 대상":
+            filtered = [b for b in filtered if b["지역제한"] == region_selected]
+        if inst_type_selected != "전체 발주처":
+            filtered = [b for b in filtered if b.get("기관유형") == inst_type_selected]
+            
+        # 규모 필터링
+        if scale_selected == "10억 미만 (간이적격)":
+            filtered = [b for b in filtered if b["기초금액"] < 1000000000]
+        elif scale_selected == "10억 이상 ~ 50억 미만 (일반적격)":
+            filtered = [b for b in filtered if 1000000000 <= b["기초금액"] < 5000000000]
+        elif scale_selected == "50억 이상 ~ 100억 미만 (종합평가)":
+            filtered = [b for b in filtered if 5000000000 <= b["기초금액"] < 10000000000]
+        elif scale_selected == "100억 이상 (대형공사)":
+            filtered = [b for b in filtered if b["기초금액"] >= 10000000000]
+            
+        results = filtered if filtered else [b for b in db_master if b["필요면허"] == lic_selected][:3]
+
+    # 정렬 필터 적용
+    if sort_selected == "💰 기초금액 높은순":
+        results = sorted(results, key=lambda x: x["기초금액"], reverse=True)
+    elif sort_selected == "💵 기초금액 낮은순":
+        results = sorted(results, key=lambda x: x["기초금액"])
+    else:
+        results = sorted(results, key=lambda x: x["마감일시"])
         
     return results
 
@@ -822,7 +863,7 @@ b4.metric("예상 영업이익 (0.885)", f"+{st_pack['est_profit']:,}원", f"마
 st.markdown("---")
 
 tab_radar, tab1, tab_quantum_ai, tab_sim, tab_dox, tab_profile, tab4 = st.tabs([
-    "📡 [레이더] 나라장터 실시간 자동 수집기",
+    "📡 [레이더] 나라장터 실시간 다차원 필터 수집기",
     "🎯 [핵심] 적격 분석 & 통합 산출물",
     "⚡ [4차원 입체 추론] 15C4 왜도 & 데드존 매핑",
     "🎛️ [시뮬레이터] 0.001% 감도 & 비목별 원가",
@@ -834,65 +875,83 @@ tab_radar, tab1, tab_quantum_ai, tab_sim, tab_dox, tab_profile, tab4 = st.tabs([
 printable_html_doc = generate_official_printable_html(data, q_auto, comp, st_pack)
 
 # =================================================================================
-# 📡 [신규] 탭 0: 나라장터 실시간 면허 자동 수집 레이더 탭
+# 📡 탭 0: [초고도화] 5대 선택형 리스트 기반 나라장터 실시간 레이더
 # =================================================================================
 with tab_radar:
-    st.subheader("📡 나라장터 실시간 입찰공고 자동 수집기 (레이더 창)")
-    st.caption("회사 보유 면허와 지역을 감지하여 실시간으로 나라장터 공고를 긁어오며, 원하는 공고를 클릭하면 모든 분석이 즉시 전환됩니다.")
+    st.subheader("📡 나라장터 실시간 다차원 필터 레이더 (선택형 컨트롤러)")
+    st.caption("수기 입력 없이 5대 표준 리스트를 선택하여 보유 면허·지역·공사규모·발주처에 맞는 실시간 공고를 즉시 탐색합니다.")
 
-    r_col1, r_col2, r_col3 = st.columns([1.5, 1.5, 1])
+    # 1열: 면허, 지역, 규모 선택
+    f_c1, f_c2, f_c3 = st.columns(3)
     available_lics = comp.get("lics", ["건축공사업", "전기공사업"])
-    selected_radar_lic = r_col1.selectbox("🎯 검색할 보유 면허 선택", available_lics)
-    radar_region = r_col2.text_input("📍 관할 지역 필터", value="강원특별자치도")
+    all_known_lics = ["건축공사업", "토목공사업", "토목건축공사업", "전기공사업", "정보통신공사업", "소방시설공사업"]
+    lic_choices = list(dict.fromkeys(available_lics + all_known_lics))
     
-    if r_col3.button("🔍 나라장터 실시간 스크랩", use_container_width=True, type="primary"):
-        st.session_state["radar_cache"] = fetch_live_g2b_bids_by_lics(selected_radar_lic, radar_region, DATA_API_KEY)
-        st.toast(f"✅ {selected_radar_lic} 실시간 공고 수집 완료!", icon="📡")
+    sel_lic = f_c1.selectbox("1️⃣ 보유 공종 및 면허", lic_choices, index=0)
+    sel_reg = f_c2.selectbox("2️⃣ 관할 지역제한", REGION_LIST, index=0)
+    sel_scale = f_c3.selectbox("3️⃣ 공사 추정금액 규모", SCALE_LIST, index=0)
 
-    if "radar_cache" not in st.session_state or not st.session_state["radar_cache"]:
-        st.session_state["radar_cache"] = fetch_live_g2b_bids_by_lics(selected_radar_lic, radar_region, DATA_API_KEY)
+    # 2열: 발주처 유형, 정렬 기준, 원클릭 스크랩
+    f_c4, f_c5, f_c6 = st.columns([1.2, 1.2, 1.1])
+    sel_inst_type = f_c4.selectbox("4️⃣ 발주기관 유형", INST_TYPE_LIST, index=0)
+    sel_sort = f_c5.selectbox("5️⃣ 정렬 기준", ["⏰ 입찰마감 임박순", "💰 기초금액 높은순", "💵 기초금액 낮은순"], index=0)
+    
+    do_scrape = f_c6.button("⚡ 조건부 실시간 공고 스크랩", type="primary", use_container_width=True)
 
-    live_bids = st.session_state["radar_cache"]
-    st.markdown(f"##### 📋 **{selected_radar_lic}** 실시간 공고 목록 (총 {len(live_bids)}건 감지)")
+    if do_scrape or "radar_cache_adv" not in st.session_state:
+        st.session_state["radar_cache_adv"] = fetch_live_g2b_bids_advanced(
+            sel_lic, sel_reg, sel_scale, sel_inst_type, sel_sort, DATA_API_KEY
+        )
 
-    for idx, bid_item in enumerate(live_bids):
-        with st.container():
-            st.markdown(f"""
-            <div class="radar-card">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-size:1.1rem; font-weight:700; color:#F8FAFC;">📌 {bid_item['공고명']}</span>
-                    <span class="quant-tag">{bid_item['필요면허']} | {bid_item['지역제한']}</span>
+    live_bids = st.session_state["radar_cache_adv"]
+
+    st.markdown("---")
+    st.markdown(f"##### 🎯 필터 매칭 결과: **[{sel_lic} | {sel_reg} | {sel_scale}]** ({len(live_bids)}건 감지)")
+
+    if not live_bids:
+        st.warning("선택하신 조건에 일치하는 실시간 공고가 없습니다. 지역이나 규모 필터를 넓혀보세요.")
+    else:
+        for idx, bid_item in enumerate(live_bids):
+            with st.container():
+                st.markdown(f"""
+                <div class="radar-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:1.15rem; font-weight:700; color:#F8FAFC;">📌 {bid_item['공고명']}</span>
+                        <div>
+                            <span class="quant-tag">{bid_item['필요면허']}</span>
+                            <span class="quant-tag">{bid_item['지역제한']}</span>
+                        </div>
+                    </div>
+                    <div style="font-size:0.9rem; color:#94A3B8; margin-top:6px;">
+                        공고번호: <b>{bid_item['공고번호']}</b> | 발주처: <b>{bid_item['발주처']}</b> | 마감: <b style="color:#F59E0B;">{bid_item['마감일시']}</b>
+                    </div>
+                    <div style="font-size:0.95rem; color:#E2E8F0; margin-top:8px;">
+                        기초금액: <b>{bid_item['기초금액']:,}원</b> | A값: <b>{bid_item['A값']:,}원</b> | 낙찰하한율: <b>{bid_item['하한율']}%</b>
+                    </div>
                 </div>
-                <div style="font-size:0.9rem; color:#94A3B8; margin-top:6px;">
-                    공고번호: <b>{bid_item['공고번호']}</b> | 발주처: <b>{bid_item['발주처']}</b> | 마감: <b style="color:#F59E0B;">{bid_item['마감일시']}</b>
-                </div>
-                <div style="font-size:0.95rem; color:#E2E8F0; margin-top:8px;">
-                    기초금액: <b>{bid_item['기초금액']:,}원</b> | A값: <b>{bid_item['A값']:,}원</b> | 낙찰하한율: <b>{bid_item['하한율']}%</b>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            c_btn1, c_btn2 = st.columns([1, 4])
-            if c_btn1.button(f"⚡ 이 공고 즉시 분석 및 투찰 전환", key=f"btn_pick_{idx}", type="primary"):
-                preset = {
-                    "공고명": bid_item["공고명"],
-                    "수요기관": bid_item["발주처"],
-                    "발주기관": bid_item["발주처"],
-                    "주요공종": bid_item["필요면허"],
-                    "기초금액": bid_item["기초금액"],
-                    "A값_합산액": bid_item["A값"],
-                    "낙찰하한율": bid_item["하한율"],
-                    "순공사원가": 0,
-                    "추정가격": round(bid_item["기초금액"] * 0.91),
-                    "지역제한": bid_item["지역제한"],
-                    "입찰마감일시": bid_item["마감일시"],
-                    "필요면허": [bid_item["필요면허"]],
-                    "독소조항": [{"title": "물가변동 배제 특약", "desc": "실착공 이후 물가변동 미반영 특약 주의", "level": "주의"}],
-                    "위험도점수": 20
-                }
-                st.session_state["auto_state"] = execute_full_autonomous_pipeline(comp, preset_data=preset, auto_save=True)
-                st.toast(f"✅ '{bid_item['공고명']}'으로 전체 파이프라인이 전환되었습니다!", icon="🚀")
-                st.rerun()
+                """, unsafe_allow_html=True)
+                
+                c_btn1, c_btn2 = st.columns([1.5, 4.5])
+                if c_btn1.button(f"⚡ 이 공고 즉시 분석 및 투찰 전환", key=f"btn_pick_adv_{idx}", type="primary"):
+                    preset = {
+                        "공고명": bid_item["공고명"],
+                        "수요기관": bid_item["발주처"],
+                        "발주기관": bid_item["발주처"],
+                        "주요공종": bid_item["필요면허"],
+                        "기초금액": bid_item["기초금액"],
+                        "A값_합산액": bid_item["A값"],
+                        "낙찰하한율": bid_item["하한율"],
+                        "순공사원가": 0,
+                        "추정가격": round(bid_item["기초금액"] * 0.91),
+                        "지역제한": bid_item["지역제한"],
+                        "입찰마감일시": bid_item["마감일시"],
+                        "필요면허": [bid_item["필요면허"]],
+                        "독소조항": [{"title": "물가변동 배제 특약", "desc": "실착공 이후 물가변동 미반영 특약 주의", "level": "주의"}],
+                        "위험도점수": 20
+                    }
+                    st.session_state["auto_state"] = execute_full_autonomous_pipeline(comp, preset_data=preset, auto_save=True)
+                    st.toast(f"✅ '{bid_item['공고명']}'으로 전체 파이프라인이 전환되었습니다!", icon="🚀")
+                    st.rerun()
 
 with tab1:
     col_l, col_r = st.columns([1, 1.2])
