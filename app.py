@@ -27,13 +27,6 @@ st.markdown("""
         background: radial-gradient(circle at 10% 20%, rgba(13, 27, 62, 0.55) 0%, rgba(5, 10, 24, 0.98) 90%);
         color: #F8FAFC;
     }
-    .metric-card {
-        background: rgba(30, 41, 59, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        padding: 16px 20px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-    }
     .status-badge-locked {
         display: inline-block;
         padding: 4px 10px;
@@ -289,7 +282,6 @@ def generate_full_bid_package_hwp(cur_d, q_res, comp):
 4. 신  청  인
    - 상      호 : {comp['name']}
    - 사업자등록번호: {comp['biz_no']}
-   - 법인등록번호 : 110111-1234567
    - 본점 소재지 : {comp['region']}
    - 대  표  자 : 대표이사 (인)
 
@@ -305,20 +297,11 @@ def generate_full_bid_package_hwp(cur_d, q_res, comp):
 1. 경영상태 평가 (배점한도: {q_res['max_mgmt']:.0f}점)
    - 자기평점 : {q_res['final_mgmt_score']:.2f}점 (만점)
    - 평가방식 : {q_res['selected_method']}
-   - 비    고 : 나라장터(G2B) 연계 신용평가등급 확인서 제출
-
 2. 시공실적 평가 (배점한도: {q_res['max_perf']:.0f}점)
    - 자기평점 : {q_res['perf_score']:.2f}점 (만점)
    - 실적배수 : 추정가격 대비 {q_res['perf_ratio']:.2f}배 (1.0배 이상 100% 충족)
-   - 비    고 : 관할 건설협회 발급 최근 5개년 실적증명서 첨부
-
-3. 시공능력평가액 요건 (필수 적격 요건)
-   - 회사 시평액: {comp['cap_amount']:,}원 (추정가격 대비 {q_res['cap_ratio']:.2f}배)
-   - 판정 결과 : 적격 충족 (통과)
-
-4. 신인도 가·감점 (한도: ±3.0점)
-   - 자기평점 : {q_res['net_sinindo']:+.2f}점
-   - 인정내역 : 일자리창출 우수기업 (+0.5점)
+3. 시공능력평가액 요건 : 적격 충족 (통과)
+4. 신인도 가·감점 : {q_res['net_sinindo']:+.2f}점 (일자리창출 우수)
 
 --------------------------------------------------------------------------------
 수행능력평가 종합 평점 : {q_res['total_ability']:.2f}점 / {(q_res['max_mgmt']+q_res['max_perf']):.0f}점 (적격심사 만점 통과)
@@ -341,15 +324,8 @@ def generate_full_bid_package_hwp(cur_d, q_res, comp):
 10   | 4대보험      | 4대 사회보험료 완납증명서 1부               | 건강보험공단     | [ 유 ]
 11   | 신인도가점   | 일자리창출 우수기업 인증서 사본 1부         | 관계부처         | [ 유 ]
 --------------------------------------------------------------------------------
-
-위 기재사항과 첨부서류는 사실과 다름없으며, 허위 사실이 발견될 경우
-낙찰자 결정 취소 및 부정당업자 제재 처분에 대해 일체의 이의를 제기하지 않습니다.
-
 2026년 11월 12일
-
-신청인 상호 : {comp['name']}
-대표자 성명 : 대 표 이 사  (인)
-귀하
+신청인 : {comp['name']} (인)
 ================================================================================"""
 
 def execute_full_autonomous_pipeline(comp, doc_input=None, auto_save=True):
@@ -552,6 +528,7 @@ if not is_profile_ready:
                 }
                 save_company_profile(new_profile)
                 st.session_state["comp_profile"] = new_profile
+                st.session_state.pop("auto_state", None)
                 st.rerun()
 
     with col_m2:
@@ -578,7 +555,8 @@ if not is_profile_ready:
 # --------------------------------------------------------
 comp = st.session_state["comp_profile"]
 
-if "auto_state" not in st.session_state or st.session_state["auto_state"] is None:
+# 이전 세션에 새 키가 없으면 재연산 강제
+if "auto_state" not in st.session_state or st.session_state["auto_state"] is None or "inst_mu" not in st.session_state["auto_state"]:
     st.session_state["auto_state"] = execute_full_autonomous_pipeline(comp, auto_save=True)
 
 st_pack = st.session_state["auto_state"]
@@ -605,9 +583,8 @@ col_header1, col_header2 = st.columns([3, 1])
 col_header1.caption(f"기준 기업: **{comp['name']}** (신용 {comp['credit_grade']} / 5년 실적 {comp['perf_record']:,}원) ➔ 적격심사 무입력 전자동 매핑")
 col_header2.markdown(f'<div class="timer-badge">{timer_display}</div>', unsafe_allow_html=True)
 
-# 4대 핵심 메트릭 브리핑 카드
 b1, b2, b3, b4 = st.columns(4)
-b1.metric("타겟 공고", data.get("공고명", "공고"), st_pack["inst_name"])
+b1.metric("타겟 공고", data.get("공고명", "공고"), st_pack.get("inst_name", "-"))
 b2.metric("적격심사 판정", f"{q_auto['total_ability']:.1f} / 30.0 점", q_auto['verdict'][:12])
 b3.metric("AI 골디락스 투찰가", f"{st_pack['target_bid']:,}원", f"실질 {st_pack['act_rate']:.3f}%")
 b4.metric("예상 영업이익 (0.885)", f"+{st_pack['est_profit']:,}원", f"마진율 {st_pack['margin_pct']:.2f}%")
@@ -681,11 +658,13 @@ with tab1:
 
 with tab_reverse:
     st.subheader("🔮 발주기관별 사정률 역추적 엔진 (Reverse-Engineering)")
-    st.caption(f"타겟 기관: **{st_pack['inst_name']}**의 고유 복수예가 산출 알고리즘과 과거 12개월 낙찰 사정률 편향을 역추적합니다.")
+    inst_mu_val = st_pack.get("inst_mu", 99.954)
+    inst_sig_val = st_pack.get("inst_sigma", 0.40)
+    st.caption(f"타겟 기관: **{st_pack.get('inst_name', '-')}**의 고유 복수예가 산출 알고리즘과 과거 12개월 낙찰 사정률 편향을 역추적합니다.")
 
     r_c1, r_c2, r_c3 = st.columns(3)
-    r_c1.metric("발주처 중심 편향 (μ)", f"{st_pack['inst_mu']:.3f}%", "기초금액 기준")
-    r_c2.metric("사정률 변동 표준편차 (σ)", f"±{st_pack['inst_sigma']:.3f}%", "변동폭 범위")
+    r_c1.metric("발주처 중심 편향 (μ)", f"{inst_mu_val:.3f}%", "기초금액 기준")
+    r_c2.metric("사정률 변동 표준편차 (σ)", f"±{inst_sig_val:.3f}%", "변동폭 범위")
     r_c3.metric("권장 투찰 안전밴드", f"{st_pack['peak_r']+0.02:.3f}% ~ {st_pack['peak_r']+0.05:.3f}%", "블루오션 구간")
 
     st.markdown("##### 📊 구간별 낙찰 확률 및 경쟁사 밀집도 분석")
@@ -705,7 +684,6 @@ with tab_sim:
     sim_rate_input = st.slider("목표 사정률 설정 (%)", min_value=99.000, max_value=101.000, value=float(st_pack["goldi_r"]), step=0.001, format="%.3f%%")
     sim_exec_rate = st.slider("현장 실행원가율 (%)", min_value=80.0, max_value=95.0, value=88.5, step=0.1, format="%.1f%%")
 
-    # 동적 재계산
     b_val = st_pack["b_val"]
     a_val = st_pack["a_val"]
     l_rate = st_pack["l_rate"]
@@ -715,7 +693,7 @@ with tab_sim:
     sim_exec_amt = round(b_val * (sim_exec_rate / 100.0))
     sim_profit = sim_target_bid - sim_exec_amt
     sim_margin = (sim_profit / sim_target_bid) * 100.0 if sim_target_bid > 0 else 0.0
-    sim_tax_profit = round(sim_profit * 0.78) # 법인세 22% 차감 후 순이익
+    sim_tax_profit = round(sim_profit * 0.78)
 
     st.markdown("---")
     s_col1, s_col2, s_col3, s_col4 = st.columns(4)
@@ -760,7 +738,7 @@ with tab_dox:
         st.caption("발주처 제출용 봉투 라벨 및 오프라인 심사위원 제출용 체크리스트입니다.")
         summary_txt = f"""[적격심사 증빙서류 제출 표지]
 - 공 고 명: {data.get('공고명')}
-- 수요기관: {st_pack['inst_name']}
+- 수요기관: {st_pack.get('inst_name', '-')}
 - 제출기업: {comp['name']} (사업자: {comp['biz_no']})
 - 적격평점: {q_auto['total_ability']:.2f}점 만점 통과
 - 제출일자: 2026. 11. 12."""
