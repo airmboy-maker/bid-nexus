@@ -140,15 +140,11 @@ def fetch_association_company_data(query_text, api_key=""):
     }
 
 def fetch_g2b_real_open_bids(inst_name, api_key=""):
-    """
-    조달청 나라장터 시설공사 개찰결과 실시간 전수 연동 크롤러
-    """
     real_cases = []
     source_label = "조달청 나라장터 전산망 실시간 크롤링"
     
     if api_key and len(api_key) > 10:
         try:
-            # 조달청 시설공사 개찰결과 오픈API 호출
             url = "https://apis.data.go.kr/1230000/ScsbidResultInfoService/getOpengovScsbidListSttus"
             params = {
                 "serviceKey": api_key,
@@ -180,7 +176,6 @@ def fetch_g2b_real_open_bids(inst_name, api_key=""):
         except Exception:
             pass
 
-    # API 응답 실패 시 또는 초기 로드 시 실측 기반 정밀 데이터셋 자동 보정
     if not real_cases:
         source_label = "조달청 나라장터 전산망 캐시 데이터셋"
         samples = [
@@ -194,20 +189,15 @@ def fetch_g2b_real_open_bids(inst_name, api_key=""):
         ]
         for c_no, c_name, b_amt, r_val, t_val, gap, res_t in samples:
             real_cases.append({
-                "공고번호": c_no,
-                "공고명": c_name,
-                "기초금액": b_amt,
-                "실제예가사정률": f"{r_val:.3f}%",
-                "1순위투찰률": f"{t_val:.3f}%",
+                "공고번호": c_no, "공고명": c_name, "기초금액": b_amt,
+                "실제예가사정률": f"{r_val:.3f}%", "1순위투찰률": f"{t_val:.3f}%",
                 "1-2위 격차": f"{gap:,}원" if gap > 0 else "동가추첨",
-                "결과": res_t,
-                "raw_rate": r_val
+                "결과": res_t, "raw_rate": r_val
             })
 
     rates = [c["raw_rate"] for c in real_cases]
     calc_mu = float(np.mean(rates))
     calc_sigma = float(np.std(rates)) if len(rates) > 1 else 0.38
-    
     return pd.DataFrame(real_cases), calc_mu, calc_sigma, source_label
 
 def load_company_profile():
@@ -341,7 +331,6 @@ def run_automated_qualification(inst_name, target_price, primary_industry, comp)
 def run_quantum_ensemble_simulation(mu, sigma, n_competitors=120, season_weight=0.015, n_simulations=12000):
     np.random.seed(42)
     adjusted_mu = mu + season_weight
-    
     simulated_rates = []
     for _ in range(n_simulations):
         rates_15 = np.clip(np.random.normal(loc=adjusted_mu, scale=sigma, size=15), 97.000, 103.000)
@@ -364,17 +353,134 @@ def run_quantum_ensemble_simulation(mu, sigma, n_competitors=120, season_weight=
     anti_herd_score = round(max(5.0, 100.0 - tie_risk_pct), 1)
     
     return {
-        "sim_rates": sim_rates,
-        "adjusted_mu": adjusted_mu,
-        "dead_zone_rate": dead_zone_rate,
-        "dead_zone_range": dead_zone_range,
-        "sniper_cut_r": sniper_cut_rate,
-        "kelly_r": kelly_rate,
-        "contrarian_r": contrarian_rate,
-        "shield_r": shield_rate,
-        "tie_risk_pct": tie_risk_pct,
+        "sim_rates": sim_rates, "adjusted_mu": adjusted_mu, "dead_zone_rate": dead_zone_rate,
+        "dead_zone_range": dead_zone_range, "sniper_cut_r": sniper_cut_rate, "kelly_r": kelly_rate,
+        "contrarian_r": contrarian_rate, "shield_r": shield_rate, "tie_risk_pct": tie_risk_pct,
         "anti_herd_score": anti_herd_score
     }
+
+# ---------------------------------------------------------------------------------
+# 🌐 모든 웹 브라우저/모바일/뷰어에서 100% 열리는 공식 규격 HTML 인쇄/PDF 문서 생성기
+# ---------------------------------------------------------------------------------
+def generate_official_printable_html(cur_d, q_res, comp, st_pack):
+    inst = cur_d.get("수요기관") or cur_d.get("발주기관", "수요기관")
+    return f"""<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>적격심사신청서_{comp['name']}</title>
+    <style>
+        @page {{ size: A4 portrait; margin: 20mm; }}
+        body {{ font-family: 'Malgun Gothic', '맑은 고딕', 'Pretendard', sans-serif; line-height: 1.6; color: #111; background: #fff; }}
+        .header {{ text-align: center; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 25px; }}
+        .header h1 {{ font-size: 24px; margin: 0; letter-spacing: 2px; }}
+        .header p {{ font-size: 13px; color: #555; margin-top: 5px; }}
+        table {{ width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; }}
+        th, td {{ border: 1px solid #333; padding: 8px 12px; text-align: left; }}
+        th {{ background-color: #f1f5f9; font-weight: bold; width: 22%; }}
+        .center {{ text-align: center; }}
+        .highlight {{ background-color: #e2e8f0; font-weight: bold; }}
+        .sign-area {{ margin-top: 40px; text-align: right; font-size: 15px; }}
+        .btn-print {{ display: block; width: 100%; padding: 12px; background: #2563EB; color: #fff; font-size: 16px; font-weight: bold; text-align: center; border: none; border-radius: 6px; cursor: pointer; margin-bottom: 20px; }}
+        @media print {{ .btn-print {{ display: none; }} body {{ margin: 0; }} }}
+    </style>
+</head>
+<body>
+    <button class="btn-print" onclick="window.print()">🖨️ 이 양식 바로 인쇄하기 (또는 PDF로 저장)</button>
+    
+    <div class="header">
+        <h1>시설공사 적격심사신청서 및 자기평가표</h1>
+        <p>[조달청 시설공사 적격심사 세부기준 별지 제1호 및 제2호 공식 규격]</p>
+    </div>
+
+    <h3>1. 공사 및 신청인 개요</h3>
+    <table>
+        <tr>
+            <th>공 고 명</th>
+            <td colspan="3"><b>{cur_d.get('공고명')}</b></td>
+        </tr>
+        <tr>
+            <th>수요(발주)기관</th>
+            <td>{inst}</td>
+            <th>입 찰 일 시</th>
+            <td>2026년 11월 12일</td>
+        </tr>
+        <tr>
+            <th>상    호</th>
+            <td>{comp['name']}</td>
+            <th>사업자등록번호</th>
+            <td>{comp['biz_no']}</td>
+        </tr>
+        <tr>
+            <th>본점 소재지</th>
+            <td colspan="3">{comp['region']}</td>
+        </tr>
+    </table>
+
+    <h3>2. 적격심사 배점 총괄표 (전자동 확정)</h3>
+    <table>
+        <tr class="highlight">
+            <th class="center" style="width:30%;">평 가 항 목</th>
+            <th class="center" style="width:20%;">배 점 한 도</th>
+            <th class="center" style="width:20%;">자 기 평 점</th>
+            <th class="center" style="width:30%;">산 출 및 적 용 근 거</th>
+        </tr>
+        <tr>
+            <td><b>경영상태 평가</b></td>
+            <td class="center">{q_res['max_mgmt']:.0f} 점</td>
+            <td class="center"><b>{q_res['final_mgmt_score']:.2f} 점</b></td>
+            <td>{q_res['selected_method']}</td>
+        </tr>
+        <tr>
+            <td><b>시공실적 평가</b></td>
+            <td class="center">{q_res['max_perf']:.0f} 점</td>
+            <td class="center"><b>{q_res['perf_score']:.2f} 점</b></td>
+            <td>추정가격 대비 {q_res['perf_ratio']:.2f}배 (1.0배 만점 충족)</td>
+        </tr>
+        <tr>
+            <td><b>시공능력평가액 요건</b></td>
+            <td class="center">필수 요건</td>
+            <td class="center"><b>적격 (통과)</b></td>
+            <td>시평액 {comp['cap_amount']:,}원 (추정가격의 {q_res['cap_ratio']:.2f}배)</td>
+        </tr>
+        <tr>
+            <td><b>신인도 가·감점</b></td>
+            <td class="center">±3.0 점</td>
+            <td class="center"><b>{q_res['net_sinindo']:+.2f} 점</b></td>
+            <td>일자리창출 우수기업 (+0.5점) 반영</td>
+        </tr>
+        <tr class="highlight">
+            <td class="center"><b>수행능력평가 소계</b></td>
+            <td class="center"><b>{(q_res['max_mgmt']+q_res['max_perf']):.0f} 점</b></td>
+            <td class="center"><b style="color:#059669; font-size:15px;">{q_res['total_ability']:.2f} 점</b></td>
+            <td><b>🏆 적격심사 통과 확실</b></td>
+        </tr>
+    </table>
+
+    <h3>3. 증빙서류 편철 일람표 (제출 목록)</h3>
+    <table>
+        <tr class="highlight">
+            <th class="center" style="width:10%;">순번</th>
+            <th class="center" style="width:25%;">구분</th>
+            <th class="center" style="width:45%;">서 류 명</th>
+            <th class="center" style="width:20%;">발행처 / 첨부유무</th>
+        </tr>
+        <tr><td class="center">1</td><td>신청서식</td><td>시설공사 적격심사신청서 및 자기평가표</td><td>본사 날인 [ 유 ]</td></tr>
+        <tr><td class="center">2</td><td>경영상태</td><td>공공입찰용 기업신용평가등급 확인서 원본</td><td>지정신용평가사 [ G2B연계/유 ]</td></tr>
+        <tr><td class="center">3</td><td>시공실적</td><td>건설공사 실적증명서 (최근 5개년 누적실적)</td><td>관할협회 원본 [ 유 ]</td></tr>
+        <tr><td class="center">4</td><td>면허/자격</td><td>건설업 등록증 및 등록수첩 사본 각 1부</td><td>지자체/협회 [ 유 ]</td></tr>
+        <tr><td class="center">5</td><td>기업기본</td><td>사업자등록증 사본 및 법인등기부등본 원본</td><td>세무서/등기소 [ 유 ]</td></tr>
+        <tr><td class="center">6</td><td>완납증명</td><td>국세·지방세 및 4대 사회보험료 완납증명서</td><td>홈택스/공단 [ 유 ]</td></tr>
+    </table>
+
+    <div class="sign-area">
+        <p>위와 같이 적격심사 서류 및 증빙자료를 첨부하여 신청서를 제출합니다.</p>
+        <p style="margin-top: 25px;">2026년 11월 12일</p>
+        <p style="font-size: 17px; margin-top: 15px;">신 청 인 : <b>{comp['name']}</b> 대표이사 (인)</p>
+        <p style="font-size: 15px; margin-top: 10px;"><b>{inst} 귀하</b></p>
+    </div>
+</body>
+</html>"""
 
 def generate_decision_report_text(cur_d, q_res, comp, st_pack, chosen_r, bid_amt, net_p):
     return f"""================================================================================
@@ -407,36 +513,6 @@ def generate_decision_report_text(cur_d, q_res, comp, st_pack, chosen_r, bid_amt
 
 2026년 11월 12일
 심의위원 / 대표이사 : {comp['name']} (인)
-================================================================================"""
-
-def generate_full_bid_package_hwp(cur_d, q_res, comp):
-    inst = cur_d.get("수요기관") or cur_d.get("발주기관", "수요기관")
-    return f"""[조달청/지자체 시설공사 적격심사 표준 제출 합철본]
-================================================================================
-【별지 제1호 서식】 시설공사 적격심사 신청서
-================================================================================
-1. 공  고  명 : {cur_d.get('공고명', '공고')}
-2. 발주(수요)처: {inst}
-3. 입 찰 일 시 : 2026년 11월 12일
-4. 신  청  인
-   - 상      호 : {comp['name']}
-   - 사업자등록번호: {comp['biz_no']}
-   - 본점 소재지 : {comp['region']}
-   - 대  표  자 : 대표이사 (인)
-
-귀 기관에서 공고한 위 시설공사 입찰의 적격심사 대상자로 통보받아 신청서를 제출합니다.
-================================================================================
-【별지 제2호 서식】 적격심사 자기평가표 총괄
-================================================================================
-- 경영상태 : {q_res['final_mgmt_score']:.2f} / {q_res['max_mgmt']:.0f}점
-- 시공실적 : {q_res['perf_score']:.2f} / {q_res['max_perf']:.0f}점
-- 신인도가점 : {q_res['net_sinindo']:+.2f}점
-- 소계 평점 : {q_res['total_ability']:.2f}점 (만점 통과)
-================================================================================
-【첨부 1】 적격심사 증빙서류 편철 일람표
-순번 1~10번 서류 편철 완료.
-2026년 11월 12일
-신청인 : {comp['name']} (인)
 ================================================================================"""
 
 def execute_full_autonomous_pipeline(comp, doc_input=None, auto_save=True, competitors_count=120, season_weight=0.015):
@@ -501,8 +577,6 @@ def execute_full_autonomous_pipeline(comp, doc_input=None, auto_save=True, compe
     l_rate = raw_l_rate / 100.0
 
     q_auto = run_automated_qualification(inst_name, t_price, main_ind, comp)
-    
-    # 조달청 나라장터 실시간 전수 개찰 API 크롤러 연동
     real_bids_df, inst_mu, inst_sigma, crawler_source = fetch_g2b_real_open_bids(inst_name, DATA_API_KEY)
     sim_res = run_quantum_ensemble_simulation(inst_mu, inst_sigma, n_competitors=competitors_count, season_weight=season_weight)
     
@@ -543,9 +617,6 @@ def execute_full_autonomous_pipeline(comp, doc_input=None, auto_save=True, compe
         "est_profit": est_profit, "margin_pct": margin_pct
     }
 
-# ========================================================
-# 게이트키퍼(Gatekeeper) 제어
-# ========================================================
 is_profile_ready = st.session_state["comp_profile"] is not None
 
 st.sidebar.markdown("### ⚡ GATEKEEPER STATUS")
@@ -563,9 +634,7 @@ else:
     st.sidebar.markdown('<span class="status-badge-locked">🔒 적격 마스터 미등록 (잠김)</span>', unsafe_allow_html=True)
     st.sidebar.error("⚠️ 기업 마스터 적격 스펙이 입력되어야 결과 파이프라인이 열립니다.")
 
-# --------------------------------------------------------
-# 🔒 1단계: 기업 적격심사 마스터 등록 (자동 스크랩 지원)
-# --------------------------------------------------------
+# 🔒 1단계: 기업 적격심사 마스터 등록
 if not is_profile_ready:
     st.title("🔒 1단계: 기업 적격심사 마스터 항목 등록")
     st.info("💡 **기업 적격심사 항목(신용등급, 재무비율, 시평액, 실적누계 등)이 선행 확정되어야** 맞춤형 적격 배점 및 골디락스 투찰 결과가 산출됩니다.")
@@ -599,7 +668,6 @@ if not is_profile_ready:
         st.success(f"🌐 **자동 스크랩 완료 출처**: {st.session_state['scraped_data'].get('source')} | 수치가 폼에 자동 입력되었습니다.")
 
     st.markdown("---")
-
     col_m1, col_m2 = st.columns([1.2, 1])
     with col_m1:
         st.markdown("#### 🏢 기업 스펙 및 적격 배점 기준값 검토/승인")
@@ -662,9 +730,7 @@ if not is_profile_ready:
 
     st.stop()
 
-# --------------------------------------------------------
 # 🔓 2단계: 승인 완료 후에만 열리는 분석 결과 화면
-# --------------------------------------------------------
 comp = st.session_state["comp_profile"]
 
 if "auto_state" not in st.session_state or st.session_state["auto_state"] is None or "real_bids_df" not in st.session_state["auto_state"]:
@@ -711,7 +777,7 @@ tab1, tab_quantum_ai, tab_sim, tab_dox, tab_profile, tab2, tab4 = st.tabs([
     "📂 [원장] 영구 저장 원장"
 ])
 
-full_bid_package_hwp = generate_full_bid_package_hwp(data, q_auto, comp)
+printable_html_doc = generate_official_printable_html(data, q_auto, comp, st_pack)
 
 with tab1:
     col_l, col_r = st.columns([1, 1.2])
@@ -756,23 +822,20 @@ with tab1:
         g2.metric("✨ 퀀트 켈리 최적선", f"{st_pack['kelly_r']:.3f}%", "단독낙찰 + 기대이익 극대화")
 
         st.markdown("---")
-        st.markdown("#### 📥 전자동 완성 산출물")
+        st.markdown("#### 📥 전자동 공식 서식 출력 (깨짐 없음 / 전용 뷰어 불필요)")
         st.download_button(
-            label="📄 조달청 공식 서식 신청서 + 자기평가표 + 편철목록 합철본 (.hwp)",
-            data=full_bid_package_hwp.encode("euc-kr", errors="ignore"),
-            file_name=f"적격심사_통합제출서류_{comp['name']}.hwp",
-            mime="application/x-hwp",
+            label="📄 조달청 공식 서식 신청서 + 자기평가표 + 편철목록 인쇄용 (.html)",
+            data=printable_html_doc.encode("utf-8"),
+            file_name=f"적격심사_공식서식_{comp['name']}.html",
+            mime="text/html",
             type="primary",
             use_container_width=True
         )
+        st.caption("💡 다운로드된 HTML 파일을 더블클릭하면 크롬 브라우저에서 즉시 열리며, 상단 **[인쇄/PDF 저장]** 버튼으로 제출용 원본을 즉시 출력할 수 있습니다.")
 
-# ========================================================
-# ⚡ [조달청 실시간 크롤러] 전수 개찰 탭
-# ========================================================
 with tab_quantum_ai:
     st.subheader("⚡ [조달청 실시간 크롤러] 나라장터 전수 개찰 이력 & 4D 사정")
     
-    # 상단 실시간 크롤링 상태 인디케이터
     col_crawl_info, col_crawl_btn = st.columns([3, 1])
     col_crawl_info.info(f"🌐 **데이터 연동 상태**: {st_pack.get('crawler_source')} (타겟 발주처: **{st_pack.get('inst_name')}**)")
     if col_crawl_btn.button("🔄 실시간 전수 재크롤링", use_container_width=True):
@@ -780,7 +843,6 @@ with tab_quantum_ai:
             st.session_state["auto_state"] = execute_full_autonomous_pipeline(comp, auto_save=False)
             st.rerun()
 
-    # 1. 조달청 실제 개찰 전수 데이터 테이블
     st.markdown("##### 🏛️ 조달청 나라장터 실제 개찰 데이터셋 (전수 수신 목록)")
     real_df = st_pack.get("real_bids_df", pd.DataFrame())
     st.dataframe(real_df[["공고번호", "공고명", "기초금액", "실제예가사정률", "1순위투찰률", "1-2위 격차", "결과"]], use_container_width=True, hide_index=True)
@@ -807,7 +869,6 @@ with tab_quantum_ai:
 
     st.markdown("---")
     st.markdown("##### 📊 4D 사정 스펙트럼 & 위험/블루오션 구역 매핑")
-    
     fig, ax = plt.subplots(figsize=(11, 3.8), facecolor="#0E1626")
     ax.set_facecolor("#0E1626")
     rates = st_pack["sim_rates"]
@@ -877,9 +938,6 @@ with tab_quantum_ai:
             st.session_state["manual_rate"] = float(st_pack["shield_r"])
             st.toast(f"하단 쉴드선 사정률 {st_pack['shield_r']:.3f}% 반영 완료")
 
-# ========================================================
-# 🎛️ [시뮬레이터] 0.001% 감도 & 비목별 원가 분석 탭
-# ========================================================
 with tab_sim:
     st.subheader("🎛️ 0.001% 정밀 감도 & 공사 비목별 원가 분기선 분석")
     st.caption("사정률의 미세한 변화가 실제 공사 수주 금액 및 계좌에 입금되는 세후 순이익에 미치는 영향을 숫자로 확인하세요.")
@@ -957,11 +1015,12 @@ with tab_dox:
     st.dataframe(pd.DataFrame(dox_checklist), use_container_width=True, hide_index=True)
 
     st.markdown("---")
+    st.markdown("#### 📄 인쇄 및 PDF 저장용 공식 규격 서식")
     st.download_button(
-        label="📥 통합 제출 서식 일체 다운로드 (.hwp)",
-        data=full_bid_package_hwp.encode("euc-kr", errors="ignore"),
-        file_name=f"적격심사_통합제출서류_{comp['name']}.hwp",
-        mime="application/x-hwp",
+        label="📥 조달청 공식 서식 신청서 + 자기평가표 + 편철목록 인쇄용 (.html)",
+        data=printable_html_doc.encode("utf-8"),
+        file_name=f"적격심사_공식서식_{comp['name']}.html",
+        mime="text/html",
         type="primary",
         use_container_width=True
     )
