@@ -1356,6 +1356,11 @@ except Exception:
 
 st.title("⚡ BID-NEXUS: 완전 자율형 공공입찰 전자동화 터미널")
 col_header1, col_header2 = st.columns([3, 1])
+if isinstance(comp, (list, tuple)) and len(comp) > 0:
+    comp = comp[0]
+if not isinstance(comp, dict):
+    comp = {}
+
 eng_val = comp.get('engineers', comp.get('tech_headcount', {}))
 total_eng = sum(eng_val.values()) if isinstance(eng_val, dict) else (len(eng_val) if isinstance(eng_val, list) else 14)
 c_nm = comp.get('name', '기업')
