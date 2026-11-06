@@ -1306,6 +1306,10 @@ if not is_profile_ready:
         st.markdown("#### 📊 최근 5개년 연도별 실적 총괄표")
         import pandas as pd
         _sdata = st.session_state.get("scraped_data", {})
+        if isinstance(_sdata, list) and len(_sdata) > 0:
+            _sdata = _sdata[0]
+        if not isinstance(_sdata, dict):
+            _sdata = {}
         _pdict = _sdata.get("perf_5yr", {})
         if not _pdict:
             _pdict = {
