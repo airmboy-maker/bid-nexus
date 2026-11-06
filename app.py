@@ -66,6 +66,13 @@ st.markdown("""
         font-size: 0.75rem;
         font-weight: 600;
     }
+    .spec-box {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        padding: 12px 14px;
+        margin-bottom: 8px;
+    }
     .radar-card {
         background: rgba(15, 23, 42, 0.7);
         border: 1px solid rgba(59, 130, 246, 0.25);
@@ -85,6 +92,12 @@ PROFILE_JSON_PATH = os.path.expanduser("~/company_profile.json")
 CHOSUNG_LIST = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ']
 YEAR_LIST = ["2021", "2022", "2023", "2024", "2025"]
 
+ALL_SPECIAL_CERTS = [
+    "무정전공사 시공자격", "활선공사 시공자격", "지중배전 전문회사",
+    "지중송전 시공자격", "소방시설감리 등록", "신재생에너지설비 전문기업",
+    "전기안전관리대행 등록", "안전보건경영시스템(KOSHA-MS/ISO45001)"
+]
+
 def normalize_text(text):
     if not text:
         return ""
@@ -103,7 +116,6 @@ def extract_chosung(text):
             result.append(char)
     return "".join(result)
 
-# 연도별(2021~2025) 실적이 포함된 데이터베이스
 COMPANY_SAMPLE_POOL = [
     {
         "name": "(주)태양전기건설",
@@ -115,22 +127,18 @@ COMPANY_SAMPLE_POOL = [
             "건축공사업": {
                 "cap": 6800000000,
                 "yearly_perf": {"2021": 820000000, "2022": 950000000, "2023": 780000000, "2024": 1010000000, "2025": 940000000},
-                "perf": 4500000000,
-                "rank": "강원 12위"
+                "perf": 4500000000, "rank": "강원 12위"
             },
             "전기공사업": {
                 "cap": 4200000000,
                 "yearly_perf": {"2021": 550000000, "2022": 600000000, "2023": 580000000, "2024": 650000000, "2025": 720000000},
-                "perf": 3100000000,
-                "rank": "강원 8위"
+                "perf": 3100000000, "rank": "강원 8위"
             }
         },
-        "credit_grade": "A-",
-        "debt_ratio": 92.5,
-        "cur_ratio": 145.0,
-        "cap_amount": 6800000000,
-        "perf_record": 4500000000,
-        "sanction_days": 0
+        "special_certs": ["무정전공사 시공자격", "활선공사 시공자격", "신재생에너지설비 전문기업"],
+        "engineers": {"특급": 2, "고급": 3, "중급": 4, "초급": 5},
+        "credit_grade": "A-", "debt_ratio": 92.5, "cur_ratio": 145.0,
+        "cap_amount": 6800000000, "perf_record": 4500000000, "sanction_days": 0
     },
     {
         "name": "태양정보통신(주)",
@@ -142,64 +150,13 @@ COMPANY_SAMPLE_POOL = [
             "정보통신공사업": {
                 "cap": 3400000000,
                 "yearly_perf": {"2021": 480000000, "2022": 520000000, "2023": 560000000, "2024": 610000000, "2025": 630000000},
-                "perf": 2800000000,
-                "rank": "경기 24위"
+                "perf": 2800000000, "rank": "경기 24위"
             }
         },
-        "credit_grade": "BBB+",
-        "debt_ratio": 88.0,
-        "cur_ratio": 160.0,
-        "cap_amount": 3400000000,
-        "perf_record": 2800000000,
-        "sanction_days": 0
-    },
-    {
-        "name": "(주)태양토건",
-        "ceo": "박토건",
-        "biz_no": "105-86-45678",
-        "region": "서울특별시 마포구 마포대로 52",
-        "lics": ["토목공사업", "건축공사업"],
-        "license_specs": {
-            "토목공사업": {
-                "cap": 9500000000,
-                "yearly_perf": {"2021": 1300000000, "2022": 1450000000, "2023": 1400000000, "2024": 1500000000, "2025": 1550000000},
-                "perf": 7200000000,
-                "rank": "서울 35위"
-            },
-            "건축공사업": {
-                "cap": 7800000000,
-                "yearly_perf": {"2021": 1100000000, "2022": 1200000000, "2023": 1150000000, "2024": 1220000000, "2025": 1230000000},
-                "perf": 5900000000,
-                "rank": "서울 42위"
-            }
-        },
-        "credit_grade": "A0",
-        "debt_ratio": 105.0,
-        "cur_ratio": 138.0,
-        "cap_amount": 9500000000,
-        "perf_record": 7200000000,
-        "sanction_days": 0
-    },
-    {
-        "name": "강원건설(주)",
-        "ceo": "최강원",
-        "biz_no": "221-86-55443",
-        "region": "강원특별자치도 원주시 서원대로 120",
-        "lics": ["건축공사업"],
-        "license_specs": {
-            "건축공사업": {
-                "cap": 5100000000,
-                "yearly_perf": {"2021": 700000000, "2022": 780000000, "2023": 810000000, "2024": 790000000, "2025": 820000000},
-                "perf": 3900000000,
-                "rank": "강원 18위"
-            }
-        },
-        "credit_grade": "BBB0",
-        "debt_ratio": 115.0,
-        "cur_ratio": 125.0,
-        "cap_amount": 5100000000,
-        "perf_record": 3900000000,
-        "sanction_days": 0
+        "special_certs": ["안전보건경영시스템(KOSHA-MS/ISO45001)"],
+        "engineers": {"특급": 1, "고급": 2, "중급": 3, "초급": 4},
+        "credit_grade": "BBB+", "debt_ratio": 88.0, "cur_ratio": 160.0,
+        "cap_amount": 3400000000, "perf_record": 2800000000, "sanction_days": 0
     },
     {
         "name": "선진종합건설(주)",
@@ -211,22 +168,13 @@ COMPANY_SAMPLE_POOL = [
             "건축공사업": {
                 "cap": 8500000000,
                 "yearly_perf": {"2021": 1150000000, "2022": 1250000000, "2023": 1200000000, "2024": 1300000000, "2025": 1300000000},
-                "perf": 6200000000,
-                "rank": "서울 28위"
-            },
-            "토목공사업": {
-                "cap": 6400000000,
-                "yearly_perf": {"2021": 900000000, "2022": 950000000, "2023": 980000000, "2024": 970000000, "2025": 1000000000},
-                "perf": 4800000000,
-                "rank": "서울 39위"
+                "perf": 6200000000, "rank": "서울 28위"
             }
         },
-        "credit_grade": "A0",
-        "debt_ratio": 85.0,
-        "cur_ratio": 165.0,
-        "cap_amount": 8500000000,
-        "perf_record": 6200000000,
-        "sanction_days": 0
+        "special_certs": ["안전보건경영시스템(KOSHA-MS/ISO45001)"],
+        "engineers": {"특급": 4, "고급": 5, "중급": 6, "초급": 8},
+        "credit_grade": "A0", "debt_ratio": 85.0, "cur_ratio": 165.0,
+        "cap_amount": 8500000000, "perf_record": 6200000000, "sanction_days": 0
     }
 ]
 
@@ -298,36 +246,28 @@ def fetch_association_company_data(query_text, api_key=""):
             "건축공사업": {
                 "cap": 6800000000,
                 "yearly_perf": {"2021": 820000000, "2022": 950000000, "2023": 780000000, "2024": 1010000000, "2025": 940000000},
-                "perf": 4500000000,
-                "rank": "강원 12위"
+                "perf": 4500000000, "rank": "강원 12위"
             },
             "전기공사업": {
                 "cap": 4200000000,
                 "yearly_perf": {"2021": 550000000, "2022": 600000000, "2023": 580000000, "2024": 650000000, "2025": 720000000},
-                "perf": 3100000000,
-                "rank": "강원 8위"
+                "perf": 3100000000, "rank": "강원 8위"
             }
         },
-        "cap_amount": 6800000000,
-        "perf_record": 4500000000,
-        "debt_ratio": 92.5,
-        "cur_ratio": 145.0,
-        "sanction_days": 0,
+        "special_certs": ["무정전공사 시공자격", "활선공사 시공자격"],
+        "engineers": {"특급": 2, "고급": 3, "중급": 4, "초급": 5},
+        "cap_amount": 6800000000, "perf_record": 4500000000,
+        "debt_ratio": 92.5, "cur_ratio": 145.0, "sanction_days": 0,
         "source": "건설CALS & 공공데이터포털(KISCON) 실시간 수신"
     }
 
 def fetch_live_g2b_bids_advanced(lic_selected, region_selected, scale_selected, inst_type_selected, sort_selected, api_key=""):
-    results = []
     db_master = [
         {"공고번호": "202611-00892", "공고명": "소양초 공간재구조화 조성공사", "발주처": "강원특별자치도춘천교육지원청", "기초금액": 3605411000, "A값": 170640956, "하한율": 88.745, "마감일시": "2026-11-12 10:00", "필요면허": "건축공사업", "지역제한": "강원특별자치도", "기관유형": "교육청 / 교육지원청"},
         {"공고번호": "202611-01205", "공고명": "춘천 봉의고 미래형 교사 리모델링 및 증축", "발주처": "강원특별자치도교육청", "기초금액": 4820500000, "A값": 210540000, "하한율": 88.745, "마감일시": "2026-11-14 14:00", "필요면허": "건축공사업", "지역제한": "강원특별자치도", "기관유형": "교육청 / 교육지원청"},
         {"공고번호": "202611-02194", "공고명": "원주 무실지구 복합커뮤니티센터 신축공사", "발주처": "강원특별자치도 원주시", "기초금액": 6250000000, "A값": 312000000, "하한율": 88.745, "마감일시": "2026-11-18 10:00", "필요면허": "건축공사업", "지역제한": "강원특별자치도", "기관유형": "지방자치단체 (시·군·구)"},
         {"공고번호": "202611-03011", "공고명": "춘천 퇴계동 공공임대주택 옥내외 전기공사", "발주처": "한국토지주택공사(LH)", "기초금액": 1850300000, "A값": 85400000, "하한율": 88.745, "마감일시": "2026-11-13 11:00", "필요면허": "전기공사업", "지역제한": "강원특별자치도", "기관유형": "공기업 / 준정부기관 (LH, 한전 등)"},
-        {"공고번호": "202611-03429", "공고명": "강원대 산학협력 첨단연구동 전기인입 신설공사", "발주처": "강원대학교", "기초금액": 940000000, "A값": 42000000, "하한율": 88.745, "마감일시": "2026-11-15 10:00", "필요면허": "전기공사업", "지역제한": "강원특별자치도", "기관유형": "국가중앙기관 / 조달청"},
-        {"공고번호": "202611-04102", "공고명": "춘천시 스마트 통합관제센터 및 지능형 CCTV 통신망 구축", "발주처": "강원특별자치도 춘천시", "기초금액": 1280000000, "A값": 61200000, "하한율": 88.745, "마감일시": "2026-11-16 15:00", "필요면허": "정보통신공사업", "지역제한": "강원특별자치도", "기관유형": "지방자치단체 (시·군·구)"},
-        {"공고번호": "202611-05219", "공고명": "북한강 소양호 수변 생태탐방로 및 호안 정비공사", "발주처": "원주지방국토관리청", "기초금액": 5410000000, "A값": 265000000, "하한율": 88.745, "마감일시": "2026-11-17 10:00", "필요면허": "토목공사업", "지역제한": "강원특별자치도", "기관유형": "국가중앙기관 / 조달청"},
-        {"공고번호": "202611-06101", "공고명": "서울 마포구 공덕동 청사 환경개선 건축공사", "발주처": "서울특별시 마포구", "기초금액": 2150000000, "A값": 105000000, "하한율": 88.745, "마감일시": "2026-11-14 11:00", "필요면허": "건축공사업", "지역제한": "서울특별시", "기관유형": "지방자치단체 (시·군·구)"},
-        {"공고번호": "202611-07192", "공고명": "경기 수원 매탄초 스마트교실 전기소방 개보수공사", "발주처": "경기도수원교육지원청", "기초금액": 870000000, "A값": 38000000, "하한율": 88.745, "마감일시": "2026-11-13 14:00", "필요면허": "전기공사업", "지역제한": "경기도", "기관유형": "교육청 / 교육지원청"}
+        {"공고번호": "202611-03429", "공고명": "강원대 산학협력 첨단연구동 전기인입 신설공사", "발주처": "강원대학교", "기초금액": 940000000, "A값": 42000000, "하한율": 88.745, "마감일시": "2026-11-15 10:00", "필요면허": "전기공사업", "지역제한": "강원특별자치도", "기관유형": "국가중앙기관 / 조달청"}
     ]
     filtered = [b for b in db_master if b["필요면허"] == lic_selected]
     if region_selected != "전국 대상":
@@ -353,7 +293,6 @@ def fetch_live_g2b_bids_advanced(lic_selected, region_selected, scale_selected, 
     return results
 
 def fetch_g2b_real_open_bids(inst_name, api_key=""):
-    real_cases = []
     source_label = "조달청 나라장터 전산망 실시간 크롤링"
     samples = [
         ("202611-00194", "소양초 교사동 창호 및 방수공사", 3605411000, 100.092, 88.751, 3410, "단독낙찰"),
@@ -362,6 +301,7 @@ def fetch_g2b_real_open_bids(inst_name, api_key=""):
         ("202608-04192", "소양중 체육관 및 급식실 증축공사", 3150200000, 100.063, 88.746, 8900, "단독낙찰"),
         ("202607-02105", "남춘천여중 그린스마트 미래학교", 1890000000, 100.081, 88.750, 1100, "단독낙찰")
     ]
+    real_cases = []
     for c_no, c_name, b_amt, r_val, t_val, gap, res_t in samples:
         real_cases.append({
             "공고번호": c_no, "공고명": c_name, "기초금액": b_amt,
@@ -539,11 +479,14 @@ def run_hyper_realistic_inference(mu, sigma, n_competitors=120, season_weight=0.
     }
 
 # =================================================================================
-# 📑 최근 5개년 연도별 실적이 완벽 반영된 공식 확인원 (HTML/PDF)
+# 📑 최근 5개년 연도별 실적 + 특수자격/기술인력이 완벽 반영된 공식 확인원 (HTML/PDF)
 # =================================================================================
 def generate_company_spec_certificate_html(comp):
     ceo = comp.get("ceo", "대표이사")
     lic_specs = comp.get("license_specs", {})
+    special_certs = comp.get("special_certs", ["무정전공사 시공자격", "활선공사 시공자격"])
+    engineers = comp.get("engineers", {"특급": 2, "고급": 3, "중급": 4, "초급": 5})
+    total_engineers = sum(engineers.values())
     
     rows = ""
     for idx, (lic_nm, spec) in enumerate(lic_specs.items(), 1):
@@ -570,50 +513,59 @@ def generate_company_spec_certificate_html(comp):
         </tr>
         """
         
+    certs_badges = "".join([f"<span class='badge'>{c}</span> " for c in special_certs])
+    
     return f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <title>기업실적증명원_{comp['name']}</title>
     <style>
-        @page {{ size: A4 landscape; margin: 15mm; }}
+        @page {{ size: A4 landscape; margin: 14mm; }}
         body {{ font-family: 'Malgun Gothic', '맑은 고딕', 'Pretendard', sans-serif; line-height: 1.5; color: #111; background: #fff; }}
-        .header {{ text-align: center; border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 18px; }}
-        .header h1 {{ font-size: 22px; margin: 0; letter-spacing: 2px; }}
-        .header p {{ font-size: 12px; color: #555; margin-top: 4px; }}
-        table {{ width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 11.5px; }}
-        th, td {{ border: 1px solid #333; padding: 6px 8px; }}
+        .header {{ text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 14px; }}
+        .header h1 {{ font-size: 21px; margin: 0; letter-spacing: 2px; }}
+        .header p {{ font-size: 11.5px; color: #555; margin-top: 3px; }}
+        table {{ width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 11px; }}
+        th, td {{ border: 1px solid #333; padding: 5px 7px; }}
         th {{ background-color: #f1f5f9; font-weight: bold; }}
         .center {{ text-align: center; }}
         .right {{ text-align: right; }}
         .highlight {{ background-color: #e2e8f0; font-weight: bold; }}
-        .sign-area {{ margin-top: 25px; text-align: right; font-size: 14px; }}
-        .btn-print {{ display: block; width: 100%; padding: 10px; background: #1E293B; color: #fff; font-size: 15px; font-weight: bold; text-align: center; border: none; border-radius: 6px; cursor: pointer; margin-bottom: 15px; }}
+        .badge {{ display: inline-block; padding: 2px 6px; border: 1px solid #2563EB; border-radius: 4px; font-size: 10.5px; background: #eff6ff; color: #1d4ed8; font-weight: bold; margin-right: 4px; }}
+        .sign-area {{ margin-top: 20px; text-align: right; font-size: 13.5px; }}
+        .btn-print {{ display: block; width: 100%; padding: 10px; background: #1E293B; color: #fff; font-size: 15px; font-weight: bold; text-align: center; border: none; border-radius: 6px; cursor: pointer; margin-bottom: 12px; }}
         @media print {{ .btn-print {{ display: none; }} body {{ margin: 0; }} }}
     </style>
 </head>
 <body>
-    <button class="btn-print" onclick="window.print()">🖨️ 증명원 바로 인쇄하기 (또는 가로형 PDF로 저장)</button>
+    <button class="btn-print" onclick="window.print()">🖨️ 증명원 바로 인쇄하기 (또는 가로형 A4 PDF로 저장)</button>
     <div class="header">
-        <h1>기업 시공능력평가액 및 최근 5개년 연도별 공사실적 증명원</h1>
-        <p>[국토교통부 건설CALS 및 조달청 시설공사 적격심사 세부기준 공식 제출 규격]</p>
+        <h1>기업 시공능력평가액 · 5개년 실적 및 기술인력 총괄 증명원</h1>
+        <p>[국토교통부 건설CALS, 한국전력공사 협력사 기준 및 조달청 적격심사 제출 공식 양식]</p>
     </div>
 
-    <table style="margin-bottom:12px;">
+    <table style="margin-bottom:10px;">
         <tr>
-            <th style="width:15%;">상    호</th><td style="width:35%;"><b>{comp['name']}</b></td>
-            <th style="width:15%;">대 표 자 명</th><td style="width:35%;"><b>{ceo}</b></td>
+            <th style="width:13%;">상    호</th><td style="width:37%;"><b>{comp['name']}</b></td>
+            <th style="width:13%;">대 표 자 명</th><td style="width:37%;"><b>{ceo}</b></td>
         </tr>
         <tr>
             <th>사업자등록번호</th><td>{comp['biz_no']}</td>
-            <th>신용평가등급</th><td><b style="color:#2563eb;">{comp.get('credit_grade', 'A-')}</b></td>
+            <th>신용평가등급</th><td><b style="color:#2563eb;">{comp.get('credit_grade', 'A-')}</b> (부채: {comp.get('debt_ratio', 92.5)}% / 유동: {comp.get('cur_ratio', 145.0)}%)</td>
         </tr>
         <tr>
             <th>본점 소재지</th><td colspan="3">{comp['region']}</td>
         </tr>
+        <tr>
+            <th>특수시공자격</th><td colspan="3">{certs_badges if special_certs else '일반 시공자격'}</td>
+        </tr>
+        <tr>
+            <th>기술인력 현황</th><td colspan="3">총 <b>{total_engineers}명</b> (특급 {engineers.get('특급', 0)}명, 고급 {engineers.get('고급', 0)}명, 중급 {engineers.get('중급', 0)}명, 초급 {engineers.get('초급', 0)}명)</td>
+        </tr>
     </table>
 
-    <h4 style="margin: 0 0 6px 0;">최근 5개년간 연도별 기성실적 및 시공능력평가액 총괄표 (단위: 원)</h4>
+    <h4 style="margin: 0 0 5px 0; font-size: 12px;">최근 5개년간 연도별 기성실적 및 시공능력평가액 총괄표 (단위: 원)</h4>
     <table>
         <tr class="highlight">
             <th rowspan="2" class="center" style="width:4%;">순번</th>
@@ -634,10 +586,10 @@ def generate_company_spec_certificate_html(comp):
     </table>
 
     <div class="sign-area">
-        <p>위 기재사항은 건설산업지식정보시스템(KISCON) 및 관할 협회 등록 실적과 일치함을 증명합니다.</p>
-        <p style="margin-top: 15px;">2026년 11월 12일</p>
-        <p style="font-size: 15px; margin-top: 10px;">신 청 인 : <b>{comp['name']}</b> 대표이사 <b>{ceo}</b> (인)</p>
-        <p style="font-size: 14px; margin-top: 6px;"><b>조달청 및 각급 발주기관 계약관 귀하</b></p>
+        <p>위 기재사항은 건설산업지식정보시스템(KISCON), 관할 협회 등록 실적 및 기술인력 확인서와 일치함을 증명합니다.</p>
+        <p style="margin-top: 12px;">2026년 11월 12일</p>
+        <p style="font-size: 14.5px; margin-top: 8px;">신 청 인 : <b>{comp['name']}</b> 대표이사 <b>{ceo}</b> (인)</p>
+        <p style="font-size: 13.5px; margin-top: 4px;"><b>조달청, 한국전력공사 및 각급 발주기관 계약관 귀하</b></p>
     </div>
 </body>
 </html>"""
@@ -707,7 +659,6 @@ def generate_decision_report_html(cur_d, q_res, comp, st_pack, chosen_r, bid_amt
     ceo = comp.get("ceo", "대표이사")
     b_val = st_pack['b_val']
     act_pct = (bid_amt / b_val) * 100.0 if b_val > 0 else 0.0
-    margin_pct = ((bid_amt - total_exec) / bid_amt) * 100.0 if bid_amt > 0 else 0.0
     
     return f"""<!DOCTYPE html>
 <html lang="ko">
@@ -877,10 +828,10 @@ else:
     st.sidebar.markdown('<span class="status-badge-locked">🔒 적격 마스터 미등록 (잠김)</span>', unsafe_allow_html=True)
     st.sidebar.error("⚠️ 기업 마스터 적격 스펙이 입력되어야 결과 파이프라인이 열립니다.")
 
-# 🔒 1단계: 기업 적격심사 마스터 등록
+# 🔒 1단계: 기업 적격심사 마스터 등록 (특수자격 + 기술인력 입력 지원)
 if not is_profile_ready:
     st.title("🔒 1단계: 기업 적격심사 마스터 항목 등록")
-    st.info("💡 **기업명, 대표자명 또는 초성을 입력하면** 최근 5개년 연도별 실적이 자동 매핑됩니다.")
+    st.info("💡 **기업명, 대표자명 또는 초성을 입력하면** 5개년 연도별 실적과 특수면허/기술자 스펙이 자동 매핑됩니다.")
 
     st.markdown("### 🔍 1-Click 인크리멘탈 동종 기업명 자동 검색")
     q_col1, q_col2 = st.columns([3, 1])
@@ -916,6 +867,8 @@ if not is_profile_ready:
             "건축공사업": {"cap": 6800000000, "yearly_perf": {"2021": 820000000, "2022": 950000000, "2023": 780000000, "2024": 1010000000, "2025": 940000000}, "perf": 4500000000, "rank": "강원 12위"},
             "전기공사업": {"cap": 4200000000, "yearly_perf": {"2021": 550000000, "2022": 600000000, "2023": 580000000, "2024": 650000000, "2025": 720000000}, "perf": 3100000000, "rank": "강원 8위"}
         },
+        "special_certs": ["무정전공사 시공자격", "활선공사 시공자격", "신재생에너지설비 전문기업"],
+        "engineers": {"특급": 2, "고급": 3, "중급": 4, "초급": 5},
         "credit_grade": "A-", "debt_ratio": 92.5, "cur_ratio": 145.0, "sanction_days": 0
     }
 
@@ -936,7 +889,18 @@ if not is_profile_ready:
             f_credit = c_f1.selectbox("신용평가등급 (공공입찰용)", ["AAA", "AA", "A+", "A0", "A-", "BBB+", "BBB0", "BBB-", "BB+", "BB0", "BB-", "B 이하"], index=4)
             all_lics = ["건축공사업", "토목공사업", "토목건축공사업", "전기공사업", "정보통신공사업", "소방시설공사업"]
             default_lics = [lic for lic in s_data.get("lics", []) if lic in all_lics] or ["건축공사업"]
-            f_lics = c_f2.multiselect("보유 면허", all_lics, default=default_lics)
+            f_lics = c_f2.multiselect("보유 법정 면허", all_lics, default=default_lics)
+
+            st.markdown("##### ⚡ 특수 시공자격 (공공 API 미제공 항목)")
+            f_special = st.multiselect("보유 특수자격 선택", ALL_SPECIAL_CERTS, default=s_data.get("special_certs", ["무정전공사 시공자격", "활선공사 시공자격"]))
+
+            st.markdown("##### 👷 상주 기술인력 보유 현황 (공공 API 미제공 항목)")
+            eng_cols = st.columns(4)
+            cur_eng = s_data.get("engineers", {"특급": 2, "고급": 3, "중급": 4, "초급": 5})
+            f_eng_exp = eng_cols[0].number_input("특급 기술자(명)", min_value=0, value=int(cur_eng.get("특급", 2)))
+            f_eng_adv = eng_cols[1].number_input("고급 기술자(명)", min_value=0, value=int(cur_eng.get("고급", 3)))
+            f_eng_mid = eng_cols[2].number_input("중급 기술자(명)", min_value=0, value=int(cur_eng.get("중급", 4)))
+            f_eng_beg = eng_cols[3].number_input("초급 기술자(명)", min_value=0, value=int(cur_eng.get("초급", 5)))
 
             c_f3, c_f4 = st.columns(2)
             f_debt = c_f3.number_input("부채비율 (%)", value=float(s_data.get("debt_ratio", 92.5)), step=0.1)
@@ -963,6 +927,8 @@ if not is_profile_ready:
                 
                 new_profile = {
                     "is_verified": True, "biz_no": f_biz, "name": f_name, "ceo": f_ceo, "region": f_reg, "lics": f_lics,
+                    "special_certs": f_special,
+                    "engineers": {"특급": f_eng_exp, "고급": f_eng_adv, "중급": f_eng_mid, "초급": f_eng_beg},
                     "license_specs": lic_specs_dict, "credit_grade": f_credit, "debt_ratio": f_debt, "cur_ratio": f_cur,
                     "cap_amount": list(lic_specs_dict.values())[0]["cap"] if lic_specs_dict else 6800000000,
                     "perf_record": list(lic_specs_dict.values())[0]["perf"] if lic_specs_dict else 4500000000,
@@ -990,7 +956,15 @@ if not is_profile_ready:
                 "시평액": f"{l_data.get('cap', 0):,}원"
             })
         st.dataframe(pd.DataFrame(spec_summary), use_container_width=True, hide_index=True)
-        st.caption(f"기준 대표자: **{s_data.get('ceo', '김태양')}** | 사업자번호: {s_data.get('biz_no', '221-81-12345')}")
+        
+        st.markdown("#### ⚡ 등록된 특수시공 자격")
+        for sc in s_data.get("special_certs", ["무정전공사 시공자격", "활선공사 시공자격"]):
+            st.markdown(f'<span class="quant-tag">✓ {sc}</span>', unsafe_allow_html=True)
+            
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("#### 👷 기술자 보유 총계")
+        tot_e = sum(s_data.get("engineers", {"특급": 2, "고급": 3, "중급": 4, "초급": 5}).values())
+        st.info(f"등록 기술인력: **총 {tot_e}명** (특급/고급/중급/초급 완비)")
 
     st.stop()
 
@@ -1020,7 +994,7 @@ except Exception:
 
 st.title("⚡ BID-NEXUS: 완전 자율형 공공입찰 전자동화 터미널")
 col_header1, col_header2 = st.columns([3, 1])
-col_header1.caption(f"기준 기업: **{comp['name']}** (대표이사: **{comp.get('ceo', '대표이사')}**) | 신용 {comp['credit_grade']} ➔ 5개년 연도별 실적 완벽 연동")
+col_header1.caption(f"기준 기업: **{comp['name']}** (대표이사: **{comp.get('ceo', '대표이사')}**) | 신용 {comp['credit_grade']} ➔ 무정전/활선 자격 및 기술자 {sum(comp.get('engineers', {}).values())}명 연동")
 col_header2.markdown(f'<div class="timer-badge">{timer_display}</div>', unsafe_allow_html=True)
 
 b1, b2, b3, b4 = st.columns(4)
@@ -1037,7 +1011,7 @@ tab_radar, tab1, tab_quantum_ai, tab_sim, tab_dox, tab_profile, tab4 = st.tabs([
     "⚡ [4차원 입체 추론] 15C4 왜도 & 데드존 매핑",
     "🎛️ [시뮬레이터] 0.001% 감도 & 비목별 원가",
     "📑 [증빙] 적격 증빙서류 일람표 & 통합 출력",
-    "⚙️ [관리] 마스터 기업 스펙 & 5개년 실적 관리",
+    "⚙️ [관리] 마스터 기업 스펙 & 5개년 실적·기술자 관리",
     "📂 [원장] 영구 저장 원장"
 ])
 
@@ -1236,9 +1210,10 @@ with tab_dox:
     dox_checklist = [
         {"순번": 1, "구분": "신청 서식", "서류명": "시설공사 적격심사 신청서 [별지 제1호]", "발급처": "본 플랫폼 자동 생성", "상태": f"✅ 대표자: {comp.get('ceo', '대표이사')}", "필수여부": "필수 (인감 날인)"},
         {"순번": 2, "구분": "신청 서식", "서류명": "적격심사 자기평가표 및 세부명세 [별지 제2호]", "발급처": "본 플랫폼 자동 생성", "상태": "✅ 연도별 실적 완결 연산", "필수여부": "필수"},
-        {"순번": 3, "구분": "경영상태", "서류명": "공공입찰용 신용평가등급 확인서", "발급처": "지정 신용정보업체 (NICE/e-Credible)", "상태": f"✅ {comp['credit_grade']} 등급 (G2B 연계 확인)", "필수여부": "전산미연계시 필수"},
-        {"순번": 4, "구분": "시공실적", "서류명": "건설공사 실적증명서 (최근 5개년 누적실적)", "발급처": "관할 협회 (건설·전기·통신협회)", "상태": "✅ 최근 5개년 연도별 관리 완료", "필수여부": "필수 (협회 직인 원본)"},
-        {"순번": 5, "구분": "면허/자격", "서류명": "건설업 등록증 및 건설업 등록수첩 사본", "발급처": "지자체 / 관할 협회", "상태": f"✅ {', '.join(comp['lics'])}", "필수여부": "필수 (원본대조필)"}
+        {"순번": 3, "구분": "특수자격", "서류명": "한전 무정전/활선 시공인증 및 특수면허 확인서", "발급처": "한국전력공사 / 협회 원본", "상태": f"✅ {', '.join(comp.get('special_certs', []))}", "필수여부": "해당 공고 필수"},
+        {"순번": 4, "구분": "기술인력", "서류명": "건설/전기 기술자 보유증명서 (협회 직인 원본)", "발급처": "한국건설기술인협회 / 전기기술인협회", "상태": f"✅ 총 {sum(comp.get('engineers', {}).values())}명 보유 확인", "필수여부": "필수"},
+        {"순번": 5, "구분": "경영상태", "서류명": "공공입찰용 신용평가등급 확인서", "발급처": "지정 신용정보업체 (NICE/e-Credible)", "상태": f"✅ {comp['credit_grade']} 등급 (G2B 연계 확인)", "필수여부": "전산미연계시 필수"},
+        {"순번": 6, "구분": "시공실적", "서류명": "건설공사 실적증명서 (최근 5개년 누적실적)", "발급처": "관할 협회 (건설·전기·통신협회)", "상태": "✅ 최근 5개년 연도별 관리 완료", "필수여부": "필수 (협회 직인 원본)"}
     ]
     st.dataframe(pd.DataFrame(dox_checklist), use_container_width=True, hide_index=True)
 
@@ -1254,22 +1229,21 @@ with tab_dox:
         use_container_width=True
     )
     d_c2.download_button(
-        label="📥 기업 시공능력평가액 및 5개년 연도별 실적 확인원 (.html)",
+        label="📥 기업 시공능력평가액 · 5개년 실적 및 기술인력 총괄 증명원 (.html)",
         data=comp_spec_cert_html.encode("utf-8"),
-        file_name=f"기업실적확인원_{comp['name']}.html",
+        file_name=f"기업실적기술자증명원_{comp['name']}.html",
         mime="text/html",
         use_container_width=True
     )
 
 # =================================================================================
-# ⚙️ 탭 5: 마스터 기업 스펙 & 5개년 연도별 실적 정밀 관리
+# ⚙️ 탭 5: 마스터 기업 스펙 & 5개년 실적·기술자 관리
 # =================================================================================
 with tab_profile:
-    st.subheader("⚙️ 기업 마스터 스펙 및 최근 5개년 연도별 실적 관리")
-    st.caption("대표자명, 면허별 시평액, 그리고 2021년~2025년 각 연도별 기성 실적을 직접 관리하며 합계는 자동 연산됩니다.")
+    st.subheader("⚙️ 기업 마스터 스펙: 5개년 연도별 실적 · 특수자격 · 기술인력 총괄")
+    st.caption("공공 API 미개방 항목인 무정전/활선 등 특수 시공자격과 상주 기술자 등급 현황을 직접 편집하고 공식 증명서로 출력합니다.")
 
     st.markdown("##### 🏛️ 최근 5개년간 연도별 기성실적 및 시공능력평가액 현황 (자동 연산)")
-    
     spec_rows = []
     lic_specs = comp.get("license_specs", {})
     for lic_nm, spec in lic_specs.items():
@@ -1284,20 +1258,36 @@ with tab_profile:
             "5개년 누적 합계": f"{spec.get('perf', 0):,} 원",
             "시공능력평가액": f"{spec.get('cap', 0):,} 원"
         })
-        
     st.dataframe(pd.DataFrame(spec_rows), use_container_width=True, hide_index=True)
-    
+
+    c_box1, c_box2 = st.columns(2)
+    with c_box1:
+        st.markdown("##### ⚡ 특수 시공 자격 현황")
+        certs = comp.get("special_certs", [])
+        if certs:
+            for ct in certs:
+                st.markdown(f'<span class="quant-tag">✓ {ct}</span>', unsafe_allow_html=True)
+        else:
+            st.caption("등록된 특수 시공자격이 없습니다.")
+            
+    with c_box2:
+        st.markdown("##### 👷 상주 기술인력 보유 현황")
+        engs = comp.get("engineers", {"특급": 2, "고급": 3, "중급": 4, "초급": 5})
+        eng_df = pd.DataFrame([{"특급 기술자": f"{engs.get('특급',0)}명", "고급 기술자": f"{engs.get('고급',0)}명", "중급 기술자": f"{engs.get('중급',0)}명", "초급 기술자": f"{engs.get('초급',0)}명", "총원": f"{sum(engs.values())}명"}])
+        st.dataframe(eng_df, use_container_width=True, hide_index=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
     st.download_button(
-        label="🖨️ 최근 5개년 연도별 실적 확인원 공식 인쇄 (가로형 A4 규격)",
+        label="🖨️ 기업 시공능력평가액 · 5개년 실적 및 기술인력 총괄 증명원 공식 인쇄 (가로형 A4)",
         data=comp_spec_cert_html.encode("utf-8"),
-        file_name=f"기업실적확인원_{comp['name']}.html",
+        file_name=f"기업실적기술자증명원_{comp['name']}.html",
         mime="text/html",
         type="primary",
         use_container_width=True
     )
 
     st.markdown("---")
-    st.markdown("##### 📝 마스터 스펙 및 5개년 각 연도별 실적 편집 폼")
+    st.markdown("##### 📝 마스터 스펙 · 특수면허 · 기술자 편집 폼")
     with st.form("edit_profile_master_form"):
         ec1, ec2 = st.columns(2)
         ef_name = ec1.text_input("기업명(상호)", value=comp["name"])
@@ -1311,9 +1301,18 @@ with tab_profile:
         ef_credit = ec5.selectbox("신용평가등급", ["AAA", "AA", "A+", "A0", "A-", "BBB+", "BBB0", "BBB-", "BB+", "BB0", "BB-", "B 이하"], index=["AAA", "AA", "A+", "A0", "A-", "BBB+", "BBB0", "BBB-", "BB+", "BB0", "BB-", "B 이하"].index(comp.get("credit_grade", "A-")))
         ef_debt = ec6.number_input("부채비율(%)", value=float(comp.get("debt_ratio", 92.5)), step=0.1)
 
-        st.markdown("---")
-        st.markdown("###### 🏗️ 보유 면허별 시평액 및 최근 5개년 연도별 기성 실적 (금액 직접 수정)")
-        
+        st.markdown("###### ⚡ 특수 시공 자격 수정 (복수 선택)")
+        ef_special = st.multiselect("보유 특수자격", ALL_SPECIAL_CERTS, default=comp.get("special_certs", ["무정전공사 시공자격", "활선공사 시공자격"]))
+
+        st.markdown("###### 👷 상주 기술인력 현황 수정")
+        e_col = st.columns(4)
+        c_eng = comp.get("engineers", {"특급": 2, "고급": 3, "중급": 4, "초급": 5})
+        ue_exp = e_col[0].number_input("특급(명)", min_value=0, value=int(c_eng.get("특급", 2)), key="u_exp")
+        ue_adv = e_col[1].number_input("고급(명)", min_value=0, value=int(c_eng.get("고급", 3)), key="u_adv")
+        ue_mid = e_col[2].number_input("중급(명)", min_value=0, value=int(c_eng.get("중급", 4)), key="u_mid")
+        ue_beg = e_col[3].number_input("초급(명)", min_value=0, value=int(c_eng.get("초급", 5)), key="u_beg")
+
+        st.markdown("###### 🏗️ 보유 면허별 시평액 및 최근 5개년 연도별 기성 실적")
         updated_specs = {}
         for lic_nm in comp.get("lics", ["건축공사업"]):
             cur_spec = lic_specs.get(lic_nm, {
@@ -1334,7 +1333,6 @@ with tab_profile:
                 def_amt = int(cur_y_perf.get(y_str, 700000000))
                 y_inputs[y_str] = y_cols[idx].number_input(f"{y_str}년", value=def_amt, step=50000000, key=f"perf_{lic_nm}_{y_str}", format="%d")
             
-            # 5개년 합산 자동 계산
             calc_total_perf = sum(y_inputs.values())
             st.info(f"💡 **[{lic_nm}] 5개년 누적 합산 총액**: `{calc_total_perf:,}` 원 (전자동 합산)")
             
@@ -1346,18 +1344,21 @@ with tab_profile:
             }
             st.markdown("---")
 
-        if st.form_submit_button("💾 5개년 연도별 실적 저장 및 공식 서식 재반영", type="primary", use_container_width=True):
+        if st.form_submit_button("💾 5개년 실적 · 특수자격 · 기술인력 저장", type="primary", use_container_width=True):
             updated = comp.copy()
             updated.update({
                 "name": ef_name, "ceo": ef_ceo, "biz_no": ef_biz, "region": ef_reg,
-                "credit_grade": ef_credit, "debt_ratio": ef_debt, "license_specs": updated_specs,
+                "credit_grade": ef_credit, "debt_ratio": ef_debt,
+                "special_certs": ef_special,
+                "engineers": {"특급": ue_exp, "고급": ue_adv, "중급": ue_mid, "초급": ue_beg},
+                "license_specs": updated_specs,
                 "cap_amount": list(updated_specs.values())[0]["cap"] if updated_specs else comp.get("cap_amount", 6800000000),
                 "perf_record": list(updated_specs.values())[0]["perf"] if updated_specs else comp.get("perf_record", 4500000000)
             })
             save_company_profile(updated)
             st.session_state["comp_profile"] = updated
             st.session_state["auto_state"] = execute_full_autonomous_pipeline(updated, auto_save=True)
-            st.success("✅ 최근 5개년 연도별 실적과 대표자명이 성공적으로 갱신되었습니다.")
+            st.success("✅ 기업 스펙이 영구 저장되었습니다.")
             st.rerun()
 
 with tab4:
