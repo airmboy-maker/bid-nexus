@@ -416,34 +416,33 @@ COMPANY_SAMPLE_POOL = [
 
 
 @st.cache_data(ttl=3600)
-def load_cals_live_pool():
-    """건설CALS OpenAPI로부터 실제 국토관리청 등록업체 목록을 실시간 로드"""
-    api_key = "D1694762-F05F-4A2C-9501-988F2515F053"
-    url = "https://www.calspia.go.kr/io/openapi/cm/selectIoCmProjCorpInfoList.do"
-    params = {
-        "serviceKey": api_key,
-        "type": "json",
-        "pageNo": "1",
-        "numOfRows": "500"
-    }
-    cals_corps = []
+@st.cache_data(ttl=3600)
+def load_public_live_corp_pool():
+    """건설CALS + KISCON 공공망 실시간 하이브리드 기업 풀 적재"""
+    cals_key = "D1694762-F05F-4A2C-9501-988F2515F053"
+    kiscon_key = "d7622c0628ad396f66159b5cdd816838d83537a05c6c40e585ccd3d0fd97faf7"
+    
+    corps = []
+    seen_names = set()
+
+    import urllib3
+    urllib3.disable_warnings()
+
+    # 1. 건설CALS 실시간 데이터 적재
     try:
-        import urllib3
-        urllib3.disable_warnings()
-        resp = requests.get(url, params=params, timeout=5, verify=False)
+        url_cals = "https://www.calspia.go.kr/io/openapi/cm/selectIoCmProjCorpInfoList.do"
+        resp = requests.get(url_cals, params={"serviceKey": cals_key, "type": "json", "pageNo": "1", "numOfRows": "200"}, timeout=4, verify=False)
         if resp.status_code == 200:
-            res_json = resp.json()
-            items = res_json.get("response", {}).get("body", {}).get("items", [])
-            if isinstance(items, dict):
-                items = [items]
+            items = resp.json().get("response", {}).get("body", {}).get("items", [])
+            if isinstance(items, dict): items = [items]
             for it in items:
                 name = it.get("cmnm", "").strip()
-                ceo = it.get("rprnNm", "대표이사").replace("대표이사", "").strip()
-                raw_brn = str(it.get("brn", "")).strip()
-                biz = f"{raw_brn[:3]}-{raw_brn[3:5]}-{raw_brn[5:]}" if len(raw_brn) == 10 else raw_brn
-                cwk = it.get("cwkNm", "종합 도로·교량 시공")
-                if name:
-                    cals_corps.append({
+                if name and name not in seen_names:
+                    seen_names.add(name)
+                    raw_b = str(it.get("brn", ""))
+                    biz = f"{raw_b[:3]}-{raw_b[3:5]}-{raw_b[5:]}" if len(raw_b) == 10 else raw_b
+                    ceo = it.get("rprnNm", "대표이사").replace("대표이사", "").strip()
+                    corps.append({
                         "name": name,
                         "ceo": ceo if ceo else "대표자",
                         "biz_no": biz,
@@ -455,12 +454,52 @@ def load_cals_live_pool():
                         "perf_5yr": {"토목건축공사업": [1500000000, 1800000000, 2000000000, 2200000000, 2500000000]},
                         "debt_ratio": 105.0,
                         "current_ratio": 150.0,
-                        "recent_project": cwk,
                         "source": "건설CALS 실시간"
                     })
     except Exception:
         pass
-    return cals_corps
+
+    # 2. KISCON 행정공시 실시간 데이터 병합
+    try:
+        url_kiscon = "https://apis.data.go.kr/1613000/ConAdminInfoSvc1/GongsiReg"
+        params_k = {
+            "serviceKey": kiscon_key,
+            "sDate": "20240101",
+            "eDate": "20240131",
+            "_type": "json",
+            "numOfRows": "100"
+        }
+        resp_k = requests.get(url_kiscon, params=params_k, timeout=4, verify=False)
+        if resp_k.status_code == 200:
+            items_k = resp_k.json().get("response", {}).get("body", {}).get("items", {}).get("item", [])
+            if isinstance(items_k, dict): items_k = [items_k]
+            for it in items_k:
+                name = it.get("ncrGsKname", "").strip()
+                if name and name not in seen_names:
+                    seen_names.add(name)
+                    raw_b = str(it.get("ncrMasterNum", ""))
+                    biz = f"{raw_b[:3]}-{raw_b[3:5]}-{raw_b[5:]}" if len(raw_b) == 10 else raw_b
+                    ceo = it.get("ncrGsMaster", "대표자").strip()
+                    lic = it.get("ncrItemName", "건설업")
+                    addr = it.get("ncrGsAddr", "소재지")
+                    corps.append({
+                        "name": name,
+                        "ceo": ceo,
+                        "biz_no": biz,
+                        "addr": addr,
+                        "license": [lic],
+                        "credit_grade": "A-",
+                        "special_license": ["무정전공사 시공자격"] if "전기" in lic else [],
+                        "tech_headcount": {"특급": 3, "고급": 5, "중급": 7, "초급": 10},
+                        "perf_5yr": {lic: [800000000, 1000000000, 1200000000, 1400000000, 1600000000]},
+                        "debt_ratio": 110.0,
+                        "current_ratio": 145.0,
+                        "source": "국토부 KISCON 실시간"
+                    })
+    except Exception:
+        pass
+
+    return corps
 
 def search_companies_incremental(query_text):
     if not query_text or not str(query_text).strip():
@@ -470,9 +509,9 @@ def search_companies_incremental(query_text):
     norm_q = "".join(ch for ch in q if ch.isalnum())
     matches = []
 
-    # 1. 건설CALS 공공망 실시간 수집 풀 조회
-    cals_pool = load_cals_live_pool()
-    for comp in cals_pool:
+    # 공공망 하이브리드 풀 조회
+    pool = load_public_live_corp_pool()
+    for comp in pool:
         c_name = "".join(ch for ch in comp.get("name", "") if ch.isalnum())
         c_ceo = "".join(ch for ch in comp.get("ceo", "") if ch.isalnum())
         c_biz = comp.get("biz_no", "").replace("-", "")
@@ -480,7 +519,7 @@ def search_companies_incremental(query_text):
             if not any(m["name"] == comp["name"] for m in matches):
                 matches.append(comp)
 
-    # 2. 내장 마스터 풀 병합 조회 (전기/통신/소방 및 주요 건설사)
+    # 로컬 마스터 풀 조회
     local_pool = globals().get("COMPANY_SAMPLE_POOL", [])
     for comp in local_pool:
         c_name = "".join(ch for ch in comp.get("name", "") if ch.isalnum())
