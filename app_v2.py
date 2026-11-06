@@ -3792,65 +3792,413 @@ def render_phase8_treasure_island_ui():
     import streamlit.components.v1 as components
 
     try:
-        global_treasure_css = """
+        # 1. 앱 전체 메뉴·탭·사이드바·헤더·카드를 다채로운 4D 아이소메트릭 인포그래픽 스타일로 감싸는 마스터 CSS
+        global_4d_isometric_css = """
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Noto+Sans+KR:wght@400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Noto+Sans+KR:wght@400;600;800;900&display=swap');
 
+        /* 전체 배경 심도 및 타이포그래피 */
+        .stApp {
+            background: radial-gradient(circle at 15% 15%, rgba(30, 27, 75, 0.45) 0%, rgba(9, 13, 26, 0.98) 55%, #040711 100%) !important;
+        }
+
+        /* 섹션 제목(H2, H3)을 4D 프리즘 인포그래픽 리본 배너로 변환 */
+        h2 {
+            background: linear-gradient(90deg, rgba(14, 165, 233, 0.22) 0%, rgba(168, 85, 247, 0.18) 50%, rgba(250, 204, 21, 0.08) 100%) !important;
+            border-left: 6px solid #38bdf8 !important;
+            border-bottom: 1px solid rgba(56, 189, 248, 0.35) !important;
+            border-radius: 0 14px 14px 0 !important;
+            padding: 12px 20px !important;
+            margin-top: 24px !important;
+            margin-bottom: 14px !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), inset 0 0 18px rgba(56, 189, 248, 0.12) !important;
+            color: #f8fafc !important;
+            font-weight: 900 !important;
+            letter-spacing: -0.3px !important;
+            transform: perspective(900px) rotateX(2deg);
+            transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1) !important;
+        }
+        h2:hover {
+            border-left-color: #facc15 !important;
+            transform: perspective(900px) rotateX(0deg) translateX(6px) !important;
+            box-shadow: 0 14px 32px rgba(56, 189, 248, 0.25), inset 0 0 22px rgba(250, 204, 21, 0.18) !important;
+        }
+
+        h4 {
+            background: linear-gradient(90deg, rgba(250, 204, 21, 0.14) 0%, rgba(15, 23, 42, 0.0) 100%) !important;
+            border-left: 4px solid #facc15 !important;
+            padding: 7px 14px !important;
+            border-radius: 0 10px 10px 0 !important;
+            color: #fef08a !important;
+            font-weight: 800 !important;
+        }
+
+        /* 상단 6대 정밀 탭(stTabs)을 다채로운 4D 아이소메트릭 입체 블록 메뉴로 혁신 */
+        div[data-baseweb="tab-list"] {
+            gap: 12px !important;
+            background: rgba(15, 23, 42, 0.65) !important;
+            padding: 12px 14px !important;
+            border-radius: 18px !important;
+            border: 1px solid rgba(148, 163, 184, 0.2) !important;
+            box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+        }
+        button[data-baseweb="tab"] {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95)) !important;
+            border: 1px solid rgba(56, 189, 248, 0.4) !important;
+            border-bottom: 4px solid #0284c7 !important;
+            border-radius: 12px !important;
+            padding: 10px 18px !important;
+            color: #e2e8f0 !important;
+            font-weight: 800 !important;
+            font-size: 13.5px !important;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45) !important;
+            transform: perspective(600px) rotateX(8deg) translateY(0px);
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        }
+        /* 각 탭마다 다채로운 프리즘 컬러 부여 */
+        button[data-baseweb="tab"]:nth-child(1) { border-color: #38bdf8 !important; border-bottom-color: #0284c7 !important; }
+        button[data-baseweb="tab"]:nth-child(2) { border-color: #34d399 !important; border-bottom-color: #059669 !important; }
+        button[data-baseweb="tab"]:nth-child(3) { border-color: #facc15 !important; border-bottom-color: #ca8a04 !important; }
+        button[data-baseweb="tab"]:nth-child(4) { border-color: #c084fc !important; border-bottom-color: #9333ea !important; }
+        button[data-baseweb="tab"]:nth-child(5) { border-color: #fb7185 !important; border-bottom-color: #e11d48 !important; }
+        button[data-baseweb="tab"]:nth-child(6) { border-color: #fb923c !important; border-bottom-color: #ea580c !important; }
+
+        button[data-baseweb="tab"]:hover {
+            transform: perspective(600px) rotateX(0deg) translateY(-5px) scale(1.03) !important;
+            box-shadow: 0 12px 24px rgba(56, 189, 248, 0.35) !important;
+            color: #ffffff !important;
+        }
+        button[data-baseweb="tab"][aria-selected="true"] {
+            background: linear-gradient(135deg, #0284c7 0%, #6366f1 50%, #a855f7 100%) !important;
+            border-color: #fde047 !important;
+            border-bottom: 4px solid #facc15 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.6), 0 10px 20px rgba(0,0,0,0.5) !important;
+            transform: perspective(600px) rotateX(0deg) translateY(-4px) !important;
+        }
+
+        /* 메트릭 카드(stMetric)를 4D 아이소메트릭 플로팅 큐브로 업그레이드 */
         div[data-testid="stMetric"] {
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 27, 75, 0.85) 100%) !important;
-            border: 1px solid rgba(250, 204, 21, 0.45) !important;
-            border-radius: 14px !important;
-            padding: 14px 18px !important;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 0 15px rgba(250, 204, 21, 0.08) !important;
-            transition: all 0.25s ease-in-out !important;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 27, 75, 0.88) 100%) !important;
+            border: 1px solid rgba(56, 189, 248, 0.45) !important;
+            border-bottom: 5px solid #38bdf8 !important;
+            border-right: 3px solid rgba(168, 85, 247, 0.55) !important;
+            border-radius: 16px !important;
+            padding: 16px 18px !important;
+            box-shadow: 8px 12px 26px rgba(0, 0, 0, 0.5), inset 0 0 18px rgba(56, 189, 248, 0.1) !important;
+            transform: perspective(800px) rotateX(4deg) rotateY(-2deg);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
         }
         div[data-testid="stMetric"]:hover {
-            transform: translateY(-4px) !important;
+            transform: perspective(800px) rotateX(0deg) rotateY(0deg) translateY(-7px) scale(1.02) !important;
             border-color: #facc15 !important;
-            box-shadow: 0 12px 30px rgba(250, 204, 21, 0.28), inset 0 0 20px rgba(56, 189, 248, 0.15) !important;
+            border-bottom-color: #f59e0b !important;
+            box-shadow: 0 18px 35px rgba(250, 204, 21, 0.32), inset 0 0 22px rgba(56, 189, 248, 0.2) !important;
         }
         div[data-testid="stMetricLabel"] > div {
             color: #fde047 !important;
-            font-weight: 700 !important;
+            font-weight: 800 !important;
             font-size: 13px !important;
         }
         div[data-testid="stMetricValue"] > div {
             color: #ffffff !important;
             font-family: 'Orbitron', 'Noto Sans KR', sans-serif !important;
-            font-weight: 800 !important;
-            text-shadow: 0 0 12px rgba(56, 189, 248, 0.45) !important;
+            font-weight: 900 !important;
+            text-shadow: 0 0 14px rgba(56, 189, 248, 0.55) !important;
         }
+
+        /* 버튼을 4D 택타일(Tactile) 아케이드 스위치 스타일로 변환 */
         div.stButton > button {
-            background: linear-gradient(90deg, #1e293b 0%, #0f172a 50%, #1e1b4b 100%) !important;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%) !important;
             color: #fde047 !important;
-            border: 1px solid rgba(250, 204, 21, 0.55) !important;
-            border-radius: 10px !important;
+            border: 1px solid rgba(56, 189, 248, 0.6) !important;
+            border-bottom: 4px solid #38bdf8 !important;
+            border-radius: 12px !important;
             font-weight: 800 !important;
-            box-shadow: 0 4px 15px rgba(250, 204, 21, 0.15) !important;
-            transition: all 0.2s ease !important;
+            padding: 10px 16px !important;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45) !important;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
         }
         div.stButton > button:hover {
-            background: linear-gradient(90deg, #ca8a04 0%, #eab308 50%, #facc15 100%) !important;
-            color: #020617 !important;
-            border-color: #ffffff !important;
-            box-shadow: 0 0 22px rgba(250, 204, 21, 0.65) !important;
-            transform: scale(1.01) !important;
+            background: linear-gradient(90deg, #06b6d4 0%, #8b5cf6 50%, #ec4899 100%) !important;
+            color: #ffffff !important;
+            border-color: #fde047 !important;
+            border-bottom-color: #facc15 !important;
+            box-shadow: 0 0 25px rgba(236, 72, 153, 0.65) !important;
+            transform: translateY(-3px) !important;
         }
+        div.stButton > button:active {
+            transform: translateY(2px) !important;
+            border-bottom-width: 1px !important;
+        }
+
+        /* 아코디언(stExpander) 메뉴를 인포그래픽 캡슐로 변환 */
         div[data-testid="stExpander"] {
-            border: 1px solid rgba(56, 189, 248, 0.35) !important;
-            border-radius: 12px !important;
-            background: rgba(15, 23, 42, 0.4) !important;
+            border: 1px solid rgba(168, 85, 247, 0.45) !important;
+            border-left: 5px solid #c084fc !important;
+            border-radius: 14px !important;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.78), rgba(30, 27, 75, 0.55)) !important;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35) !important;
+            margin-bottom: 12px !important;
+        }
+
+        /* 좌측 사이드바를 네온 인포그래픽 컨트롤 타워로 변환 */
+        section[data-testid="stSidebar"] {
+            background: linear-gradient(180deg, #060b19 0%, #0f172a 55%, #13112c 100%) !important;
+            border-right: 2px solid rgba(56, 189, 248, 0.35) !important;
+            box-shadow: 8px 0 30px rgba(0, 0, 0, 0.6) !important;
         }
         </style>
         """
-        st.markdown(global_treasure_css, unsafe_allow_html=True)
+        st.markdown(global_4d_isometric_css, unsafe_allow_html=True)
 
         pool = st.session_state.get("bid_cart_pool", [])
         if not pool:
             return
 
+        # 2. [신규 4D 아이소메트릭 인포그래픽 아키텍처 맵] 전체 8단계 메뉴와 입찰 흐름을 한눈에 이해시키는 다채로운 4D 입체 조감도
         st.markdown("---")
-        st.markdown("## 👑 [엘도라도 v7.5] GOLDEN ATLANTIS : 입찰 보물섬 소나 레이더 & 황금 금고(Vault) 맵")
+        st.markdown("## 🏛️ [4D 인포그래픽 v8.0] HYPER-ISOMETRIC COMMAND CITY : 한눈에 보는 입찰 사정 8대 아키텍처")
+        st.caption("복잡한 입찰 공학 알고리즘을 누구나 직관적으로 이해할 수 있도록 6색 프리즘 컬러와 4D 아이소메트릭(Isometric) 입체 조감도로 시각화한 인포그래픽 지휘소입니다.")
+
+        iso_infographic_html = """<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Noto+Sans+KR:wght@400;700;900&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+        background: transparent;
+        font-family: 'Noto Sans KR', sans-serif;
+        color: #f8fafc;
+        padding: 6px 4px;
+        overflow: hidden;
+    }
+    .iso-stage {
+        background: radial-gradient(circle at 50% 25%, rgba(30, 27, 75, 0.95) 0%, rgba(7, 11, 24, 0.99) 100%);
+        border: 2px solid rgba(56, 189, 248, 0.5);
+        border-radius: 22px;
+        padding: 22px;
+        box-shadow: 0 0 45px rgba(56, 189, 248, 0.2), inset 0 0 40px rgba(168, 85, 247, 0.15);
+        position: relative;
+    }
+    .iso-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+    }
+    .iso-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 19px;
+        font-weight: 900;
+        background: linear-gradient(90deg, #38bdf8, #34d399, #facc15, #f472b6, #c084fc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: 1px;
+    }
+    .iso-legend {
+        display: flex;
+        gap: 10px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+    .leg-pill {
+        padding: 4px 10px;
+        border-radius: 999px;
+        border: 1px solid;
+    }
+    /* 4D 아이소메트릭 그리드 (원근 투영 + 호버 시 4차원 부양 모션) */
+    .iso-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        perspective: 1100px;
+        padding: 8px 4px;
+    }
+    .iso-cube {
+        position: relative;
+        border-radius: 16px;
+        padding: 16px 14px;
+        background: linear-gradient(145deg, rgba(15,23,42,0.92), rgba(2,6,23,0.96));
+        border: 1.5px solid var(--c-main);
+        border-bottom: 7px solid var(--c-dark);
+        border-right: 5px solid var(--c-dark);
+        box-shadow: 10px 14px 28px rgba(0,0,0,0.6), 0 0 18px var(--c-glow);
+        transform: rotateX(10deg) rotateY(-6deg) rotateZ(1deg);
+        transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        cursor: pointer;
+        animation: float4d 4s ease-in-out infinite;
+        animation-delay: var(--delay);
+    }
+    .iso-cube:hover {
+        transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg) translateY(-10px) scale(1.04);
+        box-shadow: 0 22px 40px var(--c-glow), inset 0 0 25px var(--c-glow);
+        z-index: 10;
+    }
+    @keyframes float4d {
+        0%, 100% { transform: rotateX(10deg) rotateY(-6deg) rotateZ(1deg) translateY(0px); }
+        50% { transform: rotateX(12deg) rotateY(-4deg) rotateZ(0deg) translateY(-6px); }
+    }
+    .cube-step {
+        display: inline-block;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 10px;
+        font-weight: 900;
+        padding: 3px 8px;
+        border-radius: 6px;
+        background: var(--c-main);
+        color: #020617;
+        margin-bottom: 8px;
+    }
+    .cube-icon {
+        font-size: 26px;
+        float: right;
+        filter: drop-shadow(0 0 8px var(--c-main));
+    }
+    .cube-title {
+        font-size: 14.5px;
+        font-weight: 900;
+        color: #ffffff;
+        margin-bottom: 6px;
+    }
+    .cube-desc {
+        font-size: 11px;
+        color: #cbd5e1;
+        line-height: 1.45;
+        margin-bottom: 10px;
+    }
+    .infographic-bar {
+        width: 100%;
+        height: 7px;
+        background: rgba(30, 41, 59, 0.9);
+        border-radius: 999px;
+        overflow: hidden;
+        margin-bottom: 5px;
+    }
+    .infographic-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--c-main), #ffffff);
+        border-radius: 999px;
+        box-shadow: 0 0 10px var(--c-main);
+    }
+    .cube-stat {
+        display: flex;
+        justify-content: space-between;
+        font-size: 10.5px;
+        font-family: 'Orbitron', sans-serif;
+        color: var(--c-main);
+        font-weight: 800;
+    }
+    .flow-ribbon {
+        margin-top: 16px;
+        background: linear-gradient(90deg, rgba(56,189,248,0.15), rgba(52,211,153,0.15), rgba(250,204,21,0.15), rgba(244,114,182,0.15), rgba(192,132,252,0.15));
+        border: 1px solid rgba(250, 204, 21, 0.4);
+        border-radius: 12px;
+        padding: 10px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12px;
+    }
+</style>
+</head>
+<body>
+<div class="iso-stage">
+    <div class="iso-header">
+        <div>
+            <div class="iso-title">💠 4D ISOMETRIC INFOGRAPHIC ARCHITECTURE // 8-CORE MATRIX</div>
+            <div style="font-size:12px;color:#94a3b8;margin-top:3px;">입찰 데이터 수집부터 양자 파동붕괴·보물 인양까지 8단계 초정밀 알고리즘의 시각적 인포그래픽 맵</div>
+        </div>
+        <div class="iso-legend">
+            <span class="leg-pill" style="color:#38bdf8;border-color:#38bdf8;background:rgba(56,189,248,0.12);">🔵 데이터·적격</span>
+            <span class="leg-pill" style="color:#34d399;border-color:#34d399;background:rgba(52,211,153,0.12);">🟢 포트폴리오·알림</span>
+            <span class="leg-pill" style="color:#f472b6;border-color:#f472b6;background:rgba(244,114,182,0.12);">🟣 AI저격·특이점</span>
+            <span class="leg-pill" style="color:#facc15;border-color:#facc15;background:rgba(250,204,21,0.12);">🟡 판도라·보물섬</span>
+        </div>
+    </div>
+
+    <div class="iso-grid">
+        <div class="iso-cube" style="--c-main:#38bdf8; --c-dark:#0284c7; --c-glow:rgba(56,189,248,0.28); --delay:0s;">
+            <span class="cube-step">CORE 01</span><span class="cube-icon">🏢</span>
+            <div class="cube-title">기업 매핑 & 6대 정밀탭</div>
+            <div class="cube-desc">사업자번호 기반 5개년 실적·경영상태·기술자 자동 매핑 및 적격심사 30점 만점 판정</div>
+            <div class="infographic-bar"><div class="infographic-fill" style="width:100%;"></div></div>
+            <div class="cube-stat"><span>ACCURACY</span><span>100% SYNC</span></div>
+        </div>
+
+        <div class="iso-cube" style="--c-main:#34d399; --c-dark:#059669; --c-glow:rgba(52,211,153,0.28); --delay:0.4s;">
+            <span class="cube-step">CORE 02</span><span class="cube-icon">🛒</span>
+            <div class="cube-title">멀티 장바구니 & 공동도급</div>
+            <div class="cube-desc">신규 공고 직접 등록, 컨소시엄 지분율 시뮬레이션, 마감 D-Day 경보 및 결재 품의서</div>
+            <div class="infographic-bar"><div class="infographic-fill" style="width:96%;"></div></div>
+            <div class="cube-stat"><span>PORTFOLIO</span><span>4 VAULTS</span></div>
+        </div>
+
+        <div class="iso-cube" style="--c-main:#2dd4bf; --c-dark:#0d9488; --c-glow:rgba(45,212,191,0.28); --delay:0.8s;">
+            <span class="cube-step">CORE 03</span><span class="cube-icon">📲</span>
+            <div class="cube-title">텔레그램 직통 신탁 & ROI</div>
+            <div class="cube-desc">원클릭 텔레그램 모바일 브리핑(투찰가+추천번호 4개) 발송 및 연간 수주 달성률 추적</div>
+            <div class="infographic-bar"><div class="infographic-fill" style="width:98%;"></div></div>
+            <div class="cube-stat"><span>WEBHOOK</span><span>LIVE ARMED</span></div>
+        </div>
+
+        <div class="iso-cube" style="--c-main:#fb7185; --c-dark:#e11d48; --c-glow:rgba(251,113,133,0.28); --delay:1.2s;">
+            <span class="cube-step">CORE 04</span><span class="cube-icon">🎯</span>
+            <div class="cube-title">발주처 프리셋 & 경쟁사 저격</div>
+            <div class="cube-desc">교육청·지자체 재무관 성향 바이어스 탑재 및 특정 라이벌 업체 투찰 습관 핀셋 카운터</div>
+            <div class="infographic-bar"><div class="infographic-fill" style="width:95%;"></div></div>
+            <div class="cube-stat"><span>SNIPER EDGE</span><span>+0.006%p</span></div>
+        </div>
+
+        <div class="iso-cube" style="--c-main:#c084fc; --c-dark:#9333ea; --c-glow:rgba(192,132,252,0.28); --delay:0.2s;">
+            <span class="cube-step">CORE 05</span><span class="cube-icon">🌌</span>
+            <div class="cube-title">특이점(Singularity) 양자 락</div>
+            <div class="cube-desc">G2B 원단위 절사 1,365개 양자화 계단 역공학 + 인간 1~15번 클릭 편향 + 연말 예산 드리프트</div>
+            <div class="infographic-bar"><div class="infographic-fill" style="width:99%;"></div></div>
+            <div class="cube-stat"><span>STEP LOCK</span><span>1,365 FULL</span></div>
+        </div>
+
+        <div class="iso-cube" style="--c-main:#fb923c; --c-dark:#ea580c; --c-glow:rgba(251,146,60,0.28); --delay:0.6s;">
+            <span class="cube-step">CORE 06</span><span class="cube-icon">🏁</span>
+            <div class="cube-title">개찰 복기 & 1원 자가교정</div>
+            <div class="cube-desc">실제 개찰 사정률 입력 시 하한선 대비 1원 단위 차액 검증 및 오차 역학습(Auto-Tune)</div>
+            <div class="infographic-bar"><div class="infographic-fill" style="width:97%;"></div></div>
+            <div class="cube-stat"><span>BACKTEST</span><span>±0.002%p</span></div>
+        </div>
+
+        <div class="iso-cube" style="--c-main:#f472b6; --c-dark:#db2777; --c-glow:rgba(244,114,182,0.28); --delay:1.0s;">
+            <span class="cube-step">CORE 07</span><span class="cube-icon">🔮</span>
+            <div class="cube-title">판도라 X10 만다라 산통</div>
+            <div class="cube-desc">로렌츠 카오스 나비 끌개 + 황금비(Φ=1.618) 사각지대 + 양자 파동붕괴 4대 신탁 번호</div>
+            <div class="infographic-bar"><div class="infographic-fill" style="width:100%;"></div></div>
+            <div class="cube-stat"><span>ORACLE X10</span><span>99.4% SYNC</span></div>
+        </div>
+
+        <div class="iso-cube" style="--c-main:#facc15; --c-dark:#ca8a04; --c-glow:rgba(250,204,21,0.35); --delay:1.4s;">
+            <span class="cube-step">CORE 08</span><span class="cube-icon">👑</span>
+            <div class="cube-title">골든 아틀란티스 보물섬</div>
+            <div class="cube-desc">360도 황금 소나(Sonar) 레이더 스캐닝 및 4대 보석 금고(Vault) 원클릭 투찰좌표 인양</div>
+            <div class="infographic-bar"><div class="infographic-fill" style="width:100%;"></div></div>
+            <div class="cube-stat"><span>EL DORADO</span><span>TREASURE</span></div>
+        </div>
+    </div>
+
+    <div class="flow-ribbon">
+        <div>🌈 <b>4D 인포그래픽 워크플로우 가이드</b> : 각 입체 타일에 마우스를 올리면 4차원 원근 틸트(Tilt) 반응이 작동합니다.</div>
+        <div style="font-family:'Orbitron',sans-serif;color:#fde047;font-weight:900;">15C4 = 1,365 QUANTUM MATRIX // VISUALIZED</div>
+    </div>
+</div>
+</body>
+</html>"""
+
+        components.html(iso_infographic_html, height=520, scrolling=False)
+
+        # 3. 보물섬 소나 레이더 & 황금 금고 맵 (v7.5 잘림 해결본 유지)
+        st.markdown("## 👑 [엘도라도 v8.0] GOLDEN ATLANTIS : 입찰 보물섬 소나 레이더 & 황금 금고(Vault) 맵")
         st.caption("나라장터라는 거대한 바다에서 1순위 낙찰이라는 보물을 인양하는 홀로그래픽 지휘소입니다. 각 보물상자의 [📋 황금좌표 복사] 버튼을 누르면 투찰가와 예가번호 4개가 클립보드에 즉시 복사됩니다.")
 
         chest_cards_html = ""
@@ -3983,19 +4331,22 @@ def render_phase8_treasure_island_ui():
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 14px;
+        perspective: 900px;
     }}
     .chest-card {{
         border: 1.5px solid #facc15;
+        border-bottom: 6px solid #ca8a04;
         border-radius: 14px;
         padding: 14px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        transition: transform 0.22s ease, box-shadow 0.22s ease;
+        transform: rotateX(4deg);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
     }}
     .chest-card:hover {{
-        transform: translateY(-3px);
-        box-shadow: 0 0 24px rgba(250, 204, 21, 0.32);
+        transform: rotateX(0deg) translateY(-5px);
+        box-shadow: 0 12px 28px rgba(250, 204, 21, 0.35);
     }}
     .chest-top {{
         display: flex;
@@ -4087,6 +4438,7 @@ def render_phase8_treasure_island_ui():
     .step-node {{
         background: rgba(30, 41, 59, 0.78);
         border: 1px solid rgba(56, 189, 248, 0.4);
+        border-bottom: 3px solid #38bdf8;
         border-radius: 10px;
         padding: 9px 4px;
         text-align: center;
@@ -4128,7 +4480,7 @@ def render_phase8_treasure_island_ui():
 <div class="island-container">
     <div class="top-banner">
         <div>
-            <div class="brand-title">🏴‍☠️ TREASURE ISLAND COMMAND BRIDGE // EL DORADO v7.5</div>
+            <div class="brand-title">🏴‍☠️ TREASURE ISLAND COMMAND BRIDGE // EL DORADO v8.0</div>
             <div style="font-size:12px;color:#94a3b8;margin-top:4px;">실시간 황금 어장 소나 스캐너 & 4대 보물상자(Vault) 기대수익 인양 대시보드</div>
         </div>
         <div class="total-loot-badge">👑 총 인양 기대수익(전리품): +{total_treasure_profit:,.0f} KRW</div>
@@ -4157,16 +4509,16 @@ def render_phase8_treasure_island_ui():
         <div class="step-node"><span>STAGE 04</span>🎯 핀셋저격기</div>
         <div class="step-node"><span>STAGE 05</span>🌌 특이점양자락</div>
         <div class="step-node"><span>STAGE 06</span>🏁 1원오차복기</div>
-        <div class="step-node" style="border-color:#facc15;background:rgba(250,204,21,0.18);"><span>STAGE 07·08</span>👑 판도라보물섬</div>
+        <div class="step-node" style="border-color:#facc15;border-bottom-color:#f59e0b;background:rgba(250,204,21,0.18);"><span>STAGE 07·08</span>👑 4D보물섬</div>
     </div>
 
     <div class="grand-footer">
         <div>
             <span class="status-dot"></span>
-            <b style="color:#fde047;">BID-NEXUS v7.5 MASTERPIECE EDITION</b> | (주)진경종합건설 전용 AI 초정밀 입찰 사정·인양 지휘 시스템 가동 중
+            <b style="color:#fde047;">BID-NEXUS v8.0 4D HYPER-ISOMETRIC EDITION</b> | (주)진경종합건설 전용 AI 초정밀 입찰 사정·인양 지휘 시스템
         </div>
         <div style="font-family:'Orbitron',sans-serif;color:#38bdf8;font-weight:700;font-size:11px;">
-            ALL 8 STAGES ARMED & READY // ZERO-DEFECT ENGINE
+            ALL 8 STAGES ARMED & READY // 4D INFOGRAPHIC ENGINE
         </div>
     </div>
 </div>
@@ -4195,7 +4547,6 @@ const cx = W / 2;
 const cy = H / 2;
 
 let sweepAngle = 0;
-// 라벨이 오른쪽 캔버스 밖으로 절대 잘리지 않도록 반경(r)과 텍스트 정렬(align) 정밀 보정
 const targets = [
     {{r: 42, theta: 0.75, label: "소양초(CROWN)", color: "#facc15", align: "left"}},
     {{r: 72, theta: 2.35, label: "봉의고(DIAMOND)", color: "#38bdf8", align: "right"}},
@@ -4215,7 +4566,7 @@ function drawSonar() {{
     }}
     ctx.beginPath();
     ctx.moveTo(cx - 125, cy); ctx.lineTo(cx + 125, cy);
-    ctx.moveTo(cx, cy - 125); ctx.moveTo(cx, cy + 125);
+    ctx.moveTo(cx, cy - 125); ctx.lineTo(cx, cy + 125);
     ctx.strokeStyle = 'rgba(52, 211, 153, 0.16)';
     ctx.stroke();
 
@@ -4275,11 +4626,10 @@ drawSonar();
 </body>
 </html>"""
 
-        # 높이를 520 -> 780으로 대폭 확장하여 하단 투찰좌표, 복사버튼, 7단계 파이프라인, 그랜드 피날레 푸터까지 1px도 잘리지 않고 완벽히 표시되도록 마감
-        components.html(treasure_island_html, height=780, scrolling=False)
+        components.html(treasure_island_html, height=790, scrolling=False)
 
     except Exception as _ti_err:
-        st.info(f"보물섬 골든 아틀란티스 UI 준비 완료 ({_ti_err})")
+        st.info(f"4D 아이소메트릭 보물섬 UI 준비 완료 ({_ti_err})")
 
 render_phase8_treasure_island_ui()
 # ==================== [PHASE 8: TREASURE ISLAND UI END] ====================
