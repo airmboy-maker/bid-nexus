@@ -1,107 +1,7 @@
-import os
-import re
-import requests
-import streamlit as st
-
-MOCK_COMPANIES = {
-    "(주)태영건설": {"ceo": "이재규", "bizno": "211-81-34567", "addr": "서울특별시 영등포구 여의공원로 111", "lic": ["토목건축공사업"], "perf": [2100000000, 2400000000, 2200000000, 2500000000, 2600000000], "credit": "A-"},
-    "태평양개발(주)": {"ceo": "최태평", "bizno": "104-81-12389", "addr": "서울특별시 용산구 한강대로 100", "lic": ["건축공사업"], "perf": [850000000, 920000000, 890000000, 950000000, 980000000], "credit": "BBB+"},
-    "(주)태성이앤씨": {"ceo": "박태성", "bizno": "120-82-45678", "addr": "경기도 성남시 분당구 판교역로", "lic": ["전기공사업", "정보통신공사업"], "perf": [420000000, 480000000, 510000000, 530000000, 560000000], "credit": "BBB0"},
-    "(주)태양전기건설": {"ceo": "김태양", "bizno": "221-81-12345", "addr": "강원특별자치도 춘천시 공지로 312", "lic": ["건축공사업", "전기공사업"], "perf": [820000000, 950000000, 780000000, 1010000000, 940000000], "credit": "A-"},
-    "태양정보통신(주)": {"ceo": "이정보", "bizno": "214-82-99881", "addr": "서울특별시 서초구 반포대로", "lic": ["정보통신공사업"], "perf": [350000000, 420000000, 390000000, 450000000, 480000000], "credit": "BBB+"},
-    "(주)태원건설산업": {"ceo": "정태원", "bizno": "305-81-77665", "addr": "대전광역시 서구 둔산대로", "lic": ["토목공사업"], "perf": [620000000, 680000000, 710000000, 750000000, 790000000], "credit": "A-"},
-    "태창건설(주)": {"ceo": "강태창", "bizno": "402-81-55443", "addr": "인천광역시 남동구 예술로", "lic": ["지반조성·포장공사업"], "perf": [280000000, 310000000, 290000000, 330000000, 350000000], "credit": "BBB-"},
-    "태림종합건설(주)": {"ceo": "윤태림", "bizno": "138-81-66772", "addr": "경기도 안양시 동안구 시민대로", "lic": ["건축공사업"], "perf": [510000000, 550000000, 530000000, 580000000, 610000000], "credit": "BBB+"},
-    "태진토건(주)": {"ceo": "서태진", "bizno": "215-81-11223", "addr": "부산광역시 해운대구 센텀중앙로", "lic": ["토목공사업"], "perf": [480000000, 520000000, 490000000, 540000000, 570000000], "credit": "BBB0"},
-    "선진종합건설(주)": {"ceo": "강선진", "bizno": "134-81-43210", "addr": "서울특별시 강남구 테헤란로 152", "lic": ["건축공사업", "토목공사업"], "perf": [1150000000, 1250000000, 1200000000, 1300000000, 1300000000], "credit": "A-"},
-    "(주)대우건설": {"ceo": "백정완", "bizno": "104-81-58180", "addr": "서울특별시 중구 을지로 170", "lic": ["토목건축공사업"], "perf": [5200000000, 5800000000, 6100000000, 6500000000, 6900000000], "credit": "AA-"},
-    "현대건설(주)": {"ceo": "윤영준", "bizno": "101-81-16297", "addr": "서울특별시 종로구 율곡로 75", "lic": ["토목건축공사업"], "perf": [6800000000, 7200000000, 7500000000, 7900000000, 8300000000], "credit": "AA-"}
-}
-
-ALL_TARGET_CORPS = [
-    {"name": "(주)태영건설", "ceo": "이재규", "bizno": "211-81-34567", "addr": "서울특별시 영등포구 여의공원로 111", "lic": ["토목건축공사업"], "perf": [2100, 2400, 2200, 2500, 2600], "credit": "A-"},
-    {"name": "태평양개발(주)", "ceo": "최태평", "bizno": "104-81-12389", "addr": "서울특별시 용산구 한강대로 100", "lic": ["건축공사업"], "perf": [850, 920, 890, 950, 980], "credit": "BBB+"},
-    {"name": "(주)태성이앤씨", "ceo": "박태성", "bizno": "120-82-45678", "addr": "경기도 성남시 분당구 판교역로", "lic": ["전기공사업", "정보통신공사업"], "perf": [420, 480, 510, 530, 560], "credit": "BBB0"},
-    {"name": 
-
-EXTENDED_CORPS_POOL = [
-    {"업체명": "(주)태영건설", "사업자번호": "211-81-34567", "대표자명": "이재규", "업종": "토목건축공사업", "시평액": "2조 4,500억원", "소재지": "서울특별시 영등포구"},
-    {"업체명": "태평양개발(주)", "사업자번호": "104-81-12389", "대표자명": "최태평", "업종": "건축공사업", "시평액": "1,850억원", "소재지": "서울특별시 용산구"},
-    {"업체명": "(주)태성이앤씨", "사업자번호": "120-82-45678", "대표자명": "박태성", "업종": "전기공사업", "시평액": "650억원", "소재지": "경기도 성남시"},
-    {"업체명": 
+# -*- coding: utf-8 -*-
+import os, io, json, sqlite3, time, requests, unicodedata
 from datetime import datetime, timedelta
-import requests
-import re
-
-
-    # '태', '현' 등 1글자 검색어 대응 및 전국 주요 시공능력평가 상위 건설사 풀 확장
-
-def search_company_unified(keyword, search_type="전체"):
-    """
-    공공데이터포털 API + 로컬 캐시 통합 검색
-    search_type: "전체", "업체명", "대표자명", "사업자번호"
-    """
-    if not keyword or not keyword.strip():
-        return []
-    
-    query = keyword.strip()
-    clean_query = re.sub(r'[\(\)\[\]주식회사\s]', '', query)
-    api_key = os.environ.get("DATA_GO_KR_API_KEY") or getattr(st, "secrets", {}).get("DATA_GO_KR_API_KEY", "")
-    
-    results = []
-    
-    # 1. KISCON 건설업체 기본정보 API 호출
-    if api_key:
-        try:
-            url = "http://apis.data.go.kr/1613000/ConsEntInfoService/getEntBaseInfo"
-            params = {
-                "serviceKey": api_key,
-                "numOfRows": "50",
-                "pageNo": "1",
-                "_type": "json"
-            }
-            if search_type == "사업자번호" or query.isdigit() and len(query) == 10:
-                params["bzno"] = query
-            else:
-                params["corpNm"] = query
-
-            resp = requests.get(url, params=params, timeout=5)
-            if resp.status_code == 200:
-                data = resp.json()
-                items = data.get("response", {}).get("body", {}).get("items", {}).get("item", [])
-                if isinstance(items, dict):
-                    items = [items]
-                for it in items:
-                    results.append({
-                        "업체명": it.get("corpNm", "-"),
-                        "사업자번호": it.get("bzno", "-"),
-                        "대표자명": it.get("rprsntvNm", "-"),
-                        "업종": it.get("indutyNm", "-"),
-                        "시평액": it.get("evlAmt", "-"),
-                        "소재지": it.get("addr", "-")
-                    })
-        except Exception:
-            pass
-
-    # 2. 대표자명 검색일 경우 인메모리 필터링 (대표자명 전수 매칭)
-    if search_type in ["대표자명", "전체"]:
-        # 모의/캐시 DB에서도 대표자 매칭 수집
-        matched = []
-        for r in [c for c in ALL_TARGET_CORPS if search_input.strip() in c['name'] or search_input.strip() in c['ceo'] or search_input.strip() in c['bizno']]:
-        matched_by_ceo = any(search_term in v.get("ceo", "") for v in [comp_data])
-            rep = re.sub(r'\s', '', str(r.get("대표자명", "")))
-            corp = re.sub(r'[\(\)\[\]주식회사\s]', '', str(r.get("업체명", "")))
-            if search_type == "대표자명" and clean_query in rep:
-                matched.append(r)
-            elif search_type == "전체" and (clean_query in rep or clean_query in corp):
-                matched.append(r)
-        if search_type == "대표자명":
-            results = matched
-        elif search_type == "전체" and matched:
-            results = matched
-
-    return results
-
+import streamlit as st
 import numpy as np
 import pandas as pd
 import matplotlib
@@ -113,28 +13,11 @@ from google.genai import types
 from hwp_parser import extract_hwp_or_hwpx
 
 st.set_page_config(
-    page_title="⚡ BID-NEXUS v2.0: 공공입찰 퀀트분석 터미널",
+    page_title="BID-NEXUS: Autonomous Intelligence",
     page_icon="⚡",
     layout="wide",
-    initial_sidebar_state="expanded",
-    menu_items={
-        'Get Help': None,
-        'Report a bug': None,
-        'About': "### ⚡ BID-NEXUS v2.0\n조달청 공고 실시간 수집 및 적격심사 자동평가 솔루션"
-    }
+    initial_sidebar_state="expanded"
 )
-
-# --- 카카오톡 메시지 카드 (Open Graph) 최적화 메타태그 ---
-st.markdown('''
-<head>
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="⚡ BID-NEXUS: 자율형 입찰분석 터미널">
-    <meta property="og:description" content="조달청 공고 실시간 수집 · 기업 맞춤 적격심사 자동평가 · 4D 사정률 퀀트 분석">
-    <meta property="og:image" content="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-</head>
-''', unsafe_allow_html=True)
 
 st.markdown("""
 <style>
@@ -194,14 +77,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 DATA_API_KEY = os.environ.get("DATA_GO_KR_API_KEY", "")
-try:
-    gemini_key = os.environ.get("GEMINI_API_KEY") or getattr(st, "secrets", {}).get("GEMINI_API_KEY", "")
-    if gemini_key:
-        client = genai.Client(api_key=gemini_key)
-    else:
-        client = None
-except Exception:
-    client = None
+client = genai.Client()
 
 DB_PATH = os.path.expanduser("~/bidding_history.db")
 PROFILE_JSON_PATH = os.path.expanduser("~/company_profile.json")
@@ -262,7 +138,17 @@ def parse_engineer_certificate_pdf(pdf_bytes):
 
 COMPANY_SAMPLE_POOL = [
     {
-        "name": 
+        "name": "(주)태양전기건설",
+        "ceo": "김태양",
+        "biz_no": "221-81-12345",
+        "region": "강원특별자치도 춘천시 공지로 312",
+        "lics": ["건축공사업", "전기공사업"],
+        "license_specs": {
+            "건축공사업": {
+                "cap": 6800000000,
+                "yearly_perf": {"2021": 820000000, "2022": 950000000, "2023": 780000000, "2024": 1010000000, "2025": 940000000},
+                "perf": 4500000000, "rank": "강원 12위"
+            },
             "전기공사업": {
                 "cap": 4200000000,
                 "yearly_perf": {"2021": 550000000, "2022": 600000000, "2023": 580000000, "2024": 650000000, "2025": 720000000},
@@ -325,11 +211,9 @@ def search_companies_incremental(query_text):
         clean_q = q.replace("-", "")
         if pure_cho:
             if q in extract_chosung(c_name) or q in extract_chosung(c_ceo):
-        matched_by_ceo = any(search_term in v.get("ceo", "") for v in [comp_data])
                 matches.append(comp)
         else:
             if q in c_name or clean_q in c_biz or q in c_ceo:
-        matched_by_ceo = any(search_term in v.get("ceo", "") for v in [comp_data])
                 matches.append(comp)
     return matches
 
@@ -373,7 +257,17 @@ def fetch_association_company_data(query_text, api_key=""):
         return res
 
     return {
-        "name": query_text if not clean_query.isdigit() else 
+        "name": query_text if not clean_query.isdigit() else "(주)태양전기건설",
+        "ceo": "김태양",
+        "biz_no": query_text if clean_query.isdigit() else "221-81-12345",
+        "region": "강원특별자치도 춘천시 공지로 312",
+        "lics": ["건축공사업", "전기공사업"],
+        "license_specs": {
+            "건축공사업": {
+                "cap": 6800000000,
+                "yearly_perf": {"2021": 820000000, "2022": 950000000, "2023": 780000000, "2024": 1010000000, "2025": 940000000},
+                "perf": 4500000000, "rank": "강원 12위"
+            },
             "전기공사업": {
                 "cap": 4200000000,
                 "yearly_perf": {"2021": 550000000, "2022": 600000000, "2023": 580000000, "2024": 650000000, "2025": 720000000},
@@ -984,7 +878,12 @@ if not is_profile_ready:
             st.warning("조회할 법인명이나 사업자등록번호를 입력하세요.")
 
     s_data = st.session_state["scraped_data"] or {
-        "name": 
+        "name": "(주)태양전기건설", "ceo": "김태양", "biz_no": "221-81-12345", "region": "강원특별자치도 춘천시 공지로 312",
+        "lics": ["건축공사업", "전기공사업"],
+        "license_specs": {
+            "건축공사업": {"cap": 6800000000, "yearly_perf": {"2021": 820000000, "2022": 950000000, "2023": 780000000, "2024": 1010000000, "2025": 940000000}, "perf": 4500000000, "rank": "강원 12위"},
+            "전기공사업": {"cap": 4200000000, "yearly_perf": {"2021": 550000000, "2022": 600000000, "2023": 580000000, "2024": 650000000, "2025": 720000000}, "perf": 3100000000, "rank": "강원 8위"}
+        },
         "special_certs": ["무정전공사 시공자격", "활선공사 시공자격", "신재생에너지설비 전문기업"],
         "engineers": {"특급": 2, "고급": 3, "중급": 4, "초급": 5},
         "credit_grade": "A-", "debt_ratio": 92.5, "cur_ratio": 145.0, "sanction_days": 0
@@ -1112,7 +1011,7 @@ try:
 except Exception:
     timer_display = "⏳ 입찰 진행 중"
 
-st.title("⚡ BID-NEXUS v2.0 (차세대 고도화 개발 에디션)")
+st.title("⚡ BID-NEXUS: 완전 자율형 공공입찰 전자동화 터미널")
 col_header1, col_header2 = st.columns([3, 1])
 col_header1.caption(f"기준 기업: **{comp['name']}** (대표이사: **{comp.get('ceo', '대표이사')}**) | 신용 {comp['credit_grade']} ➔ 기술자 총 {sum(comp.get('engineers', {}).values())}명 매핑")
 col_header2.markdown(f'<div class="timer-badge">{timer_display}</div>', unsafe_allow_html=True)
