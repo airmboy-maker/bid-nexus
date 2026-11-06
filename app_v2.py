@@ -4708,7 +4708,7 @@ function jumpFromIso(targetKey) {
         components.html(iso_infographic_html, height=520, scrolling=False)
 
         # 3. 보물섬 소나 레이더 & 황금 금고 맵 (v7.5 잘림 해결본 유지)
-        st.markdown("## 👑 [BAY 1-B] 골든 아틀란티스 보물섬 : 실시간 황금 소나 레이더 & 4대 보석 금고(Vault)")
+        st.markdown("## 👑 [BAY 1-B] 골든 아틀란티스 보물섬 : 실시간 황금 소나 레이더 & 멀티 보석 금고(Vault)")
         st.caption("실시간 소나 레이더로 4대 황금 어장을 스캔하며, 각 보물상자의 [📋 황금좌표 복사] 클릭 시 투찰가와 추천번호가 즉시 복사됩니다.")
 
         chest_cards_html = ""
@@ -4808,7 +4808,7 @@ function jumpFromIso(targetKey) {
             total_treasure_bid += opt_bid
             total_treasure_profit += est_profit
 
-            g_title, g_color, g_bg = gem_badges[idx % 4]
+            g_title, g_color, g_bg = gem_badges[idx % len(gem_badges)]
             lk_nums = _pick_lucky_4_numbers(it.get("공고번호", str(idx)), m_rt_pct, int(st.session_state.get("lucky_seed_offset", 0))) if "_pick_lucky_4_numbers" in globals() else "🎯 3번 · 7번 · 11번 · 14번"
             d_badge = _calc_dday_badge(it.get("마감일시", "")) if "_calc_dday_badge" in globals() else "⏳ D-Day"
             full_title = str(it.get("공고명", ""))
@@ -4887,15 +4887,17 @@ function jumpFromIso(targetKey) {
     }}
     .bridge-layout {{
         display: grid;
-        grid-template-columns: 1fr 1.65fr;
-        gap: 20px;
+        grid-template-columns: 285px minmax(0, 1fr);
+        gap: 16px;
         align-items: stretch;
     }}
     .sonar-panel {{
+        width: 285px;
+        min-width: 285px;
         background: rgba(2, 6, 23, 0.92);
         border: 1px solid rgba(52, 211, 153, 0.45);
         border-radius: 16px;
-        padding: 16px;
+        padding: 14px 12px;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -4904,14 +4906,17 @@ function jumpFromIso(targetKey) {
     }}
     .sonar-status-box {{
         width: 100%;
-        background: rgba(15, 23, 42, 0.85);
-        border: 1px solid rgba(56, 189, 248, 0.3);
+        background: rgba(15, 23, 42, 0.88);
+        border: 1px solid rgba(56, 189, 248, 0.35);
         border-radius: 10px;
-        padding: 10px 12px;
-        margin-top: 10px;
+        padding: 10px 10px;
+        margin-top: 8px;
         font-size: 11px;
-        line-height: 1.6;
+        line-height: 1.65;
         color: #cbd5e1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }}
     .chests-grid {{
         display: grid;
@@ -4942,20 +4947,26 @@ function jumpFromIso(targetKey) {
     }}
     .gem-tag {{
         font-family: 'Orbitron', sans-serif;
-        font-size: 10px;
+        font-size: 9.5px;
         font-weight: 800;
         border: 1px solid;
-        padding: 2px 8px;
+        padding: 2px 6px;
         border-radius: 999px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 68%;
     }}
     .dday-pill {{
-        font-size: 10px;
+        font-size: 9.5px;
         background: rgba(239, 68, 68, 0.22);
         border: 1px solid rgba(248, 113, 113, 0.45);
         color: #fca5a5;
-        padding: 2px 8px;
+        padding: 2px 6px;
         border-radius: 6px;
         font-weight: 700;
+        white-space: nowrap;
+        flex-shrink: 0;
     }}
     .chest-title {{
         font-size: 14px;
@@ -4987,15 +4998,19 @@ function jumpFromIso(targetKey) {
     }}
     .loot-val {{
         font-family: 'Orbitron', sans-serif;
-        font-size: 17px;
+        font-size: clamp(13.5px, 1.15vw, 17px);
         font-weight: 900;
         margin-top: 2px;
+        white-space: nowrap;
     }}
     .chest-meta {{
-        font-size: 11.5px;
+        font-size: 11px;
         color: #e2e8f0;
-        line-height: 1.55;
-        margin-bottom: 10px;
+        line-height: 1.5;
+        margin-bottom: 8px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }}
     .copy-btn {{
         width: 100%;
@@ -5088,7 +5103,7 @@ function jumpFromIso(targetKey) {
 
     <div class="bridge-layout">
         <div class="sonar-panel">
-            <canvas id="sonarCanvas" width="320" height="295" style="width:100%;max-width:320px;height:295px;"></canvas>
+            <canvas id="sonarCanvas" width="260" height="260" style="width:260px;height:260px;flex-shrink:0;"></canvas>
             <div class="sonar-status-box">
                 <div style="color:#34d399;font-weight:800;margin-bottom:3px;">📡 GOLDEN SONAR TELEMETRY</div>
                 • 전체 투찰 인양 규모: <b style="color:#fff;">{total_treasure_bid:,.0f} 원</b><br>
@@ -5202,16 +5217,16 @@ const cy = H / 2;
 
 let sweepAngle = 0;
 const targets = [
-    {{r: 42, theta: 0.75, label: "소양초(CROWN)", color: "#facc15", align: "left"}},
-    {{r: 64, theta: 2.25, label: "봉의고(DIAMOND)", color: "#38bdf8", align: "left"}},
-    {{r: 58, theta: 3.75, label: "원주센터(EMERALD)", color: "#34d399", align: "left"}},
-    {{r: 64, theta: 5.50, label: "강릉복지관(ARCANE)", color: "#c084fc", align: "left"}}
+    {{r: 34, theta: 0.80, label: "소양초", color: "#facc15", align: "left"}},
+    {{r: 56, theta: 2.30, label: "봉의고", color: "#38bdf8", align: "left"}},
+    {{r: 72, theta: 3.80, label: "원주센터", color: "#34d399", align: "left"}},
+    {{r: 52, theta: 5.45, label: "강릉복지관", color: "#c084fc", align: "left"}}
 ];
 
 function drawSonar() {{
     ctx.clearRect(0, 0, W, H);
 
-    for (let r = 30; r <= 120; r += 30) {{
+    for (let r = 26; r <= 104; r += 26) {{
         ctx.beginPath();
         ctx.arc(cx, cy, r, 0, Math.PI * 2);
         ctx.strokeStyle = 'rgba(52, 211, 153, 0.24)';
@@ -5226,10 +5241,10 @@ function drawSonar() {{
 
     for (let deg = 0; deg < 360; deg += 15) {{
         let rad = deg * Math.PI / 180;
-        let x1 = cx + Math.cos(rad) * 123;
-        let y1 = cy + Math.sin(rad) * 123;
-        let x2 = cx + Math.cos(rad) * (deg % 45 === 0 ? 132 : 127);
-        let y2 = cy + Math.sin(rad) * (deg % 45 === 0 ? 132 : 127);
+        let x1 = cx + Math.cos(rad) * 106;
+        let y1 = cy + Math.sin(rad) * 106;
+        let x2 = cx + Math.cos(rad) * (deg % 45 === 0 ? 114 : 110);
+        let y2 = cy + Math.sin(rad) * (deg % 45 === 0 ? 114 : 110);
         ctx.beginPath();
         ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
         ctx.strokeStyle = deg % 45 === 0 ? '#facc15' : 'rgba(250, 204, 21, 0.35)';
@@ -5241,7 +5256,7 @@ function drawSonar() {{
         let a = sweepAngle - i * 0.02;
         ctx.beginPath();
         ctx.moveTo(cx, cy);
-        ctx.arc(cx, cy, 120, a - 0.02, a);
+        ctx.arc(cx, cy, 104, a - 0.02, a);
         ctx.closePath();
         ctx.fillStyle = `rgba(16, 185, 129, ${{(35 - i) / 140}})`;
         ctx.fill();
