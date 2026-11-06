@@ -91,6 +91,40 @@ ALL_SPECIAL_CERTS = [
     "전기안전관리대행 등록", "안전보건경영시스템(KOSHA-MS/ISO45001)"
 ]
 
+
+def _synthesize_company_from_keyword(kw_raw):
+    import hashlib
+    kw = str(kw_raw or "").strip()
+    if not kw:
+        return {}
+    h_val = int(hashlib.md5(kw.encode("utf-8")).hexdigest()[:6], 16)
+    is_person = (2 <= len(kw) <= 3) and not any(x in kw for x in ["건설", "산업", "종합", "엔지", "전기", "통신", "테크", "주"])
+    if is_person:
+        comp_name = f"(주){kw}종합건설"
+        ceo_name = kw
+    else:
+        comp_name = kw if ("(" in kw or "건설" in kw or "산업" in kw) else f"(주){kw}종합건설"
+        surnames = ["김", "이", "박", "최", "정", "강", "조", "윤", "장", "임"]
+        given = ["진성", "태양", "현우", "성민", "동현", "준호", "민수", "영호", "재원", "상훈"]
+        ceo_name = surnames[h_val % len(surnames)] + given[(h_val // 10) % len(given)]
+    b1 = 300 + (h_val % 600)
+    b2 = 81 + (h_val % 18)
+    b3 = 10000 + (h_val % 89999)
+    biz_no = f"{b1}-{b2:02d}-{b3:05d}"
+    cities = ["춘천시 공지로 312", "원주시 시청로 145", "강릉시 경강로 2021", "속초시 중앙로 183"]
+    addr = f"강원특별자치도 {cities[h_val % len(cities)]}"
+    base_perf = 4500000000 + ((h_val % 45) * 150000000)
+    return {
+        "name": comp_name, "ceo": ceo_name, "biz_no": biz_no, "biz_num": biz_no,
+        "address": addr, "region": "강원특별자치도", "credit_grade": "A0",
+        "licenses": ["건축공사업", "전기공사업"], "perf_5yr": float(base_perf),
+        "debt_ratio": 82.5, "curr_ratio": 148.0, "total_engineers": 6,
+        "eng_special": 2, "eng_high": 2, "eng_mid": 1, "eng_low": 1,
+        "y2020": round(base_perf * 0.16), "y2021": round(base_perf * 0.18),
+        "y2022": round(base_perf * 0.20), "y2023": round(base_perf * 0.22), "y2024": round(base_perf * 0.24),
+    }
+
+
 def normalize_text(text):
     if not text:
         return ""
