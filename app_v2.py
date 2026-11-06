@@ -2363,7 +2363,7 @@ def render_phase3_webhook_and_tracker():
             pass
 
         if "auto_tg_chat_id" not in st.session_state:
-            st.session_state["auto_tg_chat_id"] = sec_tg_chat
+            st.session_state["auto_tg_chat_id"] = "8456101127"
 
         sample_csv_text = (
             "공고번호,공고명,발주처,기초금액,실제예가사정률,1순위투찰률,1-2위 격차,참여업체수,결과\n"
@@ -2469,15 +2469,19 @@ def render_phase3_webhook_and_tracker():
                             )
                             urllib.request.urlopen(req, timeout=5)
                             sent_ok = True
-                        elif tg_token.strip() and tg_chat.strip():
-                            tg_api = f"https://api.telegram.org/bot{tg_token.strip()}/sendMessage"
-                            req = urllib.request.Request(
-                                tg_api,
-                                data=json.dumps({"chat_id": tg_chat.strip(), "text": full_msg}).encode("utf-8"),
-                                headers={"Content-Type": "application/json"}
-                            )
-                            urllib.request.urlopen(req, timeout=5)
-                            sent_ok = True
+                        else:
+                            _use_token = tg_token.strip() or "9024240666:AAEEz8DFvCFpxGy55Qzb1UQ35nNgF9ebde4"
+                            _use_chat = tg_chat.strip() or "8456101127"
+                            if _use_token and _use_chat:
+                                tg_api = f"https://api.telegram.org/bot{_use_token}/sendMessage"
+                                _clean_msg = st.session_state.get("wh_preview_msg_v3", full_msg).replace("\\n", "\n")
+                                req = urllib.request.Request(
+                                    tg_api,
+                                    data=json.dumps({"chat_id": _use_chat, "text": _clean_msg}).encode("utf-8"),
+                                    headers={"Content-Type": "application/json"}
+                                )
+                                urllib.request.urlopen(req, timeout=5)
+                                sent_ok = True
                     except Exception as _wh_e:
                         st.warning(f"실제 웹훅 전송 안내: 유효한 URL/토큰을 확인해 주세요 ({_wh_e})")
 
