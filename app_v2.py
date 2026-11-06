@@ -1564,7 +1564,7 @@ q_auto.setdefault("verdict", "적격 통과 (A등급)")
 q_auto.setdefault("standard_name", "조달청 시설공사 적격심사 세부기준")
 q_auto.setdefault("bracket", "추정가격 50억원 미만 30억원 이상")
 
-        st.info(f"📋 **적용 규정**: {q_auto.get('standard_name', '조달청 시설공사 적격심사 세부기준')} [{q_auto.get('bracket', '추정가격 50억원 미만 30억원 이상')}]")
+st.info(f"📋 **적용 규정**: {q_auto.get('standard_name', '조달청 시설공사 적격심사 세부기준')} [{q_auto.get('bracket', '추정가격 50억원 미만 30억원 이상')}]")
         
         m_a1, m_a2, m_a3 = st.columns(3)
         m_a1.metric("경영상태", f"{q_auto.get('final_mgmt_score', 12.0):.1f} / {q_auto.get('max_mgmt', 12.0):.0f}점", q_auto.get('selected_method', '재무비율')[:4])
