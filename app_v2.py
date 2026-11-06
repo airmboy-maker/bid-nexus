@@ -1244,7 +1244,8 @@ def _check_security_pin_gate():
         with st.sidebar.expander("🔐 모바일/외부 접속 보안 PIN 설정", expanded=False):
             enable_pin = st.checkbox("외부 접속 시 PIN 잠금 활성화", value=st.session_state.get("pin_lock_enabled", False), key="chk_pin_enable")
             st.session_state["pin_lock_enabled"] = enable_pin
-            target_pin = st.text_input("관리자 보안 PIN 번호 설정", value=st.session_state.get("admin_pin_code", "2026"), type="password", key="inp_admin_pin")
+            _default_pin = str(st.secrets.get("ADMIN_PIN", "2026")) if hasattr(st, "secrets") else "2026"
+            target_pin = st.text_input("관리자 보안 PIN 번호 설정", value=st.session_state.get("admin_pin_code", _default_pin), type="password", key="inp_admin_pin")
             st.session_state["admin_pin_code"] = target_pin
             if enable_pin and st.session_state.get("pin_authenticated", False):
                 if st.button("🔒 즉시 화면 잠금", use_container_width=True, key="btn_lock_now"):
@@ -2343,13 +2344,27 @@ def render_phase3_webhook_and_tracker():
     try:
         st.markdown("---")
         st.markdown("## 🔔 [3단계] 입찰 마감 D-Day 알림 웹훅(Telegram/Slack) & 연간 수주 목표 트래커")
-        st.caption("장바구니 포트폴리오의 최적 투찰가 브리핑을 메신저로 즉시 발송하고, 낙찰 확정 공고들을 체크하여 올해 연간 수주 목표 달성률을 실시간 추적합니다.")
+        st.caption("Streamlit Cloud Secrets 영구 환경변수 연동 및 텔레그램 Chat ID 원클릭 자동 조회를 지원합니다.")
 
         pool = st.session_state.get("bid_cart_pool", [])
         if not pool:
             return
 
-        # 1. 샘플 CSV 내장 원클릭 다운로드 보장 바
+        # Streamlit Secrets 기본값 안전 로드
+        sec_tg_token = ""
+        sec_tg_chat = ""
+        sec_slack_url = ""
+        try:
+            if hasattr(st, "secrets"):
+                sec_tg_token = str(st.secrets.get("TELEGRAM_BOT_TOKEN", "") or "")
+                sec_tg_chat = str(st.secrets.get("TELEGRAM_CHAT_ID", "") or "")
+                sec_slack_url = str(st.secrets.get("SLACK_WEBHOOK_URL", "") or "")
+        except Exception:
+            pass
+
+        if "auto_tg_chat_id" not in st.session_state:
+            st.session_state["auto_tg_chat_id"] = sec_tg_chat
+
         sample_csv_text = (
             "공고번호,공고명,발주처,기초금액,실제예가사정률,1순위투찰률,1-2위 격차,참여업체수,결과\n"
             "202610-00112,춘천 남산초 그린스마트스쿨 개축공사,강원특별자치도춘천교육지원청,3420000000,100.085,87.752,0.004,142,적격통과\n"
@@ -2364,26 +2379,67 @@ def render_phase3_webhook_and_tracker():
 
         col_w, col_t = st.columns([1, 1])
 
-        # [모듈 A] 입찰 마감 D-Day 텔레그램/슬랙 알림 웹훅
+        # [모듈 A] 입찰 마감 D-Day 텔레그램/슬랙 알림 웹훅 (Chat ID 자동 조회 포함)
         with col_w:
             st.markdown("#### 📲 1. 입찰 마감 D-Day 텔레그램 / 슬랙 투찰가 알림 웹훅")
             wh_type = st.radio(
                 "알림 채널 선택",
-                ["Slack / Discord 웹훅 URL", "Telegram 봇 (Token & Chat ID)"],
+                ["Telegram 봇 (Token & Chat ID 자동조회)", "Slack / Discord 웹훅 URL"],
                 horizontal=True,
-                key="wh_channel_type"
+                key="wh_channel_type_v3"
             )
 
             if "Slack" in wh_type:
-                wh_url = st.text_input("웹훅 URL 입력 (Slack / Discord / 잔디)", placeholder="https://hooks.slack.com/services/...", key="inp_slack_url")
+                wh_url = st.text_input(
+                    "웹훅 URL 입력 (Slack / Discord / 잔디)",
+                    value=sec_slack_url,
+                    placeholder="https://hooks.slack.com/services/...",
+                    key="inp_slack_url_v3"
+                )
                 tg_token, tg_chat = "", ""
             else:
-                c_tg1, c_tg2 = st.columns(2)
-                tg_token = c_tg1.text_input("Telegram Bot Token", placeholder="123456:ABC-DEF...", type="password", key="inp_tg_token")
-                tg_chat = c_tg2.text_input("Telegram Chat ID", placeholder="-100123456789", key="inp_tg_chat")
+                c_tg1, c_tg2, c_tg3 = st.columns([1.4, 1.1, 0.9])
+                tg_token = c_tg1.text_input(
+                    "Telegram Bot Token",
+                    value=sec_tg_token,
+                    placeholder="123456:ABC-DEF...",
+                    type="password",
+                    key="inp_tg_token_v3"
+                )
+                tg_chat = c_tg2.text_input(
+                    "Telegram Chat ID",
+                    value=st.session_state.get("auto_tg_chat_id", sec_tg_chat),
+                    placeholder="-100123456789",
+                    key="inp_tg_chat_v3"
+                )
+                with c_tg3:
+                    st.write("")
+                    if st.button("🔍 Chat ID 자동조회", use_container_width=True, key="btn_find_chat_id"):
+                        if not tg_token.strip():
+                            st.warning("먼저 좌측에 Bot Token을 입력해 주세요.")
+                        else:
+                            try:
+                                u_url = f"https://api.telegram.org/bot{tg_token.strip()}/getUpdates"
+                                req = urllib.request.Request(u_url)
+                                with urllib.request.urlopen(req, timeout=5) as resp:
+                                    res_data = json.loads(resp.read().decode("utf-8"))
+                                results = res_data.get("result", [])
+                                if results:
+                                    last_msg = results[-1].get("message") or results[-1].get("channel_post") or {}
+                                    found_id = str(last_msg.get("chat", {}).get("id", ""))
+                                    chat_title = last_msg.get("chat", {}).get("first_name") or last_msg.get("chat", {}).get("title") or "사용자"
+                                    if found_id:
+                                        st.session_state["auto_tg_chat_id"] = found_id
+                                        st.success(f"✅ Chat ID 자동 감지 완료: `{found_id}` ({chat_title})")
+                                        st.rerun()
+                                    else:
+                                        st.warning("메시지 내역을 찾지 못했습니다. 봇에게 먼저 아무 메시지나 1건 보내주세요.")
+                                else:
+                                    st.warning("수신된 대화가 없습니다. 텔레그램 봇 대화방에서 '시작(/start)' 또는 아무 글자나 전송한 뒤 다시 눌러주세요.")
+                            except Exception as _e:
+                                st.error(f"조회 실패: 유효한 Bot Token인지 확인해 주세요 ({_e})")
                 wh_url = ""
 
-            # 발송 메시지 자동 생성
             msg_lines = ["⚡ [BID-NEXUS] 입찰 마감 D-Day 최적 투찰가 알림 브리핑"]
             for idx, it in enumerate(pool[:4], start=1):
                 b_amt = float(it.get("기초금액", 0) or 0)
@@ -2398,11 +2454,11 @@ def render_phase3_webhook_and_tracker():
                 )
             full_msg = "\n".join(msg_lines)
 
-            st.text_area("전송될 브리핑 메시지 미리보기 (수정 가능)", value=full_msg, height=155, key="wh_preview_msg")
+            st.text_area("전송될 브리핑 메시지 미리보기 (수정 가능)", value=full_msg, height=145, key="wh_preview_msg_v3")
 
             btn_c1, btn_c2 = st.columns(2)
             with btn_c1:
-                if st.button("🚀 지금 즉시 알림 웹훅 발송", use_container_width=True, key="btn_send_webhook"):
+                if st.button("🚀 지금 즉시 알림 웹훅 발송", use_container_width=True, key="btn_send_webhook_v3"):
                     sent_ok = False
                     try:
                         if wh_url.strip():
@@ -2428,7 +2484,7 @@ def render_phase3_webhook_and_tracker():
                     if sent_ok:
                         st.success("✅ 텔레그램/슬랙 채널로 최적 투찰가 알림이 실시간 전송되었습니다.")
                     else:
-                        st.success("✅ [시뮬레이션 발송 완료] 아래 브리핑 전문이 알림 큐에 정상 등록되었습니다.")
+                        st.success("✅ [시뮬레이션 발송 완료] 브리핑 전문이 알림 큐에 정상 등록되었습니다.")
             with btn_c2:
                 st.download_button(
                     label="📥 AI 학습용 샘플 CSV 다운로드",
@@ -2436,7 +2492,7 @@ def render_phase3_webhook_and_tracker():
                     file_name="sample_g2b_opening_history.csv",
                     mime="text/csv",
                     use_container_width=True,
-                    key="btn_dl_guaranteed_csv"
+                    key="btn_dl_guaranteed_csv_v3"
                 )
 
         # [모듈 B] 연간 수주 목표 대비 낙찰 실적 트래커
@@ -2448,14 +2504,14 @@ def render_phase3_webhook_and_tracker():
                 min_value=1000000000,
                 value=15000000000,
                 step=1000000000,
-                key="tracker_annual_goal"
+                key="tracker_annual_goal_v3"
             )
             prev_won_amt = t_c2.number_input(
                 "기존 누적 수주 확정액 (원)",
                 min_value=0,
                 value=6450000000,
                 step=500000000,
-                key="tracker_prev_won"
+                key="tracker_prev_won_v3"
             )
 
             option_names = [f"[{it.get('공고번호','')}] {it.get('공고명','')}" for it in pool]
@@ -2463,7 +2519,7 @@ def render_phase3_webhook_and_tracker():
                 "🎉 장바구니 공고 중 신규 낙찰(수주 확정) 건 선택",
                 options=option_names,
                 default=option_names[:1],
-                key="tracker_won_multiselect"
+                key="tracker_won_multiselect_v3"
             )
 
             new_won_sum = 0.0
