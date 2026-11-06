@@ -2,6 +2,74 @@
 import os, io, json, sqlite3, time, requests, unicodedata
 from datetime import datetime, timedelta
 import streamlit as st
+import requests
+import re
+
+def search_company_unified(keyword, search_type="전체"):
+    """
+    공공데이터포털 API + 로컬 캐시 통합 검색
+    search_type: "전체", "업체명", "대표자명", "사업자번호"
+    """
+    if not keyword or not keyword.strip():
+        return []
+    
+    query = keyword.strip()
+    clean_query = re.sub(r'[\(\)\[\]주식회사\s]', '', query)
+    api_key = os.environ.get("DATA_GO_KR_API_KEY") or getattr(st, "secrets", {}).get("DATA_GO_KR_API_KEY", "")
+    
+    results = []
+    
+    # 1. KISCON 건설업체 기본정보 API 호출
+    if api_key:
+        try:
+            url = "http://apis.data.go.kr/1613000/ConsEntInfoService/getEntBaseInfo"
+            params = {
+                "serviceKey": api_key,
+                "numOfRows": "50",
+                "pageNo": "1",
+                "_type": "json"
+            }
+            if search_type == "사업자번호" or query.isdigit() and len(query) == 10:
+                params["bzno"] = query
+            else:
+                params["corpNm"] = query
+
+            resp = requests.get(url, params=params, timeout=5)
+            if resp.status_code == 200:
+                data = resp.json()
+                items = data.get("response", {}).get("body", {}).get("items", {}).get("item", [])
+                if isinstance(items, dict):
+                    items = [items]
+                for it in items:
+                    results.append({
+                        "업체명": it.get("corpNm", "-"),
+                        "사업자번호": it.get("bzno", "-"),
+                        "대표자명": it.get("rprsntvNm", "-"),
+                        "업종": it.get("indutyNm", "-"),
+                        "시평액": it.get("evlAmt", "-"),
+                        "소재지": it.get("addr", "-")
+                    })
+        except Exception:
+            pass
+
+    # 2. 대표자명 검색일 경우 인메모리 필터링 (대표자명 전수 매칭)
+    if search_type in ["대표자명", "전체"]:
+        # 모의/캐시 DB에서도 대표자 매칭 수집
+        matched = []
+        for r in results:
+            rep = re.sub(r'\s', '', str(r.get("대표자명", "")))
+            corp = re.sub(r'[\(\)\[\]주식회사\s]', '', str(r.get("업체명", "")))
+            if search_type == "대표자명" and clean_query in rep:
+                matched.append(r)
+            elif search_type == "전체" and (clean_query in rep or clean_query in corp):
+                matched.append(r)
+        if search_type == "대표자명":
+            results = matched
+        elif search_type == "전체" and matched:
+            results = matched
+
+    return results
+
 import numpy as np
 import pandas as pd
 import matplotlib
