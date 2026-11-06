@@ -2881,45 +2881,151 @@ def render_phase4_quantum_ai_engine():
                 st.success(f"적용 완료: [{notice_no}] 목표사정률이 {pool[sel_idx]['목표사정률']:.3f}%로 즉시 반영되었습니다.")
                 st.rerun()
 
-        # 6. 1,365개 전수 조합 밀도 & 15개 복수예가 번호별 기여도 차트
-        st.markdown("#### 📈 4. 1,365개(15C4) 전수 조합 확률밀도 vs 경쟁사 데드존 & 15개 번호 기여율")
-        chart_c1, chart_c2 = st.columns([1.4, 1.0])
+        # 6. 1,365개 전수 조합 밀도 & 15개 복수예가 번호별 기여도 4D 라이브 홀로그램 차트
+        st.markdown("#### ⚡ 4. [4D LIVE WAVE] 1,365개(15C4) 전수 확률파동 vs 경쟁사 데드존 & 15개 번호 기여율")
+        import streamlit.components.v1 as components
+        import json
 
-        with chart_c1:
-            st.caption("🎯 **1,365개 복수예가 전수 조합 분포 vs 일반 프로그램 군집 데드존 vs AI 낙찰기대지수**")
-            x_bins = np.linspace(100.0 - spread_lim * 0.65, 100.0 + spread_lim * 0.65, 50)
-            true_density = np.array([np.sum(np.abs(comb_means - x) < 0.06) for x in x_bins], dtype=float)
-            true_density = (true_density / max(np.max(true_density), 1.0)) * 100.0
+        x_bins = np.linspace(100.0 - spread_lim * 0.65, 100.0 + spread_lim * 0.65, 42)
+        true_density = np.array([np.sum(np.abs(comb_means - x) < 0.06) for x in x_bins], dtype=float)
+        true_density = (true_density / max(np.max(true_density), 1.0)) * 100.0
+        competitor_crowd = np.exp(-0.5 * ((x_bins - legacy_pick) / max(hist_std * 0.55, 0.05)) ** 2) * 95.0
+        rival_spike = np.exp(-0.5 * ((x_bins - rival_mu) / max(rival_std, 0.025)) ** 2) * 85.0
+        win_edge = np.clip(true_density - (competitor_crowd * 0.45 + rival_spike * 0.25), 8.0, 100.0)
 
-            competitor_crowd = np.exp(-0.5 * ((x_bins - legacy_pick) / max(hist_std * 0.55, 0.05)) ** 2) * 95.0
-            rival_spike = np.exp(-0.5 * ((x_bins - rival_mu) / max(rival_std, 0.025)) ** 2) * 85.0
-            win_edge = np.clip(true_density - (competitor_crowd * 0.45 + rival_spike * 0.25), 5.0, 100.0)
+        active_target_rate = gear_sniper_rate if "기어 4" in chosen_gear else gear_quantum_rate
+        diffs = np.abs(comb_means - active_target_rate)
+        top_indices = np.argsort(diffs)[:68]
+        slot_counts = np.zeros(15)
+        for idx_c in top_indices:
+            for s_num in all_1365_combs[idx_c]:
+                slot_counts[s_num] += 1
+        slot_hit_pct = np.round((slot_counts / 68.0) * 100.0, 1)
+        top4_slots = sorted([int(i + 1) for i in np.argsort(slot_hit_pct)[-4:]])
 
-            dist_df = pd.DataFrame({
-                "사정률구간(%)": np.round(x_bins, 3),
-                "15C4 실제예가 출현밀도": np.round(true_density, 1),
-                "경쟁사 투찰 과밀도(데드존)": np.round(competitor_crowd, 1),
-                "AI 순수 낙찰기대지수(Edge)": np.round(win_edge, 1)
-            }).set_index("사정률구간(%)")
-            st.line_chart(dist_df)
+        q45_kinetic_html = f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Noto+Sans+KR:wght@500;700;900&display=swap');
+    * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+    body {{ background: transparent; font-family: 'Noto Sans KR', sans-serif; color: #f8fafc; overflow: hidden; padding: 4px; }}
+    .q-grid {{ display: grid; grid-template-columns: 1.35fr 1fr; gap: 16px; }}
+    .q-box {{
+        background: radial-gradient(circle at 50% 20%, rgba(15, 23, 42, 0.96), rgba(4, 7, 17, 0.99));
+        border: 1.5px solid rgba(56, 189, 248, 0.5);
+        border-bottom: 5px solid #6366f1;
+        border-radius: 16px;
+        padding: 14px;
+        box-shadow: 0 10px 28px rgba(0,0,0,0.65);
+    }}
+    .q-head {{ display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 900; color: #fde047; margin-bottom: 8px; }}
+</style>
+</head>
+<body>
+<div class="q-grid">
+    <div class="q-box">
+        <div class="q-head">
+            <span>🌊 15C4 출현밀도(청색) vs 경쟁사 데드존(적색) vs AI 낙찰기대지수(황금파동)</span>
+            <span style="font-family:Orbitron;font-size:10px;color:#38bdf8;">LIVE OSCILLOSCOPE</span>
+        </div>
+        <canvas id="waveOscCanvas" width="600" height="280" style="width:100%;height:280px;"></canvas>
+    </div>
+    <div class="q-box" style="border-color:rgba(250,204,21,0.55);border-bottom-color:#f59e0b;">
+        <div class="q-head">
+            <span>🎰 스윗스팟 상위 5% 수렴 15개 번호별 기여율 (황금 4대 번호 하이라이트)</span>
+            <span style="font-family:Orbitron;font-size:10px;color:#fde047;">TOP 4 GLOW</span>
+        </div>
+        <canvas id="slotHitCanvas" width="460" height="280" style="width:100%;height:280px;"></canvas>
+    </div>
+</div>
+<script>
+const xBins = {json.dumps([round(float(x), 3) for x in x_bins])};
+const dTrue = {json.dumps([round(float(x), 1) for x in true_density])};
+const dCrowd = {json.dumps([round(float(x), 1) for x in competitor_crowd])};
+const dEdge = {json.dumps([round(float(x), 1) for x in win_edge])};
+const sHits = {json.dumps([round(float(x), 1) for x in slot_hit_pct])};
+const top4 = {json.dumps(top4_slots)};
 
-        with chart_c2:
-            active_target_rate = gear_sniper_rate if "기어 4" in chosen_gear else gear_quantum_rate
-            st.caption(f"🎰 **선택 전략({active_target_rate:.3f}%) 수렴 상위 5% 조합 내 15개 번호별 기여율(%)**")
-            diffs = np.abs(comb_means - active_target_rate)
-            top_indices = np.argsort(diffs)[:68]
-            slot_counts = np.zeros(15)
-            for idx_c in top_indices:
-                for s_num in all_1365_combs[idx_c]:
-                    slot_counts[s_num] += 1
-            slot_hit_pct = np.round((slot_counts / 68.0) * 100.0, 1)
+const cw1 = document.getElementById('waveOscCanvas');
+const ctxW = cw1.getContext('2d');
+const cw2 = document.getElementById('slotHitCanvas');
+const ctxS = cw2.getContext('2d');
 
-            top4_slots = sorted([int(i + 1) for i in np.argsort(slot_hit_pct)[-4:]])
-            slot_df = pd.DataFrame({
-                "예가번호": [f"{i+1:02d}번" for i in range(15)],
-                "스윗스팟 기여율(%)": slot_hit_pct
-            }).set_index("예가번호")
-            st.bar_chart(slot_df)
+let phase = 0;
+function drawQ45() {{
+    phase += 0.05;
+    ctxW.clearRect(0, 0, cw1.width, cw1.height);
+    const W = cw1.width, H = cw1.height, padL = 36, padB = 30, padT = 20, padR = 14;
+    const pw = W - padL - padR, ph = H - padT - padB;
+
+    // 그리드
+    for (let g = 0; g <= 4; g++) {{
+        let gy = padT + g * (ph / 4);
+        ctxW.beginPath(); ctxW.moveTo(padL, gy); ctxW.lineTo(W - padR, gy);
+        ctxW.strokeStyle = 'rgba(148,163,184,0.14)'; ctxW.stroke();
+    }}
+
+    function drawCurve(arr, strokeCol, fillCol, ampMod) {{
+        ctxW.beginPath();
+        for (let i = 0; i < arr.length; i++) {{
+            let x = padL + (i / (arr.length - 1)) * pw;
+            let dyn = Math.sin(phase * 1.8 + i * 0.25) * ampMod;
+            let y = padT + ph - (Math.min(100, Math.max(0, arr[i] + dyn)) / 100.0) * ph;
+            if (i === 0) ctxW.moveTo(x, y);
+            else ctxW.lineTo(x, y);
+        }}
+        ctxW.strokeStyle = strokeCol;
+        ctxW.lineWidth = 2.6;
+        ctxW.stroke();
+        ctxW.lineTo(W - padR, padT + ph);
+        ctxW.lineTo(padL, padT + ph);
+        ctxW.closePath();
+        ctxW.fillStyle = fillCol;
+        ctxW.fill();
+    }}
+
+    drawCurve(dCrowd, '#fb7185', 'rgba(251, 113, 133, 0.14)', 3.0);
+    drawCurve(dTrue, '#38bdf8', 'rgba(56, 189, 248, 0.16)', 2.5);
+    drawCurve(dEdge, '#facc15', 'rgba(250, 204, 21, 0.22)', 4.0);
+
+    for (let i = 0; i < xBins.length; i += 8) {{
+        let x = padL + (i / (xBins.length - 1)) * pw;
+        ctxW.fillStyle = '#94a3b8'; ctxW.font = '10px Orbitron'; ctxW.textAlign = 'center';
+        ctxW.fillText(xBins[i].toFixed(2) + '%', x, H - 10);
+    }}
+
+    // 우측 15개 슬롯 3D 네온 기둥
+    ctxS.clearRect(0, 0, cw2.width, cw2.height);
+    const SW = cw2.width, SH = cw2.height, sBase = SH - 30;
+    const sGap = (SW - 30) / 15, sBarW = 16;
+    for (let i = 0; i < 15; i++) {{
+        let isTop = top4.includes(i + 1);
+        let pulse = Math.sin(phase * 2.2 + i * 0.4) * (isTop ? 5 : 2.5);
+        let h = Math.max(10, (sHits[i] / 48.0) * (sBase - 35) + pulse);
+        let bx = 18 + i * sGap, by = sBase - h;
+
+        ctxS.fillStyle = isTop ? '#facc15' : '#38bdf8';
+        ctxS.shadowColor = isTop ? '#facc15' : 'transparent';
+        ctxS.shadowBlur = isTop ? 12 : 0;
+        ctxS.fillRect(bx, by, sBarW, h);
+        ctxS.shadowBlur = 0;
+
+        ctxS.fillStyle = isTop ? '#fde047' : '#cbd5e1';
+        ctxS.font = 'bold 9px Orbitron'; ctxS.textAlign = 'center';
+        ctxS.fillText(sHits[i].toFixed(0) + '%', bx + sBarW / 2, by - 6);
+        ctxS.fillStyle = isTop ? '#facc15' : '#94a3b8';
+        ctxS.fillText((i + 1) + '번', bx + sBarW / 2, SH - 12);
+    }}
+
+    requestAnimationFrame(drawQ45);
+}}
+drawQ45();
+</script>
+</body>
+</html>"""
+        components.html(q45_kinetic_html, height=345, scrolling=False)
 
         st.info(
             f"💡 **[퀀텀 AI & 핀셋 저격 종합 결론]** 발주처 프리셋(`{sel_preset_name[:12]}...`)과 경쟁사 저격 분석을 결합한 결과, "
@@ -3102,31 +3208,292 @@ def render_phase5_singularity_engine():
                 st.success(f"각인 완료: [{notice_no}] 목표사정률이 {singularity_rate:.4f}%로 업데이트되었습니다.")
                 st.rerun()
 
-        # 시각화: (좌) 인간 클릭 편향 1~15번 확률 분포 vs (우) 원단위 양자화 계단(Step) 확대 곡선
-        st.markdown("#### 📊 2. [추론 ②] 인간 1~15번 번호 클릭 심리 편향 vs [추론 ①] 1,365개 양자화 계단 분포")
-        v_c1, v_c2 = st.columns(2)
-        with v_c1:
-            st.caption("🧠 **나라장터 입찰담당자 1번~15번 체크박스 실제 클릭 선호도 편향지수(%)**")
-            click_df = pd.DataFrame({
-                "예가번호": [f"{i+1:02d}번" for i in range(15)],
-                "인간 클릭 선택확률(%)": np.round(click_prob * 100.0, 2),
-                "단순 무작위 가정(6.67%)": np.full(15, 6.67)
-            }).set_index("예가번호")
-            st.bar_chart(click_df)
+        # 시각화: 60FPS로 살아 움직이는 4D 아이소메트릭 프리즘 기둥 & 양자 계단 레이저 스캐너
+        st.markdown("#### ⚡ 2. [4D LIVE KINETIC] 인간 1~15번 클릭 편향 3D 프리즘 & G2B 양자화 계단(Step) 실시간 레이저 스펙트럼")
+        import streamlit.components.v1 as components
+        import json
 
-        with v_c2:
-            st.caption("🔬 **타겟 구간 주변 G2B 실제 원단위 절사 양자화 계단(Quantization Steps) 정밀 스펙트럼**")
-            sorted_rates = np.sort(comb_exact_rates)
-            center_i = int(np.argmin(np.abs(sorted_rates - singularity_rate)))
-            slice_low = max(0, center_i - 25)
-            slice_high = min(len(sorted_rates), center_i + 25)
-            step_slice = sorted_rates[slice_low:slice_high]
-            step_df = pd.DataFrame({
-                "조합순번": [f"Step-{i}" for i in range(slice_low + 1, slice_high + 1)],
-                "실제 존재하는 양자화 사정률(%)": np.round(step_slice, 4),
-                "특이점 타겟 기준선(%)": np.full(len(step_slice), round(singularity_rate, 4))
-            }).set_index("조합순번")
-            st.line_chart(step_df)
+        sorted_rates = np.sort(comb_exact_rates)
+        center_i = int(np.argmin(np.abs(sorted_rates - singularity_rate)))
+        slice_low = max(0, center_i - 18)
+        slice_high = min(len(sorted_rates), center_i + 18)
+        step_slice = [round(float(x), 5) for x in sorted_rates[slice_low:slice_high]]
+        click_pct_list = [round(float(x) * 100.0, 2) for x in click_prob]
+
+        sg5_kinetic_html = f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Noto+Sans+KR:wght@500;700;900&display=swap');
+    * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+    body {{ background: transparent; font-family: 'Noto Sans KR', sans-serif; color: #f8fafc; overflow: hidden; padding: 4px; }}
+    .kinetic-grid {{
+        display: grid;
+        grid-template-columns: 1fr 1.15fr;
+        gap: 16px;
+    }}
+    .chart-shell {{
+        background: radial-gradient(circle at 50% 20%, rgba(15, 23, 42, 0.96), rgba(4, 7, 17, 0.99));
+        border: 1.5px solid rgba(56, 189, 248, 0.5);
+        border-bottom: 5px solid #0284c7;
+        border-radius: 16px;
+        padding: 14px;
+        box-shadow: 0 10px 28px rgba(0,0,0,0.65), inset 0 0 25px rgba(56,189,248,0.12);
+        position: relative;
+    }}
+    .chart-title {{
+        font-size: 13px;
+        font-weight: 900;
+        color: #fde047;
+        margin-bottom: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }}
+    .live-pill {{
+        font-family: 'Orbitron', sans-serif;
+        font-size: 10px;
+        background: rgba(16, 185, 129, 0.2);
+        border: 1px solid #10b981;
+        color: #34d399;
+        padding: 2px 8px;
+        border-radius: 999px;
+        box-shadow: 0 0 10px rgba(16,185,129,0.4);
+    }}
+</style>
+</head>
+<body>
+<div class="kinetic-grid">
+    <div class="chart-shell">
+        <div class="chart-title">
+            <span>🧠 1~15번 인간 클릭 편향 3D 아이소메트릭 프리즘</span>
+            <span class="live-pill">● 60FPS 3D PULSE</span>
+        </div>
+        <canvas id="clickPrismCanvas" width="520" height="290" style="width:100%;height:290px;"></canvas>
+    </div>
+    <div class="chart-shell" style="border-color:rgba(250,204,21,0.55);border-bottom-color:#ca8a04;">
+        <div class="chart-title">
+            <span>🔬 타겟 구간 주변 G2B 실제 원단위 절사 양자화 계단(Quantization Steps) 정밀 스펙트럼</span>
+            <span class="live-pill" style="color:#fde047;border-color:#facc15;background:rgba(250,204,21,0.18);">⚡ STEP #{nearest_step_idx+1} LOCKED</span>
+        </div>
+        <canvas id="quantStepCanvas" width="580" height="290" style="width:100%;height:290px;"></canvas>
+    </div>
+</div>
+
+<script>
+const clickData = {json.dumps(click_pct_list)};
+const stepData = {json.dumps(step_slice)};
+const targetRate = {singularity_rate:.5f};
+const startStepNum = {slice_low + 1};
+
+const c1 = document.getElementById('clickPrismCanvas');
+const ctx1 = c1.getContext('2d');
+const c2 = document.getElementById('quantStepCanvas');
+const ctx2 = c2.getContext('2d');
+
+let t = 0;
+
+function renderKineticCharts() {{
+    t += 0.045;
+
+    // [좌측 차트] 3D 아이소메트릭 네온 프리즘 바 애니메이션
+    ctx1.clearRect(0, 0, c1.width, c1.height);
+    const W1 = c1.width, H1 = c1.height;
+    const baseLine = H1 - 34;
+
+    // 배경 수평 그리드
+    for (let g = 0; g <= 4; g++) {{
+        let gy = 30 + g * ((baseLine - 30) / 4);
+        ctx1.beginPath();
+        ctx1.moveTo(32, gy); ctx1.lineTo(W1 - 12, gy);
+        ctx1.strokeStyle = 'rgba(148, 163, 184, 0.14)';
+        ctx1.lineWidth = 1;
+        ctx1.stroke();
+    }}
+
+    // 평균 기준선 (6.67%)
+    let avgY = baseLine - (6.67 / 13.5) * (baseLine - 35);
+    ctx1.beginPath();
+    ctx1.setLineDash([5, 5]);
+    ctx1.moveTo(32, avgY); ctx1.lineTo(W1 - 12, avgY);
+    ctx1.strokeStyle = 'rgba(250, 204, 21, 0.7)';
+    ctx1.lineWidth = 1.5;
+    ctx1.stroke();
+    ctx1.setLineDash([]);
+    ctx1.fillStyle = '#fde047';
+    ctx1.font = 'bold 10px sans-serif';
+    ctx1.fillText('무작위 기준(6.67%)', W1 - 108, avgY - 5);
+
+    const barW = 19;
+    const gap = (W1 - 50) / 15;
+    for (let i = 0; i < 15; i++) {{
+        let val = clickData[i];
+        let wave = Math.sin(t * 2.0 + i * 0.55) * 4.5;
+        let bh = Math.max(12, (val / 13.0) * (baseLine - 45) + wave);
+        let bx = 36 + i * gap;
+        let by = baseLine - bh;
+
+        let isHot = val >= 8.0;
+        let topColor = isHot ? '#fde047' : '#38bdf8';
+        let frontGrad = ctx1.createLinearGradient(bx, by, bx, baseLine);
+        if (isHot) {{
+            frontGrad.addColorStop(0, '#facc15');
+            frontGrad.addColorStop(0.5, '#ec4899');
+            frontGrad.addColorStop(1, '#6366f1');
+        }} else {{
+            frontGrad.addColorStop(0, '#38bdf8');
+            frontGrad.addColorStop(1, '#1e3a8a');
+        }}
+
+        // 3D 정면 기둥
+        ctx1.fillStyle = frontGrad;
+        ctx1.fillRect(bx, by, barW, bh);
+
+        // 3D 아이소메트릭 상단 마름모 뚜껑
+        ctx1.beginPath();
+        ctx1.moveTo(bx, by);
+        ctx1.lineTo(bx + 6, by - 6);
+        ctx1.lineTo(bx + barW + 6, by - 6);
+        ctx1.lineTo(bx + barW, by);
+        ctx1.closePath();
+        ctx1.fillStyle = topColor;
+        ctx1.fill();
+
+        // 3D 아이소메트릭 우측 입체 옆면
+        ctx1.beginPath();
+        ctx1.moveTo(bx + barW, by);
+        ctx1.lineTo(bx + barW + 6, by - 6);
+        ctx1.lineTo(bx + barW + 6, baseLine - 6);
+        ctx1.lineTo(bx + barW, baseLine);
+        ctx1.closePath();
+        ctx1.fillStyle = isHot ? 'rgba(190, 24, 93, 0.85)' : 'rgba(14, 116, 144, 0.85)';
+        ctx1.fill();
+
+        // 상단 수치 및 하단 번호 라벨
+        ctx1.fillStyle = isHot ? '#fde047' : '#cbd5e1';
+        ctx1.font = 'bold 9.5px Orbitron, sans-serif';
+        ctx1.textAlign = 'center';
+        ctx1.fillText(val.toFixed(1), bx + barW / 2 + 2, by - 10);
+
+        ctx1.fillStyle = '#94a3b8';
+        ctx1.font = 'bold 10px sans-serif';
+        ctx1.fillText((i + 1) + '번', bx + barW / 2, H1 - 14);
+    }}
+
+    // [우측 차트] G2B 원단위 절사 양자화 계단(Quantization Steps) 실시간 스캐너
+    ctx2.clearRect(0, 0, c2.width, c2.height);
+    const W2 = c2.width, H2 = c2.height;
+    const padL = 66, padR = 18, padT = 26, padB = 36;
+    const plotW = W2 - padL - padR;
+    const plotH = H2 - padT - padB;
+
+    const minR = Math.min(...stepData) - 0.002;
+    const maxR = Math.max(...stepData) + 0.002;
+    const spanR = Math.max(maxR - minR, 0.005);
+
+    // 배경 네온 그리드 & 정밀 Y축 사정률(%) 눈금
+    for (let g = 0; g <= 4; g++) {{
+        let gy = padT + g * (plotH / 4);
+        let rVal = maxR - (g / 4) * spanR;
+        ctx2.beginPath();
+        ctx2.moveTo(padL, gy); ctx2.lineTo(W2 - padR, gy);
+        ctx2.strokeStyle = 'rgba(56, 189, 248, 0.15)';
+        ctx2.lineWidth = 1;
+        ctx2.stroke();
+
+        ctx2.fillStyle = '#38bdf8';
+        ctx2.font = 'bold 10px Orbitron, sans-serif';
+        ctx2.textAlign = 'right';
+        ctx2.fillText(rVal.toFixed(3) + '%', padL - 6, gy + 3);
+    }}
+
+    // 타겟 기준선 (황금 네온 파동선)
+    let targetY = padT + ((maxR - targetRate) / spanR) * plotH;
+    ctx2.beginPath();
+    ctx2.setLineDash([6, 4]);
+    ctx2.moveTo(padL, targetY); ctx2.lineTo(W2 - padR, targetY);
+    ctx2.strokeStyle = '#facc15';
+    ctx2.lineWidth = 2;
+    ctx2.stroke();
+    ctx2.setLineDash([]);
+
+    // 계단형(Step-function) 궤적 및 하부 홀로그램 그라데이션 채우기
+    const N = stepData.length;
+    const stepW = plotW / Math.max(N - 1, 1);
+    let scanIdx = Math.floor((t * 6) % N);
+
+    ctx2.beginPath();
+    for (let i = 0; i < N; i++) {{
+        let sx = padL + i * stepW;
+        let microPulse = Math.sin(t * 3 + i * 0.4) * 1.8;
+        let sy = padT + ((maxR - stepData[i]) / spanR) * plotH + microPulse;
+        if (i === 0) {{
+            ctx2.moveTo(sx, sy);
+        }} else {{
+            let prevX = padL + (i - 1) * stepW;
+            let prevY = padT + ((maxR - stepData[i - 1]) / spanR) * plotH + Math.sin(t * 3 + (i - 1) * 0.4) * 1.8;
+            ctx2.lineTo(sx, prevY); // 수평 계단
+            ctx2.lineTo(sx, sy);    // 수직 단차
+        }}
+    }}
+    ctx2.strokeStyle = '#38bdf8';
+    ctx2.lineWidth = 2.8;
+    ctx2.shadowColor = '#38bdf8';
+    ctx2.shadowBlur = 12;
+    ctx2.stroke();
+    ctx2.shadowBlur = 0;
+
+    // 각 양자화 계단 절점(Node) 및 실시간 스캔 레이저 링
+    let centerNodeIdx = Math.floor(N / 2);
+    for (let i = 0; i < N; i++) {{
+        let sx = padL + i * stepW;
+        let sy = padT + ((maxR - stepData[i]) / spanR) * plotH + Math.sin(t * 3 + i * 0.4) * 1.8;
+        let isTarget = (i === centerNodeIdx);
+        let isScanned = (i === scanIdx);
+
+        if (isScanned) {{
+            ctx2.beginPath();
+            ctx2.moveTo(sx, padT); ctx2.lineTo(sx, H2 - padB);
+            ctx2.strokeStyle = 'rgba(52, 211, 153, 0.45)';
+            ctx2.lineWidth = 1.5;
+            ctx2.stroke();
+        }}
+
+        ctx2.beginPath();
+        ctx2.arc(sx, sy, isTarget ? 7.5 : (isScanned ? 5.5 : 3), 0, Math.PI * 2);
+        ctx2.fillStyle = isTarget ? '#facc15' : (isScanned ? '#34d399' : '#c084fc');
+        ctx2.fill();
+
+        if (isTarget) {{
+            let pulseR = 10 + Math.sin(t * 4) * 5;
+            ctx2.beginPath();
+            ctx2.arc(sx, sy, pulseR, 0, Math.PI * 2);
+            ctx2.strokeStyle = '#fde047';
+            ctx2.lineWidth = 2;
+            ctx2.stroke();
+
+            ctx2.fillStyle = '#fde047';
+            ctx2.font = 'bold 11px Orbitron, sans-serif';
+            ctx2.textAlign = 'center';
+            ctx2.fillText('🎯 LOCK: ' + targetRate.toFixed(4) + '% (+17원 웨지)', sx, sy - 15);
+        }}
+
+        if (i % 5 === 0 || i === N - 1) {{
+            ctx2.fillStyle = '#94a3b8';
+            ctx2.font = '10px Orbitron, sans-serif';
+            ctx2.textAlign = 'center';
+            ctx2.fillText('Step-' + (startStepNum + i), sx, H2 - 14);
+        }}
+    }}
+
+    requestAnimationFrame(renderKineticCharts);
+}}
+renderKineticCharts();
+</script>
+</body>
+</html>"""
+        components.html(sg5_kinetic_html, height=355, scrolling=False)
 
     except Exception as _sg_err:
         st.info(f"특이점 v5.0 엔진 준비 완료 ({_sg_err})")
@@ -3766,18 +4133,98 @@ drawMandala();
                 st.success(f"판도라 신탁 각인 완료: [{notice_no}] 목표사정률이 {pandora_rate:.4f}%로 동기화되었습니다.")
                 st.rerun()
 
-        st.markdown("#### 🌊 1,365개 다중우주 양자 파동함수(|Ψ|²) 보강간섭 스펙트럼 & 황금비(Φ) 수렴 파형")
+        st.markdown("#### 🌊 [4D LIVE QUANTUM FIELD] 1,365 다중우주 양자 파동함수(|Ψ|²) 보강간섭 홀로그램 스펙트럼")
+        import json
         x_order = np.argsort(comb_rates)
         sorted_r = comb_rates[x_order]
         sorted_amp = prob_amplitude[x_order]
-        step_idx = np.linspace(0, len(sorted_r) - 1, 80, dtype=int)
+        step_idx = np.linspace(0, len(sorted_r) - 1, 64, dtype=int)
+        r_list = [round(float(x), 4) for x in sorted_r[step_idx]]
+        amp_list = [round(float(x), 2) for x in sorted_amp[step_idx]]
 
-        wave_df = pd.DataFrame({
-            "사정률궤도(%)": np.round(sorted_r[step_idx], 4),
-            "양자 보강간섭 에너지(|Ψ|²)": np.round(sorted_amp[step_idx], 2),
-            "황금비(Φ) 임계선": np.full(len(step_idx), 61.8)
-        }).set_index("사정률궤도(%)")
-        st.area_chart(wave_df)
+        p7_wave_html = f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
+    body {{ margin: 0; background: transparent; overflow: hidden; }}
+    .w-wrap {{
+        background: radial-gradient(circle at 50% 0%, rgba(30,27,75,0.95), rgba(5,8,17,0.99));
+        border: 1.5px solid rgba(192,132,252,0.55);
+        border-bottom: 4px solid #facc15;
+        border-radius: 16px;
+        padding: 12px 16px;
+    }}
+</style>
+</head>
+<body>
+<div class="w-wrap">
+    <canvas id="quantumAuroraCanvas" width="1050" height="210" style="width:100%;height:210px;"></canvas>
+</div>
+<script>
+const rArr = {json.dumps(r_list)};
+const aArr = {json.dumps(amp_list)};
+const cv = document.getElementById('quantumAuroraCanvas');
+const cx = cv.getContext('2d');
+let qPhase = 0;
+
+function drawAurora() {{
+    qPhase += 0.055;
+    cx.clearRect(0, 0, cv.width, cv.height);
+    const W = cv.width, H = cv.height, padB = 26, padT = 18;
+    const ph = H - padT - padB;
+
+    // 황금비 임계선 (61.8%)
+    let phiY = padT + ph * (1 - 0.618);
+    cx.beginPath();
+    cx.setLineDash([6, 4]);
+    cx.moveTo(20, phiY); cx.lineTo(W - 20, phiY);
+    cx.strokeStyle = '#facc15'; cx.lineWidth = 1.5; cx.stroke();
+    cx.setLineDash([]);
+    cx.fillStyle = '#fde047'; cx.font = 'bold 11px Orbitron';
+    cx.fillText('Φ GOLDEN RATIO THRESHOLD (61.8%)', 28, phiY - 6);
+
+    // 살아 움직이는 양자 보강간섭 파동
+    cx.beginPath();
+    for (let i = 0; i < aArr.length; i++) {{
+        let x = 20 + (i / (aArr.length - 1)) * (W - 40);
+        let wave = Math.sin(qPhase * 2.2 + i * 0.35) * 8.0;
+        let val = Math.min(100, Math.max(4, aArr[i] + wave));
+        let y = padT + ph - (val / 100.0) * ph;
+        if (i === 0) cx.moveTo(x, y);
+        else cx.lineTo(x, y);
+    }}
+    cx.strokeStyle = '#38bdf8';
+    cx.lineWidth = 3;
+    cx.shadowColor = '#c084fc';
+    cx.shadowBlur = 15;
+    cx.stroke();
+    cx.shadowBlur = 0;
+
+    cx.lineTo(W - 20, padT + ph);
+    cx.lineTo(20, padT + ph);
+    cx.closePath();
+    let grad = cx.createLinearGradient(0, padT, 0, padT + ph);
+    grad.addColorStop(0, 'rgba(244, 114, 182, 0.55)');
+    grad.addColorStop(0.5, 'rgba(139, 92, 246, 0.32)');
+    grad.addColorStop(1, 'rgba(14, 165, 233, 0.05)');
+    cx.fillStyle = grad;
+    cx.fill();
+
+    for (let i = 0; i < rArr.length; i += 8) {{
+        let x = 20 + (i / (rArr.length - 1)) * (W - 40);
+        cx.fillStyle = '#cbd5e1'; cx.font = '10px Orbitron';
+        cx.fillText(rArr[i].toFixed(3) + '%', x - 18, H - 6);
+    }}
+
+    requestAnimationFrame(drawAurora);
+}}
+drawAurora();
+</script>
+</body>
+</html>"""
+        components.html(p7_wave_html, height=245, scrolling=False)
 
     except Exception as _p_err:
         st.info(f"판도라 아카식 코어 준비 완료 ({_p_err})")
