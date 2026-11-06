@@ -13,11 +13,23 @@ from google.genai import types
 from hwp_parser import extract_hwp_or_hwpx
 
 st.set_page_config(
-    page_title="BID-NEXUS v2.0-Alpha: Advanced Engine",
+    page_title="BID-NEXUS: Autonomous Intelligence",
     page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# --- 카카오톡 메시지 카드 (Open Graph) 최적화 메타태그 ---
+st.markdown('''
+<head>
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="⚡ BID-NEXUS: 자율형 입찰분석 터미널">
+    <meta property="og:description" content="조달청 공고 실시간 수집 · 기업 맞춤 적격심사 자동평가 · 4D 사정률 퀀트 분석">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+</head>
+''', unsafe_allow_html=True)
 
 st.markdown("""
 <style>
