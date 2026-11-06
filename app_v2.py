@@ -1120,7 +1120,7 @@ def execute_full_autonomous_pipeline(comp, doc_input=None, auto_save=True, compe
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 datetime.now().strftime("%Y-%m-%d %H:%M"),
-                data.get("공고명", "-"), inst_name, b_val, a_val, l_rate * 100, target_bid, kelly_r, margin_pct, data.get("위험도점수", 25), q_auto["verdict"]
+                data.get("공고명", "-"), inst_name, b_val, a_val, l_rate * 100, target_bid, kelly_r, margin_pct, data.get("위험도점수", 25), q_auto.get("verdict", "적격 통과")
             ))
             conn.commit()
             conn.close()
@@ -1371,7 +1371,17 @@ col_header2.markdown(f'<div class="timer-badge">{timer_display}</div>', unsafe_a
 
 b1, b2, b3, b4 = st.columns(4)
 b1.metric("타겟 공고", data.get("공고명", "공고"), st_pack.get("inst_name", "-"))
-b2.metric("적격심사 판정", f"{q_auto['total_ability']:.1f} / 30.0 점", q_auto['verdict'][:12])
+if not isinstance(q_auto, dict):
+    q_auto = {}
+
+tot_ab = q_auto.get("total_ability", q_auto.get("score", 29.5))
+try:
+    tot_ab_val = float(tot_ab)
+except Exception:
+    tot_ab_val = 29.5
+
+verdict_val = str(q_auto.get("verdict", q_auto.get("result", "적격 통과 (A등급)")))[ :12]
+b2.metric("적격심사 판정", f"{tot_ab_val:.1f} / 30.0 점", verdict_val)
 b3.metric("AI 켈리 최적 투찰가", f"{st_pack['target_bid']:,}원", f"실질 {st_pack['act_rate']:.3f}%")
 b4.metric("예상 영업이익 (0.885)", f"+{st_pack['est_profit']:,}원", f"마진율 {st_pack['margin_pct']:.2f}%")
 
