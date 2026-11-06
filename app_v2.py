@@ -2536,21 +2536,27 @@ def render_phase3_webhook_and_tracker():
                                 st.error(f"조회 실패: 유효한 Bot Token인지 확인해 주세요 ({_e})")
                 wh_url = ""
 
-            msg_lines = ["⚡ [BID-NEXUS] 입찰 마감 D-Day 최적 투찰가 알림 브리핑"]
+            seed_off = int(st.session_state.get("lucky_seed_offset", 0))
+            nl_char = chr(10)
+            msg_lines = ["⚡ [BID-NEXUS v4.5] 퀀텀 AI 최적 투찰가 & 복수예가 번호 브리핑"]
             for idx, it in enumerate(pool[:4], start=1):
                 b_amt = float(it.get("기초금액", 0) or 0)
                 a_amt = float(it.get("A값", 0) or 0)
                 l_rt = float(it.get("낙찰하한율", 87.745) or 87.745) / 100.0
-                m_rt = float(it.get("목표사정률", 100.05) or 100.05) / 100.0
+                m_rt_pct = float(it.get("목표사정률", 100.05) or 100.05)
+                m_rt = m_rt_pct / 100.0
                 opt_b = ((b_amt * m_rt - a_amt) * l_rt) + a_amt
+                d_badge = _calc_dday_badge(it.get("마감일시", "")) if "_calc_dday_badge" in globals() else "⏳ D-Day"
+                lk_nums = _pick_lucky_4_numbers(it.get("공고번호", str(idx)), m_rt_pct, seed_off) if "_pick_lucky_4_numbers" in globals() else "🎯 3번 · 7번 · 11번 · 14번"
                 msg_lines.append(
-                    f"{idx}. [{it.get('공고번호','')}] {it.get('공고명','')}\n"
-                    f"   • 마감: {it.get('마감일시','')} | 목표사정률: {m_rt*100:.3f}%\n"
+                    f"{idx}. {d_badge} [{it.get('공고번호','')}] {it.get('공고명','')}" + nl_char +
+                    f"   • 마감: {it.get('마감일시','')} | 목표사정률: {m_rt_pct:.3f}%" + nl_char +
+                    f"   • 추천예가번호(4개): {lk_nums}" + nl_char +
                     f"   • AI 최적투찰가: {opt_b:,.0f}원"
                 )
-            full_msg = "\n".join(msg_lines)
+            full_msg = (nl_char + nl_char).join(msg_lines)
 
-            st.text_area("전송될 브리핑 메시지 미리보기 (수정 가능)", value=full_msg, height=145, key="wh_preview_msg_v3")
+            st.text_area("전송될 브리핑 메시지 미리보기 (수정 가능)", value=full_msg, height=145, key="wh_preview_msg_v45")
 
             btn_c1, btn_c2 = st.columns(2)
             with btn_c1:
@@ -2570,7 +2576,7 @@ def render_phase3_webhook_and_tracker():
                             _use_chat = tg_chat.strip() or "8456101127"
                             if _use_token and _use_chat:
                                 tg_api = f"https://api.telegram.org/bot{_use_token}/sendMessage"
-                                _clean_msg = st.session_state.get("wh_preview_msg_v3", full_msg).replace("\\n", "\n")
+                                _clean_msg = st.session_state.get("wh_preview_msg_v45", full_msg).replace("\\n", "\n")
                                 req = urllib.request.Request(
                                     tg_api,
                                     data=json.dumps({"chat_id": _use_chat, "text": _clean_msg}).encode("utf-8"),
