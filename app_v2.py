@@ -5212,16 +5212,23 @@ def render_phase9_bidding_machine_workstation():
     }
     div[role="radiogroup"] > label {
         flex: 1 1 0px !important;
+        min-width: 128px !important;
         background: linear-gradient(145deg, #1e293b, #0f172a) !important;
         border: 1px solid rgba(148, 163, 184, 0.35) !important;
         border-bottom: 4px solid #334155 !important;
-        border-radius: 10px !important;
-        padding: 8px 8px !important;
+        border-radius: 12px !important;
+        padding: 8px 6px !important;
         margin: 0 !important;
         cursor: pointer !important;
         transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
         justify-content: center !important;
-        white-space: nowrap !important;
+        align-items: center !important;
+        text-align: center !important;
+    }
+    /* 라디오 원형 아이콘 여백 축소로 한글 1줄 공간 확보 */
+    div[role="radiogroup"] > label > div:first-child {
+        margin-right: 4px !important;
+        transform: scale(0.82) !important;
     }
     div[role="radiogroup"] > label:hover {
         border-color: #facc15 !important;
@@ -5240,8 +5247,12 @@ def render_phase9_bidding_machine_workstation():
     div[role="radiogroup"] > label p {
         font-weight: 900 !important;
         font-size: 12.5px !important;
+        line-height: 1.35 !important;
         color: #f8fafc !important;
-        white-space: nowrap !important;
+        white-space: pre !important;
+        word-break: keep-all !important;
+        text-align: center !important;
+        margin: 0 !important;
     }
 
     /* 4D 메트릭 큐브 및 버튼 1줄 고정 */
@@ -5334,18 +5345,19 @@ def render_phase9_bidding_machine_workstation():
     st.markdown(machine_header_html, unsafe_allow_html=True)
 
     # 4. 7-BAY 스위치 라벨을 간결한 1줄 문맥으로 정리하고, 초기 진입 시 무조건 BAY 1이 선택되도록 고정
+    nl_b = chr(10)
     bay_options = [
-        "👑 [BAY 1] 보물섬·4D조감도",
-        "🛒 [BAY 2] 장바구니·품의서",
-        "🔮 [BAY 3] 판도라 X10 산통",
-        "🌌 [BAY 4] 특이점 양자계단",
-        "🎯 [BAY 5] 발주처·경쟁사저격",
-        "🏁 [BAY 6] 개찰복기·자가교정",
-        "📲 [BAY 7] 텔레그램·수주실적"
+        f"👑 BAY 01{nl_b}보물섬·4D조감도",
+        f"🛒 BAY 02{nl_b}장바구니·품의서",
+        f"🔮 BAY 03{nl_b}판도라 X10 산통",
+        f"🌌 BAY 04{nl_b}특이점 양자계단",
+        f"🎯 BAY 05{nl_b}발주처·경쟁사저격",
+        f"🏁 BAY 06{nl_b}개찰복기·자가교정",
+        f"📲 BAY 07{nl_b}텔레그램·수주실적"
     ]
 
-    if "v96_active_bay" not in st.session_state or st.session_state["v96_active_bay"] not in bay_options:
-        st.session_state["v96_active_bay"] = bay_options[0]
+    if "v97_active_bay" not in st.session_state or st.session_state["v97_active_bay"] not in bay_options:
+        st.session_state["v97_active_bay"] = bay_options[0]
 
     selected_bay = st.radio(
         "🎛️ 가동할 입찰 머신 분업화 모듈(Workstation Bay) 선택",
@@ -5353,21 +5365,21 @@ def render_phase9_bidding_machine_workstation():
         index=0,
         horizontal=True,
         label_visibility="collapsed",
-        key="v96_active_bay"
+        key="v97_active_bay"
     )
 
     # 5. 선택된 BAY 즉시 렌더링 (기본값 Fallback을 BAY 1로 두어 첫 화면에서 100% 즉시 표시)
-    if "BAY 2" in selected_bay:
+    if "BAY 02" in selected_bay or "BAY 2" in selected_bay:
         render_phase2_multi_bid_cart()
-    elif "BAY 3" in selected_bay:
+    elif "BAY 03" in selected_bay or "BAY 3" in selected_bay:
         render_phase7_pandora_akashic_core()
-    elif "BAY 4" in selected_bay:
+    elif "BAY 04" in selected_bay or "BAY 4" in selected_bay:
         render_phase5_singularity_engine()
-    elif "BAY 5" in selected_bay:
+    elif "BAY 05" in selected_bay or "BAY 5" in selected_bay:
         render_phase4_quantum_ai_engine()
-    elif "BAY 6" in selected_bay:
+    elif "BAY 06" in selected_bay or "BAY 6" in selected_bay:
         render_phase6_backtesting_terminal()
-    elif "BAY 7" in selected_bay:
+    elif "BAY 07" in selected_bay or "BAY 7" in selected_bay:
         render_phase3_webhook_and_tracker()
     else:
         # 첫 진입 및 BAY 1 선택 시 즉시 보물섬 & 4D 조감도 오픈
@@ -5389,7 +5401,7 @@ def render_phase9_bidding_machine_workstation():
             color:#cbd5e1;
             white-space:nowrap;
         ">
-            <div>🔩 <b style="color:#fde047;">ACTIVE BAY : {selected_bay}</b> — 타 모듈 스크롤이 자동 격리된 단독 집중 하우징 모드입니다.</div>
+            <div>🔩 <b style="color:#fde047;">ACTIVE BAY : {selected_bay.replace(chr(10), ' — ')}</b> — 타 모듈 스크롤이 자동 격리된 단독 집중 하우징 모드입니다.</div>
             <div style="font-family:'Orbitron',sans-serif;color:#34d399;font-weight:800;">● ZERO-SCROLL HOUSING v9.6</div>
         </div>""",
         unsafe_allow_html=True
