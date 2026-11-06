@@ -1918,6 +1918,51 @@ with tab4:
 
 
 # ==================== [PHASE 2: MULTI-BID CART START] ====================
+def _calc_dday_badge(deadline_str):
+    from datetime import datetime
+    try:
+        dt_str = str(deadline_str).strip()
+        target_dt = datetime.strptime(dt_str[:16], "%Y-%m-%d %H:%M")
+        now_dt = datetime.now()
+        diff_sec = (target_dt - now_dt).total_seconds()
+        diff_days = int(diff_sec // 86400)
+        diff_hours = int((diff_sec % 86400) // 3600)
+        if diff_sec < 0:
+            return "⚫ 마감종료"
+        elif diff_sec <= 86400:
+            return f"🚨 마감임박 ({diff_hours}시간 전)"
+        elif diff_days <= 3:
+            return f"🔥 D-{diff_days} ({diff_hours}h)"
+        else:
+            return f"⏳ D-{diff_days}"
+    except Exception:
+        return "⏳ D-Day"
+
+
+def _pick_lucky_4_numbers(notice_no, target_rate, seed_offset=0):
+    import hashlib
+    import numpy as np
+    from itertools import combinations
+    try:
+        slot_rates = np.linspace(98.20, 101.80, 15)
+        h_val = int(hashlib.md5(f"{notice_no}_{seed_offset}".encode("utf-8")).hexdigest()[:8], 16)
+        rng = np.random.default_rng(h_val)
+        sim_slots = slot_rates + rng.normal(0, 0.08, 15)
+        best_comb = (2, 6, 10, 13)
+        min_diff = 999.0
+        all_combs = list(combinations(range(15), 4))
+        rng.shuffle(all_combs)
+        for comb in all_combs[:450]:
+            avg_r = float(np.mean([sim_slots[i] for i in comb]))
+            diff = abs(avg_r - float(target_rate))
+            if diff < min_diff:
+                min_diff = diff
+                best_comb = tuple(sorted([i + 1 for i in comb]))
+        return f"🎯 {best_comb[0]}번 · {best_comb[1]}번 · {best_comb[2]}번 · {best_comb[3]}번"
+    except Exception:
+        return "🎯 3번 · 7번 · 11번 · 14번"
+
+
 def generate_cart_executive_report_html(comp_info, cart_rows, share_pct, partner_name, partner_perf, total_bid, my_bid_sum, my_profit_sum, total_eng, avail_eng):
     try:
         c_name = comp_info.get("name", "(주)진경종합건설")
@@ -1930,9 +1975,10 @@ def generate_cart_executive_report_html(comp_info, cart_rows, share_pct, partner
             tr_html += f"""
             <tr>
                 <td style="text-align:center;font-weight:bold;">{r.get('우선순위','')}</td>
+                <td style="text-align:center;font-weight:bold;color:#dc2626;">{r.get('마감카운트','')}</td>
                 <td><b>{r.get('공고명','')}</b><br><span style="font-size:11px;color:#64748b;">{r.get('공고번호','')} | {r.get('발주처','')}</span></td>
                 <td style="text-align:right;">{r.get('기초금액(원)',0):,.0f}원</td>
-                <td style="text-align:center;">{r.get('목표사정률(%)',100.0):.3f}%</td>
+                <td style="text-align:center;">{r.get('목표사정률(%)',100.0):.3f}%<br><span style="font-size:11px;color:#7c3aed;font-weight:bold;">{r.get('추천예가번호(4개)','')}</span></td>
                 <td style="text-align:right;font-weight:bold;color:#1d4ed8;">{r.get('AI 최적투찰가(원)',0):,.0f}원</td>
                 <td style="text-align:center;">{r.get('당사지분율(%)',100)}%</td>
                 <td style="text-align:right;font-weight:bold;color:#047857;">{r.get('당사기대수익(원)',0):,.0f}원</td>
@@ -1985,11 +2031,11 @@ def generate_cart_executive_report_html(comp_info, cart_rows, share_pct, partner
         <div class="kpi-card"><div class="kpi-label">당사 지분 투찰합계 ({share_pct}%)</div><div class="kpi-val">{my_bid_sum:,.0f} 원</div></div>
         <div class="kpi-card"><div class="kpi-label">당사 순기대 영업이익</div><div class="kpi-val" style="color:#047857;">{my_profit_sum:,.0f} 원</div></div>
     </div>
-    <h4>1. 장바구니 공고별 적격심사 및 공동도급 지분 반영 시뮬레이션 내역</h4>
+    <h4>1. 장바구니 공고별 마감 D-Day · 15C4 추천 예가번호 · 최적 투찰가 내역</h4>
     <table class="main-tbl">
         <thead>
             <tr>
-                <th>순위</th><th>공고명 / 공고번호 / 발주처</th><th>기초금액</th><th>목표사정률</th>
+                <th>순위</th><th>D-Day</th><th>공고명 / 공고번호 / 발주처</th><th>기초금액</th><th>목표사정률 / 추천번호</th>
                 <th>AI 최적투찰가</th><th>당사지분</th><th>당사기대수익</th><th>적격심사 판정</th>
             </tr>
         </thead>
@@ -1999,8 +2045,8 @@ def generate_cart_executive_report_html(comp_info, cart_rows, share_pct, partner
     </table>
     <div class="footer">
         <b>[기술자 배치 및 리스크 종합 의견]</b><br>
-        • 동시 낙찰 시 총 필요 기술자: <b>{total_eng}명</b> (당사 보유 가용 기술자: <b>{avail_eng}명</b>) — {"적정 배치 가능" if total_eng <= avail_eng else "일부 공고 중복 배치 주의 (기대수익 상위 공고 우선 투찰 권고)"}<br>
-        • 공동도급 구성: {mode_str} (구성원 합산 5개년 실적 반영 완료)
+        • 동시 낙찰 시 총 필요 기술자: <b>{total_eng}명</b> (당사 보유 가용 기술자: <b>{avail_eng}명</b>)<br>
+        • 공동도급 구성: {mode_str}
     </div>
 </body>
 </html>"""
@@ -2016,8 +2062,8 @@ def render_phase2_multi_bid_cart():
 
     try:
         st.markdown("---")
-        st.markdown("## 🛒 [2단계] 복수 입찰공고 장바구니(Multi-Bid Cart) & 공동도급·AI 사정률 학습 터미널")
-        st.caption("① 실시간 필터 공고 원클릭 수집 ➔ ② 과거 개찰결과 CSV 기반 사정률 AI 자동 학습 ➔ ③ 공동도급 지분율 시뮬레이션 ➔ ④ 통합 결재 리포트(HTML) 출력을 지원합니다.")
+        st.markdown("## 🛒 [2단계] 복수 입찰공고 장바구니(Multi-Bid Cart) & 실무 전자동화 터미널")
+        st.caption("① 신규 공고 수동 직접 등록 ➔ ② 15개 복수예가 번호 4개 추첨기 ➔ ③ 마감 D-Day 카운트다운 경보 배지 ➔ ④ 공동도급·AI 학습·결재 리포트를 통합 지원합니다.")
 
         default_notices = [
             {
@@ -2029,7 +2075,7 @@ def render_phase2_multi_bid_cart():
                 "기초금액": 3605411000,
                 "A값": 170640956,
                 "낙찰하한율": 87.745,
-                "마감일시": "2026-11-12 10:00",
+                "마감일시": "2026-11-07 14:00",
                 "목표사정률": 100.045,
                 "필요기술자": 2,
             },
@@ -2042,7 +2088,7 @@ def render_phase2_multi_bid_cart():
                 "기초금액": 4820500000,
                 "A값": 210540000,
                 "낙찰하한율": 87.745,
-                "마감일시": "2026-11-14 14:00",
+                "마감일시": "2026-11-09 14:00",
                 "목표사정률": 100.120,
                 "필요기술자": 2,
             },
@@ -2055,7 +2101,7 @@ def render_phase2_multi_bid_cart():
                 "기초금액": 6250000000,
                 "A값": 312000000,
                 "낙찰하한율": 87.745,
-                "마감일시": "2026-11-18 10:00",
+                "마감일시": "2026-11-12 10:00",
                 "목표사정률": 99.965,
                 "필요기술자": 3,
             },
@@ -2068,7 +2114,7 @@ def render_phase2_multi_bid_cart():
                 "기초금액": 4150000000,
                 "A값": 195000000,
                 "낙찰하한율": 87.745,
-                "마감일시": "2026-11-19 15:00",
+                "마감일시": "2026-11-16 15:00",
                 "목표사정률": 100.080,
                 "필요기술자": 2,
             },
@@ -2076,14 +2122,20 @@ def render_phase2_multi_bid_cart():
 
         if "bid_cart_pool" not in st.session_state or not isinstance(st.session_state.get("bid_cart_pool"), list):
             st.session_state["bid_cart_pool"] = default_notices
+        else:
+            if len(st.session_state["bid_cart_pool"]) >= 2 and st.session_state["bid_cart_pool"][0].get("마감일시") == "2026-11-12 10:00":
+                st.session_state["bid_cart_pool"][0]["마감일시"] = "2026-11-07 14:00"
+                st.session_state["bid_cart_pool"][1]["마감일시"] = "2026-11-09 14:00"
+
+        if "lucky_seed_offset" not in st.session_state:
+            st.session_state["lucky_seed_offset"] = 0
 
         pool = st.session_state["bid_cart_pool"]
         all_labels = [f"[{item.get('공고번호', '')}] {item.get('공고명', '')} ({item.get('기초금액', 0):,.0f}원)" for item in pool]
 
         if "bid_cart_selected" not in st.session_state:
-            st.session_state["bid_cart_selected"] = all_labels[:3]
+            st.session_state["bid_cart_selected"] = all_labels[:4]
 
-        # 1. 실시간 필터 감지 공고 원클릭 동기화
         st.markdown("#### 📡 1. 나라장터 실시간 필터 감지 공고 원클릭 장바구니 동기화")
         sync_c1, sync_c2, sync_c3 = st.columns([2, 1, 1])
         with sync_c1:
@@ -2097,24 +2149,46 @@ def render_phase2_multi_bid_cart():
                 st.session_state["bid_cart_selected"] = all_labels[:1]
                 st.rerun()
 
-        # [신규 탑재] 과거 개찰 결과 엑셀(CSV) 업로드 기반 사정률 AI 자동 학습기
+        with st.expander("➕ [실무 기능 ①] 신규 나라장터 입찰공고 직접 입력 및 장바구니 즉시 추가", expanded=False):
+            st.caption("오늘 나라장터에 새로 공고된 실제 입찰 건의 기초금액·A값·하한율을 직접 입력하면 최적 투찰가 산출 및 텔레그램 브리핑에 즉시 포함됩니다.")
+            f_c1, f_c2, f_c3, f_c4 = st.columns([1.1, 2.0, 1.5, 1.2])
+            new_no = f_c1.text_input("공고번호", value="202611-09901", key="inp_new_no")
+            new_title = f_c2.text_input("공고명", value="춘천 교육도서관 내진보강 및 리모델링 공사", key="inp_new_title")
+            new_org = f_c3.text_input("발주처", value="강원특별자치도교육청", key="inp_new_org")
+            new_dl = f_c4.text_input("마감일시 (YYYY-MM-DD HH:MM)", value="2026-11-07 16:00", key="inp_new_dl")
+
+            f_c5, f_c6, f_c7, f_c8, f_c9 = st.columns([1.4, 1.3, 1.0, 1.0, 1.2])
+            new_base = f_c5.number_input("기초금액 (원)", min_value=10000000, value=3250000000, step=50000000, key="inp_new_base")
+            new_aval = f_c6.number_input("A값 (국민연금 등 합산, 원)", min_value=0, value=158400000, step=5000000, key="inp_new_aval")
+            new_lrate = f_c7.number_input("낙찰하한율 (%)", min_value=70.0, max_value=95.0, value=87.745, step=0.005, format="%.3f", key="inp_new_lrate")
+            new_mrate = f_c8.number_input("목표사정률 (%)", min_value=97.0, max_value=103.0, value=100.065, step=0.005, format="%.3f", key="inp_new_mrate")
+            with f_c9:
+                st.write("")
+                if st.button("➕ 장바구니에 즉시 추가", use_container_width=True, key="btn_add_custom_notice"):
+                    new_item = {
+                        "공고번호": new_no.strip(),
+                        "공고명": new_title.strip(),
+                        "발주처": new_org.strip(),
+                        "업종": "건축공사업",
+                        "지역": "강원특별자치도",
+                        "기초금액": float(new_base),
+                        "A값": float(new_aval),
+                        "낙찰하한율": float(new_lrate),
+                        "마감일시": new_dl.strip(),
+                        "목표사정률": float(new_mrate),
+                        "필요기술자": 2,
+                    }
+                    st.session_state["bid_cart_pool"].insert(0, new_item)
+                    new_lbl = f"[{new_item['공고번호']}] {new_item['공고명']} ({new_item['기초금액']:,.0f}원)"
+                    st.session_state["bid_cart_selected"] = [new_lbl] + st.session_state.get("bid_cart_selected", [])
+                    st.success(f"등록 완료: [{new_item['공고번호']}] {new_item['공고명']}")
+                    st.rerun()
+
         with st.expander("🧠 [AI 사정률 자동 학습기] 발주처 과거 개찰 결과 엑셀(CSV) 업로드 및 목표 사정률(μ)·표준편차(σ) 자동 보정", expanded=False):
             ai_c1, ai_c2 = st.columns([1.5, 1.5])
             with ai_c1:
                 uploaded_hist = st.file_uploader("발주처 과거 개찰결과 파일 업로드 (.csv)", type=["csv"], key="upload_hist_csv")
                 use_sample_ai = st.checkbox("파일 없을 시 강원권 교육청/지자체 최근 50건 개찰 학습셋 사용", value=True, key="chk_sample_ai")
-                try:
-                    with open("sample_g2b_opening_history.csv", "rb") as _sf:
-                        st.download_button(
-                            label="📥 테스트용 발주처 개찰결과 샘플 CSV 다운로드 (20건)",
-                            data=_sf.read(),
-                            file_name="sample_g2b_opening_history.csv",
-                            mime="text/csv",
-                            use_container_width=True,
-                            key="btn_dl_sample_hist_csv"
-                        )
-                except Exception:
-                    pass
             with ai_c2:
                 rates_arr = np.array([100.085, 100.142, 99.945, 100.210, 100.032, 99.890, 100.115, 100.068, 99.975, 100.188, 100.044, 100.095])
                 if uploaded_hist is not None:
@@ -2126,7 +2200,7 @@ def render_phase2_multi_bid_cart():
                             extracted = extracted[(extracted >= 95.0) & (extracted <= 105.0)]
                             if len(extracted) > 0:
                                 rates_arr = extracted
-                                st.success(f"✅ 업로드 파일 `{rate_cols[0]}` 컬럼에서 총 {len(rates_arr)}건 사정률 추출 성공")
+                                st.success(f"업로드 파일 `{rate_cols[0]}` 컬럼에서 총 {len(rates_arr)}건 사정률 추출 성공")
                     except Exception as _u_err:
                         st.warning(f"CSV 파싱 안내: 기본 학습셋으로 대체합니다 ({_u_err})")
 
@@ -2140,13 +2214,7 @@ def render_phase2_multi_bid_cart():
                 st.caption(f"경쟁사 과밀 데드존 구간: `{dz_left:.3f}% ~ {dz_right:.3f}%` (자동 회피 적용)")
                 if st.button("⚡ AI 학습 최적 사정률을 장바구니 전체 공고에 일괄 적용", use_container_width=True, key="btn_apply_ai_mu"):
                     for idx_p, it_p in enumerate(st.session_state["bid_cart_pool"]):
-                        # 공고별 미세 분산 부여
                         it_p["목표사정률"] = round(rec_m_rate + (idx_p - 1) * 0.015, 3)
-                    if "st_pack" in globals() and isinstance(globals()["st_pack"], dict):
-                        globals()["st_pack"]["inst_mu"] = learned_mu
-                        globals()["st_pack"]["inst_std"] = learned_std
-                        globals()["st_pack"]["dead_zone_l"] = dz_left
-                        globals()["st_pack"]["dead_zone_r"] = dz_right
                     st.rerun()
 
         c_ctrl1, c_ctrl2 = st.columns([3, 1])
@@ -2155,15 +2223,14 @@ def render_phase2_multi_bid_cart():
                 "🛒 장바구니 분석 대상 공고 체크/해제",
                 options=all_labels,
                 default=[lbl for lbl in st.session_state.get("bid_cart_selected", []) if lbl in all_labels],
-                key="multiselect_bid_cart_v4"
+                key="multiselect_bid_cart_v5"
             )
             st.session_state["bid_cart_selected"] = selected_labels
         with c_ctrl2:
             margin_ratio_opt = st.number_input(
-                "목표 원가마진율(%)", min_value=3.0, max_value=25.0, value=8.2, step=0.5, key="cart_margin_opt_v4"
+                "목표 원가마진율(%)", min_value=3.0, max_value=25.0, value=8.2, step=0.5, key="cart_margin_opt_v5"
             )
 
-        # 2. 공동도급(컨소시엄) 지분율 계산기 모듈
         st.markdown("#### 🤝 2. 공동도급(컨소시엄) 지분율 및 실적 합산 시뮬레이터")
         jv_c1, jv_c2, jv_c3, jv_c4 = st.columns([1.2, 1.5, 1.2, 1.2])
         with jv_c1:
@@ -2202,13 +2269,22 @@ def render_phase2_multi_bid_cart():
         my_profit_sum = 0.0
         total_eng_req = 0
         go_count = 0
+        urgent_count = 0
+        seed_off = int(st.session_state.get("lucky_seed_offset", 0))
 
         for idx, item in enumerate(selected_items, start=1):
             base_amt = float(item.get("기초금액", 0) or 0)
             a_val = float(item.get("A값", 0) or 0)
             l_rate = float(item.get("낙찰하한율", 87.745) or 87.745) / 100.0
-            m_rate = float(item.get("목표사정률", 100.05) or 100.05) / 100.0
+            m_rate_pct = float(item.get("목표사정률", 100.05) or 100.05)
+            m_rate = m_rate_pct / 100.0
             req_eng = int(item.get("필요기술자", 2) or 2)
+            dl_str = item.get("마감일시", "2026-11-12 10:00")
+
+            dday_badge = _calc_dday_badge(dl_str)
+            if "🚨" in dday_badge or "🔥" in dday_badge:
+                urgent_count += 1
+            lucky_4_str = _pick_lucky_4_numbers(item.get("공고번호", str(idx)), m_rate_pct, seed_off)
 
             est_price = base_amt * m_rate
             opt_bid = ((est_price - a_val) * l_rate) + a_val
@@ -2231,11 +2307,13 @@ def render_phase2_multi_bid_cart():
 
             rows.append({
                 "우선순위": f"{idx}순위",
+                "마감카운트": dday_badge,
                 "공고번호": item.get("공고번호", ""),
                 "공고명": item.get("공고명", ""),
                 "발주처": item.get("발주처", ""),
                 "기초금액(원)": round(base_amt),
-                "목표사정률(%)": round(m_rate * 100.0, 3),
+                "목표사정률(%)": round(m_rate_pct, 3),
+                "추천예가번호(4개)": lucky_4_str,
                 "AI 최적투찰가(원)": round(opt_bid),
                 "당사지분율(%)": my_share_pct,
                 "당사분담투찰액(원)": round(my_bid_amt),
@@ -2243,14 +2321,13 @@ def render_phase2_multi_bid_cart():
                 "적격점수": total_score,
                 "투찰판정": verdict,
                 "필요기술자(명)": req_eng,
-                "마감일시": item.get("마감일시", ""),
+                "마감일시": dl_str,
             })
 
         cart_df = pd.DataFrame(rows)
 
-        # 요약 KPI 4열
         k1, k2, k3, k4 = st.columns(4)
-        k1.metric("🛒 장바구니 분석 공고", f"{len(selected_items)} 건", f"적격 통과 {go_count}건 ({'공동도급' if my_share_pct < 100 else '단독'})")
+        k1.metric("🛒 장바구니 분석 공고", f"{len(selected_items)} 건", f"🚨 마감임박/주의 {urgent_count}건 | 적격 {go_count}건")
         k2.metric("💰 당사 지분 투찰규모 합계", f"{my_bid_sum:,.0f} 원", f"전체 투찰규모 {total_bid_sum:,.0f}원 중 {my_share_pct}%")
         k3.metric("📈 당사 지분 순기대수익", f"{my_profit_sum:,.0f} 원", f"목표 마진율 {margin_ratio_opt:.1f}%")
         eng_status = "✅ 배치 가능" if total_eng_req <= avail_engineers else f"⚠️ {total_eng_req - avail_engineers}명 부족 (파트너사 분담 가능)"
@@ -2258,7 +2335,27 @@ def render_phase2_multi_bid_cart():
 
         st.dataframe(cart_df, use_container_width=True, hide_index=True)
 
-        # 3. 장바구니 공고별 사정률 몬테카를로 시뮬레이션 & 기대수익 비교 차트
+        st.markdown("#### 🎰 2-1. [실무 기능 ②] 나라장터 투찰 화면용 15개 복수예가 '최빈 행운 번호 4개' AI 추첨기")
+        lk_c1, lk_c2 = st.columns([3.2, 1.0])
+        with lk_c1:
+            st.caption("나라장터(G2B) 최종 투찰서 제출 시 선택해야 하는 **1번~15번 예비가격 번호 중 각 공고의 목표 사정률에 가장 근접하게 수렴하는 4개 번호 조합**입니다.")
+        with lk_c2:
+            if st.button("🎲 번호 4개 조합 재추첨 (시드 변경)", use_container_width=True, key="btn_reroll_lucky4"):
+                st.session_state["lucky_seed_offset"] = int(st.session_state.get("lucky_seed_offset", 0)) + 1
+                st.rerun()
+
+        lk_cols = st.columns(min(4, max(1, len(rows))))
+        nl = chr(10)
+        for idx_l, r_row in enumerate(rows[:4]):
+            with lk_cols[idx_l % len(lk_cols)]:
+                card_txt = (
+                    f"**{r_row['마감카운트']} | {r_row['공고명'][:12]}**" + nl + nl +
+                    f"• 목표사정률: `{r_row['목표사정률(%)']:.3f}%`" + nl +
+                    f"• 추천선택: **{r_row['추천예가번호(4개)']}**" + nl +
+                    f"• 투찰가: `{r_row['AI 최적투찰가(원)']:,.0f}원`"
+                )
+                st.info(card_txt)
+
         st.markdown("#### 📊 3. 장바구니 공고별 사정률 몬테카를로 분포 & 당사 지분 기대수익 비교 차트")
         ch_col1, ch_col2 = st.columns(2)
         with ch_col1:
@@ -2278,7 +2375,6 @@ def render_phase2_multi_bid_cart():
             mc_df = pd.DataFrame(sim_dict).set_index("사정률 구간(%)")
             st.line_chart(mc_df)
 
-        # 4. 장바구니 통합 결재 리포트(HTML) 출력 및 1단계 메인 연동
         st.markdown("#### 🖨️ 4. 장바구니 통합 결재 리포트(HTML) 출력 & 1단계 메인 시뮬레이터 즉시 연동")
         exec_html = generate_cart_executive_report_html(
             comp_state, rows, my_share_pct, partner_name, partner_perf_5yr,
@@ -2291,11 +2387,11 @@ def render_phase2_multi_bid_cart():
             chosen_target_lbl = st.selectbox(
                 "상단 1단계 메인 터미널로 보낼 타겟 공고 선택",
                 options=target_names,
-                key="select_cart_to_main_v4"
+                key="select_cart_to_main_v5"
             )
         with link_c2:
             st.write("")
-            if st.button("⚡ 1단계 메인 즉시 연동", use_container_width=True, key="btn_push_to_main_v4"):
+            if st.button("⚡ 1단계 메인 즉시 연동", use_container_width=True, key="btn_push_to_main_v5"):
                 chosen_idx = target_names.index(chosen_target_lbl)
                 chosen_obj = selected_items[chosen_idx]
                 st.session_state["active_cart_target"] = chosen_obj
@@ -2309,7 +2405,7 @@ def render_phase2_multi_bid_cart():
                 file_name="BID_NEXUS_Executive_Portfolio_Report.html",
                 mime="text/html",
                 use_container_width=True,
-                key="btn_download_cart_html_v4"
+                key="btn_download_cart_html_v5"
             )
         with link_c4:
             st.write("")
@@ -2320,7 +2416,7 @@ def render_phase2_multi_bid_cart():
                 file_name="BID_NEXUS_Multi_Bid_Cart_Report.csv",
                 mime="text/csv",
                 use_container_width=True,
-                key="btn_download_cart_csv_v4"
+                key="btn_download_cart_csv_v5"
             )
 
         with st.expander("📄 장바구니 통합 결재 품의서(HTML) 화면 미리보기 열기", expanded=False):
