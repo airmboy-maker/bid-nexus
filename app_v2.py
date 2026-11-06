@@ -94,7 +94,14 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 DATA_API_KEY = os.environ.get("DATA_GO_KR_API_KEY", "")
-client = genai.Client()
+try:
+    gemini_key = os.environ.get("GEMINI_API_KEY") or getattr(st, "secrets", {}).get("GEMINI_API_KEY", "")
+    if gemini_key:
+        client = genai.Client(api_key=gemini_key)
+    else:
+        client = None
+except Exception:
+    client = None
 
 DB_PATH = os.path.expanduser("~/bidding_history.db")
 PROFILE_JSON_PATH = os.path.expanduser("~/company_profile.json")
