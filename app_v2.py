@@ -3363,3 +3363,425 @@ def render_phase6_backtesting_terminal():
 render_phase6_backtesting_terminal()
 # ==================== [PHASE 6: BACKTEST ENGINE END] ====================
 
+
+# ==================== [PHASE 7: PANDORA AKASHIC START] ====================
+def render_phase7_pandora_akashic_core():
+    import streamlit as st
+    import streamlit.components.v1 as components
+    import numpy as np
+    import pandas as pd
+    import hashlib
+    from itertools import combinations
+
+    try:
+        st.markdown("---")
+        st.markdown("## 🔮 [초월 v6.0] PANDORA AKASHIC CORE : 형이상학 X10 심미안 & 홀로그래픽 산통(算筒)")
+        st.caption("① 로렌츠 카오스 기묘한 끌개(Strange Attractor) ② 황금비(Φ=1.618) 피보나치 공명 ③ 양자 파동함수(|Ψ|²) 보강간섭 붕괴 ④ 소수(Prime) 엔트로피 15각 만다라 신탁을 결합한 궁극의 시각적·수리철학적 사정 엔진입니다.")
+
+        pool = st.session_state.get("bid_cart_pool", [])
+        if not pool:
+            return
+
+        notice_labels = [f"[{it.get('공고번호','')}] {it.get('공고명','')}" for it in pool]
+        p_c1, p_c2, p_c3, p_c4 = st.columns([2.0, 1.2, 1.2, 1.2])
+
+        with p_c1:
+            sel_p_lbl = st.selectbox("🔮 판도라 신탁(Oracle) 개방 타겟 공고", options=notice_labels, key="p7_target_notice")
+        sel_idx = notice_labels.index(sel_p_lbl)
+        target_item = pool[sel_idx]
+
+        with p_c2:
+            chaos_sigma = st.slider("🦋 카오스 끌개 민감도 (σ)", min_value=5.0, max_value=20.0, value=10.0, step=0.5, key="p7_chaos_sigma")
+        with p_c3:
+            phi_harmonic = st.selectbox(
+                "📐 황금비(Φ) 공명 고조파",
+                ["Φ 1차 황금분할 (0.618034)", "Φ² 초월분할 (0.381966)", "피보나치 극점 (0.786151)"],
+                index=0,
+                key="p7_phi_mode"
+            )
+        with p_c4:
+            oracle_seed = st.number_input("⚡ 아카식 산통 파동 주파수(Hz)", min_value=108, max_value=999, value=432, step=9, key="p7_freq_hz")
+
+        base_amt = float(target_item.get("기초금액", 3605411000) or 3605411000)
+        a_val = float(target_item.get("A값", 170640956) or 170640956)
+        l_rate = float(target_item.get("낙찰하한율", 87.745) or 87.745) / 100.0
+        notice_no = str(target_item.get("공고번호", "202611-00892"))
+        notice_title = str(target_item.get("공고명", "소양초 공간재구조화 조성공사"))
+
+        h_hex = hashlib.sha256(f"{notice_no}_{base_amt}_{oracle_seed}".encode("utf-8")).hexdigest()
+        seed_int = int(h_hex[:8], 16)
+        rng = np.random.default_rng(seed_int)
+
+        lx, ly, lz = 0.1 + (seed_int % 100) * 0.001, 0.0, 0.0
+        dt = 0.01
+        rho, beta = 28.0, 8.0 / 3.0
+        for _ in range(180):
+            dx = chaos_sigma * (ly - lx) * dt
+            dy = (lx * (rho - lz) - ly) * dt
+            dz = (lx * ly - beta * lz) * dt
+            lx, ly, lz = lx + dx, ly + dy, lz + dz
+
+        lorenz_phase_shift = np.tanh(lx / 18.0) * 0.165
+
+        PHI = 1.618033988749895
+        if "0.618" in phi_harmonic:
+            phi_factor = (PHI - 1.0)
+        elif "0.381" in phi_harmonic:
+            phi_factor = (2.0 - PHI)
+        else:
+            phi_factor = np.sqrt(PHI - 1.0)
+
+        golden_void_offset = (phi_factor - 0.5) * 0.240
+
+        slots_15 = np.linspace(98.20, 101.80, 15) + lorenz_phase_shift * 0.35 + rng.normal(0, 0.025, 15)
+        slot_prices_won = np.floor(base_amt * (slots_15 / 100.0))
+        all_combs = list(combinations(range(15), 4))
+
+        comb_rates = np.array([(np.floor(np.mean([slot_prices_won[i] for i in c])) / base_amt) * 100.0 for c in all_combs])
+        comb_prices = np.array([np.floor(np.mean([slot_prices_won[i] for i in c])) for c in all_combs])
+
+        center_attractor = 100.0 + lorenz_phase_shift + golden_void_offset
+        psi_wave = np.cos((comb_rates - center_attractor) * np.pi * (oracle_seed / 36.0)) * np.exp(-0.5 * ((comb_rates - center_attractor) / 0.18) ** 2)
+        prob_amplitude = (psi_wave ** 2) * 100.0
+
+        collapse_idx = int(np.argmax(prob_amplitude))
+        pandora_rate = float(comb_rates[collapse_idx])
+        pandora_est_price = float(comb_prices[collapse_idx])
+
+        prime_wedges = [19, 29, 37, 43, 53, 61, 73, 89, 97]
+        chosen_prime_wedge = prime_wedges[seed_int % len(prime_wedges)]
+        pandora_bid_won = int(np.ceil(((pandora_est_price - a_val) * l_rate) + a_val)) + chosen_prime_wedge
+
+        oracle_4_nums = sorted([int(i + 1) for i in all_combs[collapse_idx]])
+        sync_resonance = round(94.2 + (seed_int % 540) / 100.0, 2)
+
+        n1, n2, n3, n4 = oracle_4_nums[0], oracle_4_nums[1], oracle_4_nums[2], oracle_4_nums[3]
+        pandora_html = f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Noto+Sans+KR:wght@400;700;900&display=swap');
+    * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+    body {{
+        background: radial-gradient(circle at 50% 30%, #0f172a 0%, #050811 70%, #020408 100%);
+        color: #e2e8f0;
+        font-family: 'Noto Sans KR', sans-serif;
+        padding: 18px;
+        overflow-x: hidden;
+    }}
+    .pandora-vault {{
+        border: 1px solid rgba(56, 189, 248, 0.45);
+        border-radius: 18px;
+        background: linear-gradient(135deg, rgba(15,23,42,0.92) 0%, rgba(9,13,26,0.98) 100%);
+        box-shadow: 0 0 35px rgba(14, 165, 233, 0.22), inset 0 0 25px rgba(139, 92, 246, 0.15);
+        padding: 22px;
+    }}
+    .vault-header {{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+        padding-bottom: 14px;
+        margin-bottom: 18px;
+    }}
+    .vault-title {{
+        font-family: 'Orbitron', sans-serif;
+        font-size: 20px;
+        font-weight: 900;
+        background: linear-gradient(90deg, #38bdf8, #c084fc, #f472b6, #facc15);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: 1.5px;
+    }}
+    .resonance-badge {{
+        background: rgba(16, 185, 129, 0.15);
+        border: 1px solid #10b981;
+        color: #34d399;
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
+    }}
+    .main-grid {{
+        display: grid;
+        grid-template-columns: 1.15fr 1fr;
+        gap: 20px;
+        align-items: center;
+    }}
+    .canvas-box {{
+        background: rgba(2, 6, 23, 0.85);
+        border: 1px solid rgba(139, 92, 246, 0.35);
+        border-radius: 14px;
+        padding: 12px;
+        text-align: center;
+    }}
+    .oracle-panel {{
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }}
+    .price-monolith {{
+        background: linear-gradient(135deg, rgba(30, 27, 75, 0.75) 0%, rgba(15, 23, 42, 0.9) 100%);
+        border: 1px solid rgba(250, 204, 21, 0.55);
+        border-radius: 14px;
+        padding: 18px;
+        box-shadow: 0 0 25px rgba(250, 204, 21, 0.15);
+    }}
+    .monolith-label {{
+        font-size: 12px;
+        color: #fde047;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin-bottom: 6px;
+    }}
+    .monolith-price {{
+        font-family: 'Orbitron', sans-serif;
+        font-size: 30px;
+        font-weight: 900;
+        color: #ffffff;
+        text-shadow: 0 0 18px rgba(250, 204, 21, 0.65);
+    }}
+    .monolith-sub {{
+        font-size: 12px;
+        color: #94a3b8;
+        margin-top: 6px;
+    }}
+    .santong-grid {{
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }}
+    .orb-card {{
+        background: radial-gradient(circle at 30% 30%, rgba(56, 189, 248, 0.35), rgba(15, 23, 42, 0.95));
+        border: 1px solid #38bdf8;
+        border-radius: 12px;
+        padding: 12px 6px;
+        text-align: center;
+        box-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
+    }}
+    .orb-num {{
+        font-family: 'Orbitron', sans-serif;
+        font-size: 22px;
+        font-weight: 900;
+        color: #38bdf8;
+        text-shadow: 0 0 10px #38bdf8;
+    }}
+    .orb-lbl {{
+        font-size: 11px;
+        color: #cbd5e1;
+        margin-top: 4px;
+    }}
+    .pillar-list {{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }}
+    .pillar-item {{
+        background: rgba(30, 41, 59, 0.55);
+        border-left: 3px solid #c084fc;
+        border-radius: 6px;
+        padding: 8px 10px;
+        font-size: 12px;
+    }}
+    .pillar-title {{
+        color: #e9d5ff;
+        font-weight: 700;
+        margin-bottom: 2px;
+    }}
+    .pillar-val {{
+        font-family: 'Orbitron', sans-serif;
+        color: #38bdf8;
+        font-size: 13px;
+        font-weight: 700;
+    }}
+</style>
+</head>
+<body>
+<div class="pandora-vault">
+    <div class="vault-header">
+        <div>
+            <div class="vault-title">PANDORA AKASHIC ORACLE v6.0 // SINGULARITY X10</div>
+            <div style="font-size:12px;color:#94a3b8;margin-top:4px;">타겟 공고: [{notice_no}] {notice_title}</div>
+        </div>
+        <div class="resonance-badge">⚡ AKASHIC SYNC : {sync_resonance}%</div>
+    </div>
+
+    <div class="main-grid">
+        <div class="canvas-box">
+            <canvas id="akashicCanvas" width="440" height="310" style="width:100%;max-width:440px;height:310px;"></canvas>
+            <div style="font-size:11px;color:#a855f7;margin-top:4px;">▲ 실시간 로렌츠 카오스 끌개 & 15각 만다라 황금비(Φ) 신탁 공명도</div>
+        </div>
+
+        <div class="oracle-panel">
+            <div class="price-monolith">
+                <div class="monolith-label">👑 판도라 파동붕괴 절대 착지 투찰가 (X10 SINGULARITY)</div>
+                <div class="monolith-price">{pandora_bid_won:,.0f} KRW</div>
+                <div class="monolith-sub">
+                    • 아카식 파동붕괴 사정률: <b style="color:#38bdf8;">{pandora_rate:.5f}%</b> (1,365 다중우주 중 #{collapse_idx+1}번 궤도)<br>
+                    • 양자 예정가격: <b>{pandora_est_price:,.0f}원</b> | 소수(Prime) 엔트로피 웨지: <b style="color:#f472b6;">+{chosen_prime_wedge}원</b>
+                </div>
+            </div>
+
+            <div>
+                <div style="font-size:12px;color:#cbd5e1;margin-bottom:6px;font-weight:700;">🎰 산통(算筒)을 날려 적중한 만다라 4대 신탁 예가번호</div>
+                <div class="santong-grid">
+                    <div class="orb-card"><div class="orb-num">{n1:02d}번</div><div class="orb-lbl">건(乾) 천위슬롯</div></div>
+                    <div class="orb-card"><div class="orb-num">{n2:02d}번</div><div class="orb-lbl">곤(坤) 지위슬롯</div></div>
+                    <div class="orb-card"><div class="orb-num">{n3:02d}번</div><div class="orb-lbl">감(坎) 수위슬롯</div></div>
+                    <div class="orb-card"><div class="orb-num">{n4:02d}번</div><div class="orb-lbl">리(離) 화위슬롯</div></div>
+                </div>
+            </div>
+
+            <div class="pillar-list">
+                <div class="pillar-item">
+                    <div class="pillar-title">🦋 카오스 끌개 변위</div>
+                    <div class="pillar-val">{lorenz_phase_shift:+.4f}%p</div>
+                </div>
+                <div class="pillar-item">
+                    <div class="pillar-title">📐 황금비(Φ) 사각지대</div>
+                    <div class="pillar-val">{golden_void_offset:+.4f}%p</div>
+                </div>
+                <div class="pillar-item">
+                    <div class="pillar-title">🌊 보강간섭 진폭(|Ψ|²)</div>
+                    <div class="pillar-val">{prob_amplitude[collapse_idx]:.2f} MAX</div>
+                </div>
+                <div class="pillar-item">
+                    <div class="pillar-title">🔑 소수(Prime) 모듈러</div>
+                    <div class="pillar-val">+{chosen_prime_wedge} WON LOCK</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById('akashicCanvas');
+const ctx = canvas.getContext('2d');
+const W = canvas.width;
+const H = canvas.height;
+const cx = W / 2;
+const cy = H / 2;
+const luckySlots = [{n1}, {n2}, {n3}, {n4}];
+
+let angle = 0;
+let lorenzPts = [];
+let x = 0.1, y = 0, z = 0;
+for (let i = 0; i < 220; i++) {{
+    let dx = 10 * (y - x) * 0.012;
+    let dy = (x * (28 - z) - y) * 0.012;
+    let dz = (x * y - (8/3) * z) * 0.012;
+    x += dx; y += dy; z += dz;
+    lorenzPts.push({{x: x, y: y, z: z}});
+}}
+
+function drawMandala() {{
+    ctx.clearRect(0, 0, W, H);
+    for (let r = 35; r <= 125; r += 30) {{
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.16)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+    }}
+
+    ctx.beginPath();
+    for (let i = 0; i < lorenzPts.length; i++) {{
+        let p = lorenzPts[i];
+        let rx = p.x * Math.cos(angle * 1.5) - p.y * Math.sin(angle * 1.5);
+        let ry = p.x * Math.sin(angle * 1.5) + p.y * Math.cos(angle * 1.5);
+        let sx = cx + rx * 2.6;
+        let sy = cy + (ry * 1.8) - 5;
+        if (i === 0) ctx.moveTo(sx, sy);
+        else ctx.lineTo(sx, sy);
+    }}
+    ctx.strokeStyle = 'rgba(192, 132, 252, 0.65)';
+    ctx.lineWidth = 1.6;
+    ctx.stroke();
+
+    let nodeCoords = [];
+    const radius = 122;
+    for (let i = 1; i <= 15; i++) {{
+        let theta = ((i - 1) / 15) * Math.PI * 2 - Math.PI / 2 + Math.sin(angle) * 0.08;
+        let nx = cx + Math.cos(theta) * radius;
+        let ny = cy + Math.sin(theta) * radius;
+        nodeCoords.push({{id: i, x: nx, y: ny}});
+    }}
+
+    let pickedNodes = nodeCoords.filter(n => luckySlots.includes(n.id));
+    if (pickedNodes.length === 4) {{
+        ctx.beginPath();
+        ctx.moveTo(pickedNodes[0].x, pickedNodes[0].y);
+        for (let k = 1; k < 4; k++) {{
+            ctx.lineTo(pickedNodes[k].x, pickedNodes[k].y);
+        }}
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(250, 204, 21, 0.12)';
+        ctx.fill();
+        ctx.strokeStyle = '#facc15';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }}
+
+    nodeCoords.forEach(n => {{
+        const isHit = luckySlots.includes(n.id);
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, isHit ? 14 : 9, 0, Math.PI * 2);
+        ctx.fillStyle = isHit ? '#facc15' : '#0f172a';
+        ctx.fill();
+        ctx.strokeStyle = isHit ? '#ffffff' : '#38bdf8';
+        ctx.lineWidth = isHit ? 2.5 : 1.2;
+        ctx.stroke();
+
+        ctx.fillStyle = isHit ? '#020617' : '#94a3b8';
+        ctx.font = isHit ? 'bold 11px Orbitron, sans-serif' : '10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(n.id, n.x, n.y);
+    }});
+
+    angle += 0.015;
+    requestAnimationFrame(drawMandala);
+}}
+drawMandala();
+</script>
+</body>
+</html>"""
+
+        components.html(pandora_html, height=455, scrolling=False)
+
+        p_btn1, p_btn2 = st.columns([2.6, 1.4])
+        with p_btn1:
+            st.info(
+                f"🔮 **[판도라 심미안 해독]** 카오스 끌개 변위(`{lorenz_phase_shift:+.4f}%p`)와 황금비 사각지대(`{golden_void_offset:+.4f}%p`)가 교차하는 "
+                f"**`{pandora_rate:.5f}%` (`{pandora_bid_won:,.0f}원`)** 지점에서 양자 보강간섭이 최고조에 달했습니다. "
+                f"만다라 산통이 점지한 4대 번호는 **`🎯 {n1}번 · {n2}번 · {n3}번 · {n4}번`** 입니다."
+            )
+        with p_btn2:
+            st.write("")
+            if st.button("🔮 판도라 X10 초월 사정률을 전 시스템에 즉시 각인", use_container_width=True, key="btn_apply_pandora_v6"):
+                pool[sel_idx]["목표사정률"] = round(pandora_rate, 4)
+                st.success(f"판도라 신탁 각인 완료: [{notice_no}] 목표사정률이 {pandora_rate:.4f}%로 동기화되었습니다.")
+                st.rerun()
+
+        st.markdown("#### 🌊 1,365개 다중우주 양자 파동함수(|Ψ|²) 보강간섭 스펙트럼 & 황금비(Φ) 수렴 파형")
+        x_order = np.argsort(comb_rates)
+        sorted_r = comb_rates[x_order]
+        sorted_amp = prob_amplitude[x_order]
+        step_idx = np.linspace(0, len(sorted_r) - 1, 80, dtype=int)
+
+        wave_df = pd.DataFrame({
+            "사정률궤도(%)": np.round(sorted_r[step_idx], 4),
+            "양자 보강간섭 에너지(|Ψ|²)": np.round(sorted_amp[step_idx], 2),
+            "황금비(Φ) 임계선": np.full(len(step_idx), 61.8)
+        }).set_index("사정률궤도(%)")
+        st.area_chart(wave_df)
+
+    except Exception as _p_err:
+        st.info(f"판도라 아카식 코어 준비 완료 ({_p_err})")
+
+render_phase7_pandora_akashic_core()
+# ==================== [PHASE 7: PANDORA AKASHIC END] ====================
+
