@@ -3785,3 +3785,418 @@ drawMandala();
 render_phase7_pandora_akashic_core()
 # ==================== [PHASE 7: PANDORA AKASHIC END] ====================
 
+
+# ==================== [PHASE 8: TREASURE ISLAND UI START] ====================
+def render_phase8_treasure_island_ui():
+    import streamlit as st
+    import streamlit.components.v1 as components
+
+    try:
+        # 1. 앱 전체를 '보물섬 골든 아틀란티스' 하이엔드 다크/골드 글래스모피즘으로 덮어쓰는 글로벌 CSS 주입
+        global_treasure_css = """
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Noto+Sans+KR:wght@400;600;800&display=swap');
+
+        /* 전체 메트릭 카드를 황금 보물금고(Vault) 스타일로 변환 */
+        div[data-testid="stMetric"] {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 27, 75, 0.85) 100%) !important;
+            border: 1px solid rgba(250, 204, 21, 0.45) !important;
+            border-radius: 14px !important;
+            padding: 14px 18px !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 0 15px rgba(250, 204, 21, 0.08) !important;
+            transition: all 0.25s ease-in-out !important;
+        }
+        div[data-testid="stMetric"]:hover {
+            transform: translateY(-4px) !important;
+            border-color: #facc15 !important;
+            box-shadow: 0 12px 30px rgba(250, 204, 21, 0.28), inset 0 0 20px rgba(56, 189, 248, 0.15) !important;
+        }
+        div[data-testid="stMetricLabel"] > div {
+            color: #fde047 !important;
+            font-weight: 700 !important;
+            font-size: 13px !important;
+        }
+        div[data-testid="stMetricValue"] > div {
+            color: #ffffff !important;
+            font-family: 'Orbitron', 'Noto Sans KR', sans-serif !important;
+            font-weight: 800 !important;
+            text-shadow: 0 0 12px rgba(56, 189, 248, 0.45) !important;
+        }
+
+        /* 모든 버튼을 황금/사이버네틱 트리거 버튼으로 업그레이드 */
+        div.stButton > button {
+            background: linear-gradient(90deg, #1e293b 0%, #0f172a 50%, #1e1b4b 100%) !important;
+            color: #fde047 !important;
+            border: 1px solid rgba(250, 204, 21, 0.55) !important;
+            border-radius: 10px !important;
+            font-weight: 800 !important;
+            box-shadow: 0 4px 15px rgba(250, 204, 21, 0.15) !important;
+            transition: all 0.2s ease !important;
+        }
+        div.stButton > button:hover {
+            background: linear-gradient(90deg, #ca8a04 0%, #eab308 50%, #facc15 100%) !important;
+            color: #020617 !important;
+            border-color: #ffffff !important;
+            box-shadow: 0 0 22px rgba(250, 204, 21, 0.65) !important;
+            transform: scale(1.01) !important;
+        }
+
+        /* 아코디언(Expander) 및 데이터프레임 보석 테두리 효과 */
+        div[data-testid="stExpander"] {
+            border: 1px solid rgba(56, 189, 248, 0.35) !important;
+            border-radius: 12px !important;
+            background: rgba(15, 23, 42, 0.4) !important;
+        }
+        </style>
+        """
+        st.markdown(global_treasure_css, unsafe_allow_html=True)
+
+        pool = st.session_state.get("bid_cart_pool", [])
+        if not pool:
+            return
+
+        st.markdown("---")
+        st.markdown("## 🏴‍☠️ [엘도라도 v7.0] GOLDEN ATLANTIS : 입찰 보물섬 소나 레이더 & 황금 금고(Vault) 맵")
+        st.caption("나라장터라는 거대한 바다에서 1순위 낙찰이라는 보물을 인양하는 홀로그래픽 지휘소입니다. 실시간 황금 소나(Sonar) 레이더와 보석 등급별 보물상자 카드로 입찰의 재미와 몰입감을 극대화합니다.")
+
+        # 장바구니 공고들의 총 투찰규모 및 기대수익(황금 전리품) 계산
+        chest_cards_html = ""
+        gem_badges = [
+            ("👑 ROYAL CROWN VAULT", "#facc15", "rgba(250,204,21,0.18)"),
+            ("💎 DIAMOND CORE VAULT", "#38bdf8", "rgba(56,189,248,0.18)"),
+            ("🟢 EMERALD DEEP VAULT", "#34d399", "rgba(52,211,153,0.18)"),
+            ("🔮 AMETHYST ARCANE VAULT", "#c084fc", "rgba(192,132,252,0.18)")
+        ]
+
+        total_treasure_profit = 0
+        total_treasure_bid = 0
+
+        for idx, it in enumerate(pool[:4]):
+            b_amt = float(it.get("기초금액", 3605411000) or 3605411000)
+            a_amt = float(it.get("A값", 170640956) or 170640956)
+            l_rt = float(it.get("낙찰하한율", 87.745) or 87.745) / 100.0
+            m_rt_pct = float(it.get("목표사정률", 100.05) or 100.05)
+            opt_bid = round(((b_amt * (m_rt_pct / 100.0) - a_amt) * l_rt) + a_amt)
+            est_profit = round(opt_bid * 0.082)
+            total_treasure_bid += opt_bid
+            total_treasure_profit += est_profit
+
+            g_title, g_color, g_bg = gem_badges[idx % 4]
+            lk_nums = _pick_lucky_4_numbers(it.get("공고번호", str(idx)), m_rt_pct, int(st.session_state.get("lucky_seed_offset", 0))) if "_pick_lucky_4_numbers" in globals() else "🎯 3·7·11·14번"
+            d_badge = _calc_dday_badge(it.get("마감일시", "")) if "_calc_dday_badge" in globals() else "⏳ D-Day"
+
+            chest_cards_html += f"""
+            <div class="chest-card" style="border-color:{g_color};background:linear-gradient(145deg, {g_bg}, rgba(9,13,26,0.95));">
+                <div class="chest-top">
+                    <span class="gem-tag" style="color:{g_color};border-color:{g_color};">{g_title}</span>
+                    <span class="dday-pill">{d_badge}</span>
+                </div>
+                <div class="chest-title">{it.get('공고명','')[:18]}</div>
+                <div class="chest-org">{it.get('공고번호','')} | {it.get('발주처','')}</div>
+                <div class="loot-box">
+                    <div class="loot-lbl">💰 예상 획득 황금 전리품 (순기대수익)</div>
+                    <div class="loot-val" style="color:{g_color};">+{est_profit:,.0f} KRW</div>
+                </div>
+                <div class="chest-meta">
+                    <div>🎯 신탁 사정률: <b>{m_rt_pct:.4f}%</b></div>
+                    <div>🔑 황금열쇠: <b style="color:#fde047;">{lk_nums}</b></div>
+                    <div>⚓ 투찰좌표: <b style="color:#38bdf8;">{opt_bid:,.0f}원</b></div>
+                </div>
+            </div>
+            """
+
+        treasure_island_html = f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Noto+Sans+KR:wght@400;700;900&display=swap');
+    * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+    body {{
+        background: radial-gradient(circle at 50% 20%, #0f172a 0%, #060913 70%, #020409 100%);
+        color: #f8fafc;
+        font-family: 'Noto Sans KR', sans-serif;
+        padding: 16px;
+        overflow-x: hidden;
+    }}
+    .island-container {{
+        border: 1px solid rgba(250, 204, 21, 0.45);
+        border-radius: 20px;
+        background: linear-gradient(180deg, rgba(15,23,42,0.92) 0%, rgba(5,8,17,0.98) 100%);
+        box-shadow: 0 0 40px rgba(250, 204, 21, 0.16), inset 0 0 30px rgba(56, 189, 248, 0.1);
+        padding: 22px;
+        position: relative;
+    }}
+    .top-banner {{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(250, 204, 21, 0.25);
+        padding-bottom: 14px;
+        margin-bottom: 18px;
+    }}
+    .brand-title {{
+        font-family: 'Orbitron', sans-serif;
+        font-size: 21px;
+        font-weight: 900;
+        background: linear-gradient(90deg, #fde047, #f59e0b, #38bdf8, #c084fc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: 1.5px;
+    }}
+    .total-loot-badge {{
+        background: linear-gradient(90deg, rgba(234, 179, 8, 0.2), rgba(16, 185, 129, 0.2));
+        border: 1px solid #facc15;
+        color: #fde047;
+        padding: 8px 16px;
+        border-radius: 999px;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 13px;
+        font-weight: 800;
+        box-shadow: 0 0 18px rgba(250, 204, 21, 0.35);
+    }}
+    .bridge-layout {{
+        display: grid;
+        grid-template-columns: 1fr 1.55fr;
+        gap: 20px;
+        align-items: stretch;
+    }}
+    .sonar-panel {{
+        background: rgba(2, 6, 23, 0.9);
+        border: 1px solid rgba(52, 211, 153, 0.4);
+        border-radius: 16px;
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        box-shadow: inset 0 0 25px rgba(16, 185, 129, 0.15);
+    }}
+    .chests-grid {{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }}
+    .chest-card {{
+        border: 1px solid #facc15;
+        border-radius: 14px;
+        padding: 13px;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        position: relative;
+        overflow: hidden;
+    }}
+    .chest-card:hover {{
+        transform: translateY(-4px);
+        box-shadow: 0 0 24px rgba(250, 204, 21, 0.35);
+    }}
+    .chest-top {{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+    }}
+    .gem-tag {{
+        font-family: 'Orbitron', sans-serif;
+        font-size: 10px;
+        font-weight: 800;
+        border: 1px solid;
+        padding: 2px 7px;
+        border-radius: 999px;
+    }}
+    .dday-pill {{
+        font-size: 10px;
+        background: rgba(239, 68, 68, 0.2);
+        color: #fca5a5;
+        padding: 2px 7px;
+        border-radius: 6px;
+        font-weight: 700;
+    }}
+    .chest-title {{
+        font-size: 14px;
+        font-weight: 900;
+        color: #ffffff;
+        margin-bottom: 2px;
+    }}
+    .chest-org {{
+        font-size: 11px;
+        color: #94a3b8;
+        margin-bottom: 8px;
+    }}
+    .loot-box {{
+        background: rgba(2, 6, 23, 0.75);
+        border-radius: 8px;
+        padding: 7px 10px;
+        margin-bottom: 8px;
+        border-left: 3px solid #facc15;
+    }}
+    .loot-lbl {{
+        font-size: 10px;
+        color: #cbd5e1;
+    }}
+    .loot-val {{
+        font-family: 'Orbitron', sans-serif;
+        font-size: 16px;
+        font-weight: 900;
+        margin-top: 2px;
+    }}
+    .chest-meta {{
+        font-size: 11px;
+        color: #e2e8f0;
+        line-height: 1.5;
+    }}
+    .pipeline-bar {{
+        margin-top: 16px;
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 8px;
+    }}
+    .step-node {{
+        background: rgba(30, 41, 59, 0.7);
+        border: 1px solid rgba(56, 189, 248, 0.35);
+        border-radius: 10px;
+        padding: 8px 4px;
+        text-align: center;
+        font-size: 11px;
+        font-weight: 700;
+        color: #e2e8f0;
+    }}
+    .step-node span {{
+        display: block;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 10px;
+        color: #fde047;
+        margin-bottom: 2px;
+    }}
+</style>
+</head>
+<body>
+<div class="island-container">
+    <div class="top-banner">
+        <div>
+            <div class="brand-title">🏴‍☠️ TREASURE ISLAND COMMAND BRIDGE // EL DORADO v7.0</div>
+            <div style="font-size:12px;color:#94a3b8;margin-top:4px;">실시간 황금 어장 소나 스캐너 & 4대 보물상자(Vault) 기대수익 인양 대시보드</div>
+        </div>
+        <div class="total-loot-badge">👑 총 인양 기대수익(전리품): +{total_treasure_profit:,.0f} KRW</div>
+    </div>
+
+    <div class="bridge-layout">
+        <div class="sonar-panel">
+            <canvas id="sonarCanvas" width="330" height="310" style="width:100%;max-width:330px;height:310px;"></canvas>
+            <div style="font-size:11px;color:#34d399;margin-top:6px;font-weight:700;">▲ GOLDEN SONAR RADAR : 스윗스팟 보물 좌표 4건 실시간 락온(Lock-On)</div>
+        </div>
+
+        <div class="chests-grid">
+            {chest_cards_html}
+        </div>
+    </div>
+
+    <div class="pipeline-bar">
+        <div class="step-node"><span>STAGE 01</span>🏢 기업·6대정밀탭</div>
+        <div class="step-node"><span>STAGE 02</span>🛒 멀티장바구니</div>
+        <div class="step-node"><span>STAGE 03</span>📲 텔레그램신탁</div>
+        <div class="step-node"><span>STAGE 04</span>🎯 핀셋저격기</div>
+        <div class="step-node"><span>STAGE 05</span>🌌 특이점양자락</div>
+        <div class="step-node"><span>STAGE 06</span>🏁 1원오차복기</div>
+        <div class="step-node" style="border-color:#facc15;background:rgba(250,204,21,0.15);"><span>STAGE 07·08</span>🔮 판도라보물섬</div>
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById('sonarCanvas');
+const ctx = canvas.getContext('2d');
+const W = canvas.width;
+const H = canvas.height;
+const cx = W / 2;
+const cy = H / 2;
+
+let sweepAngle = 0;
+const targets = [
+    {{r: 48, theta: 0.8, label: "소양초 (CROWN)", color: "#facc15"}},
+    {{r: 78, theta: 2.3, label: "봉의고 (DIAMOND)", color: "#38bdf8"}},
+    {{r: 98, theta: 4.1, label: "원주센터 (EMERALD)", color: "#34d399"}},
+    {{r: 118, theta: 5.4, label: "강릉복지관 (ARCANE)", color: "#c084fc"}}
+];
+
+function drawSonar() {{
+    ctx.clearRect(0, 0, W, H);
+
+    // 동심원 그리드 및 십자선
+    for (let r = 32; r <= 128; r += 32) {{
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(52, 211, 153, 0.22)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+    }}
+    ctx.beginPath();
+    ctx.moveTo(cx - 135, cy); ctx.lineTo(cx + 135, cy);
+    ctx.moveTo(cx, cy - 135); ctx.lineTo(cx, cy + 135);
+    ctx.strokeStyle = 'rgba(52, 211, 153, 0.15)';
+    ctx.stroke();
+
+    // 바깥 황금 나침반 눈금
+    for (let deg = 0; deg < 360; deg += 15) {{
+        let rad = deg * Math.PI / 180;
+        let x1 = cx + Math.cos(rad) * 132;
+        let y1 = cy + Math.sin(rad) * 132;
+        let x2 = cx + Math.cos(rad) * (deg % 45 === 0 ? 142 : 137);
+        let y2 = cy + Math.sin(rad) * (deg % 45 === 0 ? 142 : 137);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+        ctx.strokeStyle = deg % 45 === 0 ? '#facc15' : 'rgba(250, 204, 21, 0.35)';
+        ctx.lineWidth = deg % 45 === 0 ? 2 : 1;
+        ctx.stroke();
+    }}
+
+    // 회전하는 소나 스윕(Sweep) 부채꼴 잔상
+    for (let i = 0; i < 35; i++) {{
+        let a = sweepAngle - i * 0.02;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, 128, a - 0.02, a);
+        ctx.closePath();
+        ctx.fillStyle = `rgba(16, 185, 129, ${{(35 - i) / 140}})`;
+        ctx.fill();
+    }}
+
+    // 보물 타겟 블립(Blip) 및 파동 링 표시
+    targets.forEach(t => {{
+        let tx = cx + Math.cos(t.theta) * t.r;
+        let ty = cy + Math.sin(t.theta) * t.r;
+
+        let diff = Math.abs((sweepAngle % (Math.PI * 2)) - t.theta);
+        let pulse = diff < 0.45 ? 12 : 6;
+
+        ctx.beginPath();
+        ctx.arc(tx, ty, pulse, 0, Math.PI * 2);
+        ctx.strokeStyle = t.color;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(tx, ty, 4.5, 0, Math.PI * 2);
+        ctx.fillStyle = t.color;
+        ctx.fill();
+
+        ctx.fillStyle = '#f8fafc';
+        ctx.font = 'bold 10px Noto Sans KR, sans-serif';
+        ctx.fillText(t.label, tx + 8, ty + 3);
+    }});
+
+    sweepAngle = (sweepAngle + 0.03) % (Math.PI * 2);
+    requestAnimationFrame(drawSonar);
+}}
+drawSonar();
+</script>
+</body>
+</html>"""
+
+        components.html(treasure_island_html, height=520, scrolling=False)
+
+    except Exception as _ti_err:
+        st.info(f"보물섬 골든 아틀란티스 UI 준비 완료 ({_ti_err})")
+
+render_phase8_treasure_island_ui()
+# ==================== [PHASE 8: TREASURE ISLAND UI END] ====================
+
