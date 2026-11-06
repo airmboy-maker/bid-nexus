@@ -1552,9 +1552,9 @@ st.info(f"📋 **적용 규정**: {q_auto.get('standard_name', '조달청 시설
 if not isinstance(q_auto, dict): q_auto = {}
 st.info(f"📋 **적용 규정**: {q_auto.get('standard_name', '조달청 시설공사 적격심사 세부기준')} [{q_auto.get('bracket', '추정가격 50억원 미만 30억원 이상')}]")
 m_a1, m_a2, m_a3 = st.columns(3)
-        m_a1.metric("경영상태", f"{q_auto.get('final_mgmt_score', 12.0):.1f} / {q_auto.get('max_mgmt', 12.0):.0f}점", q_auto.get('selected_method', '재무비율')[:4])
-        m_a2.metric("시공실적", f"{q_auto.get('perf_score', 0):.1f} / {q_auto['max_perf']:.0f}점", f"{q_auto['perf_ratio']:.2f}배 (만점)")
-        m_a3.metric("신인도 가점", f"+{q_auto['net_sinindo']:.1f}점", "일자리창출 우수")
+m_a1.metric("경영상태", f"{q_auto.get('final_mgmt_score', 12.0):.1f} / {q_auto.get('max_mgmt', 12.0):.0f}점", q_auto.get('selected_method', '재무비율')[:4])
+m_a2.metric("시공실적", f"{q_auto.get('perf_score', 0):.1f} / {q_auto['max_perf']:.0f}점", f"{q_auto['perf_ratio']:.2f}배 (만점)")
+m_a3.metric("신인도 가점", f"+{q_auto['net_sinindo']:.1f}점", "일자리창출 우수")
 
         st.markdown("#### 🛡️ 시방서 NO-GO 스크리닝")
         for cl in data.get("독소조항", []):
