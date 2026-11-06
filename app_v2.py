@@ -2426,7 +2426,7 @@ def render_phase2_multi_bid_cart():
     except Exception as _cart_err:
         st.info(f"장바구니 모듈 준비 완료 ({_cart_err})")
 
-render_phase2_multi_bid_cart()
+# [ROUTED BY V9 MACHINE] render_phase2_multi_bid_cart()
 # ==================== [PHASE 2: MULTI-BID CART END] ====================
 
 
@@ -2653,7 +2653,7 @@ def render_phase3_webhook_and_tracker():
     except Exception as _p3_err:
         st.info(f"3단계 트래커 모듈 준비 완료 ({_p3_err})")
 
-render_phase3_webhook_and_tracker()
+# [ROUTED BY V9 MACHINE] render_phase3_webhook_and_tracker()
 # ==================== [PHASE 3: WEBHOOK & ANNUAL TRACKER END] ====================
 
 
@@ -2930,7 +2930,7 @@ def render_phase4_quantum_ai_engine():
     except Exception as _q_err:
         st.info(f"퀀텀 AI 사정 엔진 준비 완료 ({_q_err})")
 
-render_phase4_quantum_ai_engine()
+# [ROUTED BY V9 MACHINE] render_phase4_quantum_ai_engine()
 # ==================== [PHASE 4: QUANTUM AI ENGINE END] ====================
 
 
@@ -3131,7 +3131,7 @@ def render_phase5_singularity_engine():
     except Exception as _sg_err:
         st.info(f"특이점 v5.0 엔진 준비 완료 ({_sg_err})")
 
-render_phase5_singularity_engine()
+# [ROUTED BY V9 MACHINE] render_phase5_singularity_engine()
 # ==================== [PHASE 5: SINGULARITY AI ENGINE END] ====================
 
 
@@ -3360,7 +3360,7 @@ def render_phase6_backtesting_terminal():
     except Exception as _bt_err:
         st.info(f"복기 검증 터미널 준비 완료 ({_bt_err})")
 
-render_phase6_backtesting_terminal()
+# [ROUTED BY V9 MACHINE] render_phase6_backtesting_terminal()
 # ==================== [PHASE 6: BACKTEST ENGINE END] ====================
 
 
@@ -3782,7 +3782,7 @@ drawMandala();
     except Exception as _p_err:
         st.info(f"판도라 아카식 코어 준비 완료 ({_p_err})")
 
-render_phase7_pandora_akashic_core()
+# [ROUTED BY V9 MACHINE] render_phase7_pandora_akashic_core()
 # ==================== [PHASE 7: PANDORA AKASHIC END] ====================
 
 
@@ -4549,8 +4549,8 @@ const cy = H / 2;
 let sweepAngle = 0;
 const targets = [
     {{r: 42, theta: 0.75, label: "소양초(CROWN)", color: "#facc15", align: "left"}},
-    {{r: 72, theta: 2.35, label: "봉의고(DIAMOND)", color: "#38bdf8", align: "right"}},
-    {{r: 92, theta: 3.85, label: "원주센터(EMERALD)", color: "#34d399", align: "right"}},
+    {{r: 64, theta: 2.25, label: "봉의고(DIAMOND)", color: "#38bdf8", align: "left"}},
+    {{r: 68, theta: 3.75, label: "원주센터(EMERALD)", color: "#34d399", align: "left"}},
     {{r: 86, theta: 5.55, label: "강릉복지관(ARCANE)", color: "#c084fc", align: "left"}}
 ];
 
@@ -4626,11 +4626,249 @@ drawSonar();
 </body>
 </html>"""
 
-        components.html(treasure_island_html, height=790, scrolling=False)
+        components.html(treasure_island_html, height=860, scrolling=False)
 
     except Exception as _ti_err:
         st.info(f"4D 아이소메트릭 보물섬 UI 준비 완료 ({_ti_err})")
 
-render_phase8_treasure_island_ui()
+# [ROUTED BY V9 MACHINE] render_phase8_treasure_island_ui()
 # ==================== [PHASE 8: TREASURE ISLAND UI END] ====================
+
+
+# ==================== [PHASE 9: BIDDING MACHINE HOUSING ROUTER START] ====================
+def render_phase9_bidding_machine_workstation():
+    import streamlit as st
+    import streamlit.components.v1 as components
+
+    try:
+        # 1. 입찰 머신(Bidding Machine) 하드웨어 하우징 & 컴팩트 스크롤 제로 CSS 주입
+        housing_css = """
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Share+Tech+Mono&family=Noto+Sans+KR:wght@400;700;900&display=swap');
+
+        /* 페이지 상하 여백 압축 (한 화면에 꽉 차는 하드웨어 콘솔 느낌) */
+        .block-container {
+            padding-top: 1.8rem !important;
+            padding-bottom: 1.5rem !important;
+            max-width: 1440px !important;
+        }
+
+        /* 전체 배경: 중공업 티타늄 다크 카본 질감 */
+        .stApp {
+            background:
+                radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.12) 0%, transparent 50%),
+                linear-gradient(180deg, #050811 0%, #090d1a 50%, #04060c 100%) !important;
+        }
+
+        /* 분업화 워크스테이션 라디오 스위치를 '입찰 머신 물리 데크 버튼'으로 스타일링 */
+        div[role="radiogroup"] {
+            background: linear-gradient(180deg, #0f172a 0%, #060a14 100%) !important;
+            border: 2px solid rgba(56, 189, 248, 0.55) !important;
+            border-bottom: 5px solid #0284c7 !important;
+            border-radius: 16px !important;
+            padding: 10px 14px !important;
+            gap: 8px !important;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(56, 189, 248, 0.15) !important;
+            display: flex !important;
+            flex-wrap: wrap !important;
+            justify-content: space-between !important;
+        }
+        div[role="radiogroup"] > label {
+            flex: 1 1 auto !important;
+            background: linear-gradient(145deg, #1e293b, #0f172a) !important;
+            border: 1px solid rgba(148, 163, 184, 0.35) !important;
+            border-bottom: 4px solid #334155 !important;
+            border-radius: 10px !important;
+            padding: 9px 12px !important;
+            margin: 2px !important;
+            cursor: pointer !important;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+            justify-content: center !important;
+        }
+        div[role="radiogroup"] > label:hover {
+            border-color: #facc15 !important;
+            border-bottom-color: #ca8a04 !important;
+            transform: translateY(-3px) !important;
+            box-shadow: 0 6px 16px rgba(250, 204, 21, 0.3) !important;
+        }
+        div[role="radiogroup"] > label[data-checked="true"],
+        div[role="radiogroup"] > label:has(input:checked) {
+            background: linear-gradient(135deg, #0284c7 0%, #4f46e5 55%, #9333ea 100%) !important;
+            border: 1.5px solid #fde047 !important;
+            border-bottom: 4px solid #facc15 !important;
+            box-shadow: 0 0 22px rgba(250, 204, 21, 0.5), inset 0 0 12px rgba(255, 255, 255, 0.25) !important;
+            transform: translateY(-2px) !important;
+        }
+        div[role="radiogroup"] > label p {
+            font-weight: 900 !important;
+            font-size: 13px !important;
+            color: #f8fafc !important;
+        }
+
+        /* 메트릭 및 버튼 하드웨어 베젤 통일 */
+        div[data-testid="stMetric"] {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(23, 37, 84, 0.85) 100%) !important;
+            border: 1px solid rgba(56, 189, 248, 0.5) !important;
+            border-left: 5px solid #facc15 !important;
+            border-bottom: 4px solid #0284c7 !important;
+            border-radius: 12px !important;
+            padding: 12px 16px !important;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.55) !important;
+        }
+        div[data-testid="stMetricLabel"] > div {
+            color: #fde047 !important;
+            font-weight: 800 !important;
+            font-size: 12.5px !important;
+        }
+        div[data-testid="stMetricValue"] > div {
+            color: #ffffff !important;
+            font-family: 'Orbitron', 'Noto Sans KR', sans-serif !important;
+            font-weight: 900 !important;
+            font-size: 22px !important;
+        }
+        </style>
+        """
+        st.markdown(housing_css, unsafe_allow_html=True)
+
+        # 2. 상단 1단계 기본 영역(레거시 6대 탭)을 깔끔하게 접어둘 수 있는 '상단 해치(Hatch) 폴딩 스위치'
+        pool = st.session_state.get("bid_cart_pool", [])
+        cart_cnt = len(pool)
+
+        # 입찰 머신 상단 금속 하우징 헤더 (Chassis Top Bezel)
+        machine_header_html = f"""
+        <div style="
+            background: linear-gradient(135deg, #090d16 0%, #111827 50%, #090d16 100%);
+            border: 2px solid #38bdf8;
+            border-top: 6px solid #facc15;
+            border-bottom: 4px solid #0284c7;
+            border-radius: 16px;
+            padding: 14px 22px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.75), inset 0 0 25px rgba(56,189,248,0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Noto Sans KR', sans-serif;
+        ">
+            <div style="display:flex;align-items:center;gap:14px;">
+                <div style="
+                    width:46px;height:46px;border-radius:10px;
+                    background:radial-gradient(circle, #facc15 0%, #ca8a04 100%);
+                    border:2px solid #fff;
+                    display:flex;align-items:center;justify-content:center;
+                    font-size:24px;box-shadow:0 0 18px rgba(250,204,21,0.65);
+                ">⚙️</div>
+                <div>
+                    <div style="font-family:'Orbitron',sans-serif;font-size:19px;font-weight:900;color:#ffffff;letter-spacing:1.2px;">
+                        BID-NEXUS v9.0 // TACTICAL BIDDING MACHINE HOUSING
+                    </div>
+                    <div style="font-size:12px;color:#94a3b8;margin-top:2px;">
+                        <span style="color:#34d399;font-weight:800;">● ZERO-SCROLL MODULAR WORKSTATION</span> | 공정별 분업화 데크를 선택하면 위아래 스크롤 없이 해당 모듈만 즉시 가동됩니다.
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;">
+                <div style="background:#020617;border:1px solid #34d399;border-radius:8px;padding:6px 12px;text-align:center;">
+                    <div style="font-size:10px;color:#94a3b8;font-family:'Orbitron',sans-serif;">LOADED TARGETS</div>
+                    <div style="font-size:15px;font-weight:900;color:#34d399;font-family:'Orbitron',sans-serif;">{cart_cnt} VAULTS</div>
+                </div>
+                <div style="background:#020617;border:1px solid #facc15;border-radius:8px;padding:6px 12px;text-align:center;">
+                    <div style="font-size:10px;color:#94a3b8;font-family:'Orbitron',sans-serif;">QUANTUM CORE</div>
+                    <div style="font-size:15px;font-weight:900;color:#fde047;font-family:'Orbitron',sans-serif;">1,365 LOCK</div>
+                </div>
+            </div>
+        </div>
+        """
+        st.markdown(machine_header_html, unsafe_allow_html=True)
+
+        # 3. 7대 분업화 워크스테이션(Modular Bay) 원클릭 전환 데크
+        bay_options = [
+            "👑 [BAY 1] 보물섬 & 4D 조감도",
+            "🛒 [BAY 2] 장바구니·공고등록·품의서",
+            "🔮 [BAY 3] 판도라 X10 만다라 산통",
+            "🌌 [BAY 4] 특이점(v5.0) 양자계단 락",
+            "🎯 [BAY 5] 발주처 프리셋 & 경쟁사 저격",
+            "🏁 [BAY 6] 개찰 실전복기 & 자가교정",
+            "📲 [BAY 7] 텔레그램 발송 & 연간트래커"
+        ]
+
+        selected_bay = st.radio(
+            "🎛️ 가동할 입찰 머신 분업화 모듈(Workstation Bay)을 선택하세요 (스크롤 제로 1:1 전환)",
+            options=bay_options,
+            index=0,
+            horizontal=True,
+            key="v9_machine_bay_selector"
+        )
+
+        # 하우징 내부 모니터 베이 상단 상태바
+        st.markdown(
+            f"""<div style="
+                background:linear-gradient(90deg, rgba(250,204,21,0.18), rgba(56,189,248,0.15), rgba(15,23,42,0.9));
+                border:1px solid rgba(250,204,21,0.45);
+                border-left:6px solid #facc15;
+                border-radius:10px;
+                padding:8px 16px;
+                margin-bottom:8px;
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                font-size:12.5px;
+                color:#f8fafc;
+            ">
+                <div>🔩 <b>ACTIVE HOUSING BAY</b> : <span style="color:#fde047;font-weight:900;">{selected_bay}</span> 단독 집중 모드 가동 중 (타 모듈 스크롤 자동 격리됨)</div>
+                <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:#38bdf8;">CHASSIS BAY LOCKED // ZERO-SCROLL</div>
+            </div>""",
+            unsafe_allow_html=True
+        )
+
+        # 4. 선택된 단일 베이(Bay)만 화면에 렌더링하여 상하 스크롤을 최소화
+        if "BAY 1" in selected_bay:
+            if "render_phase8_treasure_island_ui" in globals():
+                render_phase8_treasure_island_ui()
+        elif "BAY 2" in selected_bay:
+            if "render_phase2_multi_bid_cart" in globals():
+                render_phase2_multi_bid_cart()
+        elif "BAY 3" in selected_bay:
+            if "render_phase7_pandora_akashic_core" in globals():
+                render_phase7_pandora_akashic_core()
+        elif "BAY 4" in selected_bay:
+            if "render_phase5_singularity_engine" in globals():
+                render_phase5_singularity_engine()
+        elif "BAY 5" in selected_bay:
+            if "render_phase4_quantum_ai_engine" in globals():
+                render_phase4_quantum_ai_engine()
+        elif "BAY 6" in selected_bay:
+            if "render_phase6_backtesting_terminal" in globals():
+                render_phase6_backtesting_terminal()
+        elif "BAY 7" in selected_bay:
+            if "render_phase3_webhook_and_tracker" in globals():
+                render_phase3_webhook_and_tracker()
+
+        # 하우징 하단 금속 섀시 마감 베젤 (Bottom Chassis Bezel)
+        st.markdown(
+            """<div style="
+                margin-top:14px;
+                background:linear-gradient(90deg, #060a12, #111827, #060a12);
+                border:1.5px solid rgba(56,189,248,0.4);
+                border-bottom:4px solid #facc15;
+                border-radius:12px;
+                padding:10px 18px;
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                font-size:11.5px;
+                color:#94a3b8;
+            ">
+                <div>⚙️ <b style="color:#fde047;">BID-NEXUS v9.0 TACTICAL MACHINE CHASSIS</b> | 분업화 7-BAY 모듈러 하우징 시스템</div>
+                <div style="font-family:'Orbitron',sans-serif;color:#34d399;font-weight:800;">● SYSTEM NOMINAL // SCROLL MINIMIZED</div>
+            </div>""",
+            unsafe_allow_html=True
+        )
+
+    except Exception as _m9_err:
+        st.info(f"입찰 머신 하우징 준비 완료 ({_m9_err})")
+
+render_phase9_bidding_machine_workstation()
+# ==================== [PHASE 9: BIDDING MACHINE HOUSING ROUTER END] ====================
 
