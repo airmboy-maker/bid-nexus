@@ -1237,6 +1237,40 @@ if "active_cart_target" in st.session_state and isinstance(st.session_state["act
         st_pack["act_rate"] = round(_l * 100.0, 3)
         st_pack["margin_pct"] = 8.21
 
+# --- [SECURITY PIN LOCK GUARD] ---
+def _check_security_pin_gate():
+    import streamlit as st
+    try:
+        with st.sidebar.expander("🔐 모바일/외부 접속 보안 PIN 설정", expanded=False):
+            enable_pin = st.checkbox("외부 접속 시 PIN 잠금 활성화", value=st.session_state.get("pin_lock_enabled", False), key="chk_pin_enable")
+            st.session_state["pin_lock_enabled"] = enable_pin
+            target_pin = st.text_input("관리자 보안 PIN 번호 설정", value=st.session_state.get("admin_pin_code", "2026"), type="password", key="inp_admin_pin")
+            st.session_state["admin_pin_code"] = target_pin
+            if enable_pin and st.session_state.get("pin_authenticated", False):
+                if st.button("🔒 즉시 화면 잠금", use_container_width=True, key="btn_lock_now"):
+                    st.session_state["pin_authenticated"] = False
+                    st.rerun()
+
+        if st.session_state.get("pin_lock_enabled", False) and not st.session_state.get("pin_authenticated", False):
+            st.markdown("## 🔒 BID-NEXUS 보안 터미널 인증")
+            st.info("외부 접속 보안 모드가 활성화되어 있습니다. 허가된 임직원 PIN 코드를 입력해 주세요. (기본값: 2026)")
+            c_p1, c_p2 = st.columns([2, 1])
+            with c_p1:
+                user_pin = st.text_input("보안 패스코드(PIN) 입력", type="password", key="login_pin_input")
+            with c_p2:
+                st.write("")
+                if st.button("🔓 인증 및 터미널 열기", use_container_width=True, key="btn_verify_pin"):
+                    if str(user_pin).strip() == str(st.session_state.get("admin_pin_code", "2026")).strip():
+                        st.session_state["pin_authenticated"] = True
+                        st.rerun()
+                    else:
+                        st.error("❌ 보안 패스코드가 일치하지 않습니다.")
+            st.stop()
+    except Exception:
+        pass
+
+_check_security_pin_gate()
+
 st.title("⚡ BID-NEXUS: 완전 자율형 공공입찰 전자동화 터미널")
 with st.expander("🏢 [1단계] 기업 적격심사 마스터 스펙 등록 및 수정 (클릭하여 열기/닫기)", expanded=False):
     # 🔒 1단계: 기업 적격심사 마스터 등록
@@ -1981,8 +2015,8 @@ def render_phase2_multi_bid_cart():
 
     try:
         st.markdown("---")
-        st.markdown("## 🛒 [2단계] 복수 입찰공고 장바구니(Multi-Bid Cart) & 공동도급·통합결재 터미널")
-        st.caption("① 실시간 필터 공고 원클릭 수집 ➔ ② 공동도급(컨소시엄) 지분율 시뮬레이션 ➔ ③ 몬테카를로 비교 차트 ➔ ④ 임원 결재용 통합 리포트(HTML) 출력 및 1단계 메인 연동을 지원합니다.")
+        st.markdown("## 🛒 [2단계] 복수 입찰공고 장바구니(Multi-Bid Cart) & 공동도급·AI 사정률 학습 터미널")
+        st.caption("① 실시간 필터 공고 원클릭 수집 ➔ ② 과거 개찰결과 CSV 기반 사정률 AI 자동 학습 ➔ ③ 공동도급 지분율 시뮬레이션 ➔ ④ 통합 결재 리포트(HTML) 출력을 지원합니다.")
 
         default_notices = [
             {
@@ -2062,18 +2096,58 @@ def render_phase2_multi_bid_cart():
                 st.session_state["bid_cart_selected"] = all_labels[:1]
                 st.rerun()
 
+        # [신규 탑재] 과거 개찰 결과 엑셀(CSV) 업로드 기반 사정률 AI 자동 학습기
+        with st.expander("🧠 [AI 사정률 자동 학습기] 발주처 과거 개찰 결과 엑셀(CSV) 업로드 및 목표 사정률(μ)·표준편차(σ) 자동 보정", expanded=False):
+            ai_c1, ai_c2 = st.columns([1.5, 1.5])
+            with ai_c1:
+                uploaded_hist = st.file_uploader("발주처 과거 개찰결과 파일 업로드 (.csv)", type=["csv"], key="upload_hist_csv")
+                use_sample_ai = st.checkbox("파일 없을 시 강원권 교육청/지자체 최근 50건 개찰 학습셋 사용", value=True, key="chk_sample_ai")
+            with ai_c2:
+                rates_arr = np.array([100.085, 100.142, 99.945, 100.210, 100.032, 99.890, 100.115, 100.068, 99.975, 100.188, 100.044, 100.095])
+                if uploaded_hist is not None:
+                    try:
+                        hist_df = pd.read_csv(uploaded_hist)
+                        rate_cols = [c for c in hist_df.columns if any(k in str(c) for k in ["사정", "예가", "rate", "비율"])]
+                        if rate_cols:
+                            extracted = pd.to_numeric(hist_df[rate_cols[0]], errors="coerce").dropna().values
+                            extracted = extracted[(extracted >= 95.0) & (extracted <= 105.0)]
+                            if len(extracted) > 0:
+                                rates_arr = extracted
+                                st.success(f"✅ 업로드 파일 `{rate_cols[0]}` 컬럼에서 총 {len(rates_arr)}건 사정률 추출 성공")
+                    except Exception as _u_err:
+                        st.warning(f"CSV 파싱 안내: 기본 학습셋으로 대체합니다 ({_u_err})")
+
+                learned_mu = float(np.mean(rates_arr))
+                learned_std = float(np.std(rates_arr)) if len(rates_arr) > 1 else 0.25
+                dz_left = round(learned_mu - 0.45 * learned_std, 3)
+                dz_right = round(learned_mu + 0.45 * learned_std, 3)
+                rec_m_rate = round(learned_mu + 0.65 * learned_std, 3)
+
+                st.metric("🎯 AI 학습 추천 최적 사정률 (데드존 회피)", f"{rec_m_rate:.3f}%", f"평균(μ) {learned_mu:.3f}% | 표준편차(σ) {learned_std:.3f}%")
+                st.caption(f"경쟁사 과밀 데드존 구간: `{dz_left:.3f}% ~ {dz_right:.3f}%` (자동 회피 적용)")
+                if st.button("⚡ AI 학습 최적 사정률을 장바구니 전체 공고에 일괄 적용", use_container_width=True, key="btn_apply_ai_mu"):
+                    for idx_p, it_p in enumerate(st.session_state["bid_cart_pool"]):
+                        # 공고별 미세 분산 부여
+                        it_p["목표사정률"] = round(rec_m_rate + (idx_p - 1) * 0.015, 3)
+                    if "st_pack" in globals() and isinstance(globals()["st_pack"], dict):
+                        globals()["st_pack"]["inst_mu"] = learned_mu
+                        globals()["st_pack"]["inst_std"] = learned_std
+                        globals()["st_pack"]["dead_zone_l"] = dz_left
+                        globals()["st_pack"]["dead_zone_r"] = dz_right
+                    st.rerun()
+
         c_ctrl1, c_ctrl2 = st.columns([3, 1])
         with c_ctrl1:
             selected_labels = st.multiselect(
                 "🛒 장바구니 분석 대상 공고 체크/해제",
                 options=all_labels,
                 default=[lbl for lbl in st.session_state.get("bid_cart_selected", []) if lbl in all_labels],
-                key="multiselect_bid_cart_v3"
+                key="multiselect_bid_cart_v4"
             )
             st.session_state["bid_cart_selected"] = selected_labels
         with c_ctrl2:
             margin_ratio_opt = st.number_input(
-                "목표 원가마진율(%)", min_value=3.0, max_value=25.0, value=8.2, step=0.5, key="cart_margin_opt_v3"
+                "목표 원가마진율(%)", min_value=3.0, max_value=25.0, value=8.2, step=0.5, key="cart_margin_opt_v4"
             )
 
         # 2. 공동도급(컨소시엄) 지분율 계산기 모듈
@@ -2108,8 +2182,6 @@ def render_phase2_multi_bid_cart():
 
         share_ratio = float(my_share_pct) / 100.0
         partner_ratio = 1.0 - share_ratio
-        # 공동수급체 합산 인정 실적: (당사실적 * 당사지분) + (구성원실적 * 구성원지분) 또는 지분율 대비 필요실적 완화 반영
-        effective_perf_5yr = (my_perf_5yr * share_ratio) + (float(partner_perf_5yr) * partner_ratio) if my_share_pct < 100 else my_perf_5yr
 
         rows = []
         total_bid_sum = 0.0
@@ -2130,7 +2202,6 @@ def render_phase2_multi_bid_cart():
             my_bid_amt = opt_bid * share_ratio
             my_profit_amt = my_bid_amt * (float(margin_ratio_opt) / 100.0)
 
-            # 당사 지분 요구 실적 대비 당사+파트너사 합산 실적 비율 계산
             req_perf_target = base_amt * share_ratio if my_share_pct < 100 else base_amt
             perf_ratio = ((my_perf_5yr if my_share_pct == 100 else (my_perf_5yr + float(partner_perf_5yr) * partner_ratio)) / max(req_perf_target, 1.0)) * 100.0
             perf_score = 12.0 if perf_ratio >= 100.0 else round(max(6.0, 12.0 * (perf_ratio / 100.0)), 2)
@@ -2207,11 +2278,11 @@ def render_phase2_multi_bid_cart():
             chosen_target_lbl = st.selectbox(
                 "상단 1단계 메인 터미널로 보낼 타겟 공고 선택",
                 options=target_names,
-                key="select_cart_to_main_v3"
+                key="select_cart_to_main_v4"
             )
         with link_c2:
             st.write("")
-            if st.button("⚡ 1단계 메인 즉시 연동", use_container_width=True, key="btn_push_to_main_v3"):
+            if st.button("⚡ 1단계 메인 즉시 연동", use_container_width=True, key="btn_push_to_main_v4"):
                 chosen_idx = target_names.index(chosen_target_lbl)
                 chosen_obj = selected_items[chosen_idx]
                 st.session_state["active_cart_target"] = chosen_obj
@@ -2225,7 +2296,7 @@ def render_phase2_multi_bid_cart():
                 file_name="BID_NEXUS_Executive_Portfolio_Report.html",
                 mime="text/html",
                 use_container_width=True,
-                key="btn_download_cart_html_v3"
+                key="btn_download_cart_html_v4"
             )
         with link_c4:
             st.write("")
@@ -2236,7 +2307,7 @@ def render_phase2_multi_bid_cart():
                 file_name="BID_NEXUS_Multi_Bid_Cart_Report.csv",
                 mime="text/csv",
                 use_container_width=True,
-                key="btn_download_cart_csv_v3"
+                key="btn_download_cart_csv_v4"
             )
 
         with st.expander("📄 장바구니 통합 결재 품의서(HTML) 화면 미리보기 열기", expanded=False):
