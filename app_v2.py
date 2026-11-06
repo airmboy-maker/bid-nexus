@@ -1595,10 +1595,10 @@ with tab_quantum_ai:
 
 with tab_sim:
     st.subheader("🎛️ 0.001% 정밀 감도 & 공사 비목별 원가 분석")
-    default_m_rate = st.session_state.get("manual_rate", float(st_pack.get('kelly_r', 0)))
+    default_m_rate = float(st.session_state.get("manual_rate", float(st_pack.get('kelly_r', 0))) or 100.050); default_m_rate = 100.050 if default_m_rate < 97.0 or default_m_rate > 103.0 else default_m_rate
 
     c_s1, c_s2 = st.columns(2)
-    sim_rate_input = c_s1.number_input("🎯 목표 사정률 직접 입력 (%)", min_value=97.000, max_value=103.000, value=default_m_rate, step=0.001, format="%.3f")
+    sim_rate_input = c_s1.number_input("🎯 목표 사정률 직접 입력 (%)", min_value=97.000, max_value=103.000, value=float(min(103.0, max(97.0, float(default_m_rate) if default_m_rate and float(default_m_rate) >= 97.0 else 100.050))), step=0.001, format="%.3f")
     sim_exec_rate = c_s2.slider("현장 총 실행원가율 설정 (%)", min_value=75.0, max_value=95.0, value=88.5, step=0.1, format="%.1f%%")
 
     b_val = st_pack.get('b_val', 0)
