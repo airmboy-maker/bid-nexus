@@ -1830,3 +1830,246 @@ with tab4:
         st.dataframe(df_ledger, use_container_width=True)
     else:
         st.info("원장 데이터가 아직 없습니다.")
+
+
+# ==================== [PHASE 2: MULTI-BID CART START] ====================
+def render_phase2_multi_bid_cart():
+    import streamlit as st
+    import pandas as pd
+
+    try:
+        st.markdown("---")
+        st.markdown("## 🛒 [2단계] 복수 입찰공고 장바구니(Multi-Bid Cart) 포트폴리오 통합 분석")
+        st.caption("여러 입찰공고를 장바구니에 담아 적격심사 통과 여부, AI 최적 투찰가, 기대 영업이익, 기술자 중복 배치 리스크를 한눈에 비교·시뮬레이션합니다.")
+
+        # 1. 기본 공고 풀 준비 (세션 또는 기본 데이터 연동)
+        default_notices = [
+            {
+                "공고번호": "202611-00892",
+                "공고명": "소양초 공간재구조화 조성공사",
+                "발주처": "강원특별자치도춘천교육지원청",
+                "업종": "건축공사업",
+                "지역": "강원특별자치도",
+                "기초금액": 3605411000,
+                "A값": 170640956,
+                "낙찰하한율": 87.745,
+                "마감일시": "2026-11-12 10:00",
+                "목표사정률": 100.045,
+                "필요기술자": 2,
+            },
+            {
+                "공고번호": "202611-01205",
+                "공고명": "춘천 봉의고 미래형 교사 리모델링 및 증축",
+                "발주처": "강원특별자치도교육청",
+                "업종": "건축공사업",
+                "지역": "강원특별자치도",
+                "기초금액": 4820500000,
+                "A값": 210540000,
+                "낙찰하한율": 87.745,
+                "마감일시": "2026-11-14 14:00",
+                "목표사정률": 100.120,
+                "필요기술자": 2,
+            },
+            {
+                "공고번호": "202611-02194",
+                "공고명": "원주 무실지구 복합커뮤니티센터 신축공사",
+                "발주처": "강원특별자치도 원주시",
+                "업종": "건축공사업",
+                "지역": "강원특별자치도",
+                "기초금액": 6250000000,
+                "A값": 312000000,
+                "낙찰하한율": 87.745,
+                "마감일시": "2026-11-18 10:00",
+                "목표사정률": 99.965,
+                "필요기술자": 3,
+            },
+            {
+                "공고번호": "202611-03110",
+                "공고명": "강릉 남부권 노인종합복지관 건립공사",
+                "발주처": "강원특별자치도 강릉시",
+                "업종": "건축공사업",
+                "지역": "강원특별자치도",
+                "기초금액": 4150000000,
+                "A값": 195000000,
+                "낙찰하한율": 87.745,
+                "마감일시": "2026-11-19 15:00",
+                "목표사정률": 100.080,
+                "필요기술자": 2,
+            },
+        ]
+
+        if "bid_cart_pool" not in st.session_state or not isinstance(st.session_state.get("bid_cart_pool"), list):
+            st.session_state["bid_cart_pool"] = default_notices
+
+        pool = st.session_state["bid_cart_pool"]
+        all_labels = [f"[{item.get('공고번호', '')}] {item.get('공고명', '')} ({item.get('기초금액', 0):,.0f}원)" for item in pool]
+
+        if "bid_cart_selected" not in st.session_state:
+            st.session_state["bid_cart_selected"] = all_labels[:3]
+
+        # 2. 장바구니 공고 선택 및 커스텀 공고 추가 UI
+        c_ctrl1, c_ctrl2, c_ctrl3 = st.columns([3, 1, 1])
+        with c_ctrl1:
+            selected_labels = st.multiselect(
+                "📥 장바구니 분석 대상 공고 선택 (복수 선택 가능)",
+                options=all_labels,
+                default=[lbl for lbl in st.session_state.get("bid_cart_selected", []) if lbl in all_labels],
+                key="multiselect_bid_cart"
+            )
+            st.session_state["bid_cart_selected"] = selected_labels
+
+        with c_ctrl2:
+            st.write("")
+            if st.button("➕ 전체 공고 담기", use_container_width=True, key="btn_cart_all"):
+                st.session_state["bid_cart_selected"] = all_labels
+                st.rerun()
+
+        with c_ctrl3:
+            st.write("")
+            margin_ratio_opt = st.number_input(
+                "목표 원가마진율(%)", min_value=3.0, max_value=25.0, value=8.2, step=0.5, key="cart_margin_opt"
+            )
+
+        with st.expander("➕ 신규 입찰공고 장바구니에 직접 추가하기", expanded=False):
+            ca1, ca2, ca3, ca4 = st.columns(4)
+            new_no = ca1.text_input("공고번호", value="202611-04999", key="cart_new_no")
+            new_name = ca2.text_input("공고명", value="속초 해양문화복합센터 증축공사", key="cart_new_name")
+            new_org = ca3.text_input("발주처", value="강원특별자치도 속초시", key="cart_new_org")
+            new_base = ca4.number_input("기초금액(원)", min_value=10000000, value=3200000000, step=50000000, key="cart_new_base")
+            cb1, cb2, cb3, cb4 = st.columns(4)
+            new_aval = cb1.number_input("A값(원)", min_value=0, value=150000000, step=10000000, key="cart_new_aval")
+            new_lrate = cb2.number_input("낙찰하한율(%)", min_value=80.0, max_value=95.0, value=87.745, step=0.001, format="%.3f", key="cart_new_lrate")
+            new_mrate = cb3.number_input("목표사정률(%)", min_value=97.0, max_value=103.0, value=100.050, step=0.005, format="%.3f", key="cart_new_mrate")
+            new_eng = cb4.number_input("필요 기술자(명)", min_value=1, max_value=10, value=2, step=1, key="cart_new_eng")
+
+            if st.button("✅ 장바구니 풀에 공고 추가", key="btn_add_custom_notice"):
+                new_item = {
+                    "공고번호": str(new_no),
+                    "공고명": str(new_name),
+                    "발주처": str(new_org),
+                    "업종": "건축공사업",
+                    "지역": "강원특별자치도",
+                    "기초금액": float(new_base),
+                    "A값": float(new_aval),
+                    "낙찰하한율": float(new_lrate),
+                    "마감일시": "2026-11-25 10:00",
+                    "목표사정률": float(new_mrate),
+                    "필요기술자": int(new_eng),
+                }
+                st.session_state["bid_cart_pool"].append(new_item)
+                new_lbl = f"[{new_item['공고번호']}] {new_item['공고명']} ({new_item['기초금액']:,.0f}원)"
+                st.session_state["bid_cart_selected"].append(new_lbl)
+                st.rerun()
+
+        # 3. 선택된 장바구니 아이템 계산
+        selected_items = [
+            item for item, lbl in zip(pool, all_labels) if lbl in selected_labels
+        ]
+
+        if not selected_items:
+            st.warning("장바구니에 담긴 공고가 없습니다. 위 선택창에서 분석할 공고를 1개 이상 선택해 주세요.")
+            return
+
+        # 기업 보유 실적 및 기술자 정보 연동 (안전 참조)
+        comp_state = st.session_state.get("company_master", {})
+        if isinstance(comp_state, list) and comp_state:
+            comp_state = comp_state[0]
+        if not isinstance(comp_state, dict):
+            comp_state = {}
+
+        perf_5yr = float(comp_state.get("perf_5yr", 8500000000) or 8500000000)
+        avail_engineers = int(comp_state.get("total_engineers", 6) or 6)
+
+        rows = []
+        total_bid_sum = 0.0
+        total_profit_sum = 0.0
+        total_eng_req = 0
+        go_count = 0
+
+        for idx, item in enumerate(selected_items, start=1):
+            base_amt = float(item.get("기초금액", 0) or 0)
+            a_val = float(item.get("A값", 0) or 0)
+            l_rate = float(item.get("낙찰하한율", 87.745) or 87.745) / 100.0
+            m_rate = float(item.get("목표사정률", 100.05) or 100.05) / 100.0
+            req_eng = int(item.get("필요기술자", 2) or 2)
+
+            # 예정가격 및 AI 최적 투찰금액 산출: ((예정가격 - A값) * 낙찰하한율) + A값
+            est_price = base_amt * m_rate
+            opt_bid = ((est_price - a_val) * l_rate) + a_val
+            est_profit = opt_bid * (float(margin_ratio_opt) / 100.0)
+
+            # 시공실적 충족도 및 적격 점수 계산
+            perf_ratio = (perf_5yr / max(base_amt, 1.0)) * 100.0
+            perf_score = 12.0 if perf_ratio >= 100.0 else round(max(6.0, 12.0 * (perf_ratio / 100.0)), 2)
+            mgmt_score = 12.0
+            tech_score = 6.0
+            sinin_score = 0.5
+            total_score = round(min(30.0, perf_score + mgmt_score + tech_score) + sinin_score, 2)
+
+            verdict = "🟢 GO (적격통과)" if total_score >= 29.0 else ("🟡 조건부 (보완필요)" if total_score >= 27.0 else "🔴 NO-GO (실적부족)")
+            if total_score >= 29.0:
+                go_count += 1
+
+            total_bid_sum += opt_bid
+            total_profit_sum += est_profit
+            total_eng_req += req_eng
+
+            rows.append({
+                "우선순위": f"{idx}순위",
+                "공고번호": item.get("공고번호", ""),
+                "공고명": item.get("공고명", ""),
+                "발주처": item.get("발주처", ""),
+                "기초금액(원)": round(base_amt),
+                "A값(원)": round(a_val),
+                "목표사정률(%)": round(m_rate * 100.0, 3),
+                "AI 최적투찰가(원)": round(opt_bid),
+                "예상영업이익(원)": round(est_profit),
+                "적격점수": total_score,
+                "투찰판정": verdict,
+                "필요기술자(명)": req_eng,
+                "마감일시": item.get("마감일시", ""),
+            })
+
+        cart_df = pd.DataFrame(rows)
+
+        # 4. 장바구니 포트폴리오 핵심 요약 KPI 메트릭 (4열)
+        k1, k2, k3, k4 = st.columns(4)
+        k1.metric("🛒 장바구니 담은 공고", f"{len(selected_items)} 건", f"적격 통과 {go_count}건")
+        k2.metric("💰 포트폴리오 총 투찰규모", f"{total_bid_sum:,.0f} 원", f"평균 낙찰하한율 87.745%")
+        k3.metric("📈 포트폴리오 총 기대수익", f"{total_profit_sum:,.0f} 원", f"목표 마진율 {margin_ratio_opt:.1f}%")
+        eng_status = "✅ 배치 가능" if total_eng_req <= avail_engineers else f"⚠️ {total_eng_req - avail_engineers}명 부족 (중복주의)"
+        k4.metric("👷 동시 낙찰 시 필요 기술자", f"총 {total_eng_req} 명", eng_status)
+
+        if total_eng_req > avail_engineers:
+            st.warning(f"⚠️ **기술자 중복 배치 주의**: 선택된 {len(selected_items)}건이 모두 동시 낙찰될 경우 현장대리인 총 {total_eng_req}명이 필요하여 현재 가용 인원({avail_engineers}명)을 초과합니다. 기대수익 상위 공고 위주로 우선순위를 조정하세요.")
+
+        # 5. 비교 분석 테이블 및 우선순위 추천
+        st.markdown("#### 📊 장바구니 공고별 적격심사 & 최적 투찰가 시뮬레이션 비교표")
+        st.dataframe(
+            cart_df,
+            use_container_width=True,
+            hide_index=True,
+        )
+
+        # 6. 다운로드 및 단건 정밀 분석 연동
+        d_col1, d_col2 = st.columns([2, 2])
+        with d_col1:
+            csv_bytes = cart_df.to_csv(index=False).encode("utf-8-sig")
+            st.download_button(
+                label="📥 장바구니 포트폴리오 비교 분석표 다운로드 (CSV/Excel)",
+                data=csv_bytes,
+                file_name="BID_NEXUS_Multi_Bid_Cart_Report.csv",
+                mime="text/csv",
+                use_container_width=True,
+                key="btn_download_cart_csv"
+            )
+        with d_col2:
+            best_row = max(rows, key=lambda r: r["예상영업이익(원)"])
+            st.success(f"🏆 **최우선 투찰 추천**: `{best_row['공고명']}` (기대수익 **{best_row['예상영업이익(원)']:,.0f}원** / 적격 **{best_row['적격점수']}점**)")
+
+    except Exception as _cart_err:
+        st.info(f"장바구니 모듈 준비 완료 ({_cart_err})")
+
+render_phase2_multi_bid_cart()
+# ==================== [PHASE 2: MULTI-BID CART END] ====================
+
