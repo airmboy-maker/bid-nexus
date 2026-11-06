@@ -2102,6 +2102,18 @@ def render_phase2_multi_bid_cart():
             with ai_c1:
                 uploaded_hist = st.file_uploader("발주처 과거 개찰결과 파일 업로드 (.csv)", type=["csv"], key="upload_hist_csv")
                 use_sample_ai = st.checkbox("파일 없을 시 강원권 교육청/지자체 최근 50건 개찰 학습셋 사용", value=True, key="chk_sample_ai")
+                try:
+                    with open("sample_g2b_opening_history.csv", "rb") as _sf:
+                        st.download_button(
+                            label="📥 테스트용 발주처 개찰결과 샘플 CSV 다운로드 (20건)",
+                            data=_sf.read(),
+                            file_name="sample_g2b_opening_history.csv",
+                            mime="text/csv",
+                            use_container_width=True,
+                            key="btn_dl_sample_hist_csv"
+                        )
+                except Exception:
+                    pass
             with ai_c2:
                 rates_arr = np.array([100.085, 100.142, 99.945, 100.210, 100.032, 99.890, 100.115, 100.068, 99.975, 100.188, 100.044, 100.095])
                 if uploaded_hist is not None:
