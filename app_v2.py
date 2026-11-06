@@ -38,6 +38,22 @@ def _recommend_best_model_by_context(item_dict, est_bidders=85):
 # -*- coding: utf-8 -*-
 import os, io, json, sqlite3, time, requests, unicodedata
 from datetime import datetime, timedelta
+
+# ==================== [GENSPARK AUDIT V20.0: DECIMAL WON-UNIT MATH ENGINE] ====================
+from bid_math_fixed import (
+    DEFAULT_LIMIT_RATE,
+    ALL_COMBOS,
+    ceil_won,
+    floor_won,
+    estimate_price,
+    lower_limit,
+    bid_price,
+    slot_prices,
+    step_ladder,
+    snap_above,
+)
+# ==============================================================================================
+
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -47,7 +63,11 @@ import matplotlib.pyplot as plt
 
 from google import genai
 from google.genai import types
-from hwp_parser import extract_hwp_or_hwpx
+try:
+    from hwp_parser import extract_hwp_or_hwpx
+except ImportError:
+    def extract_hwp_or_hwpx(_file_obj):
+        return ""  # HWP 파서 미설치 시 안전한 빈 텍스트 폴백
 
 st.set_page_config(
     page_title="BID-NEXUS: Autonomous Intelligence",
@@ -114,7 +134,10 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 DATA_API_KEY = os.environ.get("DATA_GO_KR_API_KEY", "")
-client = genai.Client()
+try:
+    client = genai.Client()
+except Exception:
+    client = None
 
 DB_PATH = os.path.expanduser("~/bidding_history.db")
 PROFILE_JSON_PATH = os.path.expanduser("~/company_profile.json")
@@ -342,10 +365,10 @@ COMPANY_SAMPLE_POOL = [
     # --- 전국 주요 건설사 마스터 풀 확장 ---
     {"name": "삼성물산(주)", "ceo": "오세철", "biz_no": "101-85-11000", "addr": "서울특별시 강동구 상일로6길 26", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "AAA", "special_license": ["무정전공사 시공자격", "신재생에너지설비 전문기업"], "tech_headcount": {"특급": 80, "고급": 120, "중급": 150, "초급": 200}, "perf_5yr": {"토목건축공사업": [15000000000, 16000000000, 15500000000, 17000000000, 18000000000]}, "debt_ratio": 75.4, "current_ratio": 180.2},
     {"name": "현대건설(주)", "ceo": "윤영준", "biz_no": "101-81-16297", "addr": "서울특별시 종로구 율곡로 75", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "AA-", "special_license": ["무정전공사 시공자격"], "tech_headcount": {"특급": 75, "고급": 110, "중급": 140, "초급": 190}, "perf_5yr": {"토목건축공사업": [12000000000, 13000000000, 12500000000, 13500000000, 14000000000]}, "debt_ratio": 110.2, "current_ratio": 155.0},
-    {"name": "(주)대우건설", "ceo": "백정완", "biz_no": "104-81-58180", "addr": "서울특별시 중구 을지로 170", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "A+", "special_license": ["활선공사 시공자격"], "tech_headcount": {"특급": 60, "고급": 90, "중급": 120, "초급": 160}, "perf_5yr": {"토목건축공사업": [9500000000, 10200000000, 9800000000, 10500000000, 11000000000]}, "debt_ratio": 135.5, "current_ratio": 142.1},
+    {"name": "(주)디더블유이엔씨 [데모샘플]", "ceo": "백정완", "biz_no": "104-81-58180", "addr": "서울특별시 중구 을지로 170", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "A+", "special_license": ["활선공사 시공자격"], "tech_headcount": {"특급": 60, "고급": 90, "중급": 120, "초급": 160}, "perf_5yr": {"토목건축공사업": [9500000000, 10200000000, 9800000000, 10500000000, 11000000000]}, "debt_ratio": 135.5, "current_ratio": 142.1},
     {"name": "지에스건설(주)", "ceo": "허윤홍", "biz_no": "104-81-18121", "addr": "서울특별시 종로구 종로 33", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "A+", "special_license": ["신재생에너지설비 전문기업"], "tech_headcount": {"특급": 65, "고급": 95, "중급": 130, "초급": 170}, "perf_5yr": {"토목건축공사업": [9000000000, 9800000000, 9400000000, 10000000000, 10600000000]}, "debt_ratio": 140.2, "current_ratio": 138.4},
     {"name": "(주)포스코이앤씨", "ceo": "전중선", "biz_no": "131-81-28564", "addr": "인천광역시 연수구 컨벤시아대로 241", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "A+", "special_license": ["무정전공사 시공자격"], "tech_headcount": {"특급": 55, "고급": 85, "중급": 115, "초급": 150}, "perf_5yr": {"토목건축공사업": [8500000000, 9200000000, 8900000000, 9600000000, 10100000000]}, "debt_ratio": 120.4, "current_ratio": 145.8},
-    {"name": "DL이앤씨(주)", "ceo": "서홍", "biz_no": "896-87-01777", "addr": "서울특별시 종로구 통일로 134", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "AA-", "special_license": [], "tech_headcount": {"특급": 58, "고급": 88, "중급": 118, "초급": 155}, "perf_5yr": {"토목건축공사업": [8200000000, 8900000000, 8600000000, 9200000000, 9700000000]}, "debt_ratio": 88.5, "current_ratio": 175.2},
+    {"name": "디엘테크건설(주) [데모샘플]", "ceo": "서홍", "biz_no": "896-87-01777", "addr": "서울특별시 종로구 통일로 134", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "AA-", "special_license": [], "tech_headcount": {"특급": 58, "고급": 88, "중급": 118, "초급": 155}, "perf_5yr": {"토목건축공사업": [8200000000, 8900000000, 8600000000, 9200000000, 9700000000]}, "debt_ratio": 88.5, "current_ratio": 175.2},
     {"name": "(주)한화 건설부문", "ceo": "김승모", "biz_no": "101-81-30005", "addr": "서울특별시 장교동 한화빌딩", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "A+", "special_license": ["신재생에너지설비 전문기업"], "tech_headcount": {"특급": 45, "고급": 70, "중급": 95, "초급": 130}, "perf_5yr": {"토목건축공사업": [6200000000, 6800000000, 6500000000, 7100000000, 7500000000]}, "debt_ratio": 125.0, "current_ratio": 140.0},
     {"name": "롯데건설(주)", "ceo": "박현철", "biz_no": "214-81-05365", "addr": "서울특별시 서초구 잠원로 14", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "A+", "special_license": [], "tech_headcount": {"특급": 50, "고급": 78, "중급": 105, "초급": 140}, "perf_5yr": {"토목건축공사업": [7000000000, 7600000000, 7300000000, 7900000000, 8400000000]}, "debt_ratio": 142.1, "current_ratio": 135.5},
     {"name": "SK에코플랜트(주)", "ceo": "장동현", "biz_no": "104-81-24653", "addr": "서울특별시 종로구 율곡로2길 19", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "A-", "special_license": ["신재생에너지설비 전문기업"], "tech_headcount": {"특급": 48, "고급": 72, "중급": 100, "초급": 135}, "perf_5yr": {"토목건축공사업": [6500000000, 7100000000, 6800000000, 7400000000, 7900000000]}, "debt_ratio": 155.0, "current_ratio": 125.0},
@@ -458,7 +481,7 @@ COMPANY_SAMPLE_POOL = [
         "current_ratio": 139.1
     },
     {
-        "name": "(주)대우건설",
+        "name": "(주)디더블유이엔씨 [데모샘플]",
         "ceo": "백정완",
         "biz_no": "104-81-58180",
         "addr": "서울특별시 중구 을지로 170",
@@ -487,11 +510,10 @@ COMPANY_SAMPLE_POOL = [
 
 
 @st.cache_data(ttl=3600)
-@st.cache_data(ttl=3600)
 def load_public_live_corp_pool():
     """건설CALS + KISCON 공공망 실시간 하이브리드 기업 풀 적재"""
-    cals_key = "D1694762-F05F-4A2C-9501-988F2515F053"
-    kiscon_key = "d7622c0628ad396f66159b5cdd816838d83537a05c6c40e585ccd3d0fd97faf7"
+    cals_key = st.secrets.get("CALS_KEY", "") if hasattr(st, "secrets") else os.environ.get("CALS_KEY", "")
+    kiscon_key = st.secrets.get("KISCON_KEY", "") if hasattr(st, "secrets") else os.environ.get("KISCON_KEY", "")
     
     corps = []
     seen_names = set()
@@ -502,7 +524,7 @@ def load_public_live_corp_pool():
     # 1. 건설CALS 실시간 데이터 적재
     try:
         url_cals = "https://www.calspia.go.kr/io/openapi/cm/selectIoCmProjCorpInfoList.do"
-        resp = requests.get(url_cals, params={"serviceKey": cals_key, "type": "json", "pageNo": "1", "numOfRows": "200"}, timeout=4, verify=False)
+        resp = requests.get(url_cals, params={"serviceKey": cals_key, "type": "json", "pageNo": "1", "numOfRows": "200"}, timeout=4, verify=True)
         if resp.status_code == 200:
             items = resp.json().get("response", {}).get("body", {}).get("items", [])
             if isinstance(items, dict): items = [items]
@@ -540,7 +562,7 @@ def load_public_live_corp_pool():
             "_type": "json",
             "numOfRows": "100"
         }
-        resp_k = requests.get(url_kiscon, params=params_k, timeout=4, verify=False)
+        resp_k = requests.get(url_kiscon, params=params_k, timeout=4, verify=True)
         if resp_k.status_code == 200:
             items_k = resp_k.json().get("response", {}).get("body", {}).get("items", {}).get("item", [])
             if isinstance(items_k, dict): items_k = [items_k]
@@ -669,11 +691,11 @@ def fetch_association_company_data(query_text, api_key=""):
 
 def fetch_live_g2b_bids_advanced(lic_selected, region_selected, scale_selected, inst_type_selected, sort_selected, api_key=""):
     db_master = [
-        {"공고번호": "202611-00892", "공고명": "소양초 공간재구조화 조성공사", "발주처": "강원특별자치도춘천교육지원청", "기초금액": 3605411000, "A값": 170640956, "하한율": 88.745, "마감일시": "2026-11-12 10:00", "필요면허": "건축공사업", "지역제한": "강원특별자치도", "기관유형": "교육청 / 교육지원청"},
-        {"공고번호": "202611-01205", "공고명": "춘천 봉의고 미래형 교사 리모델링 및 증축", "발주처": "강원특별자치도교육청", "기초금액": 4820500000, "A값": 210540000, "하한율": 88.745, "마감일시": "2026-11-14 14:00", "필요면허": "건축공사업", "지역제한": "강원특별자치도", "기관유형": "교육청 / 교육지원청"},
-        {"공고번호": "202611-02194", "공고명": "원주 무실지구 복합커뮤니티센터 신축공사", "발주처": "강원특별자치도 원주시", "기초금액": 6250000000, "A값": 312000000, "하한율": 88.745, "마감일시": "2026-11-18 10:00", "필요면허": "건축공사업", "지역제한": "강원특별자치도", "기관유형": "지방자치단체 (시·군·구)"},
-        {"공고번호": "202611-03011", "공고명": "춘천 퇴계동 공공임대주택 옥내외 전기공사", "발주처": "한국토지주택공사(LH)", "기초금액": 1850300000, "A값": 85400000, "하한율": 88.745, "마감일시": "2026-11-13 11:00", "필요면허": "전기공사업", "지역제한": "강원특별자치도", "기관유형": "공기업 / 준정부기관 (LH, 한전 등)"},
-        {"공고번호": "202611-03429", "공고명": "강원대 산학협력 첨단연구동 전기인입 신설공사", "발주처": "강원대학교", "기초금액": 940000000, "A값": 42000000, "하한율": 88.745, "마감일시": "2026-11-15 10:00", "필요면허": "전기공사업", "지역제한": "강원특별자치도", "기관유형": "국가중앙기관 / 조달청"}
+        {"공고번호": "202611-00892", "공고명": "소양초 공간재구조화 조성공사", "발주처": "강원특별자치도춘천교육지원청", "기초금액": 3605411000, "A값": 170640956, "하한율": 87.745, "마감일시": "2026-11-12 10:00", "필요면허": "건축공사업", "지역제한": "강원특별자치도", "기관유형": "교육청 / 교육지원청"},
+        {"공고번호": "202611-01205", "공고명": "춘천 봉의고 미래형 교사 리모델링 및 증축", "발주처": "강원특별자치도교육청", "기초금액": 4820500000, "A값": 210540000, "하한율": 87.745, "마감일시": "2026-11-14 14:00", "필요면허": "건축공사업", "지역제한": "강원특별자치도", "기관유형": "교육청 / 교육지원청"},
+        {"공고번호": "202611-02194", "공고명": "원주 무실지구 복합커뮤니티센터 신축공사", "발주처": "강원특별자치도 원주시", "기초금액": 6250000000, "A값": 312000000, "하한율": 87.745, "마감일시": "2026-11-18 10:00", "필요면허": "건축공사업", "지역제한": "강원특별자치도", "기관유형": "지방자치단체 (시·군·구)"},
+        {"공고번호": "202611-03011", "공고명": "춘천 퇴계동 공공임대주택 옥내외 전기공사", "발주처": "한국토지주택공사(LH)", "기초금액": 1850300000, "A값": 85400000, "하한율": 87.745, "마감일시": "2026-11-13 11:00", "필요면허": "전기공사업", "지역제한": "강원특별자치도", "기관유형": "공기업 / 준정부기관 (LH, 한전 등)"},
+        {"공고번호": "202611-03429", "공고명": "강원대 산학협력 첨단연구동 전기인입 신설공사", "발주처": "강원대학교", "기초금액": 940000000, "A값": 42000000, "하한율": 87.745, "마감일시": "2026-11-15 10:00", "필요면허": "전기공사업", "지역제한": "강원특별자치도", "기관유형": "국가중앙기관 / 조달청"}
     ]
     filtered = [b for b in db_master if b["필요면허"] == lic_selected]
     if region_selected != "전국 대상":
@@ -767,7 +789,7 @@ def call_gemini_with_fallback(contents):
                 time.sleep(1.2)
     return json.dumps({
         "공고명": "소양초 공간재구조화 조성공사", "수요기관": "강원특별자치도춘천교육지원청", "발주기관": "강원특별자치도춘천교육지원청",
-        "주요공종": "건축공사업", "기초금액": 3605411000, "A값_합산액": 170640956, "낙찰하한율": 88.745,
+        "주요공종": "건축공사업", "기초금액": 3605411000, "A값_합산액": 170640956, "낙찰하한율": 87.745,
         "순공사원가": 0, "추정가격": 3277646364, "지역제한": "강원특별자치도", "입찰마감일시": "2026-11-12 10:00",
         "필요면허": ["건축공사업"], "독소조항": [{"title": "물가변동 배제 특약", "desc": "실착공 이후 물가변동 미반영 특약 주의", "level": "위험"}],
         "위험도점수": 25
@@ -827,8 +849,8 @@ def run_automated_qualification(inst_name, target_price, primary_industry, comp)
 
     total_ability = final_mgmt_score + perf_score + net_sinindo
     needed_price_score = pass_cut - total_ability
-    is_pass = total_ability >= (max_mgmt + max_perf) * 0.95
-    verdict = "적격심사 만점 (통과) 확실)" if is_pass else f"감점 발생 (가격평점 {needed_price_score:.2f}점 이상 필수)"
+    is_pass = (total_ability + max_price) >= pass_cut
+    verdict = "적격심사 만점 (통과 확실)" if is_pass else f"감점 발생 (가격평점 {needed_price_score:.2f}점 이상 필수)"
 
     return {
         "standard_name": standard_name, "bracket": bracket, "industry": primary_industry, "association": bench["association"],
@@ -840,7 +862,7 @@ def run_automated_qualification(inst_name, target_price, primary_industry, comp)
     }
 
 def run_hyper_realistic_inference(mu, sigma, n_competitors=120, season_weight=0.015, base_price=3605411000):
-    np.random.seed(42)
+    _local_rng = np.random.default_rng()
     adjusted_mu = mu + season_weight
     n_sims = 15000
     sim_raw = np.random.normal(loc=adjusted_mu, scale=sigma, size=(n_sims, 15))
@@ -1162,12 +1184,12 @@ def execute_full_autonomous_pipeline(comp, doc_input=None, auto_save=True, compe
                 with open(default_p, "rb") as f:
                     doc_input = [types.Part.from_bytes(data=f.read(), mime_type="application/pdf")]
             else:
-                doc_input = ["소양초 공간재구조화 조성공사 강원특별자치도춘천교육지원청 건축공사업 기초금액 3605411000원 A값 170640956원 낙찰하한율 88.745% 마감일시 2026-11-12 10:00"]
+                doc_input = ["소양초 공간재구조화 조성공사 강원특별자치도춘천교육지원청 건축공사업 기초금액 3605411000원 A값 170640956원 낙찰하한율 87.745% 마감일시 2026-11-12 10:00"]
 
         prompt = """공고문 및 시방서를 분석하여 순수 JSON으로만 출력해:
         {
           "공고명": "", "수요기관": "", "발주기관": "", "주요공종": "건축공사업",
-          "기초금액": 3605411000, "A값_합산액": 170640956, "낙찰하한율": 88.745,
+          "기초금액": 3605411000, "A값_합산액": 170640956, "낙찰하한율": 87.745,
           "순공사원가": 0, "추정가격": 3277646364, "지역제한": "",
           "입찰마감일시": "2026-11-12 10:00", "필요면허": ["건축공사업"],
           "독소조항": [{"title": "물가변동 배제 특약", "desc": "실착공 이후 물가변동 미반영 특약 주의", "level": "위험"}],
@@ -1180,7 +1202,7 @@ def execute_full_autonomous_pipeline(comp, doc_input=None, auto_save=True, compe
         except Exception:
             data = {
                 "공고명": "소양초 공간재구조화 조성공사", "수요기관": "강원특별자치도춘천교육지원청", "발주기관": "강원특별자치도춘천교육지원청",
-                "주요공종": "건축공사업", "기초금액": 3605411000, "A값_합산액": 170640956, "낙찰하한율": 88.745,
+                "주요공종": "건축공사업", "기초금액": 3605411000, "A값_합산액": 170640956, "낙찰하한율": 87.745,
                 "순공사원가": 0, "추정가격": 3277646364, "지역제한": "강원특별자치도", "입찰마감일시": "2026-11-12 10:00",
                 "필요면허": ["건축공사업"], "독소조항": [{"title": "물가변동 배제 특약", "desc": "실착공 이후 물가변동 미반영 특약 주의", "level": "위험"}],
                 "위험도점수": 25
@@ -1193,7 +1215,7 @@ def execute_full_autonomous_pipeline(comp, doc_input=None, auto_save=True, compe
     if b_val <= 0:
         b_val = 3605411000
     a_val = data.get("A값_합산액") if data.get("A값_합산액") is not None else 170640956
-    raw_l_rate = data.get('낙찰하한율', 87.745) or 88.745
+    raw_l_rate = data.get('낙찰하한율', 87.745) or 87.745
     l_rate = raw_l_rate / 100.0
 
     q_auto = run_automated_qualification(inst_name, t_price, main_ind, comp)
@@ -1203,7 +1225,7 @@ def execute_full_autonomous_pipeline(comp, doc_input=None, auto_save=True, compe
     
     kelly_r = sim_res["kelly_r"]
     est_p = round(b_val * (kelly_r / 100.0))
-    target_bid = round(((est_p - a_val) * l_rate) + a_val)
+    target_bid = lower_limit(est_p, a_val, l_rate * 100.0)
     act_rate = (target_bid / b_val) * 100.0 if b_val > 0 else 0.0
     est_exec = round(b_val * 0.885)
     est_profit = target_bid - est_exec
@@ -1268,7 +1290,7 @@ if "active_cart_target" in st.session_state and isinstance(st.session_state["act
         _a = float(_ov.get("A값", 170640956) or 170640956)
         _l = float(_ov.get("낙찰하한율", 87.745) or 87.745) / 100.0
         _m = float(_ov.get("목표사정률", 100.05) or 100.05) / 100.0
-        _opt = ((_b * _m - _a) * _l) + _a
+        _opt = bid_price(_b, _m * 100.0, _a, _l * 100.0)
         st_pack["target_bid"] = round(_opt)
         st_pack["est_profit"] = round(_opt * 0.0821)
         st_pack["act_rate"] = round(_l * 100.0, 3)
@@ -2375,15 +2397,15 @@ def render_phase2_multi_bid_cart():
                 urgent_count += 1
             lucky_4_str = _pick_lucky_4_numbers(item.get("공고번호", str(idx)), m_rate_pct, seed_off)
 
-            est_price = base_amt * m_rate
-            opt_bid = ((est_price - a_val) * l_rate) + a_val
+            est_price = estimate_price(base_amt, m_rate * 100.0)
+            opt_bid = lower_limit(est_price, a_val, l_rate * 100.0)
             my_bid_amt = opt_bid * share_ratio
             my_profit_amt = my_bid_amt * (float(margin_ratio_opt) / 100.0)
 
             req_perf_target = base_amt * share_ratio if my_share_pct < 100 else base_amt
             perf_ratio = ((my_perf_5yr if my_share_pct == 100 else (my_perf_5yr + float(partner_perf_5yr) * partner_ratio)) / max(req_perf_target, 1.0)) * 100.0
             perf_score = 12.0 if perf_ratio >= 100.0 else round(max(6.0, 12.0 * (perf_ratio / 100.0)), 2)
-            total_score = round(min(30.0, perf_score + 12.0 + 6.0) + 0.5, 2)
+            total_score = round(min(30.0, perf_score + 12.0 + 6.0), 2)
 
             verdict = "🟢 GO (적격통과)" if total_score >= 29.0 else ("🟡 조건부 (지분조정권고)" if total_score >= 27.0 else "🔴 NO-GO (실적부족)")
             if total_score >= 29.0:
@@ -2536,7 +2558,7 @@ def render_phase3_webhook_and_tracker():
             return
 
         # Streamlit Secrets 기본값 안전 로드
-        sec_tg_token = "9024240666:AAEEz8DFvCFpxGy55Qzb1UQ35nNgF9ebde4"
+        sec_tg_token = (st.secrets.get("TELEGRAM_BOT_TOKEN", "") if hasattr(st, "secrets") else os.environ.get("TELEGRAM_BOT_TOKEN", ""))
         sec_tg_chat = "8456101127"
         sec_slack_url = ""
         try:
@@ -2661,7 +2683,7 @@ def render_phase3_webhook_and_tracker():
                             urllib.request.urlopen(req, timeout=5)
                             sent_ok = True
                         else:
-                            _use_token = tg_token.strip() or "9024240666:AAEEz8DFvCFpxGy55Qzb1UQ35nNgF9ebde4"
+                            _use_token = tg_token.strip() or (st.secrets.get("TELEGRAM_BOT_TOKEN", "") if hasattr(st, "secrets") else os.environ.get("TELEGRAM_BOT_TOKEN", ""))
                             _use_chat = tg_chat.strip() or "8456101127"
                             if _use_token and _use_chat:
                                 tg_api = f"https://api.telegram.org/bot{_use_token}/sendMessage"
