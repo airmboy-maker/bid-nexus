@@ -5570,7 +5570,7 @@ function jumpFromIso(targetKey) {
 
         # [신규 v19.0] 사정률 직관 고취 & 압도적 시각 퍼포먼스 3대 킬포인트 (60FPS 4D Tactical HUD)
         with st.expander("🔥 [사정 직관 3대 킬포인트] 모델별 클릭 비교 & ① 크레바스 지형도 · ② 15C4 시너지 링 · ③ 실시간 ±0.001%p 당락 다이얼", expanded=True):
-            st.caption("상단의 5대 분석 모델 버튼을 클릭하면 각 모델의 사정률 좌표·예가번호 4개·당락 확률이 3대 60FPS 그래픽에 즉시 반영되며, 하단에 선택된 모델의 상세 추론 원리와 그래픽 판독 해설이 표시됩니다.")
+            st.caption("상단의 5대 분석 모델 버튼을 클릭하면 각 모델의 사정률 좌표·예가번호 4개·당락 확률이 3대 60FPS 그래픽에 즉시 반영되며, 하단에 선택된 모델의 상세 추론 원리와 그래픽 판독 해설이 문맥 단락별로 표시됩니다.")
 
             kp_item = pool[0]
             if "v12_ens_target" in st.session_state:
@@ -5598,7 +5598,6 @@ function jumpFromIso(targetKey) {
             step_prices_k = np.array([np.floor(np.mean([slots_k[i] for i in c])) for c in combs_k])
             step_rates_k = (step_prices_k / kp_base) * 100.0
 
-            # 5대 모델별 정밀 좌표 및 상세 설명 데이터 생성
             r_leg_k = round(100.015 + (hv_k % 40) * 0.001, 4)
             idx_leg_k = int(np.argmin(np.abs(step_rates_k - r_leg_k)))
             nums_leg_k = sorted([int(i + 1) for i in combs_k[idx_leg_k]])
@@ -5636,8 +5635,9 @@ function jumpFromIso(targetKey) {
             models_kp_data = {
                 "M5": {
                     "id": "M5",
-                    "btn_label": "👑 AI 마스터 앙상블 (최종추천)",
-                    "name": "👑 AI 마스터 앙상블 (특이점·판도라·저격기 가중합성 + 양자계단 락)",
+                    "btn_label": "👑 1. AI 마스터 앙상블",
+                    "pin_tag": "👑 AI 마스터 앙상블",
+                    "name": "👑 AI 마스터 앙상블 — 3대 코어 가중합성 & 양자계단 락 모델",
                     "color": "#facc15",
                     "rate": r_ens_k,
                     "step": idx_ens_k + 1,
@@ -5650,15 +5650,31 @@ function jumpFromIso(targetKey) {
                     "synergy_pct": 99.8,
                     "nums": nums_ens_k,
                     "verdict": "🏆 단독 1순위 골든 크레바스 (최적)",
-                    "core_summary": f"단일 모델이 가질 수 있는 편향을 완벽히 상쇄하기 위해 [특이점 양자락({w_k.get('singularity',0.4)*100:.0f}%) + 판도라 X10({w_k.get('pandora',0.35)*100:.0f}%) + 경쟁사 저격기({w_k.get('sniper',0.25)*100:.0f}%)]를 역학습 신뢰도 가중치로 결합한 뒤, 조달청 수식상 실제 존재하는 #{idx_ens_k+1}번 양자계단에 스냅 착지시킨 최종 적합가입니다.",
-                    "kp1_explain": f"🌊 [KP-01 크레바스 지형도 해설] 좌측 붉은색 레거시 과밀 산맥({r_leg_k:.4f}%)과 우측 고사정 서브 산맥 사이의 '경쟁 무풍 협곡(Golden Crevasse, {r_ens_k:.4f}%)' 정중앙에 위치하여, 예가 상승 시 앞선 경쟁사들이 집단 미달 탈락할 때 단독 1순위를 차지합니다.",
-                    "kp2_explain": f"🎰 [KP-02 예가 시너지 링 해설] 15개 번호 중 중앙 다득표 번호와 상단 방어 번호가 황금 균형을 이루는 🎯 {nums_ens_k[0]}번·{nums_ens_k[1]}번·{nums_ens_k[2]}번·{nums_ens_k[3]}번 조합으로, 산술평균 원단위 절사 시 계단 #{idx_ens_k+1}번({ep_ens_k:,.0f}원)을 99.8% 시너지로 정확히 형성합니다.",
-                    "kp3_explain": f"⚡ [KP-03 당락 계기판 & 웨지 해설] 순수 하한선 금액에 비대칭 소수 웨지(+19원)를 가산한 {bid_ens_k:,.0f}원으로, 100원/1,000원 단위로 끝나는 경쟁사들과의 동가 추첨을 원천 차단하고 기대 낙찰률 35.8%(일반 대비 15배)를 달성합니다."
+                    "core_summary": (
+                        f"<b>• [모델 설계 목적]</b> 단일 모델이 가질 수 있는 편향을 완벽히 상쇄하기 위해 <b>특이점 양자락({w_k.get('singularity',0.4)*100:.0f}%) · 판도라 X10({w_k.get('pandora',0.35)*100:.0f}%) · 경쟁사 저격기({w_k.get('sniper',0.25)*100:.0f}%)</b>를 역학습 신뢰도 가중치로 결합한 통합 마스터 모델입니다.<br>"
+                        f"<b>• [최종 좌표 확정]</b> 가중 합성된 기댓값을 조달청 수식상 실제 존재하는 <b>#{idx_ens_k+1}번 양자계단({r_ens_k:.4f}%)</b>에 스냅(Snap) 착지시켜 하한선 미달 위험을 원천 차단했습니다."
+                    ),
+                    "kp1_explain": (
+                        f"<div class='sub-ttl'>🌊 KP-01. 크레바스 지형도 판독</div>"
+                        f"<p class='sub-p'>좌측의 붉은색 레거시 과밀 산맥({r_leg_k:.4f}%)과 우측 고사정 산맥 사이의 <b>'경쟁 무풍 협곡(Golden Crevasse, {r_ens_k:.4f}%)'</b> 정중앙에 위치합니다.</p>"
+                        f"<p class='sub-p2'>예가 상승 시 앞선 경쟁사들이 집단 미달로 탈락할 때 단독 1순위를 차지하는 최적의 생존 좌표입니다.</p>"
+                    ),
+                    "kp2_explain": (
+                        f"<div class='sub-ttl'>🎰 KP-02. 예가 시너지 링 판독</div>"
+                        f"<p class='sub-p'>15개 번호 중 중앙 다득표 번호와 상단 방어 번호가 황금 균형을 이루는 <b>🎯 {nums_ens_k[0]}번 · {nums_ens_k[1]}번 · {nums_ens_k[2]}번 · {nums_ens_k[3]}번</b> 조합입니다.</p>"
+                        f"<p class='sub-p2'>4개 슬롯의 산술평균 원단위 절사 시 계단 <b>#{idx_ens_k+1}번({ep_ens_k:,.0f}원)</b>을 99.8% 시너지로 정확히 형성합니다.</p>"
+                    ),
+                    "kp3_explain": (
+                        f"<div class='sub-ttl'>⚡ KP-03. 당락 계기판 & 웨지 해설</div>"
+                        f"<p class='sub-p'>순수 하한선 금액에 비대칭 소수 웨지(<b>+19원</b>)를 가산하여 최종 <b>{bid_ens_k:,.0f}원</b>으로 산출되었습니다.</p>"
+                        f"<p class='sub-p2'>100원·1,000원 단위로 끝나는 경쟁사들과의 동가 추첨을 피하고 기대 낙찰률 <b>35.8%</b>(일반 대비 15배)를 달성합니다.</p>"
+                    )
                 },
                 "M3": {
                     "id": "M3",
-                    "btn_label": "🌌 [BAY 4] 특이점 양자락",
-                    "name": f"🌌 [BAY 04] 특이점(Singularity) G2B 원단위 절사 계단 #{idx_sin_k+1}번 & 클릭편향 모델",
+                    "btn_label": "🌌 2. [BAY 4] 특이점 양자락",
+                    "pin_tag": "🌌 [BAY 4] 특이점 양자락",
+                    "name": f"🌌 [BAY 04] 특이점(Singularity) — 원단위 절사 계단 #{idx_sin_k+1}번 & 클릭편향 모델",
                     "color": "#c084fc",
                     "rate": r_sin_k,
                     "step": idx_sin_k + 1,
@@ -5671,15 +5687,31 @@ function jumpFromIso(targetKey) {
                     "synergy_pct": 98.4,
                     "nums": nums_sin_k,
                     "verdict": "🟣 양자계단 완전 밀착 (1순위권)",
-                    "core_summary": f"조달청 복수예가 15C4=1,365개 조합은 원단위 절사 때문에 연속된 실수가 아닌 1,365개의 불연속 계단으로만 존재합니다. 입찰 참가자들의 1~15번 화면 중앙 번호(3·7·8·11·12번) 클릭 쏠림 확률을 베이지안으로 역산하여 실제 존재하는 #{idx_sin_k+1}번 계단 위에 +17원 웨지로 안착시킨 모델입니다.",
-                    "kp1_explain": f"🌊 [KP-01 크레바스 지형도 해설] 연속 사정률 허수 구간(계단 사이의 빈 허공)을 피하고 실제 개찰 결과로 출현 가능한 #{idx_sin_k+1}번 양자계단({r_sin_k:.4f}%) 바닥에 정확히 락온(Lock-On)되어 원단위 절사 미달 탈락 위험을 0%로 봉쇄합니다.",
-                    "kp2_explain": f"🎰 [KP-02 예가 시너지 링 해설] 인간 행동경제학상 클릭 빈도가 가장 높은 골든존 번호가 포함된 🎯 {nums_sin_k[0]}번·{nums_sin_k[1]}번·{nums_sin_k[2]}번·{nums_sin_k[3]}번 사면체 결속으로 실제 다득표 추첨 확률이 가장 높습니다.",
-                    "kp3_explain": f"⚡ [KP-03 당락 계기판 & 웨지 해설] 60~120개 업체가 참여하는 표준 시설공사 입찰에서 가장 강력한 위력을 발휘하며, +17원 소수 웨지를 결합해 {bid_sin_k:,.0f}원으로 단독 당선을 노립니다."
+                    "core_summary": (
+                        f"<b>• [모델 설계 목적]</b> 조달청 복수예가 15C4=1,365개 조합은 원단위 절사 규정 때문에 연속된 실수가 아닌 <b>1,365개의 불연속 계단</b>으로만 존재한다는 수학적 사실에 기반합니다.<br>"
+                        f"<b>• [최종 좌표 확정]</b> 참가자들의 1~15번 화면 중앙 번호(3·7·8·11·12번) 클릭 쏠림 확률을 베이지안으로 역산하여 실제 존재하는 <b>#{idx_sin_k+1}번 계단({r_sin_k:.4f}%)</b> 위에 <b>+17원 웨지</b>로 안착시켰습니다."
+                    ),
+                    "kp1_explain": (
+                        f"<div class='sub-ttl'>🌊 KP-01. 크레바스 지형도 판독</div>"
+                        f"<p class='sub-p'>연속 사정률 허수 구간(계단 사이의 빈 허공)을 피하고, 실제 개찰 결과로 출현 가능한 <b>#{idx_sin_k+1}번 양자계단({r_sin_k:.4f}%)</b> 바닥에 정확히 락온(Lock-On)됩니다.</p>"
+                        f"<p class='sub-p2'>원단위 절사 오차로 인한 아까운 하한선 미달 탈락 위험을 0%로 완벽히 봉쇄합니다.</p>"
+                    ),
+                    "kp2_explain": (
+                        f"<div class='sub-ttl'>🎰 KP-02. 예가 시너지 링 판독</div>"
+                        f"<p class='sub-p'>인간 행동경제학상 클릭 빈도가 가장 높은 골든존 번호가 포함된 <b>🎯 {nums_sin_k[0]}번 · {nums_sin_k[1]}번 · {nums_sin_k[2]}번 · {nums_sin_k[3]}번</b> 사면체 결속입니다.</p>"
+                        f"<p class='sub-p2'>실제 개찰 현장에서 다득표로 추첨될 사후확률(Synergy 98.4%)이 가장 높은 조합입니다.</p>"
+                    ),
+                    "kp3_explain": (
+                        f"<div class='sub-ttl'>⚡ KP-03. 당락 계기판 & 웨지 해설</div>"
+                        f"<p class='sub-p'>60~120개 업체가 참여하는 표준 시설공사 입찰에서 가장 강력한 적중 위력을 발휘합니다.</p>"
+                        f"<p class='sub-p2'>순수 커트라인에 <b>+17원 소수 웨지</b>를 결합한 <b>{bid_sin_k:,.0f}원</b>으로 단독 당선을 정밀 조준합니다.</p>"
+                    )
                 },
                 "M4": {
                     "id": "M4",
-                    "btn_label": "🔮 [BAY 3] 판도라 X10",
-                    "name": f"🔮 [BAY 03] 판도라 아카식 X10 (로렌츠 카오스 끌개 & 황금비 Φ 파동붕괴)",
+                    "btn_label": "🔮 3. [BAY 3] 판도라 X10",
+                    "pin_tag": "🔮 [BAY 3] 판도라 X10",
+                    "name": "🔮 [BAY 03] 판도라 아카식 X10 — 로렌츠 카오스 끌개 & 황금비 파동 모델",
                     "color": "#f472b6",
                     "rate": r_pan_k,
                     "step": idx_pan_k + 1,
@@ -5692,15 +5724,31 @@ function jumpFromIso(targetKey) {
                     "synergy_pct": 96.5,
                     "nums": nums_pan_k,
                     "verdict": "⚡ 고사정 상단 크레바스 장악",
-                    "core_summary": f"11~12월 연말 불용예산 소진기나 교육청 발주 공사처럼 재무관이 상단 예비가격을 강하게 뽑는 장세에서, 로렌츠 카오스 끌개의 위상 전이점과 인간 집단 무의식이 비워두는 황금비(Φ=0.618034) 사각지대({r_pan_k:.4f}%)를 타격하는 초월 사정 모델입니다.",
-                    "kp1_explain": f"🌊 [KP-01 크레바스 지형도 해설] 일반 업체들의 90%가 하한선 미달로 전멸하는 고사정 상단 협곡({r_pan_k:.4f}%)을 선점하여, 예가가 높게 형성될 때 경쟁자 없이 단독 1순위를 독점합니다.",
-                    "kp2_explain": f"🎰 [KP-02 예가 시너지 링 해설] 상단 슬롯 번호의 파동 보강간섭(|Ψ|²)이 극대화되는 🎯 {nums_pan_k[0]}번·{nums_pan_k[1]}번·{nums_pan_k[2]}번·{nums_pan_k[3]}번 조합을 추출하여 고사정 계단 #{idx_pan_k+1}번을 타격합니다.",
-                    "kp3_explain": f"⚡ [KP-03 당락 계기판 & 웨지 해설] 150개사 이상 초과밀 입찰이나 연말 예산 소진기 공고에서 특화 채택하며, 황금 소수 웨지(+37원)를 더한 {bid_pan_k:,.0f}원으로 산출됩니다."
+                    "core_summary": (
+                        f"<b>• [모델 설계 목적]</b> 11~12월 연말 불용예산 소진기나 교육청 발주 공사처럼 재무관이 상단 예비가격을 강하게 배치하는 고사정 장세에 특화된 초월 사정 모델입니다.<br>"
+                        f"<b>• [최종 좌표 확정]</b> 로렌츠 카오스 끌개의 위상 전이점과 인간 집단 무의식이 비워두는 <b>황금비(Φ=0.618034) 사각지대({r_pan_k:.4f}%, 계단 #{idx_pan_k+1})</b>를 정밀 타격합니다."
+                    ),
+                    "kp1_explain": (
+                        f"<div class='sub-ttl'>🌊 KP-01. 크레바스 지형도 판독</div>"
+                        f"<p class='sub-p'>일반 업체들의 90%가 하한선 미달로 집단 전멸하는 <b>고사정 상단 협곡({r_pan_k:.4f}%)</b>을 선제 장악합니다.</p>"
+                        f"<p class='sub-p2'>예정가격이 높게 형성되는 공고에서 경쟁자 없이 단독 1순위를 독점하는 전략적 요충지입니다.</p>"
+                    ),
+                    "kp2_explain": (
+                        f"<div class='sub-ttl'>🎰 KP-02. 예가 시너지 링 판독</div>"
+                        f"<p class='sub-p'>상단 슬롯 번호들의 양자 파동 보강간섭(|Ψ|²)이 극대화되는 <b>🎯 {nums_pan_k[0]}번 · {nums_pan_k[1]}번 · {nums_pan_k[2]}번 · {nums_pan_k[3]}번</b> 조합입니다.</p>"
+                        f"<p class='sub-p2'>고액 예비가격 추첨 시 계단 <b>#{idx_pan_k+1}번({ep_pan_k:,.0f}원)</b>으로 수렴하는 결속력을 지닙니다.</p>"
+                    ),
+                    "kp3_explain": (
+                        f"<div class='sub-ttl'>⚡ KP-03. 당락 계기판 & 웨지 해설</div>"
+                        f"<p class='sub-p'>150개사 이상 초과밀 입찰이나 연말 예산 소진기 공고에서 최우선 채택하는 고수익 사정 기어입니다.</p>"
+                        f"<p class='sub-p2'>황금 소수 웨지(<b>+37원</b>)를 가산한 <b>{bid_pan_k:,.0f}원</b>으로 산출됩니다.</p>"
+                    )
                 },
                 "M2": {
                     "id": "M2",
-                    "btn_label": "🎯 [BAY 5] 경쟁사 저격기",
-                    "name": f"🎯 [BAY 05] 발주처 재무관 프리셋 & 라이벌 핀셋 저격(Sniper) 모델",
+                    "btn_label": "🎯 4. [BAY 5] 경쟁사 저격기",
+                    "pin_tag": "🎯 [BAY 5] 경쟁사 저격기",
+                    "name": f"🎯 [BAY 05] 경쟁사 저격기 — 발주처 프리셋 & 라이벌 핀셋 카운터 모델",
                     "color": "#38bdf8",
                     "rate": r_sni_k,
                     "step": idx_sni_k + 1,
@@ -5709,19 +5757,35 @@ function jumpFromIso(targetKey) {
                     "wedge": 0,
                     "win_prob": 18.2,
                     "def_prob": 86.5,
-                    "crev_norm": 0.51,
+                    "crev_norm": 0.50,
                     "synergy_pct": 91.2,
                     "nums": nums_sni_k,
                     "verdict": "🔵 라이벌 상단 +0.038%p 컷오프",
-                    "core_summary": f"발주처({kp_org})의 최근 개찰 사정률 성향과 관내 상습 참여 라이벌 업체들의 평균 투찰 대역({r_leg_k:.4f}%)을 스캔한 뒤, 라이벌 군집 바로 위(+{r_sni_k - r_leg_k:.4f}%p)를 핀셋으로 커트오프하여 경쟁사들을 직하방에 묶어두는 카운터 모델입니다.",
-                    "kp1_explain": f"🌊 [KP-01 크레바스 지형도 해설] 좌측 붉은 데드존 산맥의 오른쪽 비탈 끝자락({r_sni_k:.4f}%)에 위치하여, 데드존에 몰린 업체들이 살짝 미달될 때 가장 먼저 바통을 이어받는 전술적 요충지입니다.",
-                    "kp2_explain": f"🎰 [KP-02 예가 시너지 링 해설] 발주처 재무관 성향 프리셋에 맞춘 🎯 {nums_sni_k[0]}번·{nums_sni_k[1]}번·{nums_sni_k[2]}번·{nums_sni_k[3]}번 조합으로 계단 #{idx_sni_k+1}번 좌표를 형성합니다.",
-                    "kp3_explain": f"⚡ [KP-03 당락 계기판 & 웨지 해설] 지역 제한 소수 정예 입찰(참가 45개사 이하)에서 특정 경쟁사를 제압할 때 매우 효과적이며 산출 투찰가는 {bid_sni_k:,.0f}원입니다."
+                    "core_summary": (
+                        f"<b>• [모델 설계 목적]</b> 발주처({kp_org})의 최근 개찰 성향과 관내 상습 참여 라이벌 업체들의 평균 투찰 대역({r_leg_k:.4f}%)을 역추적하는 카운터 모델입니다.<br>"
+                        f"<b>• [최종 좌표 확정]</b> 라이벌 밀집 구간 바로 위(<b>+{r_sni_k - r_leg_k:.4f}%p 상향, {r_sni_k:.4f}%</b>)를 핀셋으로 커트오프하여 경쟁사들을 하방에 묶어둡니다."
+                    ),
+                    "kp1_explain": (
+                        f"<div class='sub-ttl'>🌊 KP-01. 크레바스 지형도 판독</div>"
+                        f"<p class='sub-p'>좌측 붉은 데드존 산맥의 오른쪽 비탈 끝자락(<b>{r_sni_k:.4f}%</b>)에 정교하게 포지셔닝되어 있습니다.</p>"
+                        f"<p class='sub-p2'>과밀 데드존에 몰린 업체들이 근소하게 미달될 때 가장 먼저 1순위 바통을 이어받습니다.</p>"
+                    ),
+                    "kp2_explain": (
+                        f"<div class='sub-ttl'>🎰 KP-02. 예가 시너지 링 판독</div>"
+                        f"<p class='sub-p'>발주처 재무관 성향 프리셋에 맞춘 <b>🎯 {nums_sni_k[0]}번 · {nums_sni_k[1]}번 · {nums_sni_k[2]}번 · {nums_sni_k[3]}번</b> 조합을 추출합니다.</p>"
+                        f"<p class='sub-p2'>계단 <b>#{idx_sni_k+1}번({ep_sni_k:,.0f}원)</b> 좌표를 91.2%의 시너지로 안정적으로 지지합니다.</p>"
+                    ),
+                    "kp3_explain": (
+                        f"<div class='sub-ttl'>⚡ KP-03. 당락 계기판 & 웨지 해설</div>"
+                        f"<p class='sub-p'>지역 제한 소수 정예 입찰(참가 45개사 이하)에서 특정 라이벌 업체를 제압할 때 매우 효과적입니다.</p>"
+                        f"<p class='sub-p2'>라이벌 대비 우위를 점하는 산출 투찰가는 <b>{bid_sni_k:,.0f}원</b>입니다.</p>"
+                    )
                 },
                 "M1": {
                     "id": "M1",
-                    "btn_label": "🏢 레거시 (단순평균 데드존)",
-                    "name": "🏢 일반 레거시 프로그램 (전기넷 등 단순 산술평균 과밀 데드존 — 회피 기준점)",
+                    "btn_label": "🏢 5. 레거시 (과밀 데드존)",
+                    "pin_tag": "🏢 레거시 데드존",
+                    "name": "🏢 일반 레거시 프로그램 — 단순 산술평균 과밀 데드존 (회피 기준점)",
                     "color": "#fb7185",
                     "rate": r_leg_k,
                     "step": idx_leg_k + 1,
@@ -5734,23 +5798,51 @@ function jumpFromIso(targetKey) {
                     "synergy_pct": 42.0,
                     "nums": nums_leg_k,
                     "verdict": "❌ 과밀 공멸 & 하한선 미달 위험",
-                    "core_summary": f"시중 일반 입찰 프로그램들이 사용하는 과거 개찰 사정률의 단순 산술평균({r_leg_k:.4f}%)입니다. 참가 업체의 65% 이상이 이 구간(±0.015%p)에 몰려 있어 설령 예가가 근처에 나와도 수십 개 업체와 동가/근소차로 부딪히거나 약간의 예가 상승에도 집단 미달 탈락하는 회피 대상 1순위 구간입니다.",
-                    "kp1_explain": f"🌊 [KP-01 크레바스 지형도 해설] 그래프 좌측의 가장 높고 험준한 붉은색 용암 산맥 정중앙({r_leg_k:.4f}%)에 핀이 꽂혀 있는 상태로, 경쟁 밀도가 극에 달해 실전 투찰 시 승률이 2.4%에 불과합니다.",
-                    "kp2_explain": f"🎰 [KP-02 예가 시너지 링 해설] 번호 간 클릭 편향이나 양자계단 절사 보정 없이 무작위로 뽑은 {nums_leg_k[0]}번·{nums_leg_k[1]}번·{nums_leg_k[2]}번·{nums_leg_k[3]}번 수준으로 시너지 결속력이 42.0%로 매우 낮습니다.",
-                    "kp3_explain": f"⚡ [KP-03 당락 계기판 & 웨지 해설] 본 모델은 투찰용이 아니라 '경쟁사들이 어디에 몰려 죽는지' 위치를 파악해 그로부터 +{bid_ens_k - bid_leg_k:,.0f}원 위쪽 골든 크레바스로 회피하기 위한 기준점으로 활용합니다."
+                    "core_summary": (
+                        f"<b>• [모델 분석 목적]</b> 시중 일반 입찰 프로그램들이 사용하는 과거 개찰 사정률의 단순 산술평균(<b>{r_leg_k:.4f}%</b>)으로, 우리가 반드시 피해야 할 <b>회피 기준점</b>입니다.<br>"
+                        f"<b>• [위험 진단 결과]</b> 참가 업체의 65% 이상이 이 구간(±0.015%p)에 몰려 있어 동가 추첨에 걸리거나 약간의 예가 상승에도 집단 미달 탈락합니다."
+                    ),
+                    "kp1_explain": (
+                        f"<div class='sub-ttl'>🌊 KP-01. 크레바스 지형도 판독</div>"
+                        f"<p class='sub-p'>그래프 좌측의 가장 높고 험준한 <b>붉은색 용암 산맥 정중앙({r_leg_k:.4f}%)</b>에 핀이 꽂혀 있는 상태입니다.</p>"
+                        f"<p class='sub-p2'>경쟁 밀도가 극에 달해 실전 투찰 시 단독 낙찰 확률이 <b>2.4%</b>에 불과한 공멸 구간입니다.</p>"
+                    ),
+                    "kp2_explain": (
+                        f"<div class='sub-ttl'>🎰 KP-02. 예가 시너지 링 판독</div>"
+                        f"<p class='sub-p'>클릭 편향이나 양자계단 절사 보정 없이 무작위로 뽑은 <b>{nums_leg_k[0]}번 · {nums_leg_k[1]}번 · {nums_leg_k[2]}번 · {nums_leg_k[3]}번</b> 수준입니다.</p>"
+                        f"<p class='sub-p2'>번호 간 시너지 결속력이 <b>42.0%</b>로 매우 낮아 실전 예가 번호로 채택해서는 안 됩니다.</p>"
+                    ),
+                    "kp3_explain": (
+                        f"<div class='sub-ttl'>⚡ KP-03. 당락 계기판 & 웨지 해설</div>"
+                        f"<p class='sub-p'>본 모델은 실제 투찰용이 아니라 경쟁사들의 집결 위치를 파악하기 위한 대조군입니다.</p>"
+                        f"<p class='sub-p2'>이 금액({bid_leg_k:,.0f}원)보다 <b>+{bid_ens_k - bid_leg_k:,.0f}원</b> 위쪽인 AI 골든 크레바스로 회피하십시오.</p>"
+                    )
                 }
             }
 
             models_kp_json = json.dumps(models_kp_data, ensure_ascii=False)
 
             killpoint_html_tpl = """<!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
 <meta charset="utf-8">
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Noto+Sans+KR:wght@500;700;900&display=swap');
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: transparent; font-family: 'Noto Sans KR', sans-serif; color: #f8fafc; overflow: hidden; padding: 2px; }
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        word-break: keep-all;
+        overflow-wrap: break-word;
+    }
+    body {
+        background: transparent;
+        font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+        color: #f8fafc;
+        overflow: hidden;
+        padding: 2px;
+        -webkit-font-smoothing: antialiased;
+    }
     .kp-wrapper {
         background: radial-gradient(circle at 50% 0%, rgba(15, 23, 42, 0.98), rgba(2, 6, 23, 0.99));
         border: 2px solid rgba(250, 204, 21, 0.55);
@@ -5777,8 +5869,6 @@ function jumpFromIso(targetKey) {
         transition: all 0.2s ease;
         text-align: center;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
     .m-tab-btn:hover {
         border-color: #fde047;
@@ -5804,8 +5894,8 @@ function jumpFromIso(targetKey) {
         min-width: 0;
     }
     .kp-hdr { display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; font-weight: 900; color: #fde047; margin-bottom: 6px; gap: 6px; }
-    .kp-hdr-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .kp-tag { font-family: 'Orbitron', sans-serif; font-size: 9px; padding: 2px 7px; border-radius: 999px; background: rgba(16,185,129,0.2); border: 1px solid #10b981; color: #34d399; white-space: nowrap; flex-shrink: 0; }
+    .kp-hdr-title { white-space: nowrap; letter-spacing: -0.3px; }
+    .kp-tag { font-family: 'Orbitron', sans-serif; font-size: 8.5px; padding: 2px 6px; border-radius: 999px; background: rgba(16,185,129,0.2); border: 1px solid #10b981; color: #34d399; white-space: nowrap; flex-shrink: 0; }
     .dial-box { background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(250,204,21,0.35); border-radius: 10px; padding: 8px 10px; margin-top: 4px; }
     .slider-ui { width: 100%; accent-color: #facc15; cursor: pointer; margin: 5px 0; }
     .hud-row { display: flex; justify-content: space-between; font-size: 11px; margin-top: 2px; white-space: nowrap; }
@@ -5815,22 +5905,81 @@ function jumpFromIso(targetKey) {
         border: 1.5px solid #facc15;
         border-left: 7px solid #facc15;
         border-radius: 13px;
-        padding: 12px 16px;
-        transition: all 0.25s ease;
+        padding: 13px 16px;
     }
     .detail-top {
         display: flex;
         justify-content: space-between;
         align-items: center;
         border-bottom: 1px solid rgba(148, 163, 184, 0.25);
-        padding-bottom: 7px;
-        margin-bottom: 8px;
+        padding-bottom: 8px;
+        margin-bottom: 9px;
+        gap: 10px;
+        flex-wrap: nowrap;
     }
-    .detail-name { font-size: 14px; font-weight: 900; color: #fde047; }
-    .detail-metrics { font-size: 11.5px; background: #020617; border: 1px solid rgba(250,204,21,0.5); padding: 3px 12px; border-radius: 999px; color: #fff; font-weight: 800; }
-    .detail-summary { font-size: 12px; color: #f8fafc; line-height: 1.5; margin-bottom: 8px; background: rgba(2,6,23,0.65); padding: 8px 12px; border-radius: 8px; border-left: 3px solid #38bdf8; }
-    .detail-3grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; font-size: 11.5px; color: #e2e8f0; line-height: 1.55; }
-    .detail-subbox { background: rgba(30, 41, 59, 0.82); border: 1px solid rgba(148, 163, 184, 0.28); padding: 10px 12px; border-radius: 8px; min-height: 86px; }
+    .detail-name {
+        font-size: 13.5px;
+        font-weight: 900;
+        color: #fde047;
+        white-space: nowrap;
+        letter-spacing: -0.3px;
+    }
+    .detail-metrics {
+        font-size: 11px;
+        background: #020617;
+        border: 1px solid rgba(250,204,21,0.5);
+        padding: 4px 12px;
+        border-radius: 999px;
+        color: #fff;
+        font-weight: 800;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    .detail-summary {
+        font-size: 12px;
+        color: #f8fafc;
+        line-height: 1.65;
+        margin-bottom: 10px;
+        background: rgba(2,6,23,0.68);
+        padding: 10px 14px;
+        border-radius: 8px;
+        border-left: 3px solid #38bdf8;
+        word-break: keep-all;
+    }
+    .detail-3grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+    .detail-subbox {
+        background: rgba(30, 41, 59, 0.85);
+        border: 1px solid rgba(148, 163, 184, 0.28);
+        padding: 10px 13px;
+        border-radius: 9px;
+        min-height: 108px;
+        word-break: keep-all;
+    }
+    .sub-ttl {
+        font-size: 12px;
+        font-weight: 900;
+        color: #fde047;
+        margin-bottom: 5px;
+        border-bottom: 1px dashed rgba(148,163,184,0.25);
+        padding-bottom: 3px;
+    }
+    .sub-p {
+        font-size: 11.5px;
+        color: #f1f5f9;
+        line-height: 1.55;
+        margin-bottom: 4px;
+        word-break: keep-all;
+    }
+    .sub-p2 {
+        font-size: 11px;
+        color: #94a3b8;
+        line-height: 1.5;
+        word-break: keep-all;
+    }
 </style>
 </head>
 <body>
@@ -5845,38 +5994,38 @@ function jumpFromIso(targetKey) {
     </div>
 
     <div class="kp-grid">
-        <!-- 킬포인트 1: 경쟁사 과밀 데드존 vs 골든 크레바스 3D 파동 지형도 -->
+        <!-- 킬포인트 1 -->
         <div class="kp-card">
             <div class="kp-hdr">
-                <span class="kp-hdr-title">🌊 KP-01. 경쟁사 과밀 데드존 vs 골든 크레바스 지형도</span>
+                <span class="kp-hdr-title">🌊 KP-01. 과밀 데드존 vs 골든 크레바스 지형도</span>
                 <span class="kp-tag" id="tagKp1">CREVASSE SCAN</span>
             </div>
-            <canvas id="crevasseCanvas" width="440" height="210" style="width:100%;height:210px;"></canvas>
+            <canvas id="crevasseCanvas" width="440" height="205" style="width:100%;height:205px;"></canvas>
             <div style="font-size:10.5px;color:#cbd5e1;margin-top:4px;display:flex;justify-content:space-between;white-space:nowrap;">
                 <span>🔴 붉은 산맥: <b style="color:#fb7185;">레거시 65% 과밀 공멸존</b></span>
-                <span id="kp1PinCaption">🟢 타겟 핀: <b style="color:#34d399;">👑 AI 독점 크레바스</b></span>
+                <span id="kp1PinCaption">🎯 선택 핀: <b style="color:#34d399;">👑 AI 마스터 앙상블</b></span>
             </div>
         </div>
 
-        <!-- 킬포인트 2: 15C4 복수예가 번호 궁합 시너지 홀로그램 링 -->
+        <!-- 킬포인트 2 -->
         <div class="kp-card" style="border-color:rgba(192,132,252,0.5);border-bottom-color:#9333ea;">
             <div class="kp-hdr">
                 <span class="kp-hdr-title">🎰 KP-02. 1~15번 예가 시너지 홀로그램 링</span>
-                <span class="kp-tag" id="tagKp2" style="color:#e9d5ff;border-color:#c084fc;background:rgba(192,132,252,0.2);">STEP SYNERGY</span>
+                <span class="kp-tag" id="tagKp2" style="color:#e9d5ff;border-color:#c084fc;background:rgba(192,132,252,0.2);">#558 SYNERGY</span>
             </div>
-            <canvas id="synergyRingCanvas" width="330" height="210" style="width:100%;height:210px;"></canvas>
+            <canvas id="synergyRingCanvas" width="330" height="205" style="width:100%;height:205px;"></canvas>
             <div id="kp2NumsCaption" style="font-size:10.5px;color:#cbd5e1;margin-top:4px;text-align:center;white-space:nowrap;">
                 🔑 완성 황금 사면체: <b style="color:#fde047;">🎯 3번 · 9번 · 10번 · 11번</b>
             </div>
         </div>
 
-        <!-- 킬포인트 3: 실시간 ±0.001%p 미세 사정률 다이얼 & 당락 계기판 -->
+        <!-- 킬포인트 3 -->
         <div class="kp-card" style="border-color:rgba(250,204,21,0.55);border-bottom-color:#ca8a04;">
             <div class="kp-hdr">
                 <span class="kp-hdr-title">⚡ KP-03. ±0.001%p 사정률 & 당락 시뮬레이터</span>
-                <span class="kp-tag" style="color:#fde047;border-color:#facc15;background:rgba(250,204,21,0.18);">INTERACTIVE HUD</span>
+                <span class="kp-tag" style="color:#fde047;border-color:#facc15;background:rgba(250,204,21,0.18);">LIVE HUD</span>
             </div>
-            <canvas id="gaugeHudCanvas" width="380" height="125" style="width:100%;height:125px;"></canvas>
+            <canvas id="gaugeHudCanvas" width="380" height="120" style="width:100%;height:120px;"></canvas>
             <div class="dial-box">
                 <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:800;">
                     <span style="color:#38bdf8;">🎛️ 미세 사정률 오프셋 조절:</span>
@@ -5895,11 +6044,11 @@ function jumpFromIso(targetKey) {
         </div>
     </div>
 
-    <!-- 하단: 선택된 모델의 상세 설명 및 3대 킬포인트 시각 판독 브리핑 보드 -->
+    <!-- 하단: 선택된 모델의 문맥 단락별 상세 설명 보드 -->
     <div class="detail-panel" id="modelDetailPanel">
         <div class="detail-top">
-            <div class="detail-name" id="dtlName">👑 AI 마스터 앙상블 상세 추론 및 시각 판독 가이드</div>
-            <div class="detail-metrics" id="dtlMetrics">사정률 100.0936% | 투찰가 3,187,441,050원 | 기대낙찰률 35.8%</div>
+            <div class="detail-name" id="dtlName">📖 [선택 모델 상세 설명]</div>
+            <div class="detail-metrics" id="dtlMetrics"></div>
         </div>
         <div class="detail-summary" id="dtlSummary"></div>
         <div class="detail-3grid">
@@ -5939,27 +6088,26 @@ function updateModelDetailsUI() {
 
     const dtlName = document.getElementById('dtlName');
     dtlName.style.color = m.color;
-    dtlName.textContent = '📖 [선택 모델 상세 설명] ' + m.name;
+    dtlName.textContent = '📖 ' + m.name;
 
     document.getElementById('dtlMetrics').innerHTML =
-        '사정률 <span style="color:#fde047;font-family:Orbitron;">' + m.rate.toFixed(4) + '%</span> (계단 #' + m.step + ') | ' +
-        '산출 투찰가 <span style="color:#38bdf8;font-family:Orbitron;">' + m.bid.toLocaleString() + '원</span> (+웨지 ' + m.wedge + '원) | ' +
+        '사정률 <span style="color:#fde047;font-family:Orbitron;">' + m.rate.toFixed(4) + '%</span> (계단 #' + m.step + ') &nbsp;|&nbsp; ' +
+        '투찰가 <span style="color:#38bdf8;font-family:Orbitron;">' + m.bid.toLocaleString() + '원</span> (+웨지 ' + m.wedge + '원) &nbsp;|&nbsp; ' +
         '기대 낙찰률 <span style="color:#34d399;font-family:Orbitron;">' + m.win_prob.toFixed(1) + '%</span> (방어 ' + m.def_prob.toFixed(1) + '%)';
 
-    document.getElementById('dtlSummary').innerHTML = '💡 <b>[핵심 알고리즘 및 추론 이유]</b> ' + m.core_summary;
+    document.getElementById('dtlSummary').innerHTML = m.core_summary;
     document.getElementById('dtlKp1').innerHTML = m.kp1_explain;
     document.getElementById('dtlKp2').innerHTML = m.kp2_explain;
     document.getElementById('dtlKp3').innerHTML = m.kp3_explain;
 
-    document.getElementById('tagKp2').textContent = 'STEP #' + m.step + ' SYNERGY';
+    document.getElementById('tagKp2').textContent = '#' + m.step + ' SYNERGY';
     document.getElementById('kp2NumsCaption').innerHTML =
         '🔑 계단 #' + m.step + ' 완성 황금 사면체: <b style="color:#fde047;">🎯 ' +
         m.nums[0] + '번 · ' + m.nums[1] + '번 · ' + m.nums[2] + '번 · ' + m.nums[3] + '번</b>';
 
     document.getElementById('kp1PinCaption').innerHTML =
-        '🎯 현재 선택 핀: <b style="color:' + m.color + ';">' + m.btn_label + ' (' + m.rate.toFixed(4) + '%)</b>';
+        '🎯 선택 핀: <b style="color:' + m.color + ';">' + m.pin_tag + ' (' + m.rate.toFixed(4) + '%)</b>';
 
-    // 슬라이더 초기화 및 HUD 텍스트 갱신
     slider.value = 0;
     userOffsetSteps = 0;
     dialRateTxt.textContent = m.rate.toFixed(4) + '% (0.000%p)';
@@ -6010,12 +6158,12 @@ function renderKillPoints() {
     t += 0.045;
     const m = curModel;
 
-    // 1. KP-01 과밀 데드존 vs 골든 크레바스 렌더링
+    // 1. KP-01 과밀 데드존 vs 골든 크레바스 렌더링 (라벨 상하 위치 분리로 겹침 완벽 제거)
     ctxC.clearRect(0, 0, cCrev.width, cCrev.height);
-    const WC = cCrev.width, HC = cCrev.height, baseY = HC - 24;
+    const WC = cCrev.width, HC = cCrev.height, baseY = HC - 22;
 
     for (let g = 0; g <= 3; g++) {
-        let gy = 18 + g * ((baseY - 18) / 3);
+        let gy = 22 + g * ((baseY - 22) / 3);
         ctxC.beginPath(); ctxC.moveTo(15, gy); ctxC.lineTo(WC - 15, gy);
         ctxC.strokeStyle = 'rgba(148,163,184,0.12)'; ctxC.stroke();
     }
@@ -6024,53 +6172,55 @@ function renderKillPoints() {
     ctxC.moveTo(15, baseY);
     for (let x = 15; x <= WC - 15; x += 4) {
         let norm = (x - 15) / (WC - 30);
-        let deadPeak1 = Math.exp(-Math.pow((norm - 0.36) / 0.14, 2)) * 125;
-        let deadPeak2 = Math.exp(-Math.pow((norm - 0.78) / 0.11, 2)) * 78;
-        let wave = Math.sin(t * 2.5 + norm * 14) * 3.5;
+        let deadPeak1 = Math.exp(-Math.pow((norm - 0.36) / 0.14, 2)) * 115;
+        let deadPeak2 = Math.exp(-Math.pow((norm - 0.78) / 0.11, 2)) * 72;
+        let wave = Math.sin(t * 2.5 + norm * 14) * 3.0;
         let y = baseY - (deadPeak1 + deadPeak2 + 10 + wave);
         ctxC.lineTo(x, y);
     }
     ctxC.lineTo(WC - 15, baseY);
     ctxC.closePath();
-    let gradC = ctxC.createLinearGradient(0, 22, 0, baseY);
+    let gradC = ctxC.createLinearGradient(0, 28, 0, baseY);
     gradC.addColorStop(0, 'rgba(244, 63, 94, 0.65)');
     gradC.addColorStop(1, 'rgba(15, 23, 42, 0.15)');
     ctxC.fillStyle = gradC;
     ctxC.fill();
     ctxC.strokeStyle = '#fb7185'; ctxC.lineWidth = 2.0; ctxC.stroke();
 
+    // 레거시 데드존 라벨은 좌측 피크 위(y=48)에 배치
     ctxC.fillStyle = '#fda4af'; ctxC.font = 'bold 10px Noto Sans KR'; ctxC.textAlign = 'center';
-    ctxC.fillText('⚠️ 레거시 과밀 데드존 (' + modelsMap['M1'].rate.toFixed(3) + '%)', 15 + (WC - 30) * 0.36, 38);
+    ctxC.fillText('⚠️ 과밀 데드존 (' + modelsMap['M1'].rate.toFixed(3) + '%)', 15 + (WC - 30) * 0.32, 48);
 
-    // 선택된 모델의 크레바스 X 위치
+    // 선택된 모델의 크레바스 핀과 라벨은 최상단(y=18)에 배치해 겹침 원천 방지
     let crevX = 15 + (WC - 30) * m.crev_norm + (userOffsetSteps * 2.2);
-    crevX = Math.max(25, Math.min(WC - 25, crevX));
+    crevX = Math.max(30, Math.min(WC - 30, crevX));
 
     ctxC.beginPath();
-    ctxC.moveTo(crevX, 16); ctxC.lineTo(crevX, baseY);
+    ctxC.moveTo(crevX, 24); ctxC.lineTo(crevX, baseY);
     ctxC.strokeStyle = m.id === 'M1' ? '#ef4444' : '#34d399';
-    ctxC.lineWidth = 2.8; ctxC.stroke();
+    ctxC.lineWidth = 2.6; ctxC.stroke();
 
-    let pulseR = 7 + Math.sin(t * 4) * 3;
-    ctxC.beginPath(); ctxC.arc(crevX, baseY - 30, pulseR, 0, Math.PI * 2);
+    let pulseR = 6.5 + Math.sin(t * 4) * 2.5;
+    ctxC.beginPath(); ctxC.arc(crevX, baseY - 28, pulseR, 0, Math.PI * 2);
     ctxC.fillStyle = m.id === 'M1' ? 'rgba(239, 68, 68, 0.35)' : 'rgba(52, 211, 153, 0.32)';
     ctxC.fill();
-    ctxC.beginPath(); ctxC.arc(crevX, baseY - 30, 5, 0, Math.PI * 2);
+    ctxC.beginPath(); ctxC.arc(crevX, baseY - 28, 4.8, 0, Math.PI * 2);
     ctxC.fillStyle = m.color; ctxC.fill();
 
     ctxC.fillStyle = m.color; ctxC.font = 'bold 10.5px Orbitron, Noto Sans KR';
-    ctxC.fillText(m.btn_label.split('(')[0].trim() + ' (' + (m.rate + userOffsetSteps*0.001).toFixed(4) + '%)', crevX, 24);
+    let topLblX = Math.max(95, Math.min(WC - 95, crevX));
+    ctxC.fillText(m.pin_tag + ' (' + (m.rate + userOffsetSteps*0.001).toFixed(4) + '%)', topLblX, 16);
 
     const xTicks = ['99.95%', '100.03%(데드존)', '100.09%(크레바스)', '100.18%'];
     xTicks.forEach((lbl, i) => {
         let tx = 35 + (i / 3) * (WC - 70);
         ctxC.fillStyle = '#94a3b8'; ctxC.font = '9.5px Noto Sans KR'; ctxC.textAlign = 'center';
-        ctxC.fillText(lbl, tx, HC - 7);
+        ctxC.fillText(lbl, tx, HC - 6);
     });
 
     // 2. KP-02 1~15번 예가 시너지 링 렌더링
     ctxR.clearRect(0, 0, cRing.width, cRing.height);
-    const cx = cRing.width / 2, cy = cRing.height / 2 + 2, radius = 78;
+    const cx = cRing.width / 2, cy = cRing.height / 2 + 2, radius = 76;
 
     ctxR.beginPath(); ctxR.arc(cx, cy, radius, 0, Math.PI * 2);
     ctxR.strokeStyle = 'rgba(192, 132, 252, 0.35)'; ctxR.lineWidth = 2; ctxR.stroke();
@@ -6129,9 +6279,9 @@ function renderKillPoints() {
     // 3. KP-03 실시간 당락 계기판(Tactical HUD) 렌더링
     ctxH.clearRect(0, 0, cHud.width, cHud.height);
     const WH = cHud.width, HH = cHud.height;
-    const gCx = WH / 2, gCy = HH - 16, gR = 86;
+    const gCx = WH / 2, gCy = HH - 15, gR = 82;
 
-    ctxH.lineWidth = 15;
+    ctxH.lineWidth = 14;
     ctxH.beginPath(); ctxH.arc(gCx, gCy, gR, Math.PI, Math.PI * 1.38);
     ctxH.strokeStyle = 'rgba(239, 68, 68, 0.45)'; ctxH.stroke();
     ctxH.beginPath(); ctxH.arc(gCx, gCy, gR, Math.PI * 1.38, Math.PI * 1.62);
@@ -6150,21 +6300,21 @@ function renderKillPoints() {
     ctxH.moveTo(gCx, gCy); ctxH.lineTo(nx, ny);
     ctxH.strokeStyle = '#ffffff'; ctxH.lineWidth = 3.2; ctxH.stroke();
 
-    ctxH.beginPath(); ctxH.arc(gCx, gCy, 6.5, 0, Math.PI * 2);
+    ctxH.beginPath(); ctxH.arc(gCx, gCy, 6, 0, Math.PI * 2);
     ctxH.fillStyle = m.color; ctxH.fill();
 
     let winProbSim = Math.max(1.2, m.win_prob - Math.abs(userOffsetSteps) * 0.55);
     if (userOffsetSteps < -4) winProbSim = Math.max(0.8, m.win_prob * 0.25);
 
-    ctxH.fillStyle = m.color; ctxH.font = '900 13.5px Orbitron'; ctxH.textAlign = 'center';
-    ctxH.fillText('WIN PROB: ' + winProbSim.toFixed(1) + '%', gCx, gCy - 24);
+    ctxH.fillStyle = m.color; ctxH.font = '900 13px Orbitron'; ctxH.textAlign = 'center';
+    ctxH.fillText('WIN PROB: ' + winProbSim.toFixed(1) + '%', gCx, gCy - 22);
 
     ctxH.fillStyle = '#fca5a5'; ctxH.font = 'bold 9.5px Noto Sans KR'; ctxH.textAlign = 'left';
-    ctxH.fillText('❌ 하한선 미달', 22, HH - 6);
+    ctxH.fillText('❌ 하한선 미달', 22, HH - 5);
     ctxH.fillStyle = '#34d399'; ctxH.textAlign = 'center';
-    ctxH.fillText('🏆 1순위 골든존', gCx, 14);
+    ctxH.fillText('🏆 1순위 골든존', gCx, 13);
     ctxH.fillStyle = '#fde047'; ctxH.textAlign = 'right';
-    ctxH.fillText('🟡 후순위 밀림', WH - 22, HH - 6);
+    ctxH.fillText('🟡 후순위 밀림', WH - 22, HH - 5);
 
     requestAnimationFrame(renderKillPoints);
 }
@@ -6180,7 +6330,7 @@ renderKillPoints();
                 .replace("__KP_LRT__", str(kp_lrt))
                 .replace("__MODELS_KP_JSON__", models_kp_json)
             )
-            components.html(killpoint_html, height=605, scrolling=False)
+            components.html(killpoint_html, height=625, scrolling=False)
 
         gear_c1, gear_c2 = st.columns([2.2, 1.8])
         with gear_c1:
