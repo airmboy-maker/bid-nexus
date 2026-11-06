@@ -415,50 +415,44 @@ COMPANY_SAMPLE_POOL = [
 ]
 
 def search_companies_incremental(query_text):
-    q = normalize_text(query_text)
-    if not q:
+    if not query_text or not str(query_text).strip():
         return []
-    pure_cho = all('ㄱ' <= ch <= 'ㅎ' for ch in q)
+    q = str(query_text).strip()
+    clean_q = ''.join(ch for ch in q if ch.isalnum())
     matches = []
-    for comp in COMPANY_SAMPLE_POOL:
-        c_name = normalize_text(comp["name"])
-        c_biz = normalize_text(comp["biz_no"]).replace("-", "")
-        c_ceo = normalize_text(comp.get("ceo", ""))
-        clean_q = q.replace("-", "")
-        if pure_cho:
-            if q in extract_chosung(c_name) or q in extract_chosung(c_ceo):
+    api_key = os.environ.get('DATA_GO_KR_API_KEY') or getattr(st, 'secrets', {}).get('DATA_GO_KR_API_KEY', '')
+    if api_key and len(clean_q) >= 1:
+        try:
+            url = 'http://apis.data.go.kr/1613000/ConsEntInfoService/getEntBaseInfo'
+            params = {'serviceKey': api_key, 'corpNm': q, 'numOfRows': '25', '_type': 'json'}
+            resp = requests.get(url, params=params, timeout=3)
+            if resp.status_code == 200:
+                items = resp.json().get('response', {}).get('body', {}).get('items', {}).get('item', [])
+                if isinstance(items, dict): items = [items]
+                for it in items:
+                    c_name = it.get('corpNm', q)
+                    c_ceo = it.get('rprsntvNm', '대표자')
+                    c_biz = it.get('bzno', '000-00-00000')
+                    c_addr = it.get('addr', '소재지')
+                    c_lic = it.get('indutyNm', '건설업')
+                    c_amt = int(it.get('evlAmt', 1000000000)) if str(it.get('evlAmt', '')).isdigit() else 1000000000
+                    matches.append({
+                        'name': c_name, 'ceo': c_ceo, 'biz_no': c_biz, 'addr': c_addr,
+                        'license': [c_lic], 'credit_grade': 'A-', 'special_license': ['무정전공사 시공자격'] if '전기' in c_lic else [],
+                        'tech_headcount': {'특급': 3, '고급': 5, '중급': 7, '초급': 10},
+                        'perf_5yr': {c_lic: [int(c_amt*0.7), int(c_amt*0.8), int(c_amt*0.9), int(c_amt*0.95), c_amt]},
+                        'debt_ratio': 110.0, 'current_ratio': 145.0
+                    })
+        except Exception:
+            pass
+    pool = globals().get('COMPANY_SAMPLE_POOL', [])
+    for comp in pool:
+        c_name = ''.join(ch for ch in comp.get('name', '') if ch.isalnum())
+        c_ceo = ''.join(ch for ch in comp.get('ceo', '') if ch.isalnum())
+        c_biz = comp.get('biz_no', '').replace('-', '')
+        if (clean_q in c_name) or (clean_q in c_ceo) or (clean_q in c_biz):
+            if not any(m['name'] == comp['name'] for m in matches):
                 matches.append(comp)
-        else:
-            if q in c_name or clean_q in c_biz or q in c_ceo:
-                matches.append(comp)
-    
-    # 공공데이터포털 KISCON API 실시간 조회 (로컬 풀에 없을 경우 자동 호출)
-    if len(matches) == 0 and len(q) >= 2:
-        api_key = os.environ.get("DATA_GO_KR_API_KEY") or getattr(st, "secrets", {}).get("DATA_GO_KR_API_KEY", "")
-        if api_key:
-            try:
-                url = "http://apis.data.go.kr/1613000/ConsEntInfoService/getEntBaseInfo"
-                resp = requests.get(url, params={"serviceKey": api_key, "corpNm": query_text, "numOfRows": "10", "_type": "json"}, timeout=3)
-                if resp.status_code == 200:
-                    items = resp.json().get("response", {}).get("body", {}).get("items", {}).get("item", [])
-                    if isinstance(items, dict): items = [items]
-                    for it in items:
-                        matches.append({
-                            "name": it.get("corpNm", query_text),
-                            "ceo": it.get("rprsntvNm", "대표자"),
-                            "biz_no": it.get("bzno", "000-00-00000"),
-                            "addr": it.get("addr", "소재지 정보 없음"),
-                            "license": [it.get("indutyNm", "건축공사업")],
-                            "credit_grade": "BBB+",
-                            "special_license": [],
-                            "tech_headcount": {"특급": 2, "고급": 3, "중급": 4, "초급": 5},
-                            "perf_5yr": {it.get("indutyNm", "건축공사업"): [500000000, 600000000, 700000000, 800000000, 900000000]},
-                            "debt_ratio": 120.0,
-                            "current_ratio": 140.0
-                        })
-            except Exception:
-                pass
-
     return matches
 
 INDUSTRY_BENCHMARK_DB = {
@@ -1103,9 +1097,10 @@ if not is_profile_ready:
         matches = search_companies_incremental(clean_val)
         if matches:
             st.markdown(f"**🎯 '{clean_val}' 일치 기업 후보 ({len(matches)}개사):**")
-            cand_cols = st.columns(min(len(matches), 4))
-            for m_idx, comp_cand in enumerate(matches[:4]):
-                if cand_cols[m_idx].button(f"🏢 {comp_cand['name']}\n(대표: {comp_cand.get('ceo', '대표')})", key=f"cand_btn_{m_idx}", use_container_width=True):
+            grid_cols = st.columns(4)
+            for m_idx, comp_cand in enumerate(matches[:12]):
+                col_target = grid_cols[m_idx % 4]
+                if col_target.button(f"🏢 {comp_cand['name']}\n(대표: {comp_cand.get('ceo', '대표')})", key=f"cand_btn_{m_idx}", use_container_width=True):
                     st.session_state["scraped_data"] = comp_cand
                     st.toast(f"✅ '{comp_cand['name']}' 스펙이 즉시 주입되었습니다!", icon="🎉")
                     st.rerun()
