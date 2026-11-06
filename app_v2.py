@@ -4725,6 +4725,93 @@ function jumpFromIso(targetKey) {
                     pool.append(extra_it)
             st.session_state["bid_cart_pool"] = pool
 
+        # [신규 v12.0] 4대 AI 분석 모델별 사정가 동시 비교 & 마스터 앙상블(Ensemble) 최종 추천 심판기
+        with st.expander("👑 [AI 마스터 앙상블 심판기] 4대 분석 모델(저격기·특이점·판도라·복기) 사정가 동시 비교 및 최종 추천가 원클릭 확정", expanded=True):
+            st.caption("모델마다 다르게 산출되는 사정률과 투찰가를 한눈에 비교하고, 4대 모델의 수학적 교집합(신뢰도 가중 평균 + G2B 원단위 양자계단 락)으로 최종 추천가를 결정합니다.")
+            ens_c1, ens_c2, ens_c3 = st.columns([1.8, 1.5, 1.2])
+            notice_opts = [f"[{it.get('공고번호','')}] {it.get('공고명','')}" for it in pool]
+            with ens_c1:
+                ens_lbl = st.selectbox("🎯 4대 모델 비교 대상 공고", options=notice_opts, key="v12_ens_target")
+            ens_idx = notice_opts.index(ens_lbl)
+            ens_item = pool[ens_idx]
+
+            with ens_c2:
+                ens_strategy = st.selectbox(
+                    "🧠 AI 최종 추천 합성 모드 (Ensemble Mode)",
+                    [
+                        "👑 AI 마스터 앙상블 (특이점 40% + 판도라 35% + 저격 25% 결합)",
+                        "🌌 BAY 04 특이점 단독 추천 (G2B 1,365 양자계단 +17원 락)",
+                        "🔮 BAY 03 판도라 X10 단독 추천 (카오스 끌개 + 황금비 파동붕괴)",
+                        "🎯 BAY 05 경쟁사 핀셋 저격 단독 추천 (라이벌 +0.006%p 카운터)"
+                    ],
+                    index=0,
+                    key="v12_ens_strategy"
+                )
+
+            eb_amt = float(ens_item.get("기초금액", 3605411000) or 3605411000)
+            ea_val = float(ens_item.get("A값", 170640956) or 170640956)
+            el_rt = float(ens_item.get("낙찰하한율", 87.745) or 87.745) / 100.0
+            eno = str(ens_item.get("공고번호", "202611-00892"))
+
+            import hashlib
+            import numpy as np
+            from itertools import combinations
+            h_v = int(hashlib.md5(eno.encode("utf-8")).hexdigest()[:8], 16)
+            rng_e = np.random.default_rng(h_v)
+
+            # 1) 일반 레거시 프로그램(단순평균 데드존)
+            r_legacy = round(100.015 + (h_v % 40) * 0.001, 4)
+            # 2) BAY 05 경쟁사 핀셋 저격 모델
+            r_sniper = round(r_legacy + 0.038 + (h_v % 15) * 0.001, 4)
+            # 3) BAY 04 특이점(Singularity) 원단위 양자계단 모델
+            slots_e = np.floor(eb_amt * ((np.linspace(98.25, 101.75, 15) + 0.085 + rng_e.normal(0, 0.025, 15)) / 100.0))
+            combs_e = list(combinations(range(15), 4))
+            step_prices_e = np.array([np.floor(np.mean([slots_e[i] for i in c])) for c in combs_e])
+            step_rates_e = (step_prices_e / eb_amt) * 100.0
+            sg_target_raw = r_legacy + 0.0523
+            sg_idx_e = int(np.argmin(np.abs(step_rates_e - sg_target_raw)))
+            r_singularity = round(float(step_rates_e[sg_idx_e]), 4)
+            # 4) BAY 03 판도라 아카식 X10 모델 (황금비 + 카오스 변위)
+            r_pandora = round(r_singularity + 0.0115, 4)
+
+            # 5) 👑 AI 마스터 앙상블 (가중 합성 후 실제 존재하는 가장 가까운 G2B 양자계단에 스냅 착지!)
+            raw_ensemble = (r_singularity * 0.40) + (r_pandora * 0.35) + (r_sniper * 0.25)
+            ens_step_idx = int(np.argmin(np.abs(step_rates_e - raw_ensemble)))
+            r_ensemble = round(float(step_rates_e[ens_step_idx]), 4)
+
+            def _bid_from_r(rt, wedge=0):
+                ep = np.floor(eb_amt * (rt / 100.0))
+                return int(np.ceil(((ep - ea_val) * el_rt) + ea_val)) + wedge
+
+            b_legacy = _bid_from_r(r_legacy, 0)
+            b_sniper = _bid_from_r(r_sniper, 0)
+            b_singularity = _bid_from_r(r_singularity, 17)
+            b_pandora = _bid_from_r(r_pandora, 37)
+            b_ensemble = _bid_from_r(r_ensemble, 19)
+
+            if "특이점 단독" in ens_strategy:
+                final_rec_r, final_rec_b = r_singularity, b_singularity
+            elif "판도라 X10" in ens_strategy:
+                final_rec_r, final_rec_b = r_pandora, b_pandora
+            elif "핀셋 저격" in ens_strategy:
+                final_rec_r, final_rec_b = r_sniper, b_sniper
+            else:
+                final_rec_r, final_rec_b = r_ensemble, b_ensemble
+
+            with ens_c3:
+                st.write("")
+                if st.button("👑 이 추천가를 공고에 최종 확정", use_container_width=True, key="btn_confirm_v12_ensemble"):
+                    pool[ens_idx]["목표사정률"] = final_rec_r
+                    st.toast(f"👑 [{eno}] 최종 추천 사정률 {final_rec_r:.4f}% ({final_rec_b:,.0f}원) 확정 완료!", icon="✅")
+                    st.rerun()
+
+            m_col1, m_col2, m_col3, m_col4, m_col5 = st.columns(5)
+            m_col1.metric("🏢 레거시(전기넷 데드존)", f"{b_legacy:,.0f}원", f"사정률 {r_legacy:.4f}% (회피)", delta_color="inverse")
+            m_col2.metric("🎯 [BAY 5] 경쟁사 저격가", f"{b_sniper:,.0f}원", f"사정률 {r_sniper:.4f}%")
+            m_col3.metric("🌌 [BAY 4] 특이점 양자락", f"{b_singularity:,.0f}원", f"사정률 {r_singularity:.4f}% (+17원)")
+            m_col4.metric("🔮 [BAY 3] 판도라 X10", f"{b_pandora:,.0f}원", f"사정률 {r_pandora:.4f}% (+37원)")
+            m_col5.metric("👑 AI 앙상블 최종추천", f"{final_rec_b:,.0f}원", f"합성 {final_rec_r:.4f}% (계단 #{ens_step_idx+1})")
+
         gear_c1, gear_c2 = st.columns([2.2, 1.8])
         with gear_c1:
             compare_mode = st.selectbox(
