@@ -1,3 +1,4 @@
+import hashlib
 
 # ==================== [AUTO CONTEXT MODEL ROUTER START] ====================
 def _recommend_best_model_by_context(item_dict, est_bidders=85):
@@ -36,7 +37,7 @@ def _recommend_best_model_by_context(item_dict, est_bidders=85):
 
 
 # -*- coding: utf-8 -*-
-import os, io, json, sqlite3, time, requests, unicodedata
+import os, io, json, sqlite3, time, requests, unicodedata, hashlib
 from datetime import datetime, timedelta
 
 # ==================== [GENSPARK AUDIT V20.0: DECIMAL WON-UNIT MATH ENGINE] ====================
@@ -921,9 +922,10 @@ def run_automated_qualification(inst_name, target_price, primary_industry, comp)
         "max_price": max_price, "verdict": verdict, "is_pass": is_pass, "actual_perf": actual_perf, "actual_cap": actual_cap
     }
 
-def run_hyper_realistic_inference(mu, sigma, n_competitors=120, season_weight=0.015, base_price=3605411000):
-    _seed_str = str(data.get("공고번호", "202611-00892")) if isinstance(locals().get("data"), dict) else "202611-00892"
-    _rng = np.random.default_rng(int(hashlib.md5(_seed_str.encode("utf-8")).hexdigest()[:8], 16))
+def run_hyper_realistic_inference(mu, sigma, n_competitors=120, season_weight=0.015, base_price=3605411000, notice_no="202611-00892"):
+    import hashlib
+    _seed_val = str(notice_no or "202611-00892")
+    _rng = np.random.default_rng(int(hashlib.md5(_seed_val.encode("utf-8")).hexdigest()[:8], 16))
     adjusted_mu = mu + season_weight
     n_sims = 15000
     sim_raw = _rng.normal(loc=adjusted_mu, scale=sigma, size=(n_sims, 15))
@@ -1092,11 +1094,6 @@ def generate_company_spec_certificate_html(comp=None):
         return f"<div style='padding:16px;border:1px solid #334155;border-radius:8px;'>문서 렌더링 완료 (generate_company_spec_certificate_html)</div>"
 
 def generate_official_printable_html(data=None, q_auto=None, comp=None, st_pack=None):
-    data = data if isinstance(locals().get("data"), dict) else {}
-    q_auto = q_auto if isinstance(locals().get("q_auto"), dict) else {}
-    comp = comp if isinstance(locals().get("comp"), dict) else {}
-    inst = data.get("수요기관") or data.get("발주기관") or data.get("발주처") or "조달청"
-    q_res = q_auto
     data = data if isinstance(locals().get("data"), dict) else {}
     q_auto = q_auto if isinstance(locals().get("q_auto"), dict) else {}
     comp = comp if isinstance(locals().get("comp"), dict) else {}
@@ -1297,7 +1294,7 @@ def execute_full_autonomous_pipeline(comp, doc_input=None, auto_save=True, compe
     q_auto = run_automated_qualification(inst_name, t_price, main_ind, comp)
     real_bids_df, inst_mu, inst_sigma, crawler_source = fetch_g2b_real_open_bids(inst_name, DATA_API_KEY)
     
-    sim_res = run_hyper_realistic_inference(inst_mu, inst_sigma, n_competitors=competitors_count, season_weight=season_weight, base_price=b_val)
+    sim_res = run_hyper_realistic_inference(inst_mu, inst_sigma, n_competitors=competitors_count, season_weight=season_weight, base_price=b_val, notice_no=str(data.get("공고번호", "202611-00892")) if isinstance(data, dict) else "202611-00892")
     
     kelly_r = sim_res["kelly_r"]
     est_p = estimate_price(b_val, kelly_r)
