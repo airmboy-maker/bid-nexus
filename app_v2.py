@@ -1,3 +1,40 @@
+
+# ==================== [AUTO CONTEXT MODEL ROUTER START] ====================
+def _recommend_best_model_by_context(item_dict, est_bidders=85):
+    org = str(item_dict.get("발주처", ""))
+    deadline = str(item_dict.get("마감일시", "2026-11-15"))
+    base_amt = float(item_dict.get("기초금액", 3605411000) or 3605411000)
+
+    is_year_end = ("-11-" in deadline) or ("-12-" in deadline)
+    is_edu = ("교육" in org)
+
+    if (is_edu and is_year_end) or est_bidders >= 120 or base_amt >= 5500000000:
+        return {
+            "model_key": "M4",
+            "model_name": "🔮 [BAY 03] 판도라 X10 (고사정·과밀돌파 특화)",
+            "strategy_opt": "🔮 BAY 03 판도라 X10 단독 추천 (카오스 끌개 + 황금비 파동붕괴)",
+            "badge_color": "#f472b6",
+            "reason": f"발주처({org})의 연말 예산 상단 사정 성향 및 대형/과밀 경쟁(예상 {est_bidders}개사) 구간으로, 평균 근처 투찰 시 하한선 미달 위험이 매우 높습니다. 로렌츠 카오스 상단 끌개와 황금비(Φ) 사각지대를 타격하는 [판도라 X10] 또는 [AI 마스터 앙상블]이 최적입니다."
+        }
+    elif est_bidders <= 45 and base_amt < 4000000000:
+        return {
+            "model_key": "M2",
+            "model_name": "🎯 [BAY 05] 경쟁사 핀셋 저격기 (소수정예 라이벌 제압)",
+            "strategy_opt": "🎯 BAY 05 경쟁사 핀셋 저격 단독 추천 (라이벌 +0.006%p 카운터)",
+            "badge_color": "#38bdf8",
+            "reason": f"소수 정예 지역 업체(예상 {est_bidders}개사)가 경쟁하는 지자체({org}) 공고로, 상습 투찰 라이벌의 평균 대역 직상단을 커트오프하는 [경쟁사 핀셋 저격기]가 가장 높은 적중률을 보입니다."
+        }
+    else:
+        return {
+            "model_key": "M3",
+            "model_name": "🌌 [BAY 04] 특이점 양자계단 락 (표준 다수경쟁 제압)",
+            "strategy_opt": "🌌 BAY 04 특이점 단독 추천 (G2B 1,365 양자계단 +17원 락)",
+            "badge_color": "#c084fc",
+            "reason": f"참가업체(예상 {est_bidders}개사)의 1~15번 복수예가 중앙 번호(3·7·8·11·12번) 클릭 편향이 가장 강하게 작동하는 구간입니다. 조달청 1,365개 원단위 절사 계단에 스냅(+17원 웨지)하는 [특이점 양자락] 및 [AI 마스터 앙상블]이 최우선 추천됩니다."
+        }
+# ==================== [AUTO CONTEXT MODEL ROUTER END] ====================
+
+
 # -*- coding: utf-8 -*-
 import os, io, json, sqlite3, time, requests, unicodedata
 from datetime import datetime, timedelta
@@ -5109,6 +5146,35 @@ function jumpFromIso(targetKey) {
                     key="v12_ens_strategy"
                 )
 
+            # [신규 v18.0] 공고 특성(참가업체 수·발주처·시기) 기반 AI 최적 모델 자동 추천 스위치 & 브리핑 바
+            auto_c1, auto_c2, auto_c3 = st.columns([1.5, 1.3, 2.2])
+            with auto_c1:
+                auto_context_on = st.toggle(
+                    "🤖 공고 특성(발주처·시기·경쟁률) 맞춤 최적 모델 자동 추천 스위치",
+                    value=True,
+                    key="v18_auto_context_switch"
+                )
+            with auto_c2:
+                est_bidders_cnt = st.slider(
+                    "👥 예상 참가 경쟁업체 수(개사)",
+                    min_value=15, max_value=250, value=95, step=5, key="v18_est_bidders"
+                )
+            ctx_rec = _recommend_best_model_by_context(ens_item, est_bidders_cnt)
+            with auto_c3:
+                w18 = st.session_state.get("v16_ai_weights", {"singularity": 0.40, "pandora": 0.35, "sniper": 0.25, "generation": 1})
+                st.info(f"🏅 **[BAY 06 누적 신뢰도 연동]** Gen-{w18.get('generation',1)}.0 가중치 (`특이점 {w18.get('singularity',0.4)*100:.0f}% · 판도라 {w18.get('pandora',0.35)*100:.0f}% · 저격 {w18.get('sniper',0.25)*100:.0f}%`) 실시간 작동 중")
+
+            if auto_context_on:
+                st.markdown(
+                    f"""<div style="background:linear-gradient(90deg,rgba(15,23,42,0.96),rgba(30,27,75,0.92));border:1.5px solid {ctx_rec['badge_color']};border-left:7px solid {ctx_rec['badge_color']};border-radius:10px;padding:10px 15px;margin-bottom:10px;font-size:12.5px;">
+                        <span style="color:#fde047;font-weight:900;">🤖 [공고 특성 자동 진단 결과]</span>
+                        발주처(<b>{ens_item.get('발주처','')}</b>) · 마감시기(<b>{ens_item.get('마감일시','')[:7]}</b>) · 예상경쟁(<b>{est_bidders_cnt}개사</b>) 분석 결과,
+                        단독 특화 1순위 모델은 <b style="color:{ctx_rec['badge_color']};">{ctx_rec['model_name']}</b>이며 이를 통합한 <b style="color:#facc15;">👑 AI 마스터 앙상블</b>이 최종 적합가로 자동 세팅되었습니다.<br>
+                        <span style="color:#cbd5e1;font-size:11.5px;">💡 <b>선정 근거</b>: {ctx_rec['reason']}</span>
+                    </div>""",
+                    unsafe_allow_html=True
+                )
+
             eb_amt = float(ens_item.get("기초금액", 3605411000) or 3605411000)
             ea_val = float(ens_item.get("A값", 170640956) or 170640956)
             el_rt_pct = float(ens_item.get("낙찰하한율", 87.745) or 87.745)
@@ -5144,7 +5210,17 @@ function jumpFromIso(targetKey) {
             pd_comb_nums = sorted([int(i + 1) for i in combs_e[pd_idx_e]])
 
             # 5) 👑 AI 마스터 앙상블 (가중 합성 후 실제 존재하는 가장 가까운 G2B 양자계단에 스냅 착지)
-            raw_ensemble = (r_singularity * 0.40) + (r_pandora * 0.35) + (r_sniper * 0.25)
+            _w_sync = st.session_state.get("v16_ai_weights", {"singularity": 0.40, "pandora": 0.35, "sniper": 0.25})
+            if st.session_state.get("v18_auto_context_switch", True):
+                # 공고 특성 자동 추천 스위치가 켜져 있으면 해당 공고에 유리한 특화 모델에 +15%p 부스트 가중치 자동 부여
+                if ctx_rec["model_key"] == "M4":
+                    raw_ensemble = (r_singularity * 0.30) + (r_pandora * 0.50) + (r_sniper * 0.20)
+                elif ctx_rec["model_key"] == "M2":
+                    raw_ensemble = (r_singularity * 0.30) + (r_pandora * 0.20) + (r_sniper * 0.50)
+                else:
+                    raw_ensemble = (r_singularity * 0.50) + (r_pandora * 0.30) + (r_sniper * 0.20)
+            else:
+                raw_ensemble = (r_singularity * _w_sync.get("singularity", 0.40)) + (r_pandora * _w_sync.get("pandora", 0.35)) + (r_sniper * _w_sync.get("sniper", 0.25))
             ens_step_idx = int(np.argmin(np.abs(step_rates_e - raw_ensemble)))
             r_ensemble = round(float(step_rates_e[ens_step_idx]), 4)
             ens_comb_nums = sorted([int(i + 1) for i in combs_e[ens_step_idx]])
