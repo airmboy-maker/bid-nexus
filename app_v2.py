@@ -971,6 +971,8 @@ def run_hyper_realistic_inference(mu, sigma, n_competitors=120, season_weight=0.
 def generate_company_spec_certificate_html(comp=None):
     comp = comp if isinstance(locals().get("comp"), dict) else {}
     ceo = comp.get("ceo") or comp.get("대표자") or "대표이사"
+    comp = comp if isinstance(locals().get("comp"), dict) else {}
+    ceo = comp.get("ceo") or comp.get("대표자") or "대표이사"
     try:
         if isinstance(comp, (list, tuple)) and len(comp) > 0: comp = comp[0]
         if not isinstance(comp, dict): comp = {}
@@ -1090,6 +1092,11 @@ def generate_company_spec_certificate_html(comp=None):
         return f"<div style='padding:16px;border:1px solid #334155;border-radius:8px;'>문서 렌더링 완료 (generate_company_spec_certificate_html)</div>"
 
 def generate_official_printable_html(data=None, q_auto=None, comp=None, st_pack=None):
+    data = data if isinstance(locals().get("data"), dict) else {}
+    q_auto = q_auto if isinstance(locals().get("q_auto"), dict) else {}
+    comp = comp if isinstance(locals().get("comp"), dict) else {}
+    inst = data.get("수요기관") or data.get("발주기관") or data.get("발주처") or "조달청"
+    q_res = q_auto
     data = data if isinstance(locals().get("data"), dict) else {}
     q_auto = q_auto if isinstance(locals().get("q_auto"), dict) else {}
     comp = comp if isinstance(locals().get("comp"), dict) else {}
