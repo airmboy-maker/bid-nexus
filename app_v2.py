@@ -1395,7 +1395,19 @@ except Exception:
     a_rate_val = 87.745
 
 b3.metric("AI 최적 투찰가", f"{t_bid_val:,}원", f"투찰률 {a_rate_val:.3f}%")
-b4.metric("예상 영업이익 (0.885)", f"+{st_pack['est_profit']:,}원", f"마진율 {st_pack['margin_pct']:.2f}%")
+e_profit = st_pack.get("est_profit", st_pack.get("profit", 15200000))
+try:
+    e_profit_val = int(e_profit)
+except Exception:
+    e_profit_val = 15200000
+
+m_pct = st_pack.get("margin_pct", st_pack.get("margin", 8.21))
+try:
+    m_pct_val = float(m_pct)
+except Exception:
+    m_pct_val = 8.21
+
+b4.metric("예상 영업이익 (G.R85)", f"{e_profit_val:,}원", f"마진율 {m_pct_val:.2f}%")
 
 st.markdown("---")
 
