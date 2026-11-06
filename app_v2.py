@@ -1327,9 +1327,14 @@ comp = st.session_state["comp_profile"]
 if "auto_state" not in st.session_state or st.session_state["auto_state"] is None or "skewness" not in st.session_state["auto_state"]:
     st.session_state["auto_state"] = execute_full_autonomous_pipeline(comp, auto_save=True)
 
-st_pack = st.session_state["auto_state"]
-data = st_pack.get("data", {}) if isinstance(st_pack, dict) else {}
-q_auto = st_pack["q_auto"]
+st_pack = st.session_state.get("auto_state", {})
+if isinstance(st_pack, tuple):
+    st_pack = st_pack[0] if len(st_pack) > 0 and isinstance(st_pack[0], dict) else {}
+elif not isinstance(st_pack, dict):
+    st_pack = {}
+
+data = st_pack.get("data", {})
+q_auto = st_pack.get("q_auto", {})
 
 deadline_str = data.get("입찰마감일시", "2026-11-12 10:00")
 try:
