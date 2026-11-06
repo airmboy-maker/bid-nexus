@@ -1,0 +1,8 @@
+streamlit
+google-genai
+reportlab
+matplotlib
+numpy
+pandas
+requests
+olefile

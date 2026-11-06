@@ -1,0 +1,6 @@
+.streamlit/secrets.toml
+
+# Legacy v1 backups
+app.py
+app_v1_backup.py
+index.html
