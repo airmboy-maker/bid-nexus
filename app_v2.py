@@ -4761,11 +4761,11 @@ function jumpFromIso(targetKey) {
 
         if "상위 6건" in compare_mode:
             active_vault_items = working_pool[:6]
-            grid_col_css = "repeat(3, 1fr)"
+            grid_col_css = "repeat(3, minmax(0, 1fr))"
             iframe_h = 875
         elif "상위 8건" in compare_mode:
             active_vault_items = working_pool[:8]
-            grid_col_css = "repeat(4, 1fr)"
+            grid_col_css = "repeat(4, minmax(0, 1fr))"
             iframe_h = 895
         elif "장바구니 연동" in compare_mode:
             sel_lbls = st.session_state.get("bid_cart_selected", [])
@@ -4775,11 +4775,11 @@ function jumpFromIso(targetKey) {
             ]
             active_vault_items = matched if matched else working_pool[:4]
             cnt_v = len(active_vault_items)
-            grid_col_css = "repeat(4, 1fr)" if cnt_v >= 7 else ("repeat(3, 1fr)" if cnt_v >= 5 else "repeat(2, 1fr)")
+            grid_col_css = "repeat(4, minmax(0, 1fr))" if cnt_v >= 7 else ("repeat(3, 1fr)" if cnt_v >= 5 else "repeat(2, 1fr)")
             iframe_h = 895 if cnt_v > 4 else 790
         else:
             active_vault_items = working_pool[:4]
-            grid_col_css = "repeat(2, 1fr)"
+            grid_col_css = "repeat(2, minmax(0, 1fr))"
             iframe_h = 845
 
         st.session_state["v105_active_compare_count"] = len(active_vault_items)
@@ -4887,22 +4887,24 @@ function jumpFromIso(targetKey) {
     }}
     .bridge-layout {{
         display: grid;
-        grid-template-columns: 285px minmax(0, 1fr);
-        gap: 16px;
+        grid-template-columns: 236px minmax(0, 1fr);
+        gap: 12px;
         align-items: stretch;
+        width: 100%;
     }}
     .sonar-panel {{
-        width: 285px;
-        min-width: 285px;
+        width: 236px;
+        min-width: 236px;
         background: rgba(2, 6, 23, 0.92);
         border: 1px solid rgba(52, 211, 153, 0.45);
         border-radius: 16px;
-        padding: 14px 12px;
+        padding: 12px 10px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: space-between;
         box-shadow: inset 0 0 28px rgba(16, 185, 129, 0.16);
+        overflow: hidden;
     }}
     .sonar-status-box {{
         width: 100%;
@@ -4921,18 +4923,23 @@ function jumpFromIso(targetKey) {
     .chests-grid {{
         display: grid;
         grid-template-columns: {grid_col_css};
-        gap: 12px;
+        gap: 10px;
+        width: 100%;
+        min-width: 0;
         perspective: 900px;
     }}
     .chest-card {{
+        min-width: 0;
+        width: 100%;
+        overflow: hidden;
         border: 1.5px solid #facc15;
-        border-bottom: 6px solid #ca8a04;
-        border-radius: 14px;
-        padding: 14px;
+        border-bottom: 5px solid #ca8a04;
+        border-radius: 13px;
+        padding: 11px 10px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        transform: rotateX(4deg);
+        transform: rotateX(3deg);
         transition: transform 0.25s ease, box-shadow 0.25s ease;
     }}
     .chest-card:hover {{
@@ -4969,7 +4976,7 @@ function jumpFromIso(targetKey) {
         flex-shrink: 0;
     }}
     .chest-title {{
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 900;
         color: #ffffff;
         margin-bottom: 2px;
@@ -4998,10 +5005,12 @@ function jumpFromIso(targetKey) {
     }}
     .loot-val {{
         font-family: 'Orbitron', sans-serif;
-        font-size: clamp(13.5px, 1.15vw, 17px);
+        font-size: clamp(12px, 1.0vw, 15.5px);
         font-weight: 900;
         margin-top: 2px;
         white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }}
     .chest-meta {{
         font-size: 11px;
@@ -5014,14 +5023,17 @@ function jumpFromIso(targetKey) {
     }}
     .copy-btn {{
         width: 100%;
-        padding: 7px 10px;
+        padding: 6px 6px;
         background: linear-gradient(90deg, rgba(250,204,21,0.18), rgba(56,189,248,0.18));
         border: 1px solid rgba(250,204,21,0.55);
         border-radius: 8px;
         color: #fde047;
-        font-size: 11px;
+        font-size: 10.5px;
         font-weight: 800;
         cursor: pointer;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
         transition: all 0.2s;
     }}
     .copy-btn:hover {{
@@ -5103,7 +5115,7 @@ function jumpFromIso(targetKey) {
 
     <div class="bridge-layout">
         <div class="sonar-panel">
-            <canvas id="sonarCanvas" width="260" height="260" style="width:260px;height:260px;flex-shrink:0;"></canvas>
+            <canvas id="sonarCanvas" width="214" height="214" style="width:214px;height:214px;flex-shrink:0;"></canvas>
             <div class="sonar-status-box">
                 <div style="color:#34d399;font-weight:800;margin-bottom:3px;">📡 GOLDEN SONAR TELEMETRY</div>
                 • 전체 투찰 인양 규모: <b style="color:#fff;">{total_treasure_bid:,.0f} 원</b><br>
@@ -5217,16 +5229,16 @@ const cy = H / 2;
 
 let sweepAngle = 0;
 const targets = [
-    {{r: 34, theta: 0.80, label: "소양초", color: "#facc15", align: "left"}},
-    {{r: 56, theta: 2.30, label: "봉의고", color: "#38bdf8", align: "left"}},
-    {{r: 72, theta: 3.80, label: "원주센터", color: "#34d399", align: "left"}},
-    {{r: 52, theta: 5.45, label: "강릉복지관", color: "#c084fc", align: "left"}}
+    {{r: 28, theta: 0.80, label: "소양초", color: "#facc15", align: "left"}},
+    {{r: 46, theta: 2.30, label: "봉의고", color: "#38bdf8", align: "left"}},
+    {{r: 58, theta: 3.80, label: "원주센터", color: "#34d399", align: "left"}},
+    {{r: 42, theta: 5.45, label: "강릉복지관", color: "#c084fc", align: "left"}}
 ];
 
 function drawSonar() {{
     ctx.clearRect(0, 0, W, H);
 
-    for (let r = 26; r <= 104; r += 26) {{
+    for (let r = 22; r <= 88; r += 22) {{
         ctx.beginPath();
         ctx.arc(cx, cy, r, 0, Math.PI * 2);
         ctx.strokeStyle = 'rgba(52, 211, 153, 0.24)';
@@ -5234,17 +5246,17 @@ function drawSonar() {{
         ctx.stroke();
     }}
     ctx.beginPath();
-    ctx.moveTo(cx - 125, cy); ctx.lineTo(cx + 125, cy);
-    ctx.moveTo(cx, cy - 125); ctx.lineTo(cx, cy + 125);
+    ctx.moveTo(cx - 92, cy); ctx.lineTo(cx + 92, cy);
+    ctx.moveTo(cx, cy - 92); ctx.lineTo(cx, cy + 92);
     ctx.strokeStyle = 'rgba(52, 211, 153, 0.16)';
     ctx.stroke();
 
     for (let deg = 0; deg < 360; deg += 15) {{
         let rad = deg * Math.PI / 180;
-        let x1 = cx + Math.cos(rad) * 106;
-        let y1 = cy + Math.sin(rad) * 106;
-        let x2 = cx + Math.cos(rad) * (deg % 45 === 0 ? 114 : 110);
-        let y2 = cy + Math.sin(rad) * (deg % 45 === 0 ? 114 : 110);
+        let x1 = cx + Math.cos(rad) * 90;
+        let y1 = cy + Math.sin(rad) * 90;
+        let x2 = cx + Math.cos(rad) * (deg % 45 === 0 ? 97 : 93);
+        let y2 = cy + Math.sin(rad) * (deg % 45 === 0 ? 97 : 93);
         ctx.beginPath();
         ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
         ctx.strokeStyle = deg % 45 === 0 ? '#facc15' : 'rgba(250, 204, 21, 0.35)';
@@ -5256,7 +5268,7 @@ function drawSonar() {{
         let a = sweepAngle - i * 0.02;
         ctx.beginPath();
         ctx.moveTo(cx, cy);
-        ctx.arc(cx, cy, 104, a - 0.02, a);
+        ctx.arc(cx, cy, 88, a - 0.02, a);
         ctx.closePath();
         ctx.fillStyle = `rgba(16, 185, 129, ${{(35 - i) / 140}})`;
         ctx.fill();
