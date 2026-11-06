@@ -1840,7 +1840,7 @@ with tab_sim:
     a_val = st_pack.get('a_val', 0)
     l_rate = st_pack.get('l_rate', 0)
     
-    sim_est_p = estimate_price(b_val, sim_rate_input)
+    sim_est_p = estimate_price(b_val if (b_val and float(b_val) > 0) else 3605411000, sim_rate_input)
     sim_target_bid = lower_limit(sim_est_p, a_val, l_rate * 100.0)
     
     cost_mat = round(sim_target_bid * 0.42)

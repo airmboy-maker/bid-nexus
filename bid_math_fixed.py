@@ -25,14 +25,14 @@ def floor_won(x: float) -> int:
 
 def estimate_price(base_amt: int | float, rate_pct: float) -> int:
     """예정가격 = 기초금액 x 사정률, 원단위 절상."""
-    if base_amt <= 0:
-        raise ValueError("기초금액은 0보다 커야 합니다")
+    if base_amt is None or float(base_amt) <= 0:
+        return 0
     return ceil_won(float(base_amt) * float(rate_pct) / 100.0)
 
 def lower_limit(est_price: int | float, a_val: int | float, limit_pct: float = DEFAULT_LIMIT_RATE) -> int:
     """낙찰하한선 = (예정가격 - A값) x 하한율 + A값, 원단위 절상."""
-    if est_price <= 0:
-        raise ValueError("예정가격은 0보다 커야 합니다")
+    if est_price is None or float(est_price) <= 0:
+        return 0
     return ceil_won((int(est_price) - int(a_val)) * float(limit_pct) / 100.0 + int(a_val))
 
 def bid_price(base_amt: int | float, rate_pct: float, a_val: int | float, limit_pct: float = DEFAULT_LIMIT_RATE) -> int:
