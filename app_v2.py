@@ -1271,7 +1271,7 @@ if "auto_state" not in st.session_state or st.session_state["auto_state"] is Non
     st.session_state["auto_state"] = execute_full_autonomous_pipeline(comp, auto_save=True)
 
 st_pack = st.session_state["auto_state"]
-data = st_pack["data"]
+data = st_pack.get("data", {}) if isinstance(st_pack, dict) else {}
 q_auto = st_pack["q_auto"]
 
 deadline_str = data.get("입찰마감일시", "2026-11-12 10:00")
