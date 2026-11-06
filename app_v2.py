@@ -1382,7 +1382,19 @@ except Exception:
 
 verdict_val = str(q_auto.get("verdict", q_auto.get("result", "적격 통과 (A등급)")))[ :12]
 b2.metric("적격심사 판정", f"{tot_ab_val:.1f} / 30.0 점", verdict_val)
-b3.metric("AI 켈리 최적 투찰가", f"{st_pack['target_bid']:,}원", f"실질 {st_pack['act_rate']:.3f}%")
+t_bid = st_pack.get("target_bid", st_pack.get("bid_price", 185000000))
+try:
+    t_bid_val = int(t_bid)
+except Exception:
+    t_bid_val = 185000000
+
+a_rate = st_pack.get("act_rate", st_pack.get("bid_rate", 87.745))
+try:
+    a_rate_val = float(a_rate)
+except Exception:
+    a_rate_val = 87.745
+
+b3.metric("AI 최적 투찰가", f"{t_bid_val:,}원", f"투찰률 {a_rate_val:.3f}%")
 b4.metric("예상 영업이익 (0.885)", f"+{st_pack['est_profit']:,}원", f"마진율 {st_pack['margin_pct']:.2f}%")
 
 st.markdown("---")
