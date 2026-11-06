@@ -13,10 +13,15 @@ from google.genai import types
 from hwp_parser import extract_hwp_or_hwpx
 
 st.set_page_config(
-    page_title="BID-NEXUS: Autonomous Intelligence",
+    page_title="⚡ BID-NEXUS v2.0: 공공입찰 퀀트분석 터미널",
     page_icon="⚡",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
+    menu_items={
+        'Get Help': None,
+        'Report a bug': None,
+        'About': "### ⚡ BID-NEXUS v2.0\n조달청 공고 실시간 수집 및 적격심사 자동평가 솔루션"
+    }
 )
 
 # --- 카카오톡 메시지 카드 (Open Graph) 최적화 메타태그 ---
