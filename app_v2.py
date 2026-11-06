@@ -791,7 +791,7 @@ def run_automated_qualification(inst_name, target_price, primary_industry, comp)
     total_ability = final_mgmt_score + perf_score + net_sinindo
     needed_price_score = pass_cut - total_ability
     is_pass = total_ability >= (max_mgmt + max_perf) * 0.95
-    verdict = "적격심사 만점 (통과 확실)" if is_pass else f"감점 발생 (가격평점 {needed_price_score:.2f}점 이상 필수)"
+    verdict = "적격심사 만점 (통과) 확실)" if is_pass else f"감점 발생 (가격평점 {needed_price_score:.2f}점 이상 필수)"
 
     return {
         "standard_name": standard_name, "bracket": bracket, "industry": primary_industry, "association": bench["association"],
@@ -4388,7 +4388,24 @@ def render_phase8_treasure_island_ui():
             font-weight: 800 !important;
             font-size: 13px !important;
         }
-        div[data-testid="stMetricValue"] > div {
+        
+    /* stMetric 하단 초록/빨강 델타 배지의 우측 끝 닫는 괄호 ')' 잘림 원천 방지 */
+    div[data-testid="stMetricDelta"] {
+        overflow: visible !important;
+        max-width: none !important;
+        width: fit-content !important;
+        padding-right: 12px !important;
+        white-space: nowrap !important;
+    }
+    div[data-testid="stMetricDelta"] > div {
+        overflow: visible !important;
+        text-overflow: clip !important;
+        max-width: none !important;
+        white-space: nowrap !important;
+        padding-right: 4px !important;
+    }
+
+    div[data-testid="stMetricValue"] > div {
             color: #ffffff !important;
             font-family: 'Orbitron', 'Noto Sans KR', sans-serif !important;
             font-weight: 900 !important;
@@ -5949,6 +5966,23 @@ def render_phase9_bidding_machine_workstation():
         font-size: 12px !important;
         white-space: nowrap !important;
     }
+    
+    /* stMetric 하단 초록/빨강 델타 배지의 우측 끝 닫는 괄호 ')' 잘림 원천 방지 */
+    div[data-testid="stMetricDelta"] {
+        overflow: visible !important;
+        max-width: none !important;
+        width: fit-content !important;
+        padding-right: 12px !important;
+        white-space: nowrap !important;
+    }
+    div[data-testid="stMetricDelta"] > div {
+        overflow: visible !important;
+        text-overflow: clip !important;
+        max-width: none !important;
+        white-space: nowrap !important;
+        padding-right: 4px !important;
+    }
+
     div[data-testid="stMetricValue"] > div {
         color: #ffffff !important;
         font-family: 'Orbitron', 'Noto Sans KR', sans-serif !important;
