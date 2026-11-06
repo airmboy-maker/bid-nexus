@@ -1003,7 +1003,7 @@ def generate_official_printable_html(data=None, q_auto=None, comp=None, st_pack=
 def generate_decision_report_html(cur_d, q_res, comp, st_pack, chosen_r, bid_amt, net_p, cost_mat, cost_lab, cost_exp, cost_adm, total_exec):
     inst = cur_d.get("수요기관") or cur_d.get("발주기관", "수요기관")
     ceo = comp.get("ceo", "대표이사")
-    b_val = st_pack['b_val']
+    b_val = st_pack.get('b_val', 0)
     act_pct = (bid_amt / b_val) * 100.0 if b_val > 0 else 0.0
     
     return f"""<!DOCTYPE html>
@@ -1048,13 +1048,13 @@ def generate_decision_report_html(cur_d, q_res, comp, st_pack, chosen_r, bid_amt
     <table class="data-table">
         <tr><th>공  고  명</th><td colspan="3"><b>{cur_d.get('공고명')}</b></td></tr>
         <tr><th>수요(발주)처</th><td>{inst}</td><th>입찰 마감일시</th><td>{cur_d.get('입찰마감일시', '2026-11-12 10:00')}</td></tr>
-        <tr><th>기 초 금 액</th><td><b>{b_val:,} 원</b></td><th>A값(국민연금 등)</th><td>{st_pack['a_val']:,} 원</td></tr>
-        <tr><th>낙찰하한율</th><td>{st_pack['l_rate']*100:.3f}%</td><th>적격심사 판정</th><td><b style="color:#059669;">{q_res['total_ability']:.2f}점 만점 (통과)</b></td></tr>
+        <tr><th>기 초 금 액</th><td><b>{b_val:,} 원</b></td><th>A값(국민연금 등)</th><td>{st_pack.get('a_val', 0):,} 원</td></tr>
+        <tr><th>낙찰하한율</th><td>{st_pack.get('l_rate', 0)*100:.3f}%</td><th>적격심사 판정</th><td><b style="color:#059669;">{q_res['total_ability']:.2f}점 만점 (통과)</b></td></tr>
     </table>
 
     <h4 style="margin: 0 0 8px 0;">2. 퀀트 앙상블 분석 및 최종 의결 투찰가</h4>
     <table class="data-table">
-        <tr><th>발주처 개찰 평균 사정률(μ)</th><td>{st_pack.get('inst_mu'):.3f}%</td><th>경쟁사 과밀 데드존</th><td style="color:#dc2626;">{st_pack['dead_zone_l']:.3f}% ~ {st_pack['dead_zone_r']:.3f}%</td></tr>
+        <tr><th>발주처 개찰 평균 사정률(μ)</th><td>{st_pack.get('inst_mu'):.3f}%</td><th>경쟁사 과밀 데드존</th><td style="color:#dc2626;">{st_pack.get('dead_zone_l', 0):.3f}% ~ {st_pack.get('dead_zone_r', 0):.3f}%</td></tr>
         <tr class="highlight"><th>최종 채택 사정률</th><td style="font-size: 14px; color: #2563eb;"><b>{chosen_r:.3f} %</b></td><th>최종 결정 투찰금액</th><td style="font-size: 14px; color: #2563eb;"><b>{bid_amt:,} 원</b></td></tr>
     </table>
 
@@ -1544,17 +1544,15 @@ with tab_radar:
                     st.rerun()
 
 with tab1:
-        col_l, col_r = st.columns([1, 1.2])
+    col_l, col_r = st.columns([1, 1.2])
     with col_l:
         st.markdown("#### 1️⃣ 공고 파싱 & 적격성 자동 확정")
         st.info(f"📋 **적용 규정**: {q_auto.get('standard_name', '조달청 시설공사 적격심사 세부기준')} [{q_auto.get('bracket', '추정가격 50억원 미만 30억원 이상')}]")
         
-        if not isinstance(q_auto, dict): q_auto = {}
-        st.info(f"📋 **적용 규정**: {q_auto.get('standard_name', '조달청 시설공사 적격심사 세부기준')} [{q_auto.get('bracket', '추정가격 50억원 미만 30억원 이상')}]")
-m_a1, m_a2, m_a3 = st.columns(3)
+        m_a1, m_a2, m_a3 = st.columns(3)
         m_a1.metric("경영상태", f"{q_auto.get('final_mgmt_score', 12.0):.1f} / {q_auto.get('max_mgmt', 12.0):.0f}점", q_auto.get('selected_method', '재무비율')[:4])
-        m_a2.metric("시공실적", f"{q_auto.get('perf_score', 0):.1f} / {q_auto['max_perf']:.0f}점", f"{q_auto['perf_ratio']:.2f}배 (만점)")
-        m_a3.metric("신인도 가점", f"+{q_auto['net_sinindo']:.1f}점", "일자리창출 우수")
+        m_a2.metric("시공실적", f"{q_auto.get('perf_score', 0):.1f} / {q_auto.get('max_perf', 12.0):.0f}점", f"{q_auto.get('perf_ratio', 0):.2f}배 (만점)")
+        m_a3.metric("신인도 가점", f"+{q_auto.get('net_sinindo', 0):.1f}점", "일자리창출 우수")
 
         st.markdown("#### 🛡️ 시방서 NO-GO 스크리닝")
         for cl in data.get("독소조항", []):
@@ -1562,14 +1560,14 @@ m_a1, m_a2, m_a3 = st.columns(3)
 
     with col_r:
         st.markdown("#### 2️⃣ 15C4 조합 파동 시뮬레이션 (15,000회)")
-        chart_counts, bin_edges = np.histogram(st_pack["sim_rates"], bins=25)
+        chart_counts, bin_edges = np.histogram(st_pack.get('sim_rates', 0), bins=25)
         chart_labels = [f"{(bin_edges[i]+bin_edges[i+1])/2:.2f}%" for i in range(len(chart_counts))]
         df_chart = pd.DataFrame({"확률 밀도": chart_counts}, index=chart_labels)
         st.bar_chart(df_chart, height=170)
 
         g1, g2 = st.columns(2)
-        g1.metric("💀 과밀 데드존 (회피 필수)", f"{st_pack['peak_rate']:.3f}%", f"{st_pack['dead_zone_l']:.3f}% ~ {st_pack['dead_zone_r']:.3f}%")
-        g2.metric("✨ 퀀트 켈리 최적선", f"{st_pack['kelly_r']:.3f}%", "단독낙찰 + 기대이익 극대화")
+        g1.metric("💀 과밀 데드존 (회피 필수)", f"{st_pack.get('peak_rate', 0):.3f}%", f"{st_pack.get('dead_zone_l', 0):.3f}% ~ {st_pack.get('dead_zone_r', 0):.3f}%")
+        g2.metric("✨ 퀀트 켈리 최적선", f"{st_pack.get('kelly_r', 0):.3f}%", "단독낙찰 + 기대이익 극대화")
 
         st.markdown("---")
         st.markdown("#### 📥 전자동 공식 서식 출력")
@@ -1597,15 +1595,15 @@ with tab_quantum_ai:
 
 with tab_sim:
     st.subheader("🎛️ 0.001% 정밀 감도 & 공사 비목별 원가 분석")
-    default_m_rate = st.session_state.get("manual_rate", float(st_pack["kelly_r"]))
+    default_m_rate = st.session_state.get("manual_rate", float(st_pack.get('kelly_r', 0)))
 
     c_s1, c_s2 = st.columns(2)
     sim_rate_input = c_s1.number_input("🎯 목표 사정률 직접 입력 (%)", min_value=97.000, max_value=103.000, value=default_m_rate, step=0.001, format="%.3f")
     sim_exec_rate = c_s2.slider("현장 총 실행원가율 설정 (%)", min_value=75.0, max_value=95.0, value=88.5, step=0.1, format="%.1f%%")
 
-    b_val = st_pack["b_val"]
-    a_val = st_pack["a_val"]
-    l_rate = st_pack["l_rate"]
+    b_val = st_pack.get('b_val', 0)
+    a_val = st_pack.get('a_val', 0)
+    l_rate = st_pack.get('l_rate', 0)
     
     sim_est_p = round(b_val * (sim_rate_input / 100.0))
     sim_target_bid = round(((sim_est_p - a_val) * l_rate) + a_val)
