@@ -516,7 +516,7 @@ def search_companies_incremental(query_text):
         c_ceo = "".join(ch for ch in comp.get("ceo", "") if ch.isalnum())
         c_biz = comp.get("biz_no", "").replace("-", "")
         if (norm_q in c_name) or (norm_q in c_ceo) or (norm_q in c_biz):
-            if not any(m["name"] == comp["name"] for m in matches):
+            if not any(m["name"] == comp.get("name", "기업") for m in matches):
                 matches.append(comp)
 
     # 로컬 마스터 풀 조회
@@ -526,7 +526,7 @@ def search_companies_incremental(query_text):
         c_ceo = "".join(ch for ch in comp.get("ceo", "") if ch.isalnum())
         c_biz = comp.get("biz_no", "").replace("-", "")
         if (norm_q in c_name) or (norm_q in c_ceo) or (norm_q in c_biz):
-            if not any(m["name"] == comp["name"] for m in matches):
+            if not any(m["name"] == comp.get("name", "기업") for m in matches):
                 matches.append(comp)
 
     return matches
@@ -851,7 +851,7 @@ def generate_company_spec_certificate_html(comp):
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>기업실적증명원_{comp['name']}</title>
+    <title>기업실적증명원_{comp.get('name', '기업')}</title>
     <style>
         @page {{ size: A4 landscape; margin: 14mm; }}
         body {{ font-family: 'Malgun Gothic', '맑은 고딕', 'Pretendard', sans-serif; line-height: 1.5; color: #111; background: #fff; }}
@@ -879,7 +879,7 @@ def generate_company_spec_certificate_html(comp):
 
     <table style="margin-bottom:10px;">
         <tr>
-            <th style="width:13%;">상    호</th><td style="width:37%;"><b>{comp['name']}</b></td>
+            <th style="width:13%;">상    호</th><td style="width:37%;"><b>{comp.get('name', '기업')}</b></td>
             <th style="width:13%;">대 표 자 명</th><td style="width:37%;"><b>{ceo}</b></td>
         </tr>
         <tr>
@@ -920,20 +920,24 @@ def generate_company_spec_certificate_html(comp):
     <div class="sign-area">
         <p>위 기재사항은 건설산업지식정보시스템(KISCON), 관할 협회 등록 실적 및 기술인력 확인서와 일치함을 증명합니다.</p>
         <p style="margin-top: 12px;">2026년 11월 12일</p>
-        <p style="font-size: 14.5px; margin-top: 8px;">신 청 인 : <b>{comp['name']}</b> 대표이사 <b>{ceo}</b> (인)</p>
+        <p style="font-size: 14.5px; margin-top: 8px;">신 청 인 : <b>{comp.get('name', '기업')}</b> 대표이사 <b>{ceo}</b> (인)</p>
         <p style="font-size: 13.5px; margin-top: 4px;"><b>조달청, 한국전력공사 및 각급 발주기관 계약관 귀하</b></p>
     </div>
 </body>
 </html>"""
 
-def generate_official_printable_html(cur_d, q_res, comp, st_pack):
-    inst = cur_d.get("수요기관") or cur_d.get("발주기관", "수요기관")
+def generate_official_printable_html(data=None, q_auto=None, comp=None, st_pack=None):
+    if not isinstance(data, dict): data = {}
+    if not isinstance(q_auto, dict): q_auto = {}
+    if isinstance(comp, (list, tuple)) and len(comp) > 0: comp = comp[0]
+    if not isinstance(comp, dict): comp = {}
+    if not isinstance(st_pack, dict): st_pack = {}
     ceo = comp.get("ceo", "대표이사")
     return f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>적격심사신청서_{comp['name']}</title>
+    <title>적격심사신청서_{comp.get('name', '기업')}</title>
     <style>
         @page {{ size: A4 portrait; margin: 20mm; }}
         body {{ font-family: 'Malgun Gothic', '맑은 고딕', 'Pretendard', sans-serif; line-height: 1.6; color: #111; background: #fff; }}
@@ -960,7 +964,7 @@ def generate_official_printable_html(cur_d, q_res, comp, st_pack):
     <table>
         <tr><th>공 고 명</th><td colspan="3"><b>{cur_d.get('공고명')}</b></td></tr>
         <tr><th>수요(발주)기관</th><td>{inst}</td><th>입 찰 일 시</th><td>2026년 11월 12일</td></tr>
-        <tr><th>상    호</th><td>{comp['name']}</td><th>대 표 자 명</th><td><b>{ceo}</b></td></tr>
+        <tr><th>상    호</th><td>{comp.get('name', '기업')}</td><th>대 표 자 명</th><td><b>{ceo}</b></td></tr>
         <tr><th>사업자등록번호</th><td>{comp['biz_no']}</td><th>본점 소재지</th><td>{comp['region']}</td></tr>
     </table>
     <h3>2. 적격심사 배점 총괄표 (전자동 확정)</h3>
@@ -980,7 +984,7 @@ def generate_official_printable_html(cur_d, q_res, comp, st_pack):
     <div class="sign-area">
         <p>위와 같이 적격심사 서류 및 증빙자료를 첨부하여 신청서를 제출합니다.</p>
         <p style="margin-top: 25px;">2026년 11월 12일</p>
-        <p style="font-size: 17px; margin-top: 15px;">신 청 인 : <b>{comp['name']}</b> 대표이사 <b>{ceo}</b> (인)</p>
+        <p style="font-size: 17px; margin-top: 15px;">신 청 인 : <b>{comp.get('name', '기업')}</b> 대표이사 <b>{ceo}</b> (인)</p>
         <p style="font-size: 15px; margin-top: 10px;"><b>{inst} 귀하</b></p>
     </div>
 </body>
@@ -996,7 +1000,7 @@ def generate_decision_report_html(cur_d, q_res, comp, st_pack, chosen_r, bid_amt
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>사정률심의의결서_{comp['name']}</title>
+    <title>사정률심의의결서_{comp.get('name', '기업')}</title>
     <style>
         @page {{ size: A4 portrait; margin: 18mm; }}
         body {{ font-family: 'Malgun Gothic', '맑은 고딕', 'Pretendard', sans-serif; line-height: 1.5; color: #111; background: #fff; }}
@@ -1046,7 +1050,7 @@ def generate_decision_report_html(cur_d, q_res, comp, st_pack, chosen_r, bid_amt
 
     <div style="margin-top: 25px; text-align: center; font-size: 13px;">
         <p>위와 같이 조달청 개찰 실데이터와 실행원가 분석에 기반하여 최종 투찰 가격을 품의·의결합니다.</p>
-        <p style="margin-top: 15px; font-weight: bold; font-size: 14px;">기안부서: {comp['name']} 입찰관리팀 | 심의의결 대표이사 <b>{ceo}</b> (인)</p>
+        <p style="margin-top: 15px; font-weight: bold; font-size: 14px;">기안부서: {comp.get('name', '기업')} 입찰관리팀 | 심의의결 대표이사 <b>{ceo}</b> (인)</p>
     </div>
 </body>
 </html>"""
@@ -1442,11 +1446,11 @@ with tab_radar:
             st.markdown(f"**🎯 '{clean_r_val}' 일치 기업 ({len(r_matches)}개사):**")
             r_cand_cols = st.columns(min(len(r_matches), 4))
             for rm_idx, r_comp in enumerate(r_matches[:4]):
-                if r_cand_cols[rm_idx].button(f"🎯 {r_comp['name']}\n(대표: {r_comp.get('ceo', '대표')})", key=f"r_cand_btn_{rm_idx}", use_container_width=True):
+                if r_cand_cols[rm_idx].button(f"🎯 {r_comp.get('name', '기업')}\n(대표: {r_comp.get('ceo', '대표')})", key=f"r_cand_btn_{rm_idx}", use_container_width=True):
                     save_company_profile(r_comp)
                     st.session_state["comp_profile"] = r_comp
                     st.session_state["auto_state"] = execute_full_autonomous_pipeline(r_comp, auto_save=True)
-                    st.toast(f"✅ 기준 기업이 '{r_comp['name']}'(대표: {r_comp.get('ceo')})으로 즉시 변경되었습니다!", icon="🏢")
+                    st.toast(f"✅ 기준 기업이 '{r_comp.get('name', '기업')}'(대표: {r_comp.get('ceo')})으로 즉시 변경되었습니다!", icon="🏢")
                     st.rerun()
         else:
             st.warning(f"'{clean_r_val}'과 일치하는 등록 기업이 없습니다.")
@@ -1554,7 +1558,7 @@ with tab1:
         st.download_button(
             label="📄 조달청 공식 서식 신청서 + 자기평가표 인쇄용 (.html)",
             data=printable_html_doc.encode("utf-8"),
-            file_name=f"적격심사_공식서식_{comp['name']}.html",
+            file_name=f"적격심사_공식서식_{comp.get('name', '기업')}.html",
             mime="text/html",
             type="primary",
             use_container_width=True
@@ -1605,7 +1609,7 @@ with tab_sim:
     st.download_button(
         label="📥 사정률 심의 의결서 및 입찰 품의서 인쇄용 다운로드 (.html)",
         data=decision_html_doc.encode("utf-8"),
-        file_name=f"사정률_심의의결서_{comp['name']}.html",
+        file_name=f"사정률_심의의결서_{comp.get('name', '기업')}.html",
         mime="text/html",
         type="primary",
         use_container_width=True
@@ -1618,7 +1622,7 @@ with tab_dox:
         {"순번": 2, "구분": "신청 서식", "서류명": "적격심사 자기평가표 및 세부명세 [별지 제2호]", "발급처": "본 플랫폼 자동 생성", "상태": "✅ 연도별 실적 완결 연산", "필수여부": "필수"},
         {"순번": 3, "구분": "특수자격", "서류명": "한전 무정전/활선 시공인증 및 특수면허 확인서", "발급처": "한국전력공사 / 협회 원본", "상태": f"✅ {', '.join(comp.get('special_certs', []))}", "필수여부": "해당 공고 필수"},
         {"순번": 4, "구분": "기술인력", "서류명": "건설/전기 기술자 보유증명서 (협회 직인 원본)", "발급처": "한국건설기술인협회 / 전기기술인협회", "상태": f"✅ 총 {sum(comp.get('engineers', {}).values())}명 보유 확인", "필수여부": "필수"},
-        {"순번": 5, "구분": "경영상태", "서류명": "공공입찰용 신용평가등급 확인서", "발급처": "지정 신용정보업체 (NICE/e-Credible)", "상태": f"✅ {comp['credit_grade']} 등급 (G2B 연계 확인)", "필수여부": "전산미연계시 필수"},
+        {"순번": 5, "구분": "경영상태", "서류명": "공공입찰용 신용평가등급 확인서", "발급처": "지정 신용정보업체 (NICE/e-Credible)", "상태": f"✅ {comp.get('credit_grade', 'A-')} 등급 (G2B 연계 확인)", "필수여부": "전산미연계시 필수"},
         {"순번": 6, "구분": "시공실적", "서류명": "건설공사 실적증명서 (최근 5개년 누적실적)", "발급처": "관할 협회 (건설·전기·통신협회)", "상태": "✅ 최근 5개년 연도별 관리 완료", "필수여부": "필수 (협회 직인 원본)"}
     ]
     st.dataframe(pd.DataFrame(dox_checklist), use_container_width=True, hide_index=True)
@@ -1629,7 +1633,7 @@ with tab_dox:
     d_c1.download_button(
         label="📥 적격심사 신청서 및 자기평가표 (.html)",
         data=printable_html_doc.encode("utf-8"),
-        file_name=f"적격심사_공식서식_{comp['name']}.html",
+        file_name=f"적격심사_공식서식_{comp.get('name', '기업')}.html",
         mime="text/html",
         type="primary",
         use_container_width=True
@@ -1637,7 +1641,7 @@ with tab_dox:
     d_c2.download_button(
         label="📥 기업 시공능력평가액 · 5개년 실적 및 기술인력 총괄 증명원 (.html)",
         data=comp_spec_cert_html.encode("utf-8"),
-        file_name=f"기업실적기술자증명원_{comp['name']}.html",
+        file_name=f"기업실적기술자증명원_{comp.get('name', '기업')}.html",
         mime="text/html",
         use_container_width=True
     )
@@ -1705,7 +1709,7 @@ with tab_profile:
     st.download_button(
         label="🖨️ 기업 시공능력평가액 · 5개년 실적 및 기술인력 총괄 증명원 공식 인쇄 (가로형 A4)",
         data=comp_spec_cert_html.encode("utf-8"),
-        file_name=f"기업실적기술자증명원_{comp['name']}.html",
+        file_name=f"기업실적기술자증명원_{comp.get('name', '기업')}.html",
         mime="text/html",
         type="primary",
         use_container_width=True
@@ -1715,7 +1719,7 @@ with tab_profile:
     st.markdown("##### 📝 마스터 스펙 · 특수면허 · 기술자 직접 편집 폼")
     with st.form("edit_profile_master_form"):
         ec1, ec2 = st.columns(2)
-        ef_name = ec1.text_input("기업명(상호)", value=comp["name"])
+        ef_name = ec1.text_input("기업명(상호)", value=comp.get("name", "기업"))
         ef_ceo = ec2.text_input("대표자명 (대표이사)", value=comp.get("ceo", "김태양"))
 
         ec3, ec4 = st.columns(2)
