@@ -83,7 +83,7 @@ DB_PATH = os.path.expanduser("~/bidding_history.db")
 PROFILE_JSON_PATH = os.path.expanduser("~/company_profile.json")
 
 # ---------------------------------------------------------------------------------
-# 🔍 정밀 유니코드 NFC 정규화 및 인크리멘탈 검색 엔진 (들여쓰기 수정 완료)
+# 🔍 정밀 유니코드 NFC 정규화 및 인크리멘탈 검색 엔진
 # ---------------------------------------------------------------------------------
 CHOSUNG_LIST = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ']
 
@@ -399,8 +399,12 @@ def run_automated_qualification(inst_name, target_price, primary_industry, comp)
         bracket = "추정가격 50억 이상 (종합평가)"
         pass_cut, max_mgmt, max_perf, max_price = 95.0, 20.0, 20.0, 60.0
 
-    credit_tier = {"AAA": 1.0, "AA": 1.0, "A+": 1.0, "A0": 1.0, "A-": 1.0, "BBB+", "BBB0", "BBB-", "BB+", "BB0", "BB-", "B 이하"}
-    credit_map = {"AAA": 1.0, "AA": 1.0, "A+": 1.0, "A0": 1.0, "A-": 1.0, "BBB+": 1.0, "BBB0": 1.0, "BBB-": 1.0, "BB+": 0.96, "BB0": 0.93, "BB-": 0.90, "B 이하": 0.80}
+    # 402번째 줄 딕셔너리 문법 완전 정규화 수정
+    credit_map = {
+        "AAA": 1.0, "AA": 1.0, "A+": 1.0, "A0": 1.0, "A-": 1.0,
+        "BBB+": 1.0, "BBB0": 1.0, "BBB-": 1.0,
+        "BB+": 0.96, "BB0": 0.93, "BB-": 0.90, "B 이하": 0.80
+    }
     score_credit = max_mgmt * credit_map.get(comp.get("credit_grade", "A-"), 0.93)
 
     d_ratio = (comp.get("debt_ratio", 100.0) / avg_debt) * 100.0
