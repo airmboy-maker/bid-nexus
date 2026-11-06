@@ -2118,6 +2118,58 @@ def render_phase2_multi_bid_cart():
                 "목표사정률": 100.080,
                 "필요기술자": 2,
             },
+            {
+                "공고번호": "202611-04512",
+                "공고명": "속초 해양문화복합센터 신축 및 부대공사",
+                "발주처": "강원특별자치도 속초시",
+                "업종": "건축공사업",
+                "지역": "강원특별자치도",
+                "기초금액": 5180000000,
+                "A값": 248000000,
+                "낙찰하한율": 87.745,
+                "마감일시": "2026-11-18 14:00",
+                "목표사정률": 100.105,
+                "필요기술자": 2,
+            },
+            {
+                "공고번호": "202611-05190",
+                "공고명": "동해 스마트 그린산단 통합관제센터 건립",
+                "발주처": "강원특별자치도 동해시",
+                "업종": "건축공사업",
+                "지역": "강원특별자치도",
+                "기초금액": 3890000000,
+                "A값": 182000000,
+                "낙찰하한율": 87.745,
+                "마감일시": "2026-11-20 10:00",
+                "목표사정률": 99.985,
+                "필요기술자": 2,
+            },
+            {
+                "공고번호": "202611-06208",
+                "공고명": "홍천 국민체육센터 수영장 증축 및 리모델링",
+                "발주처": "강원특별자치도 홍천군",
+                "업종": "건축공사업",
+                "지역": "강원특별자치도",
+                "기초금액": 4470000000,
+                "A값": 209000000,
+                "낙찰하한율": 87.745,
+                "마감일시": "2026-11-23 15:00",
+                "목표사정률": 100.060,
+                "필요기술자": 2,
+            },
+            {
+                "공고번호": "202611-07815",
+                "공고명": "삼척 도계광산지역 공공임대주택 건립공사",
+                "발주처": "강원특별자치도 삼척시",
+                "업종": "건축공사업",
+                "지역": "강원특별자치도",
+                "기초금액": 7420000000,
+                "A값": 356000000,
+                "낙찰하한율": 87.745,
+                "마감일시": "2026-11-25 14:00",
+                "목표사정률": 100.135,
+                "필요기술자": 3,
+            },
         ]
 
         if "bid_cart_pool" not in st.session_state or not isinstance(st.session_state.get("bid_cart_pool"), list):
@@ -2539,7 +2591,7 @@ def render_phase3_webhook_and_tracker():
             seed_off = int(st.session_state.get("lucky_seed_offset", 0))
             nl_char = chr(10)
             msg_lines = ["⚡ [BID-NEXUS v4.5] 퀀텀 AI 최적 투찰가 & 복수예가 번호 브리핑"]
-            for idx, it in enumerate(pool[:4], start=1):
+            for idx, it in enumerate(pool[:int(st.session_state.get('v105_active_compare_count', 4))], start=1):
                 b_amt = float(it.get("기초금액", 0) or 0)
                 a_amt = float(it.get("A값", 0) or 0)
                 l_rt = float(it.get("낙찰하한율", 87.745) or 87.745) / 100.0
@@ -4660,17 +4712,93 @@ function jumpFromIso(targetKey) {
         st.caption("실시간 소나 레이더로 4대 황금 어장을 스캔하며, 각 보물상자의 [📋 황금좌표 복사] 클릭 시 투찰가와 추천번호가 즉시 복사됩니다.")
 
         chest_cards_html = ""
+        # [신규 v10.5] 스마트 어댑티브 비교 기어 컨트롤 바 (기본 4건 황금비율 + 6건/8건/장바구니 연동)
+        if len(pool) < 8:
+            existing_nos = {it.get("공고번호") for it in pool}
+            for extra_it in [
+                {"공고번호": "202611-04512", "공고명": "속초 해양문화복합센터 신축 및 부대공사", "발주처": "강원특별자치도 속초시", "업종": "건축공사업", "지역": "강원특별자치도", "기초금액": 5180000000, "A값": 248000000, "낙찰하한율": 87.745, "마감일시": "2026-11-18 14:00", "목표사정률": 100.105, "필요기술자": 2},
+                {"공고번호": "202611-05190", "공고명": "동해 스마트 그린산단 통합관제센터 건립", "발주처": "강원특별자치도 동해시", "업종": "건축공사업", "지역": "강원특별자치도", "기초금액": 3890000000, "A값": 182000000, "낙찰하한율": 87.745, "마감일시": "2026-11-20 10:00", "목표사정률": 99.985, "필요기술자": 2},
+                {"공고번호": "202611-06208", "공고명": "홍천 국민체육센터 수영장 증축 및 리모델링", "발주처": "강원특별자치도 홍천군", "업종": "건축공사업", "지역": "강원특별자치도", "기초금액": 4470000000, "A값": 209000000, "낙찰하한율": 87.745, "마감일시": "2026-11-23 15:00", "목표사정률": 100.060, "필요기술자": 2},
+                {"공고번호": "202611-07815", "공고명": "삼척 도계광산지역 공공임대주택 건립공사", "발주처": "강원특별자치도 삼척시", "업종": "건축공사업", "지역": "강원특별자치도", "기초금액": 7420000000, "A값": 356000000, "낙찰하한율": 87.745, "마감일시": "2026-11-25 14:00", "목표사정률": 100.135, "필요기술자": 3}
+            ]:
+                if extra_it["공고번호"] not in existing_nos:
+                    pool.append(extra_it)
+            st.session_state["bid_cart_pool"] = pool
+
+        gear_c1, gear_c2 = st.columns([2.2, 1.8])
+        with gear_c1:
+            compare_mode = st.selectbox(
+                "🎛️ 스마트 어댑티브 입찰 비교 스케일 (AI 추천: 평시 TOP 4 황금비율 / 집중일 6·8건 확장)",
+                options=[
+                    "👑 [AI 추천 기본] 핵심 4건 황금비율 비교 (2×2 ZERO-SCROLL)",
+                    "💎 [주간 확장] 상위 6건 와이드 비교 (3×2 그리드)",
+                    "🔥 [전수 총력전] 상위 8건 맥시멈 비교 (4×2 그리드)",
+                    "🛒 [장바구니 연동] BAY 02 장바구니 체크 공고만 자동 맞춤 표시"
+                ],
+                index=0,
+                key="v105_compare_scale_mode"
+            )
+        with gear_c2:
+            sort_criteria = st.selectbox(
+                "⚡ 보물상자 우선순위 자동 정렬 기준",
+                options=[
+                    "📌 기본 우선순위 (최근 전환/등록 순)",
+                    "💰 순기대수익(황금 전리품) 최대 순",
+                    "🚨 입찰 마감임박(D-Day) 빠른 순",
+                    "🏛️ 기초금액 대형 공사 순"
+                ],
+                index=0,
+                key="v105_sort_criteria"
+            )
+
+        working_pool = list(pool)
+        if "순기대수익" in sort_criteria:
+            working_pool.sort(key=lambda x: float(x.get("기초금액", 0)), reverse=True)
+        elif "마감임박" in sort_criteria:
+            working_pool.sort(key=lambda x: str(x.get("마감일시", "9999")))
+        elif "대형 공사" in sort_criteria:
+            working_pool.sort(key=lambda x: float(x.get("기초금액", 0)), reverse=True)
+
+        if "상위 6건" in compare_mode:
+            active_vault_items = working_pool[:6]
+            grid_col_css = "repeat(3, 1fr)"
+            iframe_h = 820
+        elif "상위 8건" in compare_mode:
+            active_vault_items = working_pool[:8]
+            grid_col_css = "repeat(4, 1fr)"
+            iframe_h = 840
+        elif "장바구니 연동" in compare_mode:
+            sel_lbls = st.session_state.get("bid_cart_selected", [])
+            matched = [
+                it for it in working_pool
+                if f"[{it.get('공고번호', '')}] {it.get('공고명', '')} ({it.get('기초금액', 0):,.0f}원)" in sel_lbls
+            ]
+            active_vault_items = matched if matched else working_pool[:4]
+            cnt_v = len(active_vault_items)
+            grid_col_css = "repeat(4, 1fr)" if cnt_v >= 7 else ("repeat(3, 1fr)" if cnt_v >= 5 else "repeat(2, 1fr)")
+            iframe_h = 840 if cnt_v > 4 else 790
+        else:
+            active_vault_items = working_pool[:4]
+            grid_col_css = "repeat(2, 1fr)"
+            iframe_h = 790
+
+        st.session_state["v105_active_compare_count"] = len(active_vault_items)
+
         gem_badges = [
             ("👑 ROYAL CROWN VAULT", "#facc15", "rgba(250,204,21,0.16)"),
             ("💎 DIAMOND CORE VAULT", "#38bdf8", "rgba(56,189,248,0.16)"),
             ("🟢 EMERALD DEEP VAULT", "#34d399", "rgba(52,211,153,0.16)"),
-            ("🔮 AMETHYST ARCANE VAULT", "#c084fc", "rgba(192,132,252,0.16)")
+            ("🔮 AMETHYST ARCANE VAULT", "#c084fc", "rgba(192,132,252,0.16)"),
+            ("🌹 RUBY CRIMSON VAULT", "#fb7185", "rgba(251,113,133,0.16)"),
+            ("💠 SAPPHIRE AERO VAULT", "#60a5fa", "rgba(96,165,250,0.16)"),
+            ("🔥 TOPAZ SOLAR VAULT", "#fb923c", "rgba(251,146,60,0.16)"),
+            ("⚡ PLATINUM QUANTUM VAULT", "#2dd4bf", "rgba(45,212,191,0.16)")
         ]
 
         total_treasure_profit = 0
         total_treasure_bid = 0
 
-        for idx, it in enumerate(pool[:4]):
+        for idx, it in enumerate(active_vault_items):
             b_amt = float(it.get("기초금액", 3605411000) or 3605411000)
             a_amt = float(it.get("A값", 170640956) or 170640956)
             l_rt = float(it.get("낙찰하한율", 87.745) or 87.745) / 100.0
@@ -4787,8 +4915,8 @@ function jumpFromIso(targetKey) {
     }}
     .chests-grid {{
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 14px;
+        grid-template-columns: {grid_col_css};
+        gap: 12px;
         perspective: 900px;
     }}
     .chest-card {{
@@ -4964,7 +5092,7 @@ function jumpFromIso(targetKey) {
             <div class="sonar-status-box">
                 <div style="color:#34d399;font-weight:800;margin-bottom:3px;">📡 GOLDEN SONAR TELEMETRY</div>
                 • 전체 투찰 인양 규모: <b style="color:#fff;">{total_treasure_bid:,.0f} 원</b><br>
-                • 락온(Lock-On) 타겟: <b style="color:#fde047;">4개 황금 어장 포착 완료</b><br>
+                • 락온(Lock-On) 타겟: <b style="color:#fde047;">{len(active_vault_items)}개 황금 어장 동시 비교 중</b><br>
                 • 양자 방어 결계: <b style="color:#38bdf8;">하한선 미달 리스크 0.00%</b>
             </div>
         </div>
@@ -5152,7 +5280,7 @@ drawSonar();
 </body>
 </html>"""
 
-        components.html(treasure_island_html, height=860, scrolling=False)
+        components.html(treasure_island_html, height=iframe_h, scrolling=False)
 
     except Exception as _ti_err:
         st.info(f"4D 아이소메트릭 보물섬 UI 준비 완료 ({_ti_err})")
@@ -5219,6 +5347,58 @@ def render_phase9_bidding_machine_workstation():
                 "마감일시": "2026-11-16 15:00",
                 "목표사정률": 100.080,
                 "필요기술자": 2,
+            },
+            {
+                "공고번호": "202611-04512",
+                "공고명": "속초 해양문화복합센터 신축 및 부대공사",
+                "발주처": "강원특별자치도 속초시",
+                "업종": "건축공사업",
+                "지역": "강원특별자치도",
+                "기초금액": 5180000000,
+                "A값": 248000000,
+                "낙찰하한율": 87.745,
+                "마감일시": "2026-11-18 14:00",
+                "목표사정률": 100.105,
+                "필요기술자": 2,
+            },
+            {
+                "공고번호": "202611-05190",
+                "공고명": "동해 스마트 그린산단 통합관제센터 건립",
+                "발주처": "강원특별자치도 동해시",
+                "업종": "건축공사업",
+                "지역": "강원특별자치도",
+                "기초금액": 3890000000,
+                "A값": 182000000,
+                "낙찰하한율": 87.745,
+                "마감일시": "2026-11-20 10:00",
+                "목표사정률": 99.985,
+                "필요기술자": 2,
+            },
+            {
+                "공고번호": "202611-06208",
+                "공고명": "홍천 국민체육센터 수영장 증축 및 리모델링",
+                "발주처": "강원특별자치도 홍천군",
+                "업종": "건축공사업",
+                "지역": "강원특별자치도",
+                "기초금액": 4470000000,
+                "A값": 209000000,
+                "낙찰하한율": 87.745,
+                "마감일시": "2026-11-23 15:00",
+                "목표사정률": 100.060,
+                "필요기술자": 2,
+            },
+            {
+                "공고번호": "202611-07815",
+                "공고명": "삼척 도계광산지역 공공임대주택 건립공사",
+                "발주처": "강원특별자치도 삼척시",
+                "업종": "건축공사업",
+                "지역": "강원특별자치도",
+                "기초금액": 7420000000,
+                "A값": 356000000,
+                "낙찰하한율": 87.745,
+                "마감일시": "2026-11-25 14:00",
+                "목표사정률": 100.135,
+                "필요기술자": 3,
             },
         ]
 
