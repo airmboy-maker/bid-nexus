@@ -4561,7 +4561,7 @@ def render_phase8_treasure_island_ui():
     </div>
 
     <div class="iso-grid">
-        <div class="iso-cube" style="--c-main:#38bdf8; --c-dark:#0284c7; --c-glow:rgba(56,189,248,0.28); --delay:0s;">
+        <div class="iso-cube" onclick="jumpFromIso('STAGE_1')" title="클릭 시 상단 1단계로 이동" style="--c-main:#38bdf8; --c-dark:#0284c7; --c-glow:rgba(56,189,248,0.28); --delay:0s;">
             <span class="cube-step">CORE 01</span><span class="cube-icon">🏢</span>
             <div class="cube-title">기업 매핑 & 6대 정밀탭</div>
             <div class="cube-desc">5개년 실적·경영상태 자동 매핑 및 적격 30점 즉시 판정</div>
@@ -4569,7 +4569,7 @@ def render_phase8_treasure_island_ui():
             <div class="cube-stat"><span>ACCURACY</span><span>100% SYNC</span></div>
         </div>
 
-        <div class="iso-cube" style="--c-main:#34d399; --c-dark:#059669; --c-glow:rgba(52,211,153,0.28); --delay:0.4s;">
+        <div class="iso-cube" onclick="jumpFromIso('02. 장바구니')" title="클릭 시 BAY 02 장바구니로 즉시 이동" style="--c-main:#34d399; --c-dark:#059669; --c-glow:rgba(52,211,153,0.28); --delay:0.4s;">
             <span class="cube-step">CORE 02</span><span class="cube-icon">🛒</span>
             <div class="cube-title">멀티 장바구니 & 공동도급</div>
             <div class="cube-desc">공고 직접 등록 · 공동도급 시뮬레이션 · 결재 품의서 출력</div>
@@ -4577,7 +4577,7 @@ def render_phase8_treasure_island_ui():
             <div class="cube-stat"><span>PORTFOLIO</span><span>4 VAULTS</span></div>
         </div>
 
-        <div class="iso-cube" style="--c-main:#2dd4bf; --c-dark:#0d9488; --c-glow:rgba(45,212,191,0.28); --delay:0.8s;">
+        <div class="iso-cube" onclick="jumpFromIso('07. 텔레그램')" title="클릭 시 BAY 07 텔레그램으로 즉시 이동" style="--c-main:#2dd4bf; --c-dark:#0d9488; --c-glow:rgba(45,212,191,0.28); --delay:0.8s;">
             <span class="cube-step">CORE 03</span><span class="cube-icon">📲</span>
             <div class="cube-title">텔레그램 직통 신탁 & ROI</div>
             <div class="cube-desc">투찰가·추천번호 텔레그램 즉시 발송 및 연말 수주 트래킹</div>
@@ -4585,7 +4585,7 @@ def render_phase8_treasure_island_ui():
             <div class="cube-stat"><span>WEBHOOK</span><span>LIVE ARMED</span></div>
         </div>
 
-        <div class="iso-cube" style="--c-main:#fb7185; --c-dark:#e11d48; --c-glow:rgba(251,113,133,0.28); --delay:1.2s;">
+        <div class="iso-cube" onclick="jumpFromIso('05. 발주처')" title="클릭 시 BAY 05 핀셋저격기로 즉시 이동" style="--c-main:#fb7185; --c-dark:#e11d48; --c-glow:rgba(251,113,133,0.28); --delay:1.2s;">
             <span class="cube-step">CORE 04</span><span class="cube-icon">🎯</span>
             <div class="cube-title">발주처 프리셋 & 경쟁사 저격</div>
             <div class="cube-desc">발주처 재무관 성향 프리셋 및 라이벌 투찰 습관 핀셋 저격</div>
@@ -4593,7 +4593,7 @@ def render_phase8_treasure_island_ui():
             <div class="cube-stat"><span>SNIPER EDGE</span><span>+0.006%p</span></div>
         </div>
 
-        <div class="iso-cube" style="--c-main:#c084fc; --c-dark:#9333ea; --c-glow:rgba(192,132,252,0.28); --delay:0.2s;">
+        <div class="iso-cube" onclick="jumpFromIso('04. 특이점')" title="클릭 시 BAY 04 특이점 양자계단으로 즉시 이동" style="--c-main:#c084fc; --c-dark:#9333ea; --c-glow:rgba(192,132,252,0.28); --delay:0.2s;">
             <span class="cube-step">CORE 05</span><span class="cube-icon">🌌</span>
             <div class="cube-title">특이점(Singularity) 양자 락</div>
             <div class="cube-desc">G2B 1,365개 원단위 양자계단 락 & 인간 클릭편향 역공학</div>
@@ -4601,7 +4601,7 @@ def render_phase8_treasure_island_ui():
             <div class="cube-stat"><span>STEP LOCK</span><span>1,365 FULL</span></div>
         </div>
 
-        <div class="iso-cube" style="--c-main:#fb923c; --c-dark:#ea580c; --c-glow:rgba(251,146,60,0.28); --delay:0.6s;">
+        <div class="iso-cube" onclick="jumpFromIso('06. 개찰복기')" title="클릭 시 BAY 06 개찰복기로 즉시 이동" style="--c-main:#fb923c; --c-dark:#ea580c; --c-glow:rgba(251,146,60,0.28); --delay:0.6s;">
             <span class="cube-step">CORE 06</span><span class="cube-icon">🏁</span>
             <div class="cube-title">개찰 복기 & 1원 자가교정</div>
             <div class="cube-desc">실제 개찰 하한선 1원 단위 차액 검증 및 오차 자동 역학습</div>
@@ -4609,7 +4609,7 @@ def render_phase8_treasure_island_ui():
             <div class="cube-stat"><span>BACKTEST</span><span>±0.002%p</span></div>
         </div>
 
-        <div class="iso-cube" style="--c-main:#f472b6; --c-dark:#db2777; --c-glow:rgba(244,114,182,0.28); --delay:1.0s;">
+        <div class="iso-cube" onclick="jumpFromIso('03. 판도라')" title="클릭 시 BAY 03 판도라 X10 산통으로 즉시 이동" style="--c-main:#f472b6; --c-dark:#db2777; --c-glow:rgba(244,114,182,0.28); --delay:1.0s;">
             <span class="cube-step">CORE 07</span><span class="cube-icon">🔮</span>
             <div class="cube-title">판도라 X10 만다라 산통</div>
             <div class="cube-desc">카오스 나비 끌개 · 황금비(Φ) 공명 · 만다라 4대 신탁 추첨</div>
@@ -4627,7 +4627,26 @@ def render_phase8_treasure_island_ui():
     </div>
 
     <div class="flow-ribbon">
-        <div>🌈 <b>4D 인포그래픽 워크플로우 가이드</b> : 각 입체 타일에 마우스를 올리면 4차원 원근 틸트(Tilt) 반응이 작동합니다.</div>
+        <div>🌈 <b>4D 인터랙티브 가이드</b> : 위 8개 입체 타일 중 원하는 코어를 클릭하면 즉시 해당 워크스테이션(BAY)으로 전환됩니다.</div>
+<script>
+function jumpFromIso(targetKey) {
+    try {
+        const parentDoc = window.parent.document;
+        if (targetKey === 'STAGE_1') {
+            window.parent.scrollTo({top: 0, behavior: 'smooth'});
+            return;
+        }
+        const allBtns = parentDoc.querySelectorAll('button');
+        for (let b of allBtns) {
+            if (b.innerText && b.innerText.includes(targetKey)) {
+                b.click();
+                return;
+            }
+        }
+    } catch (e) {}
+}
+</script>
+
         <div style="font-family:'Orbitron',sans-serif;color:#fde047;font-weight:900;">15C4 = 1,365 QUANTUM MATRIX // VISUALIZED</div>
     </div>
 </div>
@@ -4875,15 +4894,29 @@ def render_phase8_treasure_island_ui():
         gap: 8px;
     }}
     .step-node {{
-        background: rgba(30, 41, 59, 0.78);
-        border: 1px solid rgba(56, 189, 248, 0.4);
-        border-bottom: 3px solid #38bdf8;
+        background: rgba(30, 41, 59, 0.85);
+        border: 1px solid rgba(56, 189, 248, 0.5);
+        border-bottom: 4px solid #38bdf8;
         border-radius: 10px;
         padding: 9px 4px;
         text-align: center;
-        font-size: 11px;
-        font-weight: 700;
-        color: #e2e8f0;
+        font-size: 11.5px;
+        font-weight: 800;
+        color: #f8fafc;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }}
+    .step-node:hover {{
+        background: linear-gradient(135deg, #0284c7, #6366f1);
+        border-color: #fde047;
+        border-bottom-color: #facc15;
+        color: #ffffff;
+        transform: translateY(-4px) scale(1.03);
+        box-shadow: 0 8px 20px rgba(250, 204, 21, 0.45);
+    }}
+    .step-node:active {{
+        transform: translateY(1px);
     }}
     .step-node span {{
         display: block;
@@ -4941,14 +4974,22 @@ def render_phase8_treasure_island_ui():
         </div>
     </div>
 
+    <div id="toastBanner" style="
+        display:none;position:fixed;top:18px;left:50%;transform:translateX(-50%);
+        background:linear-gradient(90deg, #059669, #0284c7, #7c3aed);
+        border:2px solid #fde047;color:#ffffff;padding:10px 24px;border-radius:999px;
+        font-weight:900;font-size:13px;z-index:9999;
+        box-shadow:0 0 30px rgba(250,204,21,0.75);white-space:nowrap;
+    "></div>
+
     <div class="pipeline-bar">
-        <div class="step-node"><span>STAGE 01</span>🏢 기업·6대정밀탭</div>
-        <div class="step-node"><span>STAGE 02</span>🛒 멀티장바구니</div>
-        <div class="step-node"><span>STAGE 03</span>📲 텔레그램신탁</div>
-        <div class="step-node"><span>STAGE 04</span>🎯 핀셋저격기</div>
-        <div class="step-node"><span>STAGE 05</span>🌌 특이점양자락</div>
-        <div class="step-node"><span>STAGE 06</span>🏁 1원오차복기</div>
-        <div class="step-node" style="border-color:#facc15;border-bottom-color:#f59e0b;background:rgba(250,204,21,0.18);"><span>STAGE 07·08</span>👑 4D보물섬</div>
+        <div class="step-node" onclick="jumpToStage('STAGE_1', this)" title="상단 1단계 기업·6대 정밀탭으로 스크롤 이동"><span>STAGE 01 ↗</span>🏢 기업·6대정밀탭</div>
+        <div class="step-node" onclick="jumpToStage('02. 장바구니', this)" title="클릭 시 [BAY 02 멀티장바구니] 즉시 오픈"><span>STAGE 02 ⚡</span>🛒 멀티장바구니</div>
+        <div class="step-node" onclick="jumpToStage('07. 텔레그램', this)" title="클릭 시 [BAY 07 텔레그램신탁] 즉시 오픈"><span>STAGE 03 ⚡</span>📲 텔레그램신탁</div>
+        <div class="step-node" onclick="jumpToStage('05. 발주처', this)" title="클릭 시 [BAY 05 핀셋저격기] 즉시 오픈"><span>STAGE 04 ⚡</span>🎯 핀셋저격기</div>
+        <div class="step-node" onclick="jumpToStage('04. 특이점', this)" title="클릭 시 [BAY 04 특이점양자락] 즉시 오픈"><span>STAGE 05 ⚡</span>🌌 특이점양자락</div>
+        <div class="step-node" onclick="jumpToStage('06. 개찰복기', this)" title="클릭 시 [BAY 06 1원오차복기] 즉시 오픈"><span>STAGE 06 ⚡</span>🏁 1원오차복기</div>
+        <div class="step-node" onclick="jumpToStage('03. 판도라', this)" style="border-color:#facc15;border-bottom-color:#f59e0b;background:rgba(250,204,21,0.18);" title="클릭 시 [BAY 03 판도라 산통] 즉시 오픈"><span>STAGE 07·08 ⚡</span>🔮 판도라산통 전환</div>
     </div>
 
     <div class="grand-footer">
@@ -4963,10 +5004,31 @@ def render_phase8_treasure_island_ui():
 </div>
 
 <script>
-function copyVault(txt, btnEl) {{
-    if (navigator.clipboard) {{
-        navigator.clipboard.writeText(txt);
+function showToast(msg) {{
+    const tb = document.getElementById('toastBanner');
+    if (tb) {{
+        tb.innerText = msg;
+        tb.style.display = 'block';
+        setTimeout(() => {{ tb.style.display = 'none'; }}, 2200);
     }}
+}}
+
+function copyVault(txt, btnEl) {{
+    try {{
+        const ta = document.createElement('textarea');
+        ta.value = txt;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        if (navigator.clipboard && navigator.clipboard.writeText) {{
+            navigator.clipboard.writeText(txt).catch(() => {{}});
+        }}
+    }} catch (e) {{}}
+
+    showToast("👑 [복사 완료] " + txt);
     const orig = btnEl.innerText;
     btnEl.innerText = "✅ 클립보드에 황금좌표 복사 완료!";
     btnEl.style.background = "#10b981";
@@ -4976,6 +5038,31 @@ function copyVault(txt, btnEl) {{
         btnEl.style.background = "";
         btnEl.style.color = "";
     }}, 1800);
+}}
+
+function jumpToStage(targetKey, el) {{
+    if (el) {{
+        el.style.background = "linear-gradient(90deg, #eab308, #facc15)";
+        el.style.color = "#020617";
+    }}
+    try {{
+        const parentDoc = window.parent.document;
+        if (targetKey === 'STAGE_1') {{
+            showToast("🏢 상단 1단계 [기업 매핑 & 6대 정밀탭] 영역으로 이동합니다!");
+            window.parent.scrollTo({{top: 0, behavior: 'smooth'}});
+            return;
+        }}
+        const allBtns = parentDoc.querySelectorAll('button');
+        for (let b of allBtns) {{
+            if (b.innerText && b.innerText.includes(targetKey)) {{
+                showToast("⚡ [" + targetKey + "] 워크스테이션으로 즉시 전환합니다!");
+                b.click();
+                return;
+            }}
+        }}
+    }} catch (err) {{
+        showToast("⚡ 상단 BAY 스위치에서 [" + targetKey + "] 탭을 선택해 주세요.");
+    }}
 }}
 
 const canvas = document.getElementById('sonarCanvas');
