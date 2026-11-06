@@ -2062,8 +2062,8 @@ def render_phase2_multi_bid_cart():
 
     try:
         st.markdown("---")
-        st.markdown("## 🛒 [2단계] 복수 입찰공고 장바구니(Multi-Bid Cart) & 실무 전자동화 터미널")
-        st.caption("① 신규 공고 수동 직접 등록 ➔ ② 15개 복수예가 번호 4개 추첨기 ➔ ③ 마감 D-Day 카운트다운 경보 배지 ➔ ④ 공동도급·AI 학습·결재 리포트를 통합 지원합니다.")
+        st.markdown("## 🛒 [BAY 2] 멀티 입찰공고 장바구니 & 공동도급 전자동 터미널")
+        st.caption("신규 공고 직접 등록 · 15C4 번호 4개 추첨 · D-Day 카운트다운 · 공동도급 및 결재 품의서를 한 화면에서 통합 제어합니다.")
 
         default_notices = [
             {
@@ -2150,7 +2150,7 @@ def render_phase2_multi_bid_cart():
                 st.rerun()
 
         with st.expander("➕ [실무 기능 ①] 신규 나라장터 입찰공고 직접 입력 및 장바구니 즉시 추가", expanded=False):
-            st.caption("오늘 나라장터에 새로 공고된 실제 입찰 건의 기초금액·A값·하한율을 직접 입력하면 최적 투찰가 산출 및 텔레그램 브리핑에 즉시 포함됩니다.")
+            st.caption("신규 나라장터 공고의 기초금액·A값·하한율을 입력하면 최적 투찰가 산출 및 텔레그램 브리핑에 즉시 반영됩니다.")
             f_c1, f_c2, f_c3, f_c4 = st.columns([1.1, 2.0, 1.5, 1.2])
             new_no = f_c1.text_input("공고번호", value="202611-09901", key="inp_new_no")
             new_title = f_c2.text_input("공고명", value="춘천 교육도서관 내진보강 및 리모델링 공사", key="inp_new_title")
@@ -2338,7 +2338,7 @@ def render_phase2_multi_bid_cart():
         st.markdown("#### 🎰 2-1. [실무 기능 ②] 나라장터 투찰 화면용 15개 복수예가 '최빈 행운 번호 4개' AI 추첨기")
         lk_c1, lk_c2 = st.columns([3.2, 1.0])
         with lk_c1:
-            st.caption("나라장터(G2B) 최종 투찰서 제출 시 선택해야 하는 **1번~15번 예비가격 번호 중 각 공고의 목표 사정률에 가장 근접하게 수렴하는 4개 번호 조합**입니다.")
+            st.caption("나라장터(G2B) 최종 투찰 시 체크할 **1번~15번 예비가격 중 목표 사정률에 가장 근접한 핵심 번호 4개 조합**입니다.")
         with lk_c2:
             if st.button("🎲 번호 4개 조합 재추첨 (시드 변경)", use_container_width=True, key="btn_reroll_lucky4"):
                 st.session_state["lucky_seed_offset"] = int(st.session_state.get("lucky_seed_offset", 0)) + 1
@@ -2439,8 +2439,8 @@ def render_phase3_webhook_and_tracker():
 
     try:
         st.markdown("---")
-        st.markdown("## 🔔 [3단계] 입찰 마감 D-Day 알림 웹훅(Telegram/Slack) & 연간 수주 목표 트래커")
-        st.caption("Streamlit Cloud Secrets 영구 환경변수 연동 및 텔레그램 Chat ID 원클릭 자동 조회를 지원합니다.")
+        st.markdown("## 📲 [BAY 7] 텔레그램 실시간 투찰가 브리핑 & 연간 수주 목표 트래커")
+        st.caption("텔레그램 실시간 투찰가·추천번호 발송 및 2026년 연간 수주 목표 달성률을 한눈에 관리합니다.")
 
         pool = st.session_state.get("bid_cart_pool", [])
         if not pool:
@@ -2667,8 +2667,8 @@ def render_phase4_quantum_ai_engine():
 
     try:
         st.markdown("---")
-        st.markdown("## 🧠 [초고도화 v4.5] BID-NEXUS 퀀텀 AI 사정 엔진 · 발주처 프리셋 & 경쟁사 핀셋 저격기")
-        st.caption("① 1,365개(15C4) 전수 역추적 ② 주요 발주처 재무관 성향 프리셋(보수/중립/상향) ③ 특정 경쟁사 투찰 습관 핀셋 저격(Sniper) 알고리즘을 통합 가동합니다.")
+        st.markdown("## 🎯 [BAY 5] 발주처 재무관 성향 프리셋 & 경쟁사 투찰 습관 핀셋 저격기")
+        st.caption("1,365개(15C4) 전수 시뮬레이션 · 발주처 재무관 성향 프리셋 · 경쟁사 핀셋 저격(Sniper) 알고리즘을 통합 가동합니다.")
 
         pool = st.session_state.get("bid_cart_pool", [])
         if not pool:
@@ -3027,11 +3027,7 @@ drawQ45();
 </html>"""
         components.html(q45_kinetic_html, height=345, scrolling=False)
 
-        st.info(
-            f"💡 **[퀀텀 AI & 핀셋 저격 종합 결론]** 발주처 프리셋(`{sel_preset_name[:12]}...`)과 경쟁사 저격 분석을 결합한 결과, "
-            f"타겟 사정률(`{active_target_rate:.4f}%`) 달성을 위해 나라장터 투찰 시 체크해야 할 **최적 복수예가 번호 4개는 "
-            f"`🎯 {top4_slots[0]}번 · {top4_slots[1]}번 · {top4_slots[2]}번 · {top4_slots[3]}번`** 입니다."
-        )
+        st.info(f"💡 **[퀀텀 저격 결론]** 프리셋(`{sel_preset_name[:10]}`)·저격 분석 결합 시 타겟 사정률(`{active_target_rate:.4f}%`) 달성 최적 예가번호는 **`🎯 {top4_slots[0]}·{top4_slots[1]}·{top4_slots[2]}·{top4_slots[3]}번`** 입니다.")
 
     except Exception as _q_err:
         st.info(f"퀀텀 AI 사정 엔진 준비 완료 ({_q_err})")
@@ -3050,8 +3046,8 @@ def render_phase5_singularity_engine():
 
     try:
         st.markdown("---")
-        st.markdown("## 🌌 [특이점 v5.0] 로또를 넘어선 4대 파격 추론 'Singularity(특이점)' 초정밀 사정 엔진")
-        st.caption("기존 통계학이 보지 못한 ① G2B 원단위 절사 양자화 계단 역공학 ② 인간 1~15번 클릭 심리 편향 ③ 11~12월 회계연도 불용예산 압박 지수 ④ 비대칭 소수점 웨지(Wedge) 타격을 결합한 독자 AI 추론 모델입니다.")
+        st.markdown("## 🌌 [BAY 4] 특이점(Singularity) G2B 원단위 양자계단 락 & 인간 클릭편향 엔진")
+        st.caption("G2B 원단위 절사 양자화 계단(1,365 Step) · 인간 1~15번 클릭 편향 · 연말 예산 드리프트 · +17원 웨지를 결합한 초정밀 모델입니다.")
 
         pool = st.session_state.get("bid_cart_pool", [])
         if not pool:
@@ -3198,10 +3194,7 @@ def render_phase5_singularity_engine():
         # 원클릭 적용 버튼 및 해설
         ap_c1, ap_c2 = st.columns([2.8, 1.2])
         with ap_c1:
-            st.success(
-                f"🌌 **[특이점 추론 해독 완료]** 허공의 평균값이 아니라 조달청 원단위 절사 수식상 실제 존재하는 **#{nearest_step_idx+1}번 양자화 계단(`예정가격 {comb_exact_est_prices[nearest_step_idx]:,.0f}원`)** 위에 정확히 착지시켰으며, "
-                f"동가 추첨 및 하한선 미달 탈락을 동시에 막는 **`+17원` 비대칭 웨지(`{singularity_bid:,.0f}원`)**와 **최적 번호 `🎯 {best_4_comb[0]}번 · {best_4_comb[1]}번 · {best_4_comb[2]}번 · {best_4_comb[3]}번`**을 도출했습니다."
-            )
+            st.success(f"🌌 **[특이점 해독]** #{nearest_step_idx+1}번 양자계단(`예가 {comb_exact_est_prices[nearest_step_idx]:,.0f}원`) +17원 웨지(`{singularity_bid:,.0f}원`) 착지 완료 | 최적번호: **`🎯 {best_4_comb[0]}·{best_4_comb[1]}·{best_4_comb[2]}·{best_4_comb[3]}번`**")
         with ap_c2:
             if st.button("🌌 특이점(v5.0) 사정률을 공고에 즉시 각인", use_container_width=True, key="btn_apply_sg5"):
                 pool[sel_idx]["목표사정률"] = round(singularity_rate, 4)
@@ -3510,8 +3503,8 @@ def render_phase6_backtesting_terminal():
 
     try:
         st.markdown("---")
-        st.markdown("## 🎯 [복기·검증 v5.5] 실제 개찰 결과 복기(Backtesting) & 1원 오차 자가교정(Auto-Tune) 터미널")
-        st.caption("개찰이 끝난 공고의 '실제 확정 사정률(%)'을 입력하면, 기존 단순평균 프로그램 vs v4.5 저격기 vs v5.0 특이점 엔진이 실제 낙찰하한선에 몇 원 차이까지 근접했는지 검증하고 오차를 다음 입찰에 역학습시킵니다.")
+        st.markdown("## 🏁 [BAY 6] 실제 개찰 결과 복기(Backtesting) & 1원 오차 자가교정(Auto-Tune)")
+        st.caption("개찰 확정 사정률(%) 입력 즉시 실제 낙찰하한선 대비 1원 단위 차액을 검증하고 오차를 다음 입찰에 자동 역학습시킵니다.")
 
         pool = st.session_state.get("bid_cart_pool", [])
         if not pool:
@@ -3742,8 +3735,8 @@ def render_phase7_pandora_akashic_core():
 
     try:
         st.markdown("---")
-        st.markdown("## 🔮 [초월 v6.0] PANDORA AKASHIC CORE : 형이상학 X10 심미안 & 홀로그래픽 산통(算筒)")
-        st.caption("① 로렌츠 카오스 기묘한 끌개(Strange Attractor) ② 황금비(Φ=1.618) 피보나치 공명 ③ 양자 파동함수(|Ψ|²) 보강간섭 붕괴 ④ 소수(Prime) 엔트로피 15각 만다라 신탁을 결합한 궁극의 시각적·수리철학적 사정 엔진입니다.")
+        st.markdown("## 🔮 [BAY 3] 판도라 아카식 코어(X10) : 카오스 끌개 & 15각 만다라 홀로그래픽 산통")
+        st.caption("로렌츠 카오스 나비 끌개 · 황금비(Φ=1.618) 공명 · 양자 파동함수(|Ψ|²) 붕괴로 만다라 4대 신탁 번호와 투찰가를 도출합니다.")
 
         pool = st.session_state.get("bid_cart_pool", [])
         if not pool:
@@ -4121,11 +4114,7 @@ drawMandala();
 
         p_btn1, p_btn2 = st.columns([2.6, 1.4])
         with p_btn1:
-            st.info(
-                f"🔮 **[판도라 심미안 해독]** 카오스 끌개 변위(`{lorenz_phase_shift:+.4f}%p`)와 황금비 사각지대(`{golden_void_offset:+.4f}%p`)가 교차하는 "
-                f"**`{pandora_rate:.5f}%` (`{pandora_bid_won:,.0f}원`)** 지점에서 양자 보강간섭이 최고조에 달했습니다. "
-                f"만다라 산통이 점지한 4대 번호는 **`🎯 {n1}번 · {n2}번 · {n3}번 · {n4}번`** 입니다."
-            )
+            st.info(f"🔮 **[판도라 해독]** 카오스(`{lorenz_phase_shift:+.4f}%p`)·황금비(`{golden_void_offset:+.4f}%p`) 교차점 **`{pandora_rate:.5f}%` (`{pandora_bid_won:,.0f}원`)** | 만다라 신탁: **`🎯 {n1}·{n2}·{n3}·{n4}번`**")
         with p_btn2:
             st.write("")
             if st.button("🔮 판도라 X10 초월 사정률을 전 시스템에 즉시 각인", use_container_width=True, key="btn_apply_pandora_v6"):
@@ -4405,8 +4394,8 @@ def render_phase8_treasure_island_ui():
 
         # 2. [신규 4D 아이소메트릭 인포그래픽 아키텍처 맵] 전체 8단계 메뉴와 입찰 흐름을 한눈에 이해시키는 다채로운 4D 입체 조감도
         st.markdown("---")
-        st.markdown("## 🏛️ [4D 인포그래픽 v8.0] HYPER-ISOMETRIC COMMAND CITY : 한눈에 보는 입찰 사정 8대 아키텍처")
-        st.caption("복잡한 입찰 공학 알고리즘을 누구나 직관적으로 이해할 수 있도록 6색 프리즘 컬러와 4D 아이소메트릭(Isometric) 입체 조감도로 시각화한 인포그래픽 지휘소입니다.")
+        st.markdown("## 🏛️ [BAY 1-A] 4D 아이소메트릭 인포그래픽 시티 : 한눈에 보는 8대 코어 아키텍처")
+        st.caption("입찰 데이터 수집부터 양자 파동붕괴·보물 인양까지 8단계 핵심 공정을 6색 프리즘 4D 입체 타일로 한눈에 조망합니다.")
 
         iso_infographic_html = """<!DOCTYPE html>
 <html>
@@ -4517,6 +4506,9 @@ def render_phase8_treasure_island_ui():
         color: #cbd5e1;
         line-height: 1.45;
         margin-bottom: 10px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .infographic-bar {
         width: 100%;
@@ -4572,7 +4564,7 @@ def render_phase8_treasure_island_ui():
         <div class="iso-cube" style="--c-main:#38bdf8; --c-dark:#0284c7; --c-glow:rgba(56,189,248,0.28); --delay:0s;">
             <span class="cube-step">CORE 01</span><span class="cube-icon">🏢</span>
             <div class="cube-title">기업 매핑 & 6대 정밀탭</div>
-            <div class="cube-desc">사업자번호 기반 5개년 실적·경영상태·기술자 자동 매핑 및 적격심사 30점 만점 판정</div>
+            <div class="cube-desc">5개년 실적·경영상태 자동 매핑 및 적격 30점 즉시 판정</div>
             <div class="infographic-bar"><div class="infographic-fill" style="width:100%;"></div></div>
             <div class="cube-stat"><span>ACCURACY</span><span>100% SYNC</span></div>
         </div>
@@ -4580,7 +4572,7 @@ def render_phase8_treasure_island_ui():
         <div class="iso-cube" style="--c-main:#34d399; --c-dark:#059669; --c-glow:rgba(52,211,153,0.28); --delay:0.4s;">
             <span class="cube-step">CORE 02</span><span class="cube-icon">🛒</span>
             <div class="cube-title">멀티 장바구니 & 공동도급</div>
-            <div class="cube-desc">신규 공고 직접 등록, 컨소시엄 지분율 시뮬레이션, 마감 D-Day 경보 및 결재 품의서</div>
+            <div class="cube-desc">공고 직접 등록 · 공동도급 시뮬레이션 · 결재 품의서 출력</div>
             <div class="infographic-bar"><div class="infographic-fill" style="width:96%;"></div></div>
             <div class="cube-stat"><span>PORTFOLIO</span><span>4 VAULTS</span></div>
         </div>
@@ -4588,7 +4580,7 @@ def render_phase8_treasure_island_ui():
         <div class="iso-cube" style="--c-main:#2dd4bf; --c-dark:#0d9488; --c-glow:rgba(45,212,191,0.28); --delay:0.8s;">
             <span class="cube-step">CORE 03</span><span class="cube-icon">📲</span>
             <div class="cube-title">텔레그램 직통 신탁 & ROI</div>
-            <div class="cube-desc">원클릭 텔레그램 모바일 브리핑(투찰가+추천번호 4개) 발송 및 연간 수주 달성률 추적</div>
+            <div class="cube-desc">투찰가·추천번호 텔레그램 즉시 발송 및 연말 수주 트래킹</div>
             <div class="infographic-bar"><div class="infographic-fill" style="width:98%;"></div></div>
             <div class="cube-stat"><span>WEBHOOK</span><span>LIVE ARMED</span></div>
         </div>
@@ -4596,7 +4588,7 @@ def render_phase8_treasure_island_ui():
         <div class="iso-cube" style="--c-main:#fb7185; --c-dark:#e11d48; --c-glow:rgba(251,113,133,0.28); --delay:1.2s;">
             <span class="cube-step">CORE 04</span><span class="cube-icon">🎯</span>
             <div class="cube-title">발주처 프리셋 & 경쟁사 저격</div>
-            <div class="cube-desc">교육청·지자체 재무관 성향 바이어스 탑재 및 특정 라이벌 업체 투찰 습관 핀셋 카운터</div>
+            <div class="cube-desc">발주처 재무관 성향 프리셋 및 라이벌 투찰 습관 핀셋 저격</div>
             <div class="infographic-bar"><div class="infographic-fill" style="width:95%;"></div></div>
             <div class="cube-stat"><span>SNIPER EDGE</span><span>+0.006%p</span></div>
         </div>
@@ -4604,7 +4596,7 @@ def render_phase8_treasure_island_ui():
         <div class="iso-cube" style="--c-main:#c084fc; --c-dark:#9333ea; --c-glow:rgba(192,132,252,0.28); --delay:0.2s;">
             <span class="cube-step">CORE 05</span><span class="cube-icon">🌌</span>
             <div class="cube-title">특이점(Singularity) 양자 락</div>
-            <div class="cube-desc">G2B 원단위 절사 1,365개 양자화 계단 역공학 + 인간 1~15번 클릭 편향 + 연말 예산 드리프트</div>
+            <div class="cube-desc">G2B 1,365개 원단위 양자계단 락 & 인간 클릭편향 역공학</div>
             <div class="infographic-bar"><div class="infographic-fill" style="width:99%;"></div></div>
             <div class="cube-stat"><span>STEP LOCK</span><span>1,365 FULL</span></div>
         </div>
@@ -4612,7 +4604,7 @@ def render_phase8_treasure_island_ui():
         <div class="iso-cube" style="--c-main:#fb923c; --c-dark:#ea580c; --c-glow:rgba(251,146,60,0.28); --delay:0.6s;">
             <span class="cube-step">CORE 06</span><span class="cube-icon">🏁</span>
             <div class="cube-title">개찰 복기 & 1원 자가교정</div>
-            <div class="cube-desc">실제 개찰 사정률 입력 시 하한선 대비 1원 단위 차액 검증 및 오차 역학습(Auto-Tune)</div>
+            <div class="cube-desc">실제 개찰 하한선 1원 단위 차액 검증 및 오차 자동 역학습</div>
             <div class="infographic-bar"><div class="infographic-fill" style="width:97%;"></div></div>
             <div class="cube-stat"><span>BACKTEST</span><span>±0.002%p</span></div>
         </div>
@@ -4620,7 +4612,7 @@ def render_phase8_treasure_island_ui():
         <div class="iso-cube" style="--c-main:#f472b6; --c-dark:#db2777; --c-glow:rgba(244,114,182,0.28); --delay:1.0s;">
             <span class="cube-step">CORE 07</span><span class="cube-icon">🔮</span>
             <div class="cube-title">판도라 X10 만다라 산통</div>
-            <div class="cube-desc">로렌츠 카오스 나비 끌개 + 황금비(Φ=1.618) 사각지대 + 양자 파동붕괴 4대 신탁 번호</div>
+            <div class="cube-desc">카오스 나비 끌개 · 황금비(Φ) 공명 · 만다라 4대 신탁 추첨</div>
             <div class="infographic-bar"><div class="infographic-fill" style="width:100%;"></div></div>
             <div class="cube-stat"><span>ORACLE X10</span><span>99.4% SYNC</span></div>
         </div>
@@ -4628,7 +4620,7 @@ def render_phase8_treasure_island_ui():
         <div class="iso-cube" style="--c-main:#facc15; --c-dark:#ca8a04; --c-glow:rgba(250,204,21,0.35); --delay:1.4s;">
             <span class="cube-step">CORE 08</span><span class="cube-icon">👑</span>
             <div class="cube-title">골든 아틀란티스 보물섬</div>
-            <div class="cube-desc">360도 황금 소나(Sonar) 레이더 스캐닝 및 4대 보석 금고(Vault) 원클릭 투찰좌표 인양</div>
+            <div class="cube-desc">360도 황금 소나 레이더 스캔 및 4대 보석 금고 원클릭 인양</div>
             <div class="infographic-bar"><div class="infographic-fill" style="width:100%;"></div></div>
             <div class="cube-stat"><span>EL DORADO</span><span>TREASURE</span></div>
         </div>
@@ -4645,8 +4637,8 @@ def render_phase8_treasure_island_ui():
         components.html(iso_infographic_html, height=520, scrolling=False)
 
         # 3. 보물섬 소나 레이더 & 황금 금고 맵 (v7.5 잘림 해결본 유지)
-        st.markdown("## 👑 [엘도라도 v8.0] GOLDEN ATLANTIS : 입찰 보물섬 소나 레이더 & 황금 금고(Vault) 맵")
-        st.caption("나라장터라는 거대한 바다에서 1순위 낙찰이라는 보물을 인양하는 홀로그래픽 지휘소입니다. 각 보물상자의 [📋 황금좌표 복사] 버튼을 누르면 투찰가와 예가번호 4개가 클립보드에 즉시 복사됩니다.")
+        st.markdown("## 👑 [BAY 1-B] 골든 아틀란티스 보물섬 : 실시간 황금 소나 레이더 & 4대 보석 금고(Vault)")
+        st.caption("실시간 소나 레이더로 4대 황금 어장을 스캔하며, 각 보물상자의 [📋 황금좌표 복사] 클릭 시 투찰가와 추천번호가 즉시 복사됩니다.")
 
         chest_cards_html = ""
         gem_badges = [
@@ -5085,236 +5077,323 @@ drawSonar();
 # ==================== [PHASE 9: BIDDING MACHINE HOUSING ROUTER START] ====================
 def render_phase9_bidding_machine_workstation():
     import streamlit as st
-    import streamlit.components.v1 as components
 
-    try:
-        # 1. 입찰 머신(Bidding Machine) 하드웨어 하우징 & 컴팩트 스크롤 제로 CSS 주입
-        housing_css = """
-        <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Share+Tech+Mono&family=Noto+Sans+KR:wght@400;700;900&display=swap');
+    # 1. 장바구니 기본 풀(Pool)이 비어 있어도 첫 화면(BAY 1)이 100% 즉시 열리도록 사전 초기화 보장
+    if "bid_cart_pool" not in st.session_state or not st.session_state.get("bid_cart_pool"):
+        st.session_state["bid_cart_pool"] = [
+            {
+                "공고번호": "202611-00892",
+                "공고명": "소양초 공간재구조화 조성공사",
+                "발주처": "강원특별자치도춘천교육지원청",
+                "업종": "건축공사업",
+                "지역": "강원특별자치도",
+                "기초금액": 3605411000,
+                "A값": 170640956,
+                "낙찰하한율": 87.745,
+                "마감일시": "2026-11-07 14:00",
+                "목표사정률": 100.045,
+                "필요기술자": 2,
+            },
+            {
+                "공고번호": "202611-01205",
+                "공고명": "춘천 봉의고 미래형 교사 리모델링 및 증축",
+                "발주처": "강원특별자치도교육청",
+                "업종": "건축공사업",
+                "지역": "강원특별자치도",
+                "기초금액": 4820500000,
+                "A값": 210540000,
+                "낙찰하한율": 87.745,
+                "마감일시": "2026-11-09 14:00",
+                "목표사정률": 100.120,
+                "필요기술자": 2,
+            },
+            {
+                "공고번호": "202611-02194",
+                "공고명": "원주 무실지구 복합커뮤니티센터 신축공사",
+                "발주처": "강원특별자치도 원주시",
+                "업종": "건축공사업",
+                "지역": "강원특별자치도",
+                "기초금액": 6250000000,
+                "A값": 312000000,
+                "낙찰하한율": 87.745,
+                "마감일시": "2026-11-12 10:00",
+                "목표사정률": 99.965,
+                "필요기술자": 3,
+            },
+            {
+                "공고번호": "202611-03110",
+                "공고명": "강릉 남부권 노인종합복지관 건립공사",
+                "발주처": "강원특별자치도 강릉시",
+                "업종": "건축공사업",
+                "지역": "강원특별자치도",
+                "기초금액": 4150000000,
+                "A값": 195000000,
+                "낙찰하한율": 87.745,
+                "마감일시": "2026-11-16 15:00",
+                "목표사정률": 100.080,
+                "필요기술자": 2,
+            },
+        ]
 
-        /* 페이지 상하 여백 압축 (한 화면에 꽉 차는 하드웨어 콘솔 느낌) */
-        .block-container {
-            padding-top: 1.8rem !important;
-            padding-bottom: 1.5rem !important;
-            max-width: 1440px !important;
-        }
+    # 2. 입찰 머신 하우징 + 전 구간 한글 1줄(Single-Line) 최적화 마스터 CSS
+    housing_singleline_css = """
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Noto+Sans+KR:wght@400;600;800;900&display=swap');
 
-        /* 전체 배경: 중공업 티타늄 다크 카본 질감 */
-        .stApp {
-            background:
-                radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.12) 0%, transparent 50%),
-                linear-gradient(180deg, #050811 0%, #090d1a 50%, #04060c 100%) !important;
-        }
+    .block-container {
+        padding-top: 1.5rem !important;
+        padding-bottom: 1.2rem !important;
+        max-width: 1460px !important;
+    }
 
-        /* 분업화 워크스테이션 라디오 스위치를 '입찰 머신 물리 데크 버튼'으로 스타일링 */
-        div[role="radiogroup"] {
-            background: linear-gradient(180deg, #0f172a 0%, #060a14 100%) !important;
-            border: 2px solid rgba(56, 189, 248, 0.55) !important;
-            border-bottom: 5px solid #0284c7 !important;
-            border-radius: 16px !important;
-            padding: 10px 14px !important;
-            gap: 8px !important;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(56, 189, 248, 0.15) !important;
-            display: flex !important;
-            flex-wrap: wrap !important;
-            justify-content: space-between !important;
-        }
-        div[role="radiogroup"] > label {
-            flex: 1 1 auto !important;
-            background: linear-gradient(145deg, #1e293b, #0f172a) !important;
-            border: 1px solid rgba(148, 163, 184, 0.35) !important;
-            border-bottom: 4px solid #334155 !important;
-            border-radius: 10px !important;
-            padding: 9px 12px !important;
-            margin: 2px !important;
-            cursor: pointer !important;
-            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-            justify-content: center !important;
-        }
-        div[role="radiogroup"] > label:hover {
-            border-color: #facc15 !important;
-            border-bottom-color: #ca8a04 !important;
-            transform: translateY(-3px) !important;
-            box-shadow: 0 6px 16px rgba(250, 204, 21, 0.3) !important;
-        }
-        div[role="radiogroup"] > label[data-checked="true"],
-        div[role="radiogroup"] > label:has(input:checked) {
-            background: linear-gradient(135deg, #0284c7 0%, #4f46e5 55%, #9333ea 100%) !important;
-            border: 1.5px solid #fde047 !important;
-            border-bottom: 4px solid #facc15 !important;
-            box-shadow: 0 0 22px rgba(250, 204, 21, 0.5), inset 0 0 12px rgba(255, 255, 255, 0.25) !important;
-            transform: translateY(-2px) !important;
-        }
-        div[role="radiogroup"] > label p {
-            font-weight: 900 !important;
-            font-size: 13px !important;
-            color: #f8fafc !important;
-        }
+    .stApp {
+        background:
+            radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.12) 0%, transparent 50%),
+            linear-gradient(180deg, #050811 0%, #090d1a 50%, #04060c 100%) !important;
+    }
 
-        /* 메트릭 및 버튼 하드웨어 베젤 통일 */
-        div[data-testid="stMetric"] {
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(23, 37, 84, 0.85) 100%) !important;
-            border: 1px solid rgba(56, 189, 248, 0.5) !important;
-            border-left: 5px solid #facc15 !important;
-            border-bottom: 4px solid #0284c7 !important;
-            border-radius: 12px !important;
-            padding: 12px 16px !important;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.55) !important;
-        }
-        div[data-testid="stMetricLabel"] > div {
-            color: #fde047 !important;
-            font-weight: 800 !important;
-            font-size: 12.5px !important;
-        }
-        div[data-testid="stMetricValue"] > div {
-            color: #ffffff !important;
-            font-family: 'Orbitron', 'Noto Sans KR', sans-serif !important;
-            font-weight: 900 !important;
-            font-size: 22px !important;
-        }
-        </style>
-        """
-        st.markdown(housing_css, unsafe_allow_html=True)
+    /* 한글 단락이 어색하게 두 줄로 쪼개지지 않고 한 줄로 깔끔하게 나오도록 전역 스타일 지정 */
+    h2, h3, h4 {
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        word-break: keep-all !important;
+    }
+    h2 {
+        background: linear-gradient(90deg, rgba(14, 165, 233, 0.22) 0%, rgba(168, 85, 247, 0.18) 50%, rgba(250, 204, 21, 0.08) 100%) !important;
+        border-left: 6px solid #38bdf8 !important;
+        border-bottom: 1px solid rgba(56, 189, 248, 0.35) !important;
+        border-radius: 0 14px 14px 0 !important;
+        padding: 10px 18px !important;
+        margin-top: 14px !important;
+        margin-bottom: 10px !important;
+        font-size: clamp(16px, 1.35vw, 21px) !important;
+        color: #f8fafc !important;
+        font-weight: 900 !important;
+    }
+    h4 {
+        background: linear-gradient(90deg, rgba(250, 204, 21, 0.14) 0%, rgba(15, 23, 42, 0.0) 100%) !important;
+        border-left: 4px solid #facc15 !important;
+        padding: 6px 14px !important;
+        border-radius: 0 10px 10px 0 !important;
+        font-size: clamp(13px, 1.05vw, 15.5px) !important;
+        color: #fef08a !important;
+        font-weight: 800 !important;
+    }
 
-        # 2. 상단 1단계 기본 영역(레거시 6대 탭)을 깔끔하게 접어둘 수 있는 '상단 해치(Hatch) 폴딩 스위치'
-        pool = st.session_state.get("bid_cart_pool", [])
-        cart_cnt = len(pool)
+    /* 캡션(stCaption)과 알림박스(stAlert) 문장도 가급적 1줄로 또렷하게 표시 */
+    div[data-testid="stCaptionContainer"] p {
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        font-size: 12.5px !important;
+        color: #94a3b8 !important;
+    }
+    div[data-testid="stAlert"] p {
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        font-size: 13px !important;
+    }
 
-        # 입찰 머신 상단 금속 하우징 헤더 (Chassis Top Bezel)
-        machine_header_html = f"""
-        <div style="
-            background: linear-gradient(135deg, #090d16 0%, #111827 50%, #090d16 100%);
-            border: 2px solid #38bdf8;
-            border-top: 6px solid #facc15;
-            border-bottom: 4px solid #0284c7;
-            border-radius: 16px;
-            padding: 14px 22px;
-            margin-top: 10px;
-            margin-bottom: 10px;
-            box-shadow: 0 12px 35px rgba(0,0,0,0.75), inset 0 0 25px rgba(56,189,248,0.15);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-family: 'Noto Sans KR', sans-serif;
-        ">
-            <div style="display:flex;align-items:center;gap:14px;">
-                <div style="
-                    width:46px;height:46px;border-radius:10px;
-                    background:radial-gradient(circle, #facc15 0%, #ca8a04 100%);
-                    border:2px solid #fff;
-                    display:flex;align-items:center;justify-content:center;
-                    font-size:24px;box-shadow:0 0 18px rgba(250,204,21,0.65);
-                ">⚙️</div>
-                <div>
-                    <div style="font-family:'Orbitron',sans-serif;font-size:19px;font-weight:900;color:#ffffff;letter-spacing:1.2px;">
-                        BID-NEXUS v9.0 // TACTICAL BIDDING MACHINE HOUSING
-                    </div>
-                    <div style="font-size:12px;color:#94a3b8;margin-top:2px;">
-                        <span style="color:#34d399;font-weight:800;">● ZERO-SCROLL MODULAR WORKSTATION</span> | 공정별 분업화 데크를 선택하면 위아래 스크롤 없이 해당 모듈만 즉시 가동됩니다.
-                    </div>
+    /* 7-BAY 분업화 물리 데크 스위치 (7개 버튼이 한 줄에 나란히 정렬) */
+    div[role="radiogroup"] {
+        background: linear-gradient(180deg, #0f172a 0%, #060a14 100%) !important;
+        border: 2px solid rgba(56, 189, 248, 0.55) !important;
+        border-bottom: 5px solid #0284c7 !important;
+        border-radius: 16px !important;
+        padding: 8px 10px !important;
+        gap: 6px !important;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(56, 189, 248, 0.15) !important;
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        justify-content: space-between !important;
+        overflow-x: auto !important;
+    }
+    div[role="radiogroup"] > label {
+        flex: 1 1 0px !important;
+        background: linear-gradient(145deg, #1e293b, #0f172a) !important;
+        border: 1px solid rgba(148, 163, 184, 0.35) !important;
+        border-bottom: 4px solid #334155 !important;
+        border-radius: 10px !important;
+        padding: 8px 8px !important;
+        margin: 0 !important;
+        cursor: pointer !important;
+        transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        justify-content: center !important;
+        white-space: nowrap !important;
+    }
+    div[role="radiogroup"] > label:hover {
+        border-color: #facc15 !important;
+        border-bottom-color: #ca8a04 !important;
+        transform: translateY(-3px) !important;
+        box-shadow: 0 6px 16px rgba(250, 204, 21, 0.3) !important;
+    }
+    div[role="radiogroup"] > label[data-checked="true"],
+    div[role="radiogroup"] > label:has(input:checked) {
+        background: linear-gradient(135deg, #0284c7 0%, #4f46e5 55%, #9333ea 100%) !important;
+        border: 1.5px solid #fde047 !important;
+        border-bottom: 4px solid #facc15 !important;
+        box-shadow: 0 0 22px rgba(250, 204, 21, 0.5), inset 0 0 12px rgba(255, 255, 255, 0.25) !important;
+        transform: translateY(-2px) !important;
+    }
+    div[role="radiogroup"] > label p {
+        font-weight: 900 !important;
+        font-size: 12.5px !important;
+        color: #f8fafc !important;
+        white-space: nowrap !important;
+    }
+
+    /* 4D 메트릭 큐브 및 버튼 1줄 고정 */
+    div[data-testid="stMetric"] {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(23, 37, 84, 0.85) 100%) !important;
+        border: 1px solid rgba(56, 189, 248, 0.5) !important;
+        border-left: 5px solid #facc15 !important;
+        border-bottom: 4px solid #0284c7 !important;
+        border-radius: 12px !important;
+        padding: 12px 14px !important;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.55) !important;
+    }
+    div[data-testid="stMetricLabel"] > div {
+        color: #fde047 !important;
+        font-weight: 800 !important;
+        font-size: 12px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    div[data-testid="stMetricValue"] > div {
+        color: #ffffff !important;
+        font-family: 'Orbitron', 'Noto Sans KR', sans-serif !important;
+        font-weight: 900 !important;
+        font-size: clamp(17px, 1.3vw, 22px) !important;
+        white-space: nowrap !important;
+    }
+    div.stButton > button {
+        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%) !important;
+        color: #fde047 !important;
+        border: 1px solid rgba(56, 189, 248, 0.6) !important;
+        border-bottom: 4px solid #38bdf8 !important;
+        border-radius: 10px !important;
+        font-weight: 800 !important;
+        white-space: nowrap !important;
+    }
+    </style>
+    """
+    st.markdown(housing_singleline_css, unsafe_allow_html=True)
+
+    pool = st.session_state.get("bid_cart_pool", [])
+    cart_cnt = len(pool)
+
+    # 3. 입찰 머신 상단 금속 하우징 헤더 (한 줄 직관적 요약)
+    machine_header_html = f"""
+    <div style="
+        background: linear-gradient(135deg, #090d16 0%, #111827 50%, #090d16 100%);
+        border: 2px solid #38bdf8;
+        border-top: 5px solid #facc15;
+        border-bottom: 4px solid #0284c7;
+        border-radius: 14px;
+        padding: 12px 20px;
+        margin-top: 6px;
+        margin-bottom: 8px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.7), inset 0 0 20px rgba(56,189,248,0.12);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-family: 'Noto Sans KR', sans-serif;
+    ">
+        <div style="display:flex;align-items:center;gap:12px;overflow:hidden;">
+            <div style="
+                min-width:42px;height:42px;border-radius:10px;
+                background:radial-gradient(circle, #facc15 0%, #ca8a04 100%);
+                border:2px solid #fff;
+                display:flex;align-items:center;justify-content:center;
+                font-size:22px;box-shadow:0 0 15px rgba(250,204,21,0.6);
+            ">⚙️</div>
+            <div style="overflow:hidden;">
+                <div style="font-family:'Orbitron',sans-serif;font-size:17px;font-weight:900;color:#ffffff;letter-spacing:1px;white-space:nowrap;">
+                    BID-NEXUS v9.6 // TACTICAL BIDDING MACHINE WORKSTATION
                 </div>
-            </div>
-            <div style="display:flex;gap:10px;align-items:center;">
-                <div style="background:#020617;border:1px solid #34d399;border-radius:8px;padding:6px 12px;text-align:center;">
-                    <div style="font-size:10px;color:#94a3b8;font-family:'Orbitron',sans-serif;">LOADED TARGETS</div>
-                    <div style="font-size:15px;font-weight:900;color:#34d399;font-family:'Orbitron',sans-serif;">{cart_cnt} VAULTS</div>
-                </div>
-                <div style="background:#020617;border:1px solid #facc15;border-radius:8px;padding:6px 12px;text-align:center;">
-                    <div style="font-size:10px;color:#94a3b8;font-family:'Orbitron',sans-serif;">QUANTUM CORE</div>
-                    <div style="font-size:15px;font-weight:900;color:#fde047;font-family:'Orbitron',sans-serif;">1,365 LOCK</div>
+                <div style="font-size:12px;color:#cbd5e1;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                    <span style="color:#34d399;font-weight:800;">● 스크롤 제로 분업화 가동 중</span> — 하단 7개 하드웨어 데크(BAY 1 ~ BAY 7) 클릭 시 해당 공정 화면만 1:1로 즉시 열립니다.
                 </div>
             </div>
         </div>
-        """
-        st.markdown(machine_header_html, unsafe_allow_html=True)
+        <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
+            <div style="background:#020617;border:1px solid #34d399;border-radius:8px;padding:5px 10px;text-align:center;">
+                <div style="font-size:9px;color:#94a3b8;font-family:'Orbitron',sans-serif;">TARGETS</div>
+                <div style="font-size:14px;font-weight:900;color:#34d399;font-family:'Orbitron',sans-serif;">{cart_cnt} VAULTS</div>
+            </div>
+            <div style="background:#020617;border:1px solid #facc15;border-radius:8px;padding:5px 10px;text-align:center;">
+                <div style="font-size:9px;color:#94a3b8;font-family:'Orbitron',sans-serif;">MATRIX</div>
+                <div style="font-size:14px;font-weight:900;color:#fde047;font-family:'Orbitron',sans-serif;">1,365 LOCK</div>
+            </div>
+        </div>
+    </div>
+    """
+    st.markdown(machine_header_html, unsafe_allow_html=True)
 
-        # 3. 7대 분업화 워크스테이션(Modular Bay) 원클릭 전환 데크
-        bay_options = [
-            "👑 [BAY 1] 보물섬 & 4D 조감도",
-            "🛒 [BAY 2] 장바구니·공고등록·품의서",
-            "🔮 [BAY 3] 판도라 X10 만다라 산통",
-            "🌌 [BAY 4] 특이점(v5.0) 양자계단 락",
-            "🎯 [BAY 5] 발주처 프리셋 & 경쟁사 저격",
-            "🏁 [BAY 6] 개찰 실전복기 & 자가교정",
-            "📲 [BAY 7] 텔레그램 발송 & 연간트래커"
-        ]
+    # 4. 7-BAY 스위치 라벨을 간결한 1줄 문맥으로 정리하고, 초기 진입 시 무조건 BAY 1이 선택되도록 고정
+    bay_options = [
+        "👑 [BAY 1] 보물섬·4D조감도",
+        "🛒 [BAY 2] 장바구니·품의서",
+        "🔮 [BAY 3] 판도라 X10 산통",
+        "🌌 [BAY 4] 특이점 양자계단",
+        "🎯 [BAY 5] 발주처·경쟁사저격",
+        "🏁 [BAY 6] 개찰복기·자가교정",
+        "📲 [BAY 7] 텔레그램·수주실적"
+    ]
 
-        selected_bay = st.radio(
-            "🎛️ 가동할 입찰 머신 분업화 모듈(Workstation Bay)을 선택하세요 (스크롤 제로 1:1 전환)",
-            options=bay_options,
-            index=0,
-            horizontal=True,
-            key="v9_machine_bay_selector"
-        )
+    if "v96_active_bay" not in st.session_state or st.session_state["v96_active_bay"] not in bay_options:
+        st.session_state["v96_active_bay"] = bay_options[0]
 
-        # 하우징 내부 모니터 베이 상단 상태바
-        st.markdown(
-            f"""<div style="
-                background:linear-gradient(90deg, rgba(250,204,21,0.18), rgba(56,189,248,0.15), rgba(15,23,42,0.9));
-                border:1px solid rgba(250,204,21,0.45);
-                border-left:6px solid #facc15;
-                border-radius:10px;
-                padding:8px 16px;
-                margin-bottom:8px;
-                display:flex;
-                justify-content:space-between;
-                align-items:center;
-                font-size:12.5px;
-                color:#f8fafc;
-            ">
-                <div>🔩 <b>ACTIVE HOUSING BAY</b> : <span style="color:#fde047;font-weight:900;">{selected_bay}</span> 단독 집중 모드 가동 중 (타 모듈 스크롤 자동 격리됨)</div>
-                <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:#38bdf8;">CHASSIS BAY LOCKED // ZERO-SCROLL</div>
-            </div>""",
-            unsafe_allow_html=True
-        )
+    selected_bay = st.radio(
+        "🎛️ 가동할 입찰 머신 분업화 모듈(Workstation Bay) 선택",
+        options=bay_options,
+        index=0,
+        horizontal=True,
+        label_visibility="collapsed",
+        key="v96_active_bay"
+    )
 
-        # 4. 선택된 단일 베이(Bay)만 화면에 렌더링하여 상하 스크롤을 최소화
-        if "BAY 1" in selected_bay:
-            if "render_phase8_treasure_island_ui" in globals():
-                render_phase8_treasure_island_ui()
-        elif "BAY 2" in selected_bay:
-            if "render_phase2_multi_bid_cart" in globals():
-                render_phase2_multi_bid_cart()
-        elif "BAY 3" in selected_bay:
-            if "render_phase7_pandora_akashic_core" in globals():
-                render_phase7_pandora_akashic_core()
-        elif "BAY 4" in selected_bay:
-            if "render_phase5_singularity_engine" in globals():
-                render_phase5_singularity_engine()
-        elif "BAY 5" in selected_bay:
-            if "render_phase4_quantum_ai_engine" in globals():
-                render_phase4_quantum_ai_engine()
-        elif "BAY 6" in selected_bay:
-            if "render_phase6_backtesting_terminal" in globals():
-                render_phase6_backtesting_terminal()
-        elif "BAY 7" in selected_bay:
-            if "render_phase3_webhook_and_tracker" in globals():
-                render_phase3_webhook_and_tracker()
+    # 5. 선택된 BAY 즉시 렌더링 (기본값 Fallback을 BAY 1로 두어 첫 화면에서 100% 즉시 표시)
+    if "BAY 2" in selected_bay:
+        render_phase2_multi_bid_cart()
+    elif "BAY 3" in selected_bay:
+        render_phase7_pandora_akashic_core()
+    elif "BAY 4" in selected_bay:
+        render_phase5_singularity_engine()
+    elif "BAY 5" in selected_bay:
+        render_phase4_quantum_ai_engine()
+    elif "BAY 6" in selected_bay:
+        render_phase6_backtesting_terminal()
+    elif "BAY 7" in selected_bay:
+        render_phase3_webhook_and_tracker()
+    else:
+        # 첫 진입 및 BAY 1 선택 시 즉시 보물섬 & 4D 조감도 오픈
+        render_phase8_treasure_island_ui()
 
-        # 하우징 하단 금속 섀시 마감 베젤 (Bottom Chassis Bezel)
-        st.markdown(
-            """<div style="
-                margin-top:14px;
-                background:linear-gradient(90deg, #060a12, #111827, #060a12);
-                border:1.5px solid rgba(56,189,248,0.4);
-                border-bottom:4px solid #facc15;
-                border-radius:12px;
-                padding:10px 18px;
-                display:flex;
-                justify-content:space-between;
-                align-items:center;
-                font-size:11.5px;
-                color:#94a3b8;
-            ">
-                <div>⚙️ <b style="color:#fde047;">BID-NEXUS v9.0 TACTICAL MACHINE CHASSIS</b> | 분업화 7-BAY 모듈러 하우징 시스템</div>
-                <div style="font-family:'Orbitron',sans-serif;color:#34d399;font-weight:800;">● SYSTEM NOMINAL // SCROLL MINIMIZED</div>
-            </div>""",
-            unsafe_allow_html=True
-        )
-
-    except Exception as _m9_err:
-        st.info(f"입찰 머신 하우징 준비 완료 ({_m9_err})")
+    # 6. 하우징 하단 1줄 마감 베젤
+    st.markdown(
+        f"""<div style="
+            margin-top:10px;
+            background:linear-gradient(90deg, #060a12, #111827, #060a12);
+            border:1px solid rgba(56,189,248,0.4);
+            border-bottom:3px solid #facc15;
+            border-radius:10px;
+            padding:8px 16px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            font-size:11.5px;
+            color:#cbd5e1;
+            white-space:nowrap;
+        ">
+            <div>🔩 <b style="color:#fde047;">ACTIVE BAY : {selected_bay}</b> — 타 모듈 스크롤이 자동 격리된 단독 집중 하우징 모드입니다.</div>
+            <div style="font-family:'Orbitron',sans-serif;color:#34d399;font-weight:800;">● ZERO-SCROLL HOUSING v9.6</div>
+        </div>""",
+        unsafe_allow_html=True
+    )
 
 render_phase9_bidding_machine_workstation()
 # ==================== [PHASE 9: BIDDING MACHINE HOUSING ROUTER END] ====================
