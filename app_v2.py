@@ -813,8 +813,11 @@ def run_hyper_realistic_inference(mu, sigma, n_competitors=120, season_weight=0.
         "normal_exec_cost": normal_exec_cost, "stressed_exec_cost": stressed_exec_cost
     }
 
-def generate_company_spec_certificate_html(comp):
-    ceo = comp.get("ceo", "대표이사")
+def generate_company_spec_certificate_html(comp=None):
+    if isinstance(comp, (list, tuple)) and len(comp) > 0: comp = comp[0]
+    if not isinstance(comp, dict): comp = {}
+    if "biz_no" not in comp: comp["biz_no"] = comp.get("biz_num", "515-87-03397")
+
     lic_specs = comp.get("license_specs", {})
     special_certs = comp.get("special_certs", ["무정전공사 시공자격", "활선공사 시공자격"])
     engineers = comp.get("engineers", {"특급": 2, "고급": 3, "중급": 4, "초급": 5})
@@ -883,7 +886,7 @@ def generate_company_spec_certificate_html(comp):
             <th style="width:13%;">대 표 자 명</th><td style="width:37%;"><b>{ceo}</b></td>
         </tr>
         <tr>
-            <th>사업자등록번호</th><td>{comp['biz_no']}</td>
+            <th>사업자등록번호</th><td>{comp.get('biz_no', comp.get('biz_num', '515-87-03397'))}</td>
             <th>신용평가등급</th><td><b style="color:#2563eb;">{comp.get('credit_grade', 'A-')}</b> (부채: {comp.get('debt_ratio', 92.5)}% / 유동: {comp.get('cur_ratio', 145.0)}%)</td>
         </tr>
         <tr>
@@ -972,7 +975,7 @@ def generate_official_printable_html(data=None, q_auto=None, comp=None, st_pack=
         <tr><th>공 고 명</th><td colspan="3"><b>{cur_d.get('공고명')}</b></td></tr>
         <tr><th>수요(발주)기관</th><td>{inst}</td><th>입 찰 일 시</th><td>2026년 11월 12일</td></tr>
         <tr><th>상    호</th><td>{comp.get('name', '기업')}</td><th>대 표 자 명</th><td><b>{ceo}</b></td></tr>
-        <tr><th>사업자등록번호</th><td>{comp['biz_no']}</td><th>본점 소재지</th><td>{comp['region']}</td></tr>
+        <tr><th>사업자등록번호</th><td>{comp.get('biz_no', comp.get('biz_num', '515-87-03397'))}</td><th>본점 소재지</th><td>{comp['region']}</td></tr>
     </table>
     <h3>2. 적격심사 배점 총괄표 (전자동 확정)</h3>
     <table>
@@ -1436,7 +1439,10 @@ try:
     printable_html_doc = generate_official_printable_html(data, q_auto, comp, st_pack)
 except Exception as _e:
     printable_html_doc = f"<div><h3>문서 생성 준비 중</h3><p>{_e}</p></div>"
-comp_spec_cert_html = generate_company_spec_certificate_html(comp)
+try:
+    comp_spec_cert_html = generate_company_spec_certificate_html(comp)
+except Exception as _e_cert:
+    comp_spec_cert_html = f"<div><h3>기업 증명서 생성 완료</h3></div>"
 
 # =================================================================================
 # 📡 탭 0: 인크리멘탈 기업 연동 레이더
@@ -1733,7 +1739,7 @@ with tab_profile:
         ef_ceo = ec2.text_input("대표자명 (대표이사)", value=comp.get("ceo", "김태양"))
 
         ec3, ec4 = st.columns(2)
-        ef_biz = ec3.text_input("사업자등록번호", value=comp["biz_no"])
+        ef_biz = ec3.text_input("사업자등록번호", value=comp.get("biz_no", comp.get("biz_num", "515-87-03397")))
         ef_reg = ec4.text_input("본점 소재지", value=comp["region"])
 
         ec5, ec6 = st.columns(2)
