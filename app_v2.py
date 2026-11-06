@@ -5829,8 +5829,8 @@ function jumpFromIso(targetKey) {
     .detail-name { font-size: 14px; font-weight: 900; color: #fde047; }
     .detail-metrics { font-size: 11.5px; background: #020617; border: 1px solid rgba(250,204,21,0.5); padding: 3px 12px; border-radius: 999px; color: #fff; font-weight: 800; }
     .detail-summary { font-size: 12px; color: #f8fafc; line-height: 1.5; margin-bottom: 8px; background: rgba(2,6,23,0.65); padding: 8px 12px; border-radius: 8px; border-left: 3px solid #38bdf8; }
-    .detail-3grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 11.5px; color: #e2e8f0; line-height: 1.45; }
-    .detail-subbox { background: rgba(30, 41, 59, 0.78); border: 1px solid rgba(148, 163, 184, 0.22); padding: 8px 10px; border-radius: 8px; }
+    .detail-3grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; font-size: 11.5px; color: #e2e8f0; line-height: 1.55; }
+    .detail-subbox { background: rgba(30, 41, 59, 0.82); border: 1px solid rgba(148, 163, 184, 0.28); padding: 10px 12px; border-radius: 8px; min-height: 86px; }
 </style>
 </head>
 <body>
@@ -5861,7 +5861,7 @@ function jumpFromIso(targetKey) {
         <!-- 킬포인트 2: 15C4 복수예가 번호 궁합 시너지 홀로그램 링 -->
         <div class="kp-card" style="border-color:rgba(192,132,252,0.5);border-bottom-color:#9333ea;">
             <div class="kp-hdr">
-                <span class="kp-hdr-title">🎰 KP-02. 1~15번 예가 시너지 결속 홀로그램 링</span>
+                <span class="kp-hdr-title">🎰 KP-02. 1~15번 예가 시너지 홀로그램 링</span>
                 <span class="kp-tag" id="tagKp2" style="color:#e9d5ff;border-color:#c084fc;background:rgba(192,132,252,0.2);">STEP SYNERGY</span>
             </div>
             <canvas id="synergyRingCanvas" width="330" height="210" style="width:100%;height:210px;"></canvas>
@@ -5873,7 +5873,7 @@ function jumpFromIso(targetKey) {
         <!-- 킬포인트 3: 실시간 ±0.001%p 미세 사정률 다이얼 & 당락 계기판 -->
         <div class="kp-card" style="border-color:rgba(250,204,21,0.55);border-bottom-color:#ca8a04;">
             <div class="kp-hdr">
-                <span class="kp-hdr-title">⚡ KP-03. 실시간 ±0.001%p 사정률 & 당락 시뮬레이터</span>
+                <span class="kp-hdr-title">⚡ KP-03. ±0.001%p 사정률 & 당락 시뮬레이터</span>
                 <span class="kp-tag" style="color:#fde047;border-color:#facc15;background:rgba(250,204,21,0.18);">INTERACTIVE HUD</span>
             </div>
             <canvas id="gaugeHudCanvas" width="380" height="125" style="width:100%;height:125px;"></canvas>
@@ -5883,9 +5883,13 @@ function jumpFromIso(targetKey) {
                     <span id="dialRateTxt" style="font-family:Orbitron;color:#fde047;">100.0936% (0.000%p)</span>
                 </div>
                 <input type="range" id="rateSlider" class="slider-ui" min="-45" max="45" value="0" step="1">
-                <div class="hud-row">
-                    <span>⚓ 연동 투찰가: <b id="dialBidTxt" style="color:#fff;font-family:Orbitron;">0원</b></span>
-                    <span>🏁 판정: <b id="dialVerdictTxt" style="color:#34d399;">🏆 단독 1순위 골든존</b></span>
+                <div class="hud-row" style="margin-top:4px;padding-top:4px;border-top:1px dashed rgba(148,163,184,0.2);">
+                    <span style="color:#cbd5e1;">⚓ 연동 투찰가:</span>
+                    <b id="dialBidTxt" style="color:#38bdf8;font-family:Orbitron;font-size:11.5px;">0원</b>
+                </div>
+                <div class="hud-row" style="margin-top:3px;">
+                    <span style="color:#cbd5e1;">🏁 예상 판정:</span>
+                    <b id="dialVerdictTxt" style="color:#34d399;font-size:11.5px;">🏆 단독 1순위 골든 크레바스 (최적)</b>
                 </div>
             </div>
         </div>
@@ -6055,7 +6059,7 @@ function renderKillPoints() {
     ctxC.fillStyle = m.color; ctxC.fill();
 
     ctxC.fillStyle = m.color; ctxC.font = 'bold 10.5px Orbitron, Noto Sans KR';
-    ctxC.fillText(m.btn_label + ' (' + (m.rate + userOffsetSteps*0.001).toFixed(4) + '%)', crevX, 24);
+    ctxC.fillText(m.btn_label.split('(')[0].trim() + ' (' + (m.rate + userOffsetSteps*0.001).toFixed(4) + '%)', crevX, 24);
 
     const xTicks = ['99.95%', '100.03%(데드존)', '100.09%(크레바스)', '100.18%'];
     xTicks.forEach((lbl, i) => {
@@ -6176,7 +6180,7 @@ renderKillPoints();
                 .replace("__KP_LRT__", str(kp_lrt))
                 .replace("__MODELS_KP_JSON__", models_kp_json)
             )
-            components.html(killpoint_html, height=535, scrolling=False)
+            components.html(killpoint_html, height=605, scrolling=False)
 
         gear_c1, gear_c2 = st.columns([2.2, 1.8])
         with gear_c1:
