@@ -4762,11 +4762,11 @@ function jumpFromIso(targetKey) {
         if "상위 6건" in compare_mode:
             active_vault_items = working_pool[:6]
             grid_col_css = "repeat(3, 1fr)"
-            iframe_h = 820
+            iframe_h = 875
         elif "상위 8건" in compare_mode:
             active_vault_items = working_pool[:8]
             grid_col_css = "repeat(4, 1fr)"
-            iframe_h = 840
+            iframe_h = 895
         elif "장바구니 연동" in compare_mode:
             sel_lbls = st.session_state.get("bid_cart_selected", [])
             matched = [
@@ -4776,11 +4776,11 @@ function jumpFromIso(targetKey) {
             active_vault_items = matched if matched else working_pool[:4]
             cnt_v = len(active_vault_items)
             grid_col_css = "repeat(4, 1fr)" if cnt_v >= 7 else ("repeat(3, 1fr)" if cnt_v >= 5 else "repeat(2, 1fr)")
-            iframe_h = 840 if cnt_v > 4 else 790
+            iframe_h = 895 if cnt_v > 4 else 790
         else:
             active_vault_items = working_pool[:4]
             grid_col_css = "repeat(2, 1fr)"
-            iframe_h = 790
+            iframe_h = 845
 
         st.session_state["v105_active_compare_count"] = len(active_vault_items)
 
@@ -5080,7 +5080,7 @@ function jumpFromIso(targetKey) {
 <div class="island-container">
     <div class="top-banner">
         <div>
-            <div class="brand-title">🏴‍☠️ TREASURE ISLAND COMMAND BRIDGE // EL DORADO v8.0</div>
+            <div class="brand-title">🏴‍☠️ TREASURE ISLAND COMMAND BRIDGE // EL DORADO v11.0 ULTIMATE</div>
             <div style="font-size:12px;color:#94a3b8;margin-top:4px;">실시간 황금 어장 소나 스캐너 & 4대 보물상자(Vault) 기대수익 인양 대시보드</div>
         </div>
         <div class="total-loot-badge">👑 총 인양 기대수익(전리품): +{total_treasure_profit:,.0f} KRW</div>
@@ -5204,8 +5204,8 @@ let sweepAngle = 0;
 const targets = [
     {{r: 42, theta: 0.75, label: "소양초(CROWN)", color: "#facc15", align: "left"}},
     {{r: 64, theta: 2.25, label: "봉의고(DIAMOND)", color: "#38bdf8", align: "left"}},
-    {{r: 68, theta: 3.75, label: "원주센터(EMERALD)", color: "#34d399", align: "left"}},
-    {{r: 86, theta: 5.55, label: "강릉복지관(ARCANE)", color: "#c084fc", align: "left"}}
+    {{r: 58, theta: 3.75, label: "원주센터(EMERALD)", color: "#34d399", align: "left"}},
+    {{r: 64, theta: 5.50, label: "강릉복지관(ARCANE)", color: "#c084fc", align: "left"}}
 ];
 
 function drawSonar() {{
@@ -5557,7 +5557,7 @@ def render_phase9_bidding_machine_workstation():
             ">⚙️</div>
             <div style="overflow:hidden;">
                 <div style="font-family:'Orbitron',sans-serif;font-size:17px;font-weight:900;color:#ffffff;letter-spacing:1px;white-space:nowrap;">
-                    BID-NEXUS v9.8 // TACTICAL BIDDING MACHINE WORKSTATION
+                    BID-NEXUS v11.0 // ULTIMATE TACTICAL BIDDING MACHINE
                 </div>
                 <div style="font-size:12px;color:#cbd5e1;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
                     <span style="color:#34d399;font-weight:800;">● 7-BAY 직결 스위치 데크 가동 중</span> — 아래 7개 공정 버튼 중 하나를 누르면 스크롤 없이 해당 모듈만 즉시 열립니다.
@@ -5641,7 +5641,7 @@ def render_phase9_bidding_machine_workstation():
             white-space:nowrap;
         ">
             <div>🔩 <b style="color:#fde047;">ACTIVE WORKSTATION : {active_title}</b> — 타 모듈 스크롤이 자동 격리된 단독 집중 하우징 모드입니다.</div>
-            <div style="font-family:'Orbitron',sans-serif;color:#34d399;font-weight:800;">● ZERO-SCROLL HOUSING v9.8</div>
+            <div style="font-family:'Orbitron',sans-serif;color:#34d399;font-weight:800;">● ULTIMATE GOLD v11.0</div>
         </div>""",
         unsafe_allow_html=True
     )
