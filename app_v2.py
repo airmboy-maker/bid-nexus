@@ -932,6 +932,13 @@ def generate_official_printable_html(data=None, q_auto=None, comp=None, st_pack=
     if isinstance(comp, (list, tuple)) and len(comp) > 0: comp = comp[0]
     if not isinstance(comp, dict): comp = {}
     if not isinstance(st_pack, dict): st_pack = {}
+    cur_d = data
+
+    if not isinstance(data, dict): data = {}
+    if not isinstance(q_auto, dict): q_auto = {}
+    if isinstance(comp, (list, tuple)) and len(comp) > 0: comp = comp[0]
+    if not isinstance(comp, dict): comp = {}
+    if not isinstance(st_pack, dict): st_pack = {}
     ceo = comp.get("ceo", "대표이사")
     return f"""<!DOCTYPE html>
 <html lang="ko">
@@ -1425,7 +1432,10 @@ tab_radar, tab1, tab_quantum_ai, tab_sim, tab_dox, tab_profile, tab4 = st.tabs([
     "📂 [원장] 영구 저장 원장"
 ])
 
-printable_html_doc = generate_official_printable_html(data, q_auto, comp, st_pack)
+try:
+    printable_html_doc = generate_official_printable_html(data, q_auto, comp, st_pack)
+except Exception as _e:
+    printable_html_doc = f"<div><h3>문서 생성 준비 중</h3><p>{_e}</p></div>"
 comp_spec_cert_html = generate_company_spec_certificate_html(comp)
 
 # =================================================================================
