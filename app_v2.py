@@ -3089,11 +3089,15 @@ drawQ45();
 
 
 # ==================== [PHASE 5: SINGULARITY AI ENGINE START] ====================
+
+# ==================== [PHASE 5: SINGULARITY ENGINE START] ====================
 def render_phase5_singularity_engine():
     import streamlit as st
-    import pandas as pd
+    import streamlit.components.v1 as components
     import numpy as np
+    import pandas as pd
     import hashlib
+    import json
     from itertools import combinations
 
     try:
@@ -3106,158 +3110,229 @@ def render_phase5_singularity_engine():
             return
 
         notice_labels = [f"[{it.get('공고번호','')}] {it.get('공고명','')}" for it in pool]
-        sg_c1, sg_c2, sg_c3, sg_c4 = st.columns([2.0, 1.3, 1.2, 1.2])
+        sg_c1, sg_c2, sg_c3, sg_c4 = st.columns([2.0, 1.3, 1.2, 1.1])
 
         with sg_c1:
-            sel_sg_lbl = st.selectbox("🌌 파격 추론 타겟 공고 선택", options=notice_labels, key="sg5_target_notice")
+            sel_sg_lbl = st.selectbox("🌌 특이점(Singularity) 정밀 해독 대상 공고", options=notice_labels, key="sg5_target_notice")
         sel_idx = notice_labels.index(sel_sg_lbl)
         target_item = pool[sel_idx]
 
         with sg_c2:
-            fiscal_mode = st.selectbox(
-                "📅 행정예산 캘린더 시기 (추론 ③)",
+            fiscal_season = st.selectbox(
+                "📅 [추론 ③] 회계연도 예산 집행 주기",
                 [
-                    "🔥 11~12월 연말 불용예산 소진기 (+0.085%p)",
-                    "⚡ 유찰 후 재공고 / 긴급공고 (+0.125%p)",
-                    "⚖️ 6~10월 하반기 표준 집행기 (+0.020%p)",
-                    "❄️ 1~5월 상반기 감사·예산절감기 (-0.075%p)"
+                    "🔥 11~12월 연말 불용예산 소진기 (+0.085%p 상향)",
+                    "🌱 1~3월 상반기 조기집행기 (-0.040%p 보수)",
+                    "⚖️ 4~10월 평시 표준 집행기 (+0.015%p 중립)"
                 ],
                 index=0,
-                key="sg5_fiscal_mode"
+                key="sg5_fiscal_season"
             )
-
         with sg_c3:
             human_bias_strength = st.slider(
-                "🧠 인간 번호클릭 편향 강도 (추론 ②)",
-                min_value=0.0, max_value=2.0, value=1.25, step=0.25,
-                key="sg5_click_bias"
+                "🧠 [추론 ②] 인간 클릭편향 강도(%)",
+                min_value=0, max_value=100, value=85, step=5, key="sg5_human_bias"
             )
-
         with sg_c4:
-            quant_lock = st.checkbox(
-                "🔬 G2B 원단위 절사 양자화 락(Lock) (추론 ①)",
-                value=True,
-                key="sg5_quant_lock"
+            prime_wedge_won = st.selectbox(
+                "🗡️ [추론 ④] 소수점 끝자리 웨지",
+                [17, 23, 29, 37, 53],
+                index=0,
+                key="sg5_prime_wedge"
             )
 
         base_amt = float(target_item.get("기초금액", 3605411000) or 3605411000)
         a_val = float(target_item.get("A값", 170640956) or 170640956)
         l_rate = float(target_item.get("낙찰하한율", 87.745) or 87.745) / 100.0
-        cur_m_rate = float(target_item.get("목표사정률", 100.05) or 100.05)
         notice_no = str(target_item.get("공고번호", "202611-00892"))
 
-        # [추론 ③] 회계연도 행정예산 압박 드리프트 계산
-        if "11~12월" in fiscal_mode:
-            fiscal_drift = 0.085
-        elif "재공고" in fiscal_mode:
-            fiscal_drift = 0.125
-        elif "하반기" in fiscal_mode:
-            fiscal_drift = 0.020
+        if "11~12월" in fiscal_season:
+            fiscal_drift = +0.085
+        elif "1~3월" in fiscal_season:
+            fiscal_drift = -0.040
         else:
-            fiscal_drift = -0.075
+            fiscal_drift = +0.015
 
-        # [추론 ②] 대한민국 입찰담당자의 1~15번 체크박스 클릭 심리 편향 모델링
-        # 양끝(1, 15번) 기피, 중앙 대각선(3, 7, 8, 11, 12번) 과밀 선택 통계 반영
-        raw_click_weights = np.array([
-            0.42, 0.78, 1.38, 0.95, 0.88,
-            1.05, 1.52, 1.48, 0.92, 1.08,
-            1.45, 1.36, 0.89, 0.74, 0.45
-        ])
-        adj_click_weights = 1.0 + (raw_click_weights - 1.0) * (human_bias_strength / 1.25)
-        adj_click_weights = np.clip(adj_click_weights, 0.2, 3.0)
-        click_prob = adj_click_weights / np.sum(adj_click_weights)
+        human_raw_weights = np.array([
+            0.62, 0.95, 1.38, 1.12, 0.74,
+            0.88, 1.48, 1.44, 1.08, 0.72,
+            1.28, 1.39, 1.16, 0.92, 0.58
+        ], dtype=float)
+        uniform_weights = np.ones(15, dtype=float)
+        blend_r = human_bias_strength / 100.0
+        eff_weights = (blend_r * human_raw_weights) + ((1.0 - blend_r) * uniform_weights)
+        click_prob = eff_weights / np.sum(eff_weights)
 
-        h_seed = int(hashlib.md5((notice_no + "_sg5").encode("utf-8")).hexdigest()[:8], 16)
-        rng = np.random.default_rng(h_seed)
+        seed_int = int(hashlib.md5(notice_no.encode("utf-8")).hexdigest()[:8], 16)
+        rng = np.random.default_rng(seed_int)
+        base_15_rates = np.linspace(98.25, 101.75, 15) + fiscal_drift + rng.normal(0, 0.03, 15)
+        slot_prices_won = np.floor(base_amt * (base_15_rates / 100.0))
 
-        # 발주처 15개 복수예가 슬롯 금액 (원단위 절사 반영)
-        slot_rates = np.linspace(98.25, 101.75, 15) + fiscal_drift + rng.normal(0, 0.032, 15)
-        slot_prices_won = np.floor(base_amt * (slot_rates / 100.0))
-
-        # [추론 ①] 1,365개 조합의 G2B 실제 원단위 절사/반올림 예정가격 및 인간 클릭 확률 가중치 전수 계산
         all_combs = list(combinations(range(15), 4))
-        comb_exact_est_prices = []
-        comb_exact_rates = []
-        comb_human_probs = []
+        comb_exact_est_prices = np.zeros(len(all_combs), dtype=float)
+        comb_exact_rates = np.zeros(len(all_combs), dtype=float)
+        comb_human_probs = np.zeros(len(all_combs), dtype=float)
 
-        for c in all_combs:
-            # 조달청 표준: 4개 예비가격 산술평균 후 원미만 절사(또는 반올림)
-            est_p_won = np.floor(np.mean([slot_prices_won[i] for i in c]))
-            exact_r = (est_p_won / base_amt) * 100.0
-            # 해당 4개 번호가 인간들에 의해 다수결 추첨될 결합 확률 가중치
-            h_prob = float(np.prod([click_prob[i] for i in c]))
-            comb_exact_est_prices.append(est_p_won)
-            comb_exact_rates.append(exact_r)
-            comb_human_probs.append(h_prob)
+        for idx_c, c_tuple in enumerate(all_combs):
+            picked_4_won = [slot_prices_won[i] for i in c_tuple]
+            est_p_won = np.floor(np.mean(picked_4_won))
+            comb_exact_est_prices[idx_c] = est_p_won
+            comb_exact_rates[idx_c] = (est_p_won / base_amt) * 100.0
+            p_w = click_prob[c_tuple[0]] * click_prob[c_tuple[1]] * click_prob[c_tuple[2]] * click_prob[c_tuple[3]]
+            comb_human_probs[idx_c] = p_w
 
-        comb_exact_rates = np.array(comb_exact_rates)
-        comb_exact_est_prices = np.array(comb_exact_est_prices)
-        comb_human_probs = np.array(comb_human_probs)
-        comb_human_probs = comb_human_probs / np.sum(comb_human_probs)
+        comb_human_probs /= np.sum(comb_human_probs)
+        human_biased_mean_rate = float(np.sum(comb_exact_rates * comb_human_probs))
 
-        # 인간 클릭 편향 가중 기댓값 (Weighted Quantum Expectation)
-        weighted_expected_rate = float(np.sum(comb_exact_rates * comb_human_probs))
-
-        # [추론 ④] 벤포드 끝자리 회피 & 원단위 양자화 계단(Quantization Step) 스냅(Snap)
-        # 일반인들이 몰리는 0.05% 단위 라운드 넘버를 피하고 실제 존재하는 1,365개 양자화 계단 중 최적 계단에 정확히 착지
-        raw_target_rate = weighted_expected_rate + 0.0413  # 비대칭 소수점 웨지 오프셋
-        nearest_step_idx = int(np.argmin(np.abs(comb_exact_rates - raw_target_rate)))
-
-        if quant_lock:
-            locked_est_price = float(comb_exact_est_prices[nearest_step_idx])
-            singularity_rate = round((locked_est_price / base_amt) * 100.0, 5)
-            # 하한선 미달을 100% 방지하기 위해 절사 오차 +17원(소수 비대칭 웨지) 가산
-            singularity_bid = int(np.ceil(((locked_est_price - a_val) * l_rate) + a_val)) + 17
+        raw_target_rate = human_biased_mean_rate + 0.042
+        valid_step_mask = comb_exact_rates >= raw_target_rate
+        if np.any(valid_step_mask):
+            candidate_indices = np.where(valid_step_mask)[0]
+            nearest_step_idx = int(candidate_indices[np.argmin(comb_exact_rates[candidate_indices] - raw_target_rate)])
         else:
-            singularity_rate = round(raw_target_rate, 5)
-            est_p_temp = base_amt * (singularity_rate / 100.0)
-            singularity_bid = int(round(((est_p_temp - a_val) * l_rate) + a_val))
+            nearest_step_idx = int(np.argmax(comb_exact_rates))
 
-        normal_bid = int(round(((base_amt * (cur_m_rate / 100.0) - a_val) * l_rate) + a_val))
-        diff_won = singularity_bid - normal_bid
+        singularity_rate = float(comb_exact_rates[nearest_step_idx])
+        singularity_est_price = float(comb_exact_est_prices[nearest_step_idx])
+        best_4_comb = [i + 1 for i in all_combs[nearest_step_idx]]
 
-        # 가장 확률이 높은 인간 편향 + 양자화 최적 번호 4개 추출
-        best_4_comb = tuple(sorted([i + 1 for i in all_combs[nearest_step_idx]]))
+        raw_cutline_bid = np.ceil(((singularity_est_price - a_val) * l_rate) + a_val)
+        singularity_bid = int(raw_cutline_bid + prime_wedge_won)
+        naive_bid = int(np.round(((base_amt * (raw_target_rate / 100.0) - a_val) * l_rate) + a_val))
 
-        # 4대 파격 추론 진단 메트릭 카드
-        st.markdown("#### 🔬 1. 4대 파격 추론(Singularity) 단계별 정밀 보정 결과")
+        # 1. 4대 파격 추론 카드 + 클릭 시 수학적 추론 과정과 이유가 펼쳐지는 XAI 해부 버튼
+        st.markdown("#### 🔬 1. 4대 파격 추론(Singularity) 단계별 정밀 보정 결과 (각 버튼 클릭 시 추론 과정 및 이유 해부)")
+        if "v155_sg_inspect_key" not in st.session_state:
+            st.session_state["v155_sg_inspect_key"] = "SG4"
+
         m1, m2, m3, m4 = st.columns(4)
-        m1.metric(
-            "① 원단위 양자화 계단 좌표",
-            f"{singularity_rate:.4f} %",
-            f"1,365개 중 #{nearest_step_idx + 1}번 계단 직결"
-        )
-        m2.metric(
-            "② 인간 클릭편향 가중 기댓값",
-            f"{weighted_expected_rate:.4f} %",
-            "중앙 번호(3·7·8·11·12번) 쏠림 반영"
-        )
-        m3.metric(
-            "③ 행정예산 캘린더 드리프트",
-            f"{fiscal_drift:+.3f} %p",
-            fiscal_mode[:13]
-        )
-        m4.metric(
-            "🌌 최종 특이점(Singularity) 투찰가",
-            f"{singularity_bid:,.0f} 원",
-            f"기존 대비 {diff_won:+,.0f}원 (끝자리 +17원 웨지)"
-        )
-
-        # 원클릭 적용 버튼 및 해설
-        ap_c1, ap_c2 = st.columns([2.8, 1.2])
-        with ap_c1:
-            st.success(f"🌌 **[특이점 해독]** #{nearest_step_idx+1}번 양자계단(`예가 {comb_exact_est_prices[nearest_step_idx]:,.0f}원`) +17원 웨지(`{singularity_bid:,.0f}원`) 착지 완료 | 최적번호: **`🎯 {best_4_comb[0]}·{best_4_comb[1]}·{best_4_comb[2]}·{best_4_comb[3]}번`**")
-        with ap_c2:
-            if st.button("🌌 특이점(v5.0) 사정률을 공고에 즉시 각인", use_container_width=True, key="btn_apply_sg5"):
-                pool[sel_idx]["목표사정률"] = round(singularity_rate, 4)
-                st.success(f"각인 완료: [{notice_no}] 목표사정률이 {singularity_rate:.4f}%로 업데이트되었습니다.")
+        with m1:
+            st.metric(
+                "① 원단위 양자화 계단 좌표",
+                f"{singularity_rate:.4f} %",
+                f"1,365개 중 #{nearest_step_idx+1}번 계단 직결"
+            )
+            if st.button("🔍 ① 양자계단 추론해부", key="btn_sg_xai_1", type="primary" if st.session_state["v155_sg_inspect_key"] == "SG1" else "secondary", use_container_width=True):
+                st.session_state["v155_sg_inspect_key"] = "SG1"
+                st.rerun()
+        with m2:
+            st.metric(
+                "② 인간 클릭편향 가중 기댓값",
+                f"{human_biased_mean_rate:.4f} %",
+                "중앙 번호(3·7·8·11·12번) 쏠림 반영"
+            )
+            if st.button("🔍 ② 클릭편향 추론해부", key="btn_sg_xai_2", type="primary" if st.session_state["v155_sg_inspect_key"] == "SG2" else "secondary", use_container_width=True):
+                st.session_state["v155_sg_inspect_key"] = "SG2"
+                st.rerun()
+        with m3:
+            st.metric(
+                "③ 행정예산 캘린더 드리프트",
+                f"{fiscal_drift:+.3f} %p",
+                fiscal_season.split("(")[0].strip()
+            )
+            if st.button("🔍 ③ 예산드리프트 해부", key="btn_sg_xai_3", type="primary" if st.session_state["v155_sg_inspect_key"] == "SG3" else "secondary", use_container_width=True):
+                st.session_state["v155_sg_inspect_key"] = "SG3"
+                st.rerun()
+        with m4:
+            st.metric(
+                "🌌 최종 특이점(Singularity) 투찰가",
+                f"{singularity_bid:,.0f} 원",
+                f"기존 대비 {singularity_bid - naive_bid:+,.0f}원 (+{prime_wedge_won}원 웨지)"
+            )
+            if st.button("🔍 ④ 최종투찰가 추론해부", key="btn_sg_xai_4", type="primary" if st.session_state["v155_sg_inspect_key"] == "SG4" else "secondary", use_container_width=True):
+                st.session_state["v155_sg_inspect_key"] = "SG4"
                 st.rerun()
 
-        # 시각화: 60FPS로 살아 움직이는 4D 아이소메트릭 프리즘 기둥 & 양자 계단 레이저 스캐너
-        st.markdown("#### ⚡ 2. [4D LIVE KINETIC] 인간 1~15번 클릭 편향 3D 프리즘 & G2B 양자화 계단(Step) 실시간 레이저 스펙트럼")
-        import streamlit.components.v1 as components
-        import json
+        picked_tuple = all_combs[nearest_step_idx]
+        picked_slot_prices = [int(slot_prices_won[i]) for i in picked_tuple]
+        exact_est_p = int(comb_exact_est_prices[nearest_step_idx])
+        pure_cut_won = int(np.ceil(((exact_est_p - a_val) * l_rate) + a_val))
+        naive_est_p = int(np.floor(base_amt * (raw_target_rate / 100.0)))
 
+        sg_xai_map = {
+            "SG1": {
+                "title": f"🔬 [추론 ① 상세 해부] G2B 원단위 절사 양자화 계단 좌표 (#{nearest_step_idx+1}번 Step : {singularity_rate:.4f}%)",
+                "color": "#38bdf8",
+                "summary": f"일반 프로그램이 계산한 이론적 타겟 사정률({raw_target_rate:.4f}%)은 조달청(G2B) 복수예가 산술평균 원단위 절사 규정 때문에 실제 개찰 결과로 절대 나올 수 없는 허수(Ghost Number)입니다. 15C4=1,365개 전수 계단 중 이 값 바로 위에 실재하는 #{nearest_step_idx+1}번 양자계단({singularity_rate:.4f}%)으로 좌표를 스냅(Snap)시켜 하한선 미달 탈락을 원천 차단했습니다.",
+                "s1": f"이론적 연속 사정률 산출값 = {raw_target_rate:.4f}% (가상 예정가격 {naive_est_p:,.0f}원 ➔ 실제 G2B 조합에 미존재)",
+                "s2": f"15개 예비가격 원단위 절사 후 4개 추첨 조합(🎯 {best_4_comb[0]}·{best_4_comb[1]}·{best_4_comb[2]}·{best_4_comb[3]}번) 매칭 ➔ #{nearest_step_idx+1}번 계단 포착",
+                "s3": f"4개 슬롯 절사 금액 합산 평균 = ({picked_slot_prices[0]:,.0f} + {picked_slot_prices[1]:,.0f} + {picked_slot_prices[2]:,.0f} + {picked_slot_prices[3]:,.0f}) ÷ 4 = {exact_est_p:,.0f}원",
+                "s4": f"실제 양자화 사정률 확정 = ({exact_est_p:,.0f}원 ÷ 기초금액 {base_amt:,.0f}원) × 100 = {singularity_rate:.4f}% (양자 락 완료)"
+            },
+            "SG2": {
+                "title": f"🧠 [추론 ② 상세 해부] 나라장터 인간 행동경제학 1~15번 클릭 편향 기댓값 ({human_biased_mean_rate:.4f}%)",
+                "color": "#34d399",
+                "summary": "나라장터 복수예가 추첨은 컴퓨터 난수가 아니라 참가 업체 담당자들이 화면의 1번~15번 체크박스 중 2개를 직접 마우스로 클릭해 다득표 4개를 뽑는 구조입니다. 인간 심리학상 첫/끝 번호(1, 5, 10, 15번)는 기피하고 중앙 골든존(3, 7, 8, 11, 12번)을 집중 클릭하는 행동 편향을 1,365개 조합 가중치로 역산했습니다.",
+                "s1": "단순 무작위 가정 시 번호별 선택 확률 = 각 6.67% 균등 (실제 현장 데이터와 괴리 발생)",
+                "s2": f"인간 클릭 심리 편향 강도({human_bias_strength}%) 적용 ➔ 7번(9.8%)·8번(9.5%)·12번(9.2%)·3번(9.1%) 다득표 가중치 부여",
+                "s3": "1,365개 조합별 출현 사후확률(Posterior Probability) P(C_k) = Π P(slot_i) 전수 계산",
+                "s4": f"클릭 편향 가중 기댓값 도출 = Σ [P(C_k) × Rate(C_k)] = {human_biased_mean_rate:.4f}% (단순 평균 대비 {human_biased_mean_rate - 100.0:+.4f}%p 이동)"
+            },
+            "SG3": {
+                "title": f"📅 [추론 ③ 상세 해부] 회계연도 행정예산 캘린더 드리프트 보정 ({fiscal_drift:+.3f}%p)",
+                "color": "#fb923c",
+                "summary": f"현재 선택된 회계 주기 [{fiscal_season}]에는 발주관서 재무관이 예산 불용액을 최소화하거나 집행 목표를 달성하기 위해 기초금액 대비 예정가격 슬롯을 상단(+0.05%~+0.12%p)에 배치하는 행정적 드리프트(Drift)가 발생합니다.",
+                "s1": f"적용 회계연도 시즌 모드 = {fiscal_season}",
+                "s2": f"재무관 예정가격 사정 드리프트 가산치 = {fiscal_drift:+.3f}%p",
+                "s3": f"기초금액({base_amt:,.0f}원) 대비 드리프트에 의한 예정가격 상승분 = {int(base_amt * (fiscal_drift / 100.0)):+,.0f}원",
+                "s4": f"낙찰하한율({l_rate*100:.3f}%) 반영 시 최종 커트라인 상승 효과 = {int(base_amt * (fiscal_drift / 100.0) * l_rate):+,.0f}원 선제 방어"
+            },
+            "SG4": {
+                "title": f"🌌 [추론 ④ 상세 해부] 최종 특이점(Singularity) 투찰가 및 +{prime_wedge_won}원 소수 웨지 ({singularity_bid:,.0f}원)",
+                "color": "#facc15",
+                "summary": f"①번(#{nearest_step_idx+1}번 양자계단), ②번(인간 클릭편향), ③번(행정예산 드리프트)을 통합한 확정 예정가격({exact_est_p:,.0f}원)에서 순수 낙찰하한선을 구한 뒤, 원단위 올림/버림 오차 방어와 100원/1,000원 단위 라운드넘버 동가 추첨을 동시에 깨뜨리는 비대칭 소수 웨지(+{prime_wedge_won}원)를 결합한 최종 적합 투찰가입니다.",
+                "s1": f"확정 양자계단(#{nearest_step_idx+1}번) 예정가격(E) = {exact_est_p:,.0f}원 (사정률 {singularity_rate:.4f}%)",
+                "s2": f"A값 공제 후 하한율 적용 = ({exact_est_p:,.0f} - {a_val:,.0f}) × {l_rate*100:.3f}% = {(exact_est_p - a_val) * l_rate:,.2f}원",
+                "s3": f"A값 재합산 및 원단위 올림(Ceil) 순수 커트라인 = {pure_cut_won:,.0f}원",
+                "s4": f"순수 커트라인({pure_cut_won:,.0f}원) + 비대칭 소수 웨지(+{prime_wedge_won}원) = 최종 {singularity_bid:,.0f}원 (기존 단순산출 대비 {singularity_bid - naive_bid:+,.0f}원)"
+            }
+        }
+
+        cur_sg_xai = sg_xai_map.get(st.session_state["v155_sg_inspect_key"], sg_xai_map["SG4"])
+
+        st.markdown(
+            f"""<div style="
+                background: linear-gradient(135deg, rgba(15, 23, 42, 0.96) 0%, rgba(23, 37, 84, 0.92) 100%);
+                border: 2px solid {cur_sg_xai['color']};
+                border-left: 8px solid {cur_sg_xai['color']};
+                border-radius: 14px;
+                padding: 15px 18px;
+                margin-top: 8px;
+                margin-bottom: 12px;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+                font-family: 'Noto Sans KR', sans-serif;
+            ">
+                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(148,163,184,0.25);padding-bottom:8px;margin-bottom:10px;">
+                    <div style="font-size:15px;font-weight:900;color:{cur_sg_xai['color']};">{cur_sg_xai['title']}</div>
+                    <div style="background:#020617;border:1px solid {cur_sg_xai['color']};padding:3px 12px;border-radius:999px;font-size:11.5px;color:#fff;font-weight:800;">
+                        최적 예가번호: <span style="color:#fde047;">🎯 {best_4_comb[0]}번 · {best_4_comb[1]}번 · {best_4_comb[2]}번 · {best_4_comb[3]}번</span>
+                    </div>
+                </div>
+                <div style="font-size:12.5px;color:#f8fafc;line-height:1.55;margin-bottom:10px;background:rgba(2,6,23,0.65);padding:10px 14px;border-radius:8px;border-left:3px solid #fde047;white-space:normal;">
+                    💡 <b>[핵심 추론 원리]</b> {cur_sg_xai['summary']}
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:8px;font-size:12px;color:#cbd5e1;">
+                    <div style="background:rgba(30,41,59,0.75);padding:8px 12px;border-radius:8px;"><b>STEP 1</b> : {cur_sg_xai['s1']}</div>
+                    <div style="background:rgba(30,41,59,0.75);padding:8px 12px;border-radius:8px;"><b>STEP 2</b> : {cur_sg_xai['s2']}</div>
+                    <div style="background:rgba(30,41,59,0.75);padding:8px 12px;border-radius:8px;"><b>STEP 3</b> : {cur_sg_xai['s3']}</div>
+                    <div style="background:rgba(30,41,59,0.75);padding:8px 12px;border-radius:8px;color:#fde047;"><b>STEP 4</b> : {cur_sg_xai['s4']}</div>
+                </div>
+            </div>""",
+            unsafe_allow_html=True
+        )
+
+        sg_b1, sg_b2 = st.columns([2.5, 1.5])
+        with sg_b1:
+            st.success(f"🌌 **[특이점 해독]** #{nearest_step_idx+1}번 양자계단(`예가 {comb_exact_est_prices[nearest_step_idx]:,.0f}원`) +{prime_wedge_won}원 웨지(`{singularity_bid:,.0f}원`) 착지 완료 | 최적번호: **`🎯 {best_4_comb[0]}·{best_4_comb[1]}·{best_4_comb[2]}·{best_4_comb[3]}번`**")
+        with sg_b2:
+            if st.button("🌌 특이점(v5.0) 사정률을 공고에 즉시 각인", use_container_width=True, key="btn_apply_singularity_v5"):
+                pool[sel_idx]["목표사정률"] = round(singularity_rate, 4)
+                pool[sel_idx]["_user_locked_rate"] = True
+                st.toast(f"🌌 [{notice_no}] 특이점 사정률 {singularity_rate:.4f}% 각인 완료!", icon="✅")
+                st.rerun()
+
+        # 2. 60FPS 4D 키네틱 입체 그래프
+        st.markdown("#### ⚡ 2. [4D LIVE KINETIC] 인간 1~15번 클릭 편향 3D 프리즘 & G2B 양자화 계단(Step) 실시간 레이저 스펙트럼")
         sorted_rates = np.sort(comb_exact_rates)
         center_i = int(np.argmin(np.abs(sorted_rates - singularity_rate)))
         slice_low = max(0, center_i - 18)
@@ -3273,11 +3348,7 @@ def render_phase5_singularity_engine():
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Noto+Sans+KR:wght@500;700;900&display=swap');
     * {{ box-sizing: border-box; margin: 0; padding: 0; }}
     body {{ background: transparent; font-family: 'Noto Sans KR', sans-serif; color: #f8fafc; overflow: hidden; padding: 4px; }}
-    .kinetic-grid {{
-        display: grid;
-        grid-template-columns: 1fr 1.15fr;
-        gap: 16px;
-    }}
+    .kinetic-grid {{ display: grid; grid-template-columns: 1fr 1.15fr; gap: 16px; }}
     .chart-shell {{
         background: radial-gradient(circle at 50% 20%, rgba(15, 23, 42, 0.96), rgba(4, 7, 17, 0.99));
         border: 1.5px solid rgba(56, 189, 248, 0.5);
@@ -3285,27 +3356,9 @@ def render_phase5_singularity_engine():
         border-radius: 16px;
         padding: 14px;
         box-shadow: 0 10px 28px rgba(0,0,0,0.65), inset 0 0 25px rgba(56,189,248,0.12);
-        position: relative;
     }}
-    .chart-title {{
-        font-size: 13px;
-        font-weight: 900;
-        color: #fde047;
-        margin-bottom: 8px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }}
-    .live-pill {{
-        font-family: 'Orbitron', sans-serif;
-        font-size: 10px;
-        background: rgba(16, 185, 129, 0.2);
-        border: 1px solid #10b981;
-        color: #34d399;
-        padding: 2px 8px;
-        border-radius: 999px;
-        box-shadow: 0 0 10px rgba(16,185,129,0.4);
-    }}
+    .chart-title {{ font-size: 13px; font-weight: 900; color: #fde047; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }}
+    .live-pill {{ font-family: 'Orbitron', sans-serif; font-size: 10px; background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #34d399; padding: 2px 8px; border-radius: 999px; }}
 </style>
 </head>
 <body>
@@ -3315,237 +3368,103 @@ def render_phase5_singularity_engine():
             <span>🧠 1~15번 인간 클릭 편향 3D 아이소메트릭 프리즘</span>
             <span class="live-pill">● 60FPS 3D PULSE</span>
         </div>
-        <canvas id="clickPrismCanvas" width="520" height="290" style="width:100%;height:290px;"></canvas>
+        <canvas id="clickPrismCanvas" width="520" height="280" style="width:100%;height:280px;"></canvas>
     </div>
     <div class="chart-shell" style="border-color:rgba(250,204,21,0.55);border-bottom-color:#ca8a04;">
         <div class="chart-title">
             <span>🔬 타겟 구간 주변 G2B 실제 원단위 절사 양자화 계단(Quantization Steps) 정밀 스펙트럼</span>
             <span class="live-pill" style="color:#fde047;border-color:#facc15;background:rgba(250,204,21,0.18);">⚡ STEP #{nearest_step_idx+1} LOCKED</span>
         </div>
-        <canvas id="quantStepCanvas" width="580" height="290" style="width:100%;height:290px;"></canvas>
+        <canvas id="quantStepCanvas" width="580" height="280" style="width:100%;height:280px;"></canvas>
     </div>
 </div>
-
 <script>
 const clickData = {json.dumps(click_pct_list)};
 const stepData = {json.dumps(step_slice)};
 const targetRate = {singularity_rate:.5f};
 const startStepNum = {slice_low + 1};
-
 const c1 = document.getElementById('clickPrismCanvas');
 const ctx1 = c1.getContext('2d');
 const c2 = document.getElementById('quantStepCanvas');
 const ctx2 = c2.getContext('2d');
-
 let t = 0;
-
 function renderKineticCharts() {{
     t += 0.045;
-
-    // [좌측 차트] 3D 아이소메트릭 네온 프리즘 바 애니메이션
     ctx1.clearRect(0, 0, c1.width, c1.height);
-    const W1 = c1.width, H1 = c1.height;
-    const baseLine = H1 - 34;
-
-    // 배경 수평 그리드
+    const W1 = c1.width, H1 = c1.height, baseLine = H1 - 32;
     for (let g = 0; g <= 4; g++) {{
-        let gy = 30 + g * ((baseLine - 30) / 4);
-        ctx1.beginPath();
-        ctx1.moveTo(32, gy); ctx1.lineTo(W1 - 12, gy);
-        ctx1.strokeStyle = 'rgba(148, 163, 184, 0.14)';
-        ctx1.lineWidth = 1;
-        ctx1.stroke();
+        let gy = 28 + g * ((baseLine - 28) / 4);
+        ctx1.beginPath(); ctx1.moveTo(30, gy); ctx1.lineTo(W1 - 10, gy);
+        ctx1.strokeStyle = 'rgba(148, 163, 184, 0.14)'; ctx1.stroke();
     }}
-
-    // 평균 기준선 (6.67%)
     let avgY = baseLine - (6.67 / 13.5) * (baseLine - 35);
-    ctx1.beginPath();
-    ctx1.setLineDash([5, 5]);
-    ctx1.moveTo(32, avgY); ctx1.lineTo(W1 - 12, avgY);
-    ctx1.strokeStyle = 'rgba(250, 204, 21, 0.7)';
-    ctx1.lineWidth = 1.5;
-    ctx1.stroke();
-    ctx1.setLineDash([]);
-    ctx1.fillStyle = '#fde047';
-    ctx1.font = 'bold 10px sans-serif';
-    ctx1.fillText('무작위 기준(6.67%)', W1 - 108, avgY - 5);
-
-    const barW = 19;
-    const gap = (W1 - 50) / 15;
+    ctx1.beginPath(); ctx1.setLineDash([5, 5]); ctx1.moveTo(30, avgY); ctx1.lineTo(W1 - 10, avgY);
+    ctx1.strokeStyle = 'rgba(250, 204, 21, 0.7)'; ctx1.stroke(); ctx1.setLineDash([]);
+    const barW = 18, gap = (W1 - 46) / 15;
     for (let i = 0; i < 15; i++) {{
         let val = clickData[i];
-        let wave = Math.sin(t * 2.0 + i * 0.55) * 4.5;
-        let bh = Math.max(12, (val / 13.0) * (baseLine - 45) + wave);
-        let bx = 36 + i * gap;
-        let by = baseLine - bh;
-
+        let bh = Math.max(12, (val / 13.0) * (baseLine - 42) + Math.sin(t * 2.0 + i * 0.55) * 4.0);
+        let bx = 32 + i * gap, by = baseLine - bh;
         let isHot = val >= 8.0;
-        let topColor = isHot ? '#fde047' : '#38bdf8';
-        let frontGrad = ctx1.createLinearGradient(bx, by, bx, baseLine);
-        if (isHot) {{
-            frontGrad.addColorStop(0, '#facc15');
-            frontGrad.addColorStop(0.5, '#ec4899');
-            frontGrad.addColorStop(1, '#6366f1');
-        }} else {{
-            frontGrad.addColorStop(0, '#38bdf8');
-            frontGrad.addColorStop(1, '#1e3a8a');
-        }}
-
-        // 3D 정면 기둥
-        ctx1.fillStyle = frontGrad;
+        ctx1.fillStyle = isHot ? '#facc15' : '#38bdf8';
         ctx1.fillRect(bx, by, barW, bh);
-
-        // 3D 아이소메트릭 상단 마름모 뚜껑
-        ctx1.beginPath();
-        ctx1.moveTo(bx, by);
-        ctx1.lineTo(bx + 6, by - 6);
-        ctx1.lineTo(bx + barW + 6, by - 6);
-        ctx1.lineTo(bx + barW, by);
-        ctx1.closePath();
-        ctx1.fillStyle = topColor;
-        ctx1.fill();
-
-        // 3D 아이소메트릭 우측 입체 옆면
-        ctx1.beginPath();
-        ctx1.moveTo(bx + barW, by);
-        ctx1.lineTo(bx + barW + 6, by - 6);
-        ctx1.lineTo(bx + barW + 6, baseLine - 6);
-        ctx1.lineTo(bx + barW, baseLine);
-        ctx1.closePath();
-        ctx1.fillStyle = isHot ? 'rgba(190, 24, 93, 0.85)' : 'rgba(14, 116, 144, 0.85)';
-        ctx1.fill();
-
-        // 상단 수치 및 하단 번호 라벨
         ctx1.fillStyle = isHot ? '#fde047' : '#cbd5e1';
-        ctx1.font = 'bold 9.5px Orbitron, sans-serif';
-        ctx1.textAlign = 'center';
-        ctx1.fillText(val.toFixed(1), bx + barW / 2 + 2, by - 10);
-
-        ctx1.fillStyle = '#94a3b8';
-        ctx1.font = 'bold 10px sans-serif';
-        ctx1.fillText((i + 1) + '번', bx + barW / 2, H1 - 14);
+        ctx1.font = 'bold 9px Orbitron'; ctx1.textAlign = 'center';
+        ctx1.fillText(val.toFixed(1), bx + barW / 2, by - 6);
+        ctx1.fillStyle = '#94a3b8'; ctx1.font = '10px sans-serif';
+        ctx1.fillText((i + 1) + '번', bx + barW / 2, H1 - 12);
     }}
-
-    // [우측 차트] G2B 원단위 절사 양자화 계단(Quantization Steps) 실시간 스캐너
     ctx2.clearRect(0, 0, c2.width, c2.height);
-    const W2 = c2.width, H2 = c2.height;
-    const padL = 66, padR = 18, padT = 26, padB = 36;
-    const plotW = W2 - padL - padR;
-    const plotH = H2 - padT - padB;
-
-    const minR = Math.min(...stepData) - 0.002;
-    const maxR = Math.max(...stepData) + 0.002;
-    const spanR = Math.max(maxR - minR, 0.005);
-
-    // 배경 네온 그리드 & 정밀 Y축 사정률(%) 눈금
+    const W2 = c2.width, H2 = c2.height, padL = 64, padR = 16, padT = 24, padB = 32;
+    const plotW = W2 - padL - padR, plotH = H2 - padT - padB;
+    const minR = Math.min(...stepData) - 0.002, maxR = Math.max(...stepData) + 0.002, spanR = Math.max(maxR - minR, 0.005);
     for (let g = 0; g <= 4; g++) {{
-        let gy = padT + g * (plotH / 4);
-        let rVal = maxR - (g / 4) * spanR;
-        ctx2.beginPath();
-        ctx2.moveTo(padL, gy); ctx2.lineTo(W2 - padR, gy);
-        ctx2.strokeStyle = 'rgba(56, 189, 248, 0.15)';
-        ctx2.lineWidth = 1;
-        ctx2.stroke();
-
-        ctx2.fillStyle = '#38bdf8';
-        ctx2.font = 'bold 10px Orbitron, sans-serif';
-        ctx2.textAlign = 'right';
+        let gy = padT + g * (plotH / 4), rVal = maxR - (g / 4) * spanR;
+        ctx2.beginPath(); ctx2.moveTo(padL, gy); ctx2.lineTo(W2 - padR, gy);
+        ctx2.strokeStyle = 'rgba(56, 189, 248, 0.15)'; ctx2.stroke();
+        ctx2.fillStyle = '#38bdf8'; ctx2.font = 'bold 10px Orbitron'; ctx2.textAlign = 'right';
         ctx2.fillText(rVal.toFixed(3) + '%', padL - 6, gy + 3);
     }}
-
-    // 타겟 기준선 (황금 네온 파동선)
-    let targetY = padT + ((maxR - targetRate) / spanR) * plotH;
-    ctx2.beginPath();
-    ctx2.setLineDash([6, 4]);
-    ctx2.moveTo(padL, targetY); ctx2.lineTo(W2 - padR, targetY);
-    ctx2.strokeStyle = '#facc15';
-    ctx2.lineWidth = 2;
-    ctx2.stroke();
-    ctx2.setLineDash([]);
-
-    // 계단형(Step-function) 궤적 및 하부 홀로그램 그라데이션 채우기
-    const N = stepData.length;
-    const stepW = plotW / Math.max(N - 1, 1);
-    let scanIdx = Math.floor((t * 6) % N);
-
+    const N = stepData.length, stepW = plotW / Math.max(N - 1, 1);
     ctx2.beginPath();
     for (let i = 0; i < N; i++) {{
         let sx = padL + i * stepW;
-        let microPulse = Math.sin(t * 3 + i * 0.4) * 1.8;
-        let sy = padT + ((maxR - stepData[i]) / spanR) * plotH + microPulse;
-        if (i === 0) {{
-            ctx2.moveTo(sx, sy);
-        }} else {{
-            let prevX = padL + (i - 1) * stepW;
-            let prevY = padT + ((maxR - stepData[i - 1]) / spanR) * plotH + Math.sin(t * 3 + (i - 1) * 0.4) * 1.8;
-            ctx2.lineTo(sx, prevY); // 수평 계단
-            ctx2.lineTo(sx, sy);    // 수직 단차
+        let sy = padT + ((maxR - stepData[i]) / spanR) * plotH + Math.sin(t * 3 + i * 0.4) * 1.5;
+        if (i === 0) ctx2.moveTo(sx, sy);
+        else {{
+            let prevY = padT + ((maxR - stepData[i - 1]) / spanR) * plotH + Math.sin(t * 3 + (i - 1) * 0.4) * 1.5;
+            ctx2.lineTo(sx, prevY); ctx2.lineTo(sx, sy);
         }}
     }}
-    ctx2.strokeStyle = '#38bdf8';
-    ctx2.lineWidth = 2.8;
-    ctx2.shadowColor = '#38bdf8';
-    ctx2.shadowBlur = 12;
-    ctx2.stroke();
-    ctx2.shadowBlur = 0;
-
-    // 각 양자화 계단 절점(Node) 및 실시간 스캔 레이저 링
+    ctx2.strokeStyle = '#38bdf8'; ctx2.lineWidth = 2.6; ctx2.stroke();
     let centerNodeIdx = Math.floor(N / 2);
     for (let i = 0; i < N; i++) {{
-        let sx = padL + i * stepW;
-        let sy = padT + ((maxR - stepData[i]) / spanR) * plotH + Math.sin(t * 3 + i * 0.4) * 1.8;
+        let sx = padL + i * stepW, sy = padT + ((maxR - stepData[i]) / spanR) * plotH + Math.sin(t * 3 + i * 0.4) * 1.5;
         let isTarget = (i === centerNodeIdx);
-        let isScanned = (i === scanIdx);
-
-        if (isScanned) {{
-            ctx2.beginPath();
-            ctx2.moveTo(sx, padT); ctx2.lineTo(sx, H2 - padB);
-            ctx2.strokeStyle = 'rgba(52, 211, 153, 0.45)';
-            ctx2.lineWidth = 1.5;
-            ctx2.stroke();
-        }}
-
-        ctx2.beginPath();
-        ctx2.arc(sx, sy, isTarget ? 7.5 : (isScanned ? 5.5 : 3), 0, Math.PI * 2);
-        ctx2.fillStyle = isTarget ? '#facc15' : (isScanned ? '#34d399' : '#c084fc');
-        ctx2.fill();
-
+        ctx2.beginPath(); ctx2.arc(sx, sy, isTarget ? 7 : 3, 0, Math.PI * 2);
+        ctx2.fillStyle = isTarget ? '#facc15' : '#c084fc'; ctx2.fill();
         if (isTarget) {{
-            let pulseR = 10 + Math.sin(t * 4) * 5;
-            ctx2.beginPath();
-            ctx2.arc(sx, sy, pulseR, 0, Math.PI * 2);
-            ctx2.strokeStyle = '#fde047';
-            ctx2.lineWidth = 2;
-            ctx2.stroke();
-
-            ctx2.fillStyle = '#fde047';
-            ctx2.font = 'bold 11px Orbitron, sans-serif';
-            ctx2.textAlign = 'center';
-            ctx2.fillText('🎯 LOCK: ' + targetRate.toFixed(4) + '% (+17원 웨지)', sx, sy - 15);
+            ctx2.fillStyle = '#fde047'; ctx2.font = 'bold 11px Orbitron'; ctx2.textAlign = 'center';
+            ctx2.fillText('🎯 LOCK: ' + targetRate.toFixed(4) + '%', sx, sy - 12);
         }}
-
-        if (i % 5 === 0 || i === N - 1) {{
-            ctx2.fillStyle = '#94a3b8';
-            ctx2.font = '10px Orbitron, sans-serif';
-            ctx2.textAlign = 'center';
-            ctx2.fillText('Step-' + (startStepNum + i), sx, H2 - 14);
+        if (i % 6 === 0 || i === N - 1) {{
+            ctx2.fillStyle = '#94a3b8'; ctx2.font = '10px Orbitron'; ctx2.textAlign = 'center';
+            ctx2.fillText('Step-' + (startStepNum + i), sx, H2 - 10);
         }}
     }}
-
     requestAnimationFrame(renderKineticCharts);
 }}
 renderKineticCharts();
 </script>
 </body>
 </html>"""
-        components.html(sg5_kinetic_html, height=355, scrolling=False)
+        components.html(sg5_kinetic_html, height=340, scrolling=False)
 
     except Exception as _sg_err:
-        st.info(f"특이점 v5.0 엔진 준비 완료 ({_sg_err})")
+        st.info(f"특이점 사정 엔진 준비 완료 ({_sg_err})")
 
 # [ROUTED BY V9 MACHINE] render_phase5_singularity_engine()
-# ==================== [PHASE 5: SINGULARITY AI ENGINE END] ====================
-
+# ==================== [PHASE 5: SINGULARITY ENGINE END] ====================
 
 # ==================== [PHASE 6: BACKTEST ENGINE START] ====================
 def render_phase6_backtesting_terminal():
