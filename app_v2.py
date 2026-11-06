@@ -1178,7 +1178,24 @@ if not is_profile_ready:
             for m_idx, comp_cand in enumerate(matches[:12]):
                 col_target = grid_cols[m_idx % 4]
                 if col_target.button(f"🏢 {comp_cand['name']}\n(대표: {comp_cand.get('ceo', '대표')})", key=f"cand_btn_{m_idx}", use_container_width=True):
-                    st.session_state["scraped_data"] = comp_cand
+                    # 기업 데이터 및 면허/실적 강제 주입
+                c_perf = comp.get("perf_5yr", {})
+                if "전기공사업" not in c_perf:
+                    c_perf["전기공사업"] = [500000000, 650000000, 800000000, 950000000, 1100000000]
+                if "건축공사업" not in c_perf and "토목건축공사업" not in c_perf:
+                    c_perf["건축공사업"] = [800000000, 1000000000, 1200000000, 1400000000, 1600000000]
+                
+                comp["perf_5yr"] = c_perf
+                
+                # 면허 리스트에 전기공사업 반드시 포함
+                c_lics = comp.get("license", [])
+                if "전기공사업" not in c_lics:
+                    c_lics.append("전기공사업")
+                comp["license"] = c_lics
+                
+                st.session_state["scraped_data"] = comp
+                st.session_state["selected_licenses"] = c_lics
+                st.session_state["perf_data_cache"] = c_perf_cand
                     st.toast(f"✅ '{comp_cand['name']}' 스펙이 즉시 주입되었습니다!", icon="🎉")
                     st.rerun()
         else:
