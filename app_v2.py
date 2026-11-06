@@ -2351,8 +2351,8 @@ def render_phase3_webhook_and_tracker():
             return
 
         # Streamlit Secrets 기본값 안전 로드
-        sec_tg_token = ""
-        sec_tg_chat = ""
+        sec_tg_token = "9024240666:AAEEz8DFvCFpxGy55Qzb1UQ35nNgF9ebde4"
+        sec_tg_chat = "8456101127"
         sec_slack_url = ""
         try:
             if hasattr(st, "secrets"):
@@ -2404,13 +2404,13 @@ def render_phase3_webhook_and_tracker():
                     value=sec_tg_token,
                     placeholder="123456:ABC-DEF...",
                     type="password",
-                    key="inp_tg_token_v3"
+                    key="inp_tg_token_v4"
                 )
                 tg_chat = c_tg2.text_input(
                     "Telegram Chat ID",
-                    value=st.session_state.get("auto_tg_chat_id", sec_tg_chat),
+                    value=st.session_state.get("auto_tg_chat_id") or "8456101127",
                     placeholder="-100123456789",
-                    key="inp_tg_chat_v3"
+                    key="inp_tg_chat_v4"
                 )
                 with c_tg3:
                     st.write("")
