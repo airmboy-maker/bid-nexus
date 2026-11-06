@@ -972,7 +972,7 @@ def generate_official_printable_html(data=None, q_auto=None, comp=None, st_pack=
     </div>
     <h3>1. 공사 및 신청인 개요</h3>
     <table>
-        <tr><th>공 고 명</th><td colspan="3"><b>{cur_d.get('공고명')}</b></td></tr>
+        <tr><th>공 고 명</th><td colspan="3"><b>{(data if isinstance(data, dict) else {}).get('공고명')}</b></td></tr>
         <tr><th>수요(발주)기관</th><td>{inst}</td><th>입 찰 일 시</th><td>2026년 11월 12일</td></tr>
         <tr><th>상    호</th><td>{comp.get('name', '기업')}</td><th>대 표 자 명</th><td><b>{ceo}</b></td></tr>
         <tr><th>사업자등록번호</th><td>{comp.get('biz_no', comp.get('biz_num', '515-87-03397'))}</td><th>본점 소재지</th><td>{comp['region']}</td></tr>
@@ -1001,7 +1001,7 @@ def generate_official_printable_html(data=None, q_auto=None, comp=None, st_pack=
 </html>"""
 
 def generate_decision_report_html(cur_d, q_res, comp, st_pack, chosen_r, bid_amt, net_p, cost_mat, cost_lab, cost_exp, cost_adm, total_exec):
-    inst = cur_d.get("수요기관") or cur_d.get("발주기관", "수요기관")
+    inst = (data if isinstance(data, dict) else {}).get("수요기관") or (data if isinstance(data, dict) else {}).get("발주기관", "수요기관")
     ceo = comp.get("ceo", "대표이사")
     b_val = st_pack.get('b_val', 0)
     act_pct = (bid_amt / b_val) * 100.0 if b_val > 0 else 0.0
@@ -1046,8 +1046,8 @@ def generate_decision_report_html(cur_d, q_res, comp, st_pack, chosen_r, bid_amt
 
     <h4 style="margin: 0 0 8px 0;">1. 대상 공고 및 발주처 정보</h4>
     <table class="data-table">
-        <tr><th>공  고  명</th><td colspan="3"><b>{cur_d.get('공고명')}</b></td></tr>
-        <tr><th>수요(발주)처</th><td>{inst}</td><th>입찰 마감일시</th><td>{cur_d.get('입찰마감일시', '2026-11-12 10:00')}</td></tr>
+        <tr><th>공  고  명</th><td colspan="3"><b>{(data if isinstance(data, dict) else {}).get('공고명')}</b></td></tr>
+        <tr><th>수요(발주)처</th><td>{inst}</td><th>입찰 마감일시</th><td>{(data if isinstance(data, dict) else {}).get('입찰마감일시', '2026-11-12 10:00')}</td></tr>
         <tr><th>기 초 금 액</th><td><b>{b_val:,} 원</b></td><th>A값(국민연금 등)</th><td>{st_pack.get('a_val', 0):,} 원</td></tr>
         <tr><th>낙찰하한율</th><td>{st_pack.get('l_rate', 0)*100:.3f}%</td><th>적격심사 판정</th><td><b style="color:#059669;">{q_res['total_ability']:.2f}점 만점 (통과)</b></td></tr>
     </table>
@@ -1375,7 +1375,7 @@ if isinstance(comp, (list, tuple)) and len(comp) > 0:
 if not isinstance(comp, dict):
     comp = {}
 
-eng_val = comp.get('engineers', comp.get('tech_headcount', {}))
+comp = comp[0] if isinstance(comp, (list, tuple)) and len(comp) > 0 else (comp if isinstance(comp, dict) else {}); eng_val = comp.get('engineers', comp.get('tech_headcount', {}))
 total_eng = sum(eng_val.values()) if isinstance(eng_val, dict) else (len(eng_val) if isinstance(eng_val, list) else 14)
 c_nm = comp.get('name', '기업')
 c_ceo = comp.get('ceo', '대표이사')
@@ -1436,7 +1436,7 @@ tab_radar, tab1, tab_quantum_ai, tab_sim, tab_dox, tab_profile, tab4 = st.tabs([
 ])
 
 try:
-    printable_html_doc = generate_official_printable_html(data, q_auto, comp, st_pack)
+    printable_html_doc = generate_official_printable_html(data if isinstance(data, dict) else {}, q_auto if isinstance(q_auto, dict) else {}, comp[0] if isinstance(comp, list) and comp else (comp if isinstance(comp, dict) else {}), st_pack if isinstance(st_pack, dict) else {})
 except Exception as _e:
     printable_html_doc = f"<div><h3>문서 생성 준비 중</h3><p>{_e}</p></div>"
 try:
@@ -1591,7 +1591,7 @@ with tab_quantum_ai:
     st.markdown("---")
     st.markdown("##### 🏛️ 조달청 나라장터 실제 개찰 전수 데이터셋")
     real_df = st_pack.get("real_bids_df", pd.DataFrame())
-    st.dataframe(real_df[["공고번호", "공고명", "기초금액", "실제예가사정률", "1순위투찰률", "1-2위 격차", "결과"]], use_container_width=True, hide_index=True)
+    st.dataframe((real_df[[c for c in [c for c in ["공고번호", "공고명", "기초금액", "실제예가사정률", "1순위투찰률", "1-2위 격차", "결과"] if c in real_df.columns] if c in real_df.columns]] if hasattr(real_df, "columns") and len([c for c in [c for c in ["공고번호", "공고명", "기초금액", "실제예가사정률", "1순위투찰률", "1-2위 격차", "결과"] if c in real_df.columns] if c in real_df.columns]) > 0 else real_df) if hasattr(real_df, "columns") and any(c in real_df.columns for c in ["공고번호", "공고명", "기초금액", "실제예가사정률", "1순위투찰률", "1-2위 격차", "결과"]) else real_df, use_container_width=True, hide_index=True)
 
 with tab_sim:
     st.subheader("🎛️ 0.001% 정밀 감도 & 공사 비목별 원가 분석")
