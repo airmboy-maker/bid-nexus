@@ -5078,7 +5078,7 @@ drawSonar();
 def render_phase9_bidding_machine_workstation():
     import streamlit as st
 
-    # 1. 장바구니 기본 풀(Pool)이 비어 있어도 첫 화면(BAY 1)이 100% 즉시 열리도록 사전 초기화 보장
+    # 1. 장바구니 기본 풀(Pool) 사전 초기화 보장 (첫 화면 BAY 1 즉시 오픈)
     if "bid_cart_pool" not in st.session_state or not st.session_state.get("bid_cart_pool"):
         st.session_state["bid_cart_pool"] = [
             {
@@ -5135,15 +5135,15 @@ def render_phase9_bidding_machine_workstation():
             },
         ]
 
-    # 2. 입찰 머신 하우징 + 전 구간 한글 1줄(Single-Line) 최적화 마스터 CSS
-    housing_singleline_css = """
+    # 2. 7열 하드웨어 푸시 버튼 데크 & 전 구간 한글 1줄(Single-Line) 보장 CSS
+    deck_v98_css = """
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Noto+Sans+KR:wght@400;600;800;900&display=swap');
 
     .block-container {
-        padding-top: 1.5rem !important;
+        padding-top: 1.4rem !important;
         padding-bottom: 1.2rem !important;
-        max-width: 1460px !important;
+        max-width: 1480px !important;
     }
 
     .stApp {
@@ -5152,7 +5152,7 @@ def render_phase9_bidding_machine_workstation():
             linear-gradient(180deg, #050811 0%, #090d1a 50%, #04060c 100%) !important;
     }
 
-    /* 한글 단락이 어색하게 두 줄로 쪼개지지 않고 한 줄로 깔끔하게 나오도록 전역 스타일 지정 */
+    /* 모든 제목 및 버튼 텍스트 한 줄(Single-Line) 고정 */
     h2, h3, h4 {
         white-space: nowrap !important;
         overflow: hidden !important;
@@ -5165,9 +5165,9 @@ def render_phase9_bidding_machine_workstation():
         border-bottom: 1px solid rgba(56, 189, 248, 0.35) !important;
         border-radius: 0 14px 14px 0 !important;
         padding: 10px 18px !important;
-        margin-top: 14px !important;
+        margin-top: 12px !important;
         margin-bottom: 10px !important;
-        font-size: clamp(16px, 1.35vw, 21px) !important;
+        font-size: clamp(16px, 1.3vw, 20px) !important;
         color: #f8fafc !important;
         font-weight: 900 !important;
     }
@@ -5176,86 +5176,64 @@ def render_phase9_bidding_machine_workstation():
         border-left: 4px solid #facc15 !important;
         padding: 6px 14px !important;
         border-radius: 0 10px 10px 0 !important;
-        font-size: clamp(13px, 1.05vw, 15.5px) !important;
+        font-size: clamp(13px, 1.05vw, 15px) !important;
         color: #fef08a !important;
         font-weight: 800 !important;
     }
 
-    /* 캡션(stCaption)과 알림박스(stAlert) 문장도 가급적 1줄로 또렷하게 표시 */
-    div[data-testid="stCaptionContainer"] p {
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        font-size: 12.5px !important;
-        color: #94a3b8 !important;
-    }
+    div[data-testid="stCaptionContainer"] p,
     div[data-testid="stAlert"] p {
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
-        font-size: 13px !important;
     }
 
-    /* 7-BAY 분업화 물리 데크 스위치 (7개 버튼이 한 줄에 나란히 정렬) */
-    div[role="radiogroup"] {
-        background: linear-gradient(180deg, #0f172a 0%, #060a14 100%) !important;
-        border: 2px solid rgba(56, 189, 248, 0.55) !important;
-        border-bottom: 5px solid #0284c7 !important;
-        border-radius: 16px !important;
-        padding: 8px 10px !important;
-        gap: 6px !important;
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(56, 189, 248, 0.15) !important;
-        display: flex !important;
-        flex-wrap: nowrap !important;
-        justify-content: space-between !important;
-        overflow-x: auto !important;
-    }
-    div[role="radiogroup"] > label {
-        flex: 1 1 0px !important;
-        min-width: 128px !important;
-        background: linear-gradient(145deg, #1e293b, #0f172a) !important;
-        border: 1px solid rgba(148, 163, 184, 0.35) !important;
-        border-bottom: 4px solid #334155 !important;
+    /* 7-BAY 전용 푸시 버튼: 끝 글자가 절대 밑으로 떨어지지 않도록 nowrap + 패딩 최적화 */
+    div.stButton > button {
+        width: 100% !important;
+        background: linear-gradient(145deg, #111827 0%, #090d16 100%) !important;
+        color: #cbd5e1 !important;
+        border: 1px solid rgba(56, 189, 248, 0.45) !important;
+        border-bottom: 4px solid #1e293b !important;
         border-radius: 12px !important;
-        padding: 8px 6px !important;
-        margin: 0 !important;
-        cursor: pointer !important;
+        padding: 9px 4px !important;
+        min-height: 46px !important;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.55) !important;
         transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-        justify-content: center !important;
-        align-items: center !important;
-        text-align: center !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
     }
-    /* 라디오 원형 아이콘 여백 축소로 한글 1줄 공간 확보 */
-    div[role="radiogroup"] > label > div:first-child {
-        margin-right: 4px !important;
-        transform: scale(0.82) !important;
+    div.stButton > button p {
+        font-weight: 900 !important;
+        font-size: clamp(11.5px, 0.88vw, 13.5px) !important;
+        letter-spacing: -0.4px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        margin: 0 !important;
     }
-    div[role="radiogroup"] > label:hover {
+    div.stButton > button:hover {
         border-color: #facc15 !important;
         border-bottom-color: #ca8a04 !important;
+        color: #ffffff !important;
         transform: translateY(-3px) !important;
-        box-shadow: 0 6px 16px rgba(250, 204, 21, 0.3) !important;
+        box-shadow: 0 8px 20px rgba(250, 204, 21, 0.35) !important;
     }
-    div[role="radiogroup"] > label[data-checked="true"],
-    div[role="radiogroup"] > label:has(input:checked) {
-        background: linear-gradient(135deg, #0284c7 0%, #4f46e5 55%, #9333ea 100%) !important;
+    /* 현재 선택된 활성 BAY 버튼 (Primary 상태) — 화려한 골드·바이올렛 점등 */
+    div.stButton > button[kind="primary"] {
+        background: linear-gradient(135deg, #0284c7 0%, #4f46e5 50%, #9333ea 100%) !important;
+        color: #fde047 !important;
         border: 1.5px solid #fde047 !important;
         border-bottom: 4px solid #facc15 !important;
-        box-shadow: 0 0 22px rgba(250, 204, 21, 0.5), inset 0 0 12px rgba(255, 255, 255, 0.25) !important;
+        box-shadow: 0 0 24px rgba(250, 204, 21, 0.55), inset 0 0 12px rgba(255, 255, 255, 0.25) !important;
         transform: translateY(-2px) !important;
     }
-    div[role="radiogroup"] > label p {
-        font-weight: 900 !important;
-        font-size: 12.5px !important;
-        line-height: 1.35 !important;
-        color: #f8fafc !important;
-        white-space: pre !important;
-        word-break: keep-all !important;
-        text-align: center !important;
-        margin: 0 !important;
+    div.stButton > button[kind="primary"] p {
+        color: #ffffff !important;
+        text-shadow: 0 0 8px rgba(250, 204, 21, 0.8) !important;
     }
 
-    /* 4D 메트릭 큐브 및 버튼 1줄 고정 */
+    /* 4D 메트릭 카드 */
     div[data-testid="stMetric"] {
         background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(23, 37, 84, 0.85) 100%) !important;
         border: 1px solid rgba(56, 189, 248, 0.5) !important;
@@ -5270,8 +5248,6 @@ def render_phase9_bidding_machine_workstation():
         font-weight: 800 !important;
         font-size: 12px !important;
         white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
     }
     div[data-testid="stMetricValue"] > div {
         color: #ffffff !important;
@@ -5280,23 +5256,14 @@ def render_phase9_bidding_machine_workstation():
         font-size: clamp(17px, 1.3vw, 22px) !important;
         white-space: nowrap !important;
     }
-    div.stButton > button {
-        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%) !important;
-        color: #fde047 !important;
-        border: 1px solid rgba(56, 189, 248, 0.6) !important;
-        border-bottom: 4px solid #38bdf8 !important;
-        border-radius: 10px !important;
-        font-weight: 800 !important;
-        white-space: nowrap !important;
-    }
     </style>
     """
-    st.markdown(housing_singleline_css, unsafe_allow_html=True)
+    st.markdown(deck_v98_css, unsafe_allow_html=True)
 
     pool = st.session_state.get("bid_cart_pool", [])
     cart_cnt = len(pool)
 
-    # 3. 입찰 머신 상단 금속 하우징 헤더 (한 줄 직관적 요약)
+    # 3. 입찰 머신 상단 금속 하우징 헤더
     machine_header_html = f"""
     <div style="
         background: linear-gradient(135deg, #090d16 0%, #111827 50%, #090d16 100%);
@@ -5305,8 +5272,8 @@ def render_phase9_bidding_machine_workstation():
         border-bottom: 4px solid #0284c7;
         border-radius: 14px;
         padding: 12px 20px;
-        margin-top: 6px;
-        margin-bottom: 8px;
+        margin-top: 4px;
+        margin-bottom: 10px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.7), inset 0 0 20px rgba(56,189,248,0.12);
         display: flex;
         justify-content: space-between;
@@ -5323,10 +5290,10 @@ def render_phase9_bidding_machine_workstation():
             ">⚙️</div>
             <div style="overflow:hidden;">
                 <div style="font-family:'Orbitron',sans-serif;font-size:17px;font-weight:900;color:#ffffff;letter-spacing:1px;white-space:nowrap;">
-                    BID-NEXUS v9.6 // TACTICAL BIDDING MACHINE WORKSTATION
+                    BID-NEXUS v9.8 // TACTICAL BIDDING MACHINE WORKSTATION
                 </div>
                 <div style="font-size:12px;color:#cbd5e1;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                    <span style="color:#34d399;font-weight:800;">● 스크롤 제로 분업화 가동 중</span> — 하단 7개 하드웨어 데크(BAY 1 ~ BAY 7) 클릭 시 해당 공정 화면만 1:1로 즉시 열립니다.
+                    <span style="color:#34d399;font-weight:800;">● 7-BAY 직결 스위치 데크 가동 중</span> — 아래 7개 공정 버튼 중 하나를 누르면 스크롤 없이 해당 모듈만 즉시 열립니다.
                 </div>
             </div>
         </div>
@@ -5344,45 +5311,50 @@ def render_phase9_bidding_machine_workstation():
     """
     st.markdown(machine_header_html, unsafe_allow_html=True)
 
-    # 4. 7-BAY 스위치 라벨을 간결한 1줄 문맥으로 정리하고, 초기 진입 시 무조건 BAY 1이 선택되도록 고정
-    nl_b = chr(10)
-    bay_options = [
-        f"👑 BAY 01{nl_b}보물섬·4D조감도",
-        f"🛒 BAY 02{nl_b}장바구니·품의서",
-        f"🔮 BAY 03{nl_b}판도라 X10 산통",
-        f"🌌 BAY 04{nl_b}특이점 양자계단",
-        f"🎯 BAY 05{nl_b}발주처·경쟁사저격",
-        f"🏁 BAY 06{nl_b}개찰복기·자가교정",
-        f"📲 BAY 07{nl_b}텔레그램·수주실적"
+    # 4. 라디오 동그라미를 완전히 제거한 7열 한 줄(Single-line) 전용 하드웨어 버튼 데크
+    bay_defs = [
+        ("BAY_1", "👑 01. 보물섬·4D조감도"),
+        ("BAY_2", "🛒 02. 장바구니·품의서"),
+        ("BAY_3", "🔮 03. 판도라 X10 산통"),
+        ("BAY_4", "🌌 04. 특이점 양자계단"),
+        ("BAY_5", "🎯 05. 발주처·경쟁사저격"),
+        ("BAY_6", "🏁 06. 개찰복기·자가교정"),
+        ("BAY_7", "📲 07. 텔레그램·수주실적")
     ]
 
-    if "v97_active_bay" not in st.session_state or st.session_state["v97_active_bay"] not in bay_options:
-        st.session_state["v97_active_bay"] = bay_options[0]
+    if "v98_active_bay_id" not in st.session_state:
+        st.session_state["v98_active_bay_id"] = "BAY_1"
 
-    selected_bay = st.radio(
-        "🎛️ 가동할 입찰 머신 분업화 모듈(Workstation Bay) 선택",
-        options=bay_options,
-        index=0,
-        horizontal=True,
-        label_visibility="collapsed",
-        key="v97_active_bay"
-    )
+    deck_cols = st.columns(7, gap="small")
+    for idx, (b_id, b_label) in enumerate(bay_defs):
+        is_active = (st.session_state["v98_active_bay_id"] == b_id)
+        with deck_cols[idx]:
+            if st.button(
+                b_label,
+                key=f"btn_deck_{b_id}",
+                type="primary" if is_active else "secondary",
+                use_container_width=True
+            ):
+                st.session_state["v98_active_bay_id"] = b_id
+                st.rerun()
 
-    # 5. 선택된 BAY 즉시 렌더링 (기본값 Fallback을 BAY 1로 두어 첫 화면에서 100% 즉시 표시)
-    if "BAY 02" in selected_bay or "BAY 2" in selected_bay:
+    active_id = st.session_state.get("v98_active_bay_id", "BAY_1")
+    active_title = dict(bay_defs).get(active_id, "👑 01. 보물섬·4D조감도")
+
+    # 5. 선택된 BAY 즉시 렌더링
+    if active_id == "BAY_2":
         render_phase2_multi_bid_cart()
-    elif "BAY 03" in selected_bay or "BAY 3" in selected_bay:
+    elif active_id == "BAY_3":
         render_phase7_pandora_akashic_core()
-    elif "BAY 04" in selected_bay or "BAY 4" in selected_bay:
+    elif active_id == "BAY_4":
         render_phase5_singularity_engine()
-    elif "BAY 05" in selected_bay or "BAY 5" in selected_bay:
+    elif active_id == "BAY_5":
         render_phase4_quantum_ai_engine()
-    elif "BAY 06" in selected_bay or "BAY 6" in selected_bay:
+    elif active_id == "BAY_6":
         render_phase6_backtesting_terminal()
-    elif "BAY 07" in selected_bay or "BAY 7" in selected_bay:
+    elif active_id == "BAY_7":
         render_phase3_webhook_and_tracker()
     else:
-        # 첫 진입 및 BAY 1 선택 시 즉시 보물섬 & 4D 조감도 오픈
         render_phase8_treasure_island_ui()
 
     # 6. 하우징 하단 1줄 마감 베젤
@@ -5401,8 +5373,8 @@ def render_phase9_bidding_machine_workstation():
             color:#cbd5e1;
             white-space:nowrap;
         ">
-            <div>🔩 <b style="color:#fde047;">ACTIVE BAY : {selected_bay.replace(chr(10), ' — ')}</b> — 타 모듈 스크롤이 자동 격리된 단독 집중 하우징 모드입니다.</div>
-            <div style="font-family:'Orbitron',sans-serif;color:#34d399;font-weight:800;">● ZERO-SCROLL HOUSING v9.6</div>
+            <div>🔩 <b style="color:#fde047;">ACTIVE WORKSTATION : {active_title}</b> — 타 모듈 스크롤이 자동 격리된 단독 집중 하우징 모드입니다.</div>
+            <div style="font-family:'Orbitron',sans-serif;color:#34d399;font-weight:800;">● ZERO-SCROLL HOUSING v9.8</div>
         </div>""",
         unsafe_allow_html=True
     )
