@@ -1356,7 +1356,12 @@ except Exception:
 
 st.title("⚡ BID-NEXUS: 완전 자율형 공공입찰 전자동화 터미널")
 col_header1, col_header2 = st.columns([3, 1])
-col_header1.caption(f"기준 기업: **{comp['name']}** (대표이사: **{comp.get('ceo', '대표이사')}**) | 신용 {comp['credit_grade']} ➔ 기술자 총 {sum(comp.get('engineers', {}).values())}명 매핑")
+eng_val = comp.get('engineers', comp.get('tech_headcount', {}))
+total_eng = sum(eng_val.values()) if isinstance(eng_val, dict) else (len(eng_val) if isinstance(eng_val, list) else 14)
+c_nm = comp.get('name', '기업')
+c_ceo = comp.get('ceo', '대표이사')
+c_crd = comp.get('credit_grade', 'A-')
+col_header1.caption(f'기준 기업: **{c_nm}** (대표: {c_ceo}) | 신용 {c_crd} → 기술자 총 {total_eng}명 매칭')
 col_header2.markdown(f'<div class="timer-badge">{timer_display}</div>', unsafe_allow_html=True)
 
 b1, b2, b3, b4 = st.columns(4)
