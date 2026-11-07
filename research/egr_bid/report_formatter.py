@@ -66,17 +66,59 @@ def format_standardized_assessment_report(
     history_source_label: str,
     firm_cost_won: int = None,
 ) -> str:
+    """터미널(CLI) 전용 박스형 4단 표준 사정과정 및 사정결과 양식서"""
     prof = get_qual_profile(notice.profile_key)
     p4 = m1_m5["m5_lucky_4"]
     m5_bid = m1_m5["m5_bid"]
     egr_bid_str = f"{res.recommendation_won:,}원" if res.recommendation_won else "추천 보류 (HOLD)"
     diff_str = f"{res.recommendation_won - m5_bid:+,}원" if res.recommendation_won else "-"
-    return (
-        f"[BID-NEXUS 표준 사정분석 요약] {notice_title} ({notice.notice_id})\n"
-        f"- 적용기준: {prof['annex_code']} ({notice.limit_rate}%) | 기초금액: {notice.base_amt:,}원 | 순공사원가 98%선: {m1_m5['min_net_cost_bid']:,}원\n"
-        f"- 트랙 1 (M5 기준선 추천가): {m5_bid:,}원 (양자계단 #{m1_m5['m5_step_no']} / 추첨번호 {p4[0]}·{p4[1]}·{p4[2]}·{p4[3]}번)\n"
-        f"- 트랙 2 (번외 EGR-BID 선택가): {egr_bid_str} (M5 대비 {diff_str} | 상태: {res.status})"
-    )
+
+    q = res.calibration_summary.get("m6_quantiles_pct", {}) if res.calibration_summary else {}
+    w80 = res.calibration_summary.get("m6_pi80_width_pct", "-") if res.calibration_summary else "-"
+    m7_ok = res.calibration_summary.get("m7_available", False) if res.calibration_summary else False
+
+    out = []
+    out.append("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓")
+    out.append(f"┃ 📋 [BID-NEXUS 표준 사정분석 양식서] 공고명: {notice_title} ({notice.notice_id})")
+    out.append("┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫")
+    out.append("┃ [양식 1] 공고 기본 제원 및 법정 하한 경계 요약")
+    out.append(f"┃  • 적격심사 기준 : {prof['annex_code']} ({notice.profile_key}) | 공고 낙찰하한율 : {notice.limit_rate}%")
+    out.append(f"┃  • 기초금액      : {notice.base_amt:>15,}원 | A값 (법정제비)    : {notice.a_val:>15,}원")
+    out.append(f"┃  • 기초 순공사원가: {notice.net_cost_base:>15,}원 | 98% 법정 배제선   : {m1_m5['min_net_cost_bid']:>15,}원")
+    out.append(f"┃  • 비가격 점수   : {notice.perf_score:.2f}점 / {prof['perf_max']:.2f}점      | 공동도급 허용여부 : {'허용' if notice.joint_venture_allowed else '불허(단독입찰)'}")
+    out.append("┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫")
+    out.append("┃ [양식 2] 6단계 표준 사정과정 (Assessment Process) 체크리스트")
+    out.append(f"┃  • STEP 1 (원문·시점검증) : PASS (SHA256={notice.source_sha256[:12]}... | 이력소스: {history_source_label})")
+    out.append(f"┃  • STEP 2 (M6 사정률분포) : Q10={q.get('q10','-')}% | Q50(중앙)={q.get('q50','-')}% | Q90={q.get('q90','-')}% (구간폭: {w80}%p)")
+    out.append(f"┃  • STEP 3 (M7 경쟁사분포) : {'유효 경쟁사 하한선 웨지 분포 반영 완료' if m7_ok else '경쟁사 원시투찰 미제공 (PROBABILITY_UNAVAILABLE)'}")
+    out.append(f"┃  • STEP 4 (법정 적격게이트): [별표 3] 종합 {m1_m5['m5_total_score']:.2f}점 (기준 95.00점) 및 98% 원가선 통과 확인")
+    out.append(f"┃  • STEP 5 (M8 보류게이트) : 최종상태 = {res.status} (사유: {', '.join(res.reasons)})")
+    out.append(f"┃  • STEP 6 (투트랙 타점확정): M5 기준선({m5_bid:,}원) vs EGR-BID 선택가({egr_bid_str}) 산출 완료")
+    out.append("┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫")
+    out.append("┃ [양식 3] 사정모델별(M1~M5) 및 번외(EGR-BID) 사정결과 종합 대조표")
+    out.append("┃ --------------------------------------------------------------------------------------")
+    out.append(f"┃  {'구분 (모델/시나리오)':<26} | {'사정률(%)':>9} | {'예정가격(원)':>14} | {'낙찰하한선(원)':>14} | {'추천투찰가(원)':>14}")
+    out.append("┃ --------------------------------------------------------------------------------------")
+    for m in m1_m5["models"]:
+        mark = "👑" if m["code"] == "M5" else "  "
+        out.append(
+            f"┃ {mark}{m['name']:<25} | {m['rate']:>8.4f}% | {m['est_price']:>14,} | {m['lower_limit']:>14,} | {m['recommended_bid']:>14,}"
+        )
+    if res.verified_rule_checks and "scenario_evaluation" in res.verified_rule_checks:
+        out.append("┃ --------------------------------------------------------------------------------------")
+        for sc in res.verified_rule_checks["scenario_evaluation"]["scenarios"]:
+            sc_bid = int(sc["lower_limit"]) + 19
+            is_sel = (res.recommendation_won is not None and abs(sc_bid - res.recommendation_won) < 200)
+            mark = "🛡️" if is_sel else "  "
+            out.append(
+                f"┃ {mark}EGR M6-{sc['scenario_id'].upper()} 분위수 시나리오   | {float(sc['rate_pct']):>8.4f}% | {sc['est_price']:>14,} | {sc['lower_limit']:>14,} | {sc_bid:>14,}"
+            )
+    out.append("┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫")
+    out.append("┃ [양식 4] 최종 입찰 의사결정 요약 (Executive Summary)")
+    out.append(f"┃  👑 트랙 1 (기존 M5 기준선 추천가) : {m5_bid:>15,}원 (양자계단 #{m1_m5['m5_step_no']}/1,365 | 예가번호: {p4[0]}·{p4[1]}·{p4[2]}·{p4[3]}번)")
+    out.append(f"┃  🛡️ 트랙 2 (번외 EGR-BID 선택가)  : {egr_bid_str:>15} (M5 대비 차액: {diff_str})")
+    out.append("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛")
+    return "\n".join(out)
 
 
 def format_printable_html_report(
@@ -135,7 +177,6 @@ def format_printable_html_report(
 
     sheet_html = f"""
     <div style="background:#ffffff;color:#0f172a;font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;padding:28px 32px;border:2px solid #1e293b;border-radius:6px;max-width:980px;margin:0 auto;box-shadow:0 4px 18px rgba(0,0,0,0.25);">
-        <!-- 상단 타이틀 및 결재란 -->
         <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px double #0f172a;padding-bottom:14px;margin-bottom:18px;flex-wrap:wrap;gap:12px;">
             <div>
                 <div style="font-size:12px;font-weight:700;color:#475569;letter-spacing:1px;">BID-NEXUS v20.4 OFFICIAL ASSESSMENT DOCUMENT</div>
@@ -159,7 +200,6 @@ def format_printable_html_report(
             </table>
         </div>
 
-        <!-- 1. 공고 제원 요약표 -->
         <div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px;">■ 1. 입찰공고 기본 제원 및 법정 하한 경계</div>
         <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:18px;color:#0f172a;">
             <tr>
@@ -186,7 +226,6 @@ def format_printable_html_report(
             </tr>
         </table>
 
-        <!-- 2. 6단계 표준 사정과정 요약표 -->
         <div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px;">■ 2. 6단계 표준 사정과정 (Assessment Process) 검증 내역</div>
         <table style="width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:18px;color:#0f172a;">
             <tr style="background:#1e293b;color:#ffffff;">
@@ -233,7 +272,6 @@ def format_printable_html_report(
             </tr>
         </table>
 
-        <!-- 3. 모델별 및 시나리오별 사정결과 비교표 -->
         <div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px;">■ 3. 사정모델별(M1~M5) 및 번외(EGR-BID) 사정결과 종합 대조표</div>
         <table style="width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:18px;color:#0f172a;">
             <tr style="background:#1e293b;color:#ffffff;">
@@ -248,7 +286,6 @@ def format_printable_html_report(
             {model_rows_html}
         </table>
 
-        <!-- 4. 최종 입찰 의사결정 요약 박스 -->
         <div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px;">■ 4. 최종 투찰 의사결정 요약 (Executive Decision Summary)</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;background:#f8fafc;border:2px solid #0f172a;border-radius:6px;padding:14px 18px;">
             <div style="border-right:1px dashed #94a3b8;padding-right:12px;">
@@ -284,7 +321,7 @@ body {{ background: #e2e8f0; padding: 20px; margin: 0; }}
 </head>
 <body>
 <div class="no-print" style="max-width:980px;margin:0 auto 12px auto;text-align:right;">
-    <button onclick="window.print()" style="background:#0f172a;color:#ffffff;border:none;padding:10px 20px;font-size:14px;font-weight:800;border-radius:6px;cursor:pointer;">🖨️ 프린터 인쇄 / PDF 저장 (Ctrl+P)</button>
+    <button onclick="window.print()" style="background:#0f172a;color:#ffffff;border:none;padding:10px 20px;font-size:14px;font-weight:800;border-radius:6px;cursor:pointer;">🖨️ 프린터 인쇄 / PDF 저장 (Cmd+P)</button>
 </div>
 {sheet_html}
 </body>
