@@ -7633,7 +7633,7 @@ def _render_egr_bid_addon_panel():
         )
 
         _active_cnt = sum([bool(on_picker), bool(on_arena), bool(on_egr), bool(on_lat)])
-        components.html(build_sidebar_4d_tesseract_html(active_count=_active_cnt), height=255, scrolling=False)
+        components.html(build_sidebar_4d_tesseract_html(active_count=_active_cnt), height=295, scrolling=False)
 
     slot = st.empty()
     if not on_picker and not on_arena and not on_egr and not on_lat:

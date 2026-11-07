@@ -102,7 +102,8 @@ def build_sidebar_4d_tesseract_html(active_count: int = 4) -> str:
     background: radial-gradient(circle at 50% 38%, #0f172a 0%, #060b14 70%, #020617 100%);
     border: 1.5px solid rgba(56, 189, 248, 0.55);
     border-radius: 14px;
-    padding: 12px 12px 10px 12px;
+    padding: 12px 12px 12px 12px;
+    margin-bottom: 6px;
     position: relative;
     box-shadow: 0 0 24px rgba(56, 189, 248, 0.22), inset 0 0 25px rgba(16, 185, 129, 0.1);
   }}
@@ -135,7 +136,7 @@ def build_sidebar_4d_tesseract_html(active_count: int = 4) -> str:
     to {{ transform: scale(1.25); opacity: 1.0; }}
   }}
   #tesseractCanvas {{
-    width: 100%; height: 155px; display: block;
+    width: 100%; height: 142px; display: block;
     background: rgba(2, 6, 23, 0.65);
     border: 1px solid rgba(56, 189, 248, 0.25);
     border-radius: 10px;
