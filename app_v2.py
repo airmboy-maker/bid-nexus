@@ -7598,12 +7598,12 @@ def _render_egr_bid_addon_panel():
     with st.sidebar:
         st.markdown("---")
         st.markdown("""
-        <div style="background:linear-gradient(135deg,#0f172a,#1e1b4b);border:1.2px solid #38bdf8;border-radius:10px;padding:7px 11px;margin-bottom:4px;box-shadow:0 0 14px rgba(56,189,248,0.2);word-break:keep-all;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">
-                <span style="background:#fbbf24;color:#020617;font-size:9px;font-weight:900;padding:2px 7px;border-radius:999px;white-space:nowrap;">4D COMMAND DECK</span>
-                <span style="color:#38bdf8;font-size:9.5px;font-weight:800;white-space:nowrap;">60FPS 홀로그램</span>
+        <div style="display:block;position:relative;box-sizing:border-box;width:100%;background:linear-gradient(135deg,#0f172a,#1e1b4b);border:1.2px solid #38bdf8;border-left:4px solid #38bdf8;border-radius:10px;padding:8px 12px;margin-top:2px;margin-bottom:10px;box-shadow:0 4px 12px rgba(0,0,0,0.45);word-break:keep-all;clear:both;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+                <span style="background:#fbbf24;color:#020617;font-size:8.5px;font-weight:900;padding:2px 7px;border-radius:999px;white-space:nowrap;">4D COMMAND DECK</span>
+                <span style="color:#38bdf8;font-size:9px;font-weight:800;white-space:nowrap;">60FPS 홀로그램</span>
             </div>
-            <div style="color:#f8fafc;font-size:12.5px;font-weight:900;line-height:1.25;">🧭 4D 입찰 엔진 매트릭스 제어</div>
+            <div style="color:#f8fafc;font-size:13px;font-weight:900;line-height:1.3;">🧭 4D 입찰 엔진 매트릭스 제어</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -7633,7 +7633,7 @@ def _render_egr_bid_addon_panel():
         )
 
         _active_cnt = sum([bool(on_picker), bool(on_arena), bool(on_egr), bool(on_lat)])
-        components.html(build_sidebar_4d_tesseract_html(active_count=_active_cnt), height=205, scrolling=False)
+        components.html(build_sidebar_4d_tesseract_html(active_count=_active_cnt), height=198, scrolling=False)
 
     slot = st.empty()
     if not on_picker and not on_arena and not on_egr and not on_lat:

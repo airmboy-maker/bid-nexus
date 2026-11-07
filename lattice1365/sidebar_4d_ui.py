@@ -1,11 +1,11 @@
 def get_sidebar_4d_global_css() -> str:
     """
-    중첩 테두리 없이 각 카드를 단 1개의 깔끔한 4D 홀로그램 프레임으로 정리하고,
-    체크박스 라벨이 두 줄로 꺾이지 않도록 정밀 정렬하는 전역 CSS
+    타이틀 카드(GATEKEEPER STATUS, 4D COMMAND DECK)와 하위 요소들이 절대 겹치지 않도록
+    각 컨테이너의 높이 계산과 상하 간격(margin/gap)을 명확히 분리하는 전역 CSS
     """
     return """
     <style>
-    /* 1. 좌측 사이드바 배경 및 스크롤바 제거 */
+    /* 1. 좌측 사이드바 배경 및 스크롤바 숨김 유지 */
     section[data-testid="stSidebar"],
     section[data-testid="stSidebar"] > div:first-child,
     section[data-testid="stSidebarContent"] {
@@ -17,7 +17,7 @@ def get_sidebar_4d_global_css() -> str:
         border-right: 1.5px solid rgba(56, 189, 248, 0.38) !important;
         box-shadow: 8px 0 30px rgba(0, 0, 0, 0.75) !important;
         word-break: keep-all !important;
-        overflow-y: hidden !important;
+        overflow-y: auto !important;
         overflow-x: hidden !important;
         scrollbar-width: none !important;
     }
@@ -27,28 +27,41 @@ def get_sidebar_4d_global_css() -> str:
 
     section[data-testid="stSidebar"] .block-container,
     section[data-testid="stSidebarUserContent"] {
-        padding-top: 0.45rem !important;
-        padding-bottom: 0.3rem !important;
-        padding-left: 0.7rem !important;
-        padding-right: 0.7rem !important;
+        padding-top: 0.6rem !important;
+        padding-bottom: 0.4rem !important;
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+    /* 위젯 간 겹침 방지를 위해 수직 블록 간격을 0.5rem으로 확보하고 각 요소 높이를 자동(auto)으로 강제 */
+    section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div {
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
     }
     section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] {
-        gap: 0.32rem !important;
+        gap: 0.48rem !important;
     }
 
-    /* 2. 상단 ⚡ GATEKEEPER STATUS 헤더 (단일 깔끔 카드) */
+    /* 2. 상단 ⚡ GATEKEEPER STATUS 헤더 — 아래 배지와 절대 겹치지 않도록 하단 여백(margin-bottom: 8px) 및 독립 블록 보장 */
     section[data-testid="stSidebar"] h2,
     section[data-testid="stSidebar"] h3 {
+        display: block !important;
+        position: relative !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
         background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #090d16 100%) !important;
-        border: 1.2px solid rgba(251, 191, 36, 0.6) !important;
+        border: 1.2px solid rgba(251, 191, 36, 0.65) !important;
         border-left: 4px solid #f59e0b !important;
         border-radius: 10px !important;
-        padding: 7px 11px !important;
-        margin: 0 0 4px 0 !important;
+        padding: 8px 12px !important;
+        margin-top: 0px !important;
+        margin-bottom: 8px !important;
         color: #f8fafc !important;
         font-size: 13.5px !important;
         font-weight: 900 !important;
+        line-height: 1.3 !important;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+        clear: both !important;
     }
     section[data-testid="stSidebar"] h2::before,
     section[data-testid="stSidebar"] h3::before {
@@ -58,20 +71,21 @@ def get_sidebar_4d_global_css() -> str:
         font-weight: 900;
         color: #fbbf24;
         letter-spacing: 0.6px;
-        margin-bottom: 1px;
+        margin-bottom: 3px;
+        line-height: 1.1;
     }
 
-    /* 3. ⚠️ 알림 박스(stAlert) 이중 테두리 방지 — 최외곽 stAlert에만 단일 테두리 적용 */
+    /* 3. ⚠️ 알림 박스(stAlert) 상하 간격 분리 */
     section[data-testid="stSidebar"] div[data-testid="stAlert"] {
         background: linear-gradient(135deg, rgba(69, 10, 10, 0.88) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
         border: 1.2px solid rgba(244, 63, 94, 0.55) !important;
         border-left: 4px solid #f43f5e !important;
         border-radius: 10px !important;
-        padding: 7px 10px !important;
-        margin: 2px 0 4px 0 !important;
+        padding: 8px 11px !important;
+        margin-top: 4px !important;
+        margin-bottom: 4px !important;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45) !important;
     }
-    /* stAlert 내부 자식 div들의 중복 테두리/배경 완전 제거 */
     section[data-testid="stSidebar"] div[data-testid="stAlert"] div[role="alert"],
     section[data-testid="stSidebar"] div[data-testid="stAlert"] div {
         background: transparent !important;
@@ -85,24 +99,25 @@ def get_sidebar_4d_global_css() -> str:
         overflow: visible !important;
         text-overflow: clip !important;
         word-break: keep-all !important;
-        line-height: 1.35 !important;
+        line-height: 1.38 !important;
         font-size: 11.5px !important;
         font-weight: 700 !important;
         color: #fecdd3 !important;
     }
 
-    /* 4. 🔐 모바일/외부 접속 보안 PIN 설정 (단일 볼트 카드) */
+    /* 4. 🔐 모바일/외부 접속 보안 PIN 설정 */
     section[data-testid="stSidebar"] div[data-testid="stExpander"] {
         background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 55%, #090d16 100%) !important;
         border: 1.2px solid rgba(168, 85, 247, 0.55) !important;
         border-left: 4px solid #a855f7 !important;
         border-radius: 10px !important;
-        margin: 2px 0 4px 0 !important;
+        margin-top: 2px !important;
+        margin-bottom: 4px !important;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45) !important;
     }
     section[data-testid="stSidebar"] div[data-testid="stExpander"] summary {
-        padding: 6px 10px !important;
-        min-height: 32px !important;
+        padding: 7px 11px !important;
+        min-height: 34px !important;
     }
     section[data-testid="stSidebar"] div[data-testid="stExpander"] summary p {
         font-size: 11.5px !important;
@@ -111,22 +126,24 @@ def get_sidebar_4d_global_css() -> str:
         white-space: nowrap !important;
     }
 
-    /* 5. 사이드바 체크박스 4종 — 두 줄로 꺾이지 않고 한 줄에 깔끔하게 정렬 */
+    /* 5. 사이드바 체크박스 4종 — 상단 타이틀 박스와 겹치지 않도록 독립 여백 부여 */
     section[data-testid="stSidebar"] div[data-testid="stCheckbox"] {
+        position: relative !important;
         background: linear-gradient(135deg, rgba(15, 23, 42, 0.94) 0%, rgba(17, 24, 39, 0.98) 100%);
         border: 1px solid rgba(51, 65, 85, 0.85);
         border-left: 3.5px solid #10b981;
         border-radius: 9px;
-        padding: 5px 8px !important;
-        margin-bottom: 3px !important;
-        min-height: 31px !important;
+        padding: 6px 9px !important;
+        margin-top: 2px !important;
+        margin-bottom: 2px !important;
+        min-height: 32px !important;
         box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
         transition: all 0.18s ease;
     }
     section[data-testid="stSidebar"] div[data-testid="stCheckbox"] label p {
         font-size: 11px !important;
         font-weight: 800 !important;
-        line-height: 1.2 !important;
+        line-height: 1.25 !important;
         white-space: nowrap !important;
         letter-spacing: -0.35px !important;
     }
@@ -141,7 +158,7 @@ def get_sidebar_4d_global_css() -> str:
         border: none !important;
         height: 1px !important;
         background: linear-gradient(90deg, transparent, #38bdf8, #10b981, transparent) !important;
-        margin: 5px 0 !important;
+        margin: 6px 0 !important;
         opacity: 0.65 !important;
     }
     </style>
@@ -149,10 +166,6 @@ def get_sidebar_4d_global_css() -> str:
 
 
 def build_sidebar_4d_tesseract_html(active_count: int = 4) -> str:
-    """
-    부모 DOM의 중첩 테두리 오염을 먼저 깨끗이 초기화한 뒤,
-    가장 안쪽 배지 태그 단 1개에만 깔끔한 캡슐 디자인을 입히고 4D 테서랙트를 렌더링
-    """
     return f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -209,7 +222,7 @@ def build_sidebar_4d_tesseract_html(active_count: int = 4) -> str:
   .main-title {{ font-size: 11.5px; font-weight: 900; color: #f8fafc; white-space: nowrap; }}
   .sub-title {{ font-size: 9.5px; font-weight: 600; color: #94a3b8; white-space: nowrap; }}
   #tesseractCanvas {{
-    width: 100%; height: 84px; display: block;
+    width: 100%; height: 78px; display: block;
     background: rgba(2, 6, 23, 0.72);
     border: 1px solid rgba(56, 189, 248, 0.25);
     border-radius: 8px;
@@ -255,7 +268,7 @@ def build_sidebar_4d_tesseract_html(active_count: int = 4) -> str:
 </div>
 
 <script>
-// 부모 사이드바에서 중첩 적용된 5겹 빨간 테두리를 모두 지우고 가장 안쪽 배지 1개만 깔끔하게 스타일링
+// 상단 GATEKEEPER STATUS 배지와 헤더가 절대 겹치지 않도록 상단 여백(marginTop: 8px) 확보
 function cleanAndStyleGatekeeperBadge() {{
   try {{
     const parentDoc = window.parent.document;
@@ -266,7 +279,6 @@ function cleanAndStyleGatekeeperBadge() {{
     allEls.forEach(el => {{
       const txt = (el.innerText || '').trim();
       if (txt === '🔒 적격 마스터 미등록 (잠김)' || txt === '🔓 적격 마스터 승인 완료') {{
-        // 자식 요소가 또 같은 텍스트를 가진 부모 컨테이너라면 인라인 테두리/배경 완전 제거!
         const hasSameChild = Array.from(el.children).some(
           c => (c.innerText || '').trim() === txt
         );
@@ -277,11 +289,13 @@ function cleanAndStyleGatekeeperBadge() {{
           el.style.padding = '0';
           el.style.margin = '0';
         }} else {{
-          // 가장 안쪽 리프(Leaf) 요소 단 1개에만 슬림 4D 캡슐 적용
           el.style.display = 'block';
+          el.style.position = 'relative';
+          el.style.boxSizing = 'border-box';
           el.style.width = '100%';
           el.style.padding = '6px 10px';
-          el.style.margin = '2px 0 4px 0';
+          el.style.marginTop = '8px';
+          el.style.marginBottom = '4px';
           el.style.borderRadius = '9px';
           el.style.fontWeight = '800';
           el.style.fontSize = '11.5px';
@@ -340,7 +354,7 @@ function render4D() {{
   ctx.translate(cx, cy);
   ctx.rotate(angle * 0.6);
   ctx.beginPath();
-  ctx.ellipse(0, 0, 50, 15, 0, 0, Math.PI * 2);
+  ctx.ellipse(0, 0, 48, 14, 0, 0, Math.PI * 2);
   ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
   ctx.lineWidth = 1.1;
   ctx.stroke();
@@ -350,7 +364,7 @@ function render4D() {{
   ctx.translate(cx, cy);
   ctx.rotate(-angle * 0.45);
   ctx.beginPath();
-  ctx.ellipse(0, 0, 17, 36, 0, 0, Math.PI * 2);
+  ctx.ellipse(0, 0, 16, 34, 0, 0, Math.PI * 2);
   ctx.strokeStyle = 'rgba(16, 185, 129, 0.25)';
   ctx.lineWidth = 1.1;
   ctx.stroke();
@@ -368,7 +382,7 @@ function render4D() {{
     const wFactor = 1 / (2.6 - nw * 0.65);
     const x3 = fx * wFactor, y3 = fy * wFactor, z3 = nz * wFactor;
     const zFactor = 1 / (2.4 - z3);
-    const scale = 40;
+    const scale = 38;
     return {{ x: cx + x3 * zFactor * scale, y: cy + y3 * zFactor * scale, w4: nw }};
   }});
 
@@ -385,7 +399,7 @@ function render4D() {{
 
   projected2D.forEach(p => {{
     ctx.beginPath();
-    ctx.arc(p.x, p.y, p.w4 > 0 ? 2.2 : 1.5, 0, Math.PI * 2);
+    ctx.arc(p.x, p.y, p.w4 > 0 ? 2.1 : 1.4, 0, Math.PI * 2);
     ctx.fillStyle = p.w4 > 0 ? '#38bdf8' : '#fbbf24';
     ctx.fill();
   }});
