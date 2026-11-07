@@ -9,9 +9,6 @@ def build_tactical_sniper_arena_html(
     net_cost_98: int,
     n_rivals: int = 48,
 ) -> str:
-    """
-    [1] 3대 트랙(M5 · EGR-BID · LATTICE-1365) vs N개 경쟁사 실시간 스나이퍼 탄착 배틀 시뮬레이터 + Web Audio API 레이저/탄착 사운드
-    """
     egr_val = egr_bid if egr_bid and egr_bid > 0 else m5_bid + 617624
     lat_val = lat_bid if lat_bid and lat_bid > 0 else m5_bid - 796054
 
@@ -106,14 +103,11 @@ function initArenaAudio() {{
   if (!arenaSndOn) return null;
   const AC = window.AudioContext || window.webkitAudioContext;
   if (!AC) return null;
-  if (!arenaAudioCtx) arenaAudioCtx = new AC();
+  if (!arenaAudioCtx) arenaAudioCtx = new AC({{ latencyHint: 'interactive' }});
   if (arenaAudioCtx.state === 'suspended') arenaAudioCtx.resume();
   return arenaAudioCtx;
-}
-window.addEventListener('pointerdown', () => { initArenaAudio(); }, { passive: true });
-function _dummy_keep() {
-  return arenaAudioCtx;
 }}
+window.addEventListener('pointerdown', () => {{ initArenaAudio(); }}, {{ passive: true }});
 
 function toggleArenaSound() {{
   arenaSndOn = !arenaSndOn;
@@ -129,7 +123,6 @@ function toggleArenaSound() {{
   }}
 }}
 
-// 경쟁사 탄착 시 짧은 디지털 레이더 핍 사운드
 function playRivalPip(isDead) {{
   const ac = initArenaAudio();
   if (!ac || !arenaSndOn) return;
@@ -148,13 +141,11 @@ function playRivalPip(isDead) {{
   }} catch (e) {{}}
 }}
 
-// 3대 AI 스나이퍼 조준경 탄착 시 강력한 사이버 레이저 캐논 + 서브 임팩트 사운드
 function playSniperLockLaser(pitchFreq) {{
   const ac = initArenaAudio();
   if (!ac || !arenaSndOn) return;
   try {{
     const now = ac.currentTime;
-    // 레이저 다운스윕
     const osc = ac.createOscillator();
     const g = ac.createGain();
     osc.type = 'sawtooth';
@@ -167,7 +158,6 @@ function playSniperLockLaser(pitchFreq) {{
     osc.start(now);
     osc.stop(now + 0.22);
 
-    // 락온 타겟 비프음
     const beep = ac.createOscillator();
     const bg = ac.createGain();
     beep.type = 'triangle';
@@ -323,9 +313,6 @@ requestAnimationFrame(draw);
 
 
 def build_egr_shield_matrix_html(q_map: Dict, status_str: str, egr_bid: int, min_nc_98: int) -> str:
-    """
-    [2] 번외 1 (EGR-BID) 전용: 발주기관 사정률 변동 파동(Q10~Q90) vs M8 5중 에너지 방어 쉴드 + 플라즈마 디플렉트 사운드
-    """
     q10 = q_map.get("q10", "100.0500")
     q50 = q_map.get("q50", "100.1100")
     q90 = q_map.get("q90", "100.1400")
@@ -377,7 +364,7 @@ function toggleShieldSnd() {{
   const b = document.getElementById('shSndBtn');
   if (shSnd) {{
     const AC = window.AudioContext || window.webkitAudioContext;
-    if (AC && !shCtx) shCtx = new AC();
+    if (AC && !shCtx) shCtx = new AC({{ latencyHint: 'interactive' }});
     if (shCtx && shCtx.state === 'suspended') shCtx.resume();
     b.className = 'sh-btn on';
     b.innerText = '🔊 쉴드 사운드 ON';
@@ -502,9 +489,6 @@ def build_lattice_wave_rider_html(
     p_miss_pct: float,
     eff_floor_pct: float,
 ) -> str:
-    """
-    [3] 번외 2 (LATTICE-1365) 전용: 1,365 계단 확률장 오로라 파도 & 기대이익 골든 피크(Golden Peak) 락온 + 소나 펄스 사운드
-    """
     return f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -551,7 +535,7 @@ function toggleWaveSnd() {{
   const b = document.getElementById('wvSndBtn');
   if (wvSnd) {{
     const AC = window.AudioContext || window.webkitAudioContext;
-    if (AC && !wvCtx) wvCtx = new AC();
+    if (AC && !wvCtx) wvCtx = new AC({{ latencyHint: 'interactive' }});
     if (wvCtx && wvCtx.state === 'suspended') wvCtx.resume();
     b.className = 'wv-btn on';
     b.innerText = '🔊 골든피크 소나 ON';
@@ -569,7 +553,7 @@ function playSonarPing() {{
     const osc = wvCtx.createOscillator();
     const g = wvCtx.createGain();
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(932.33, now); // Bb5 소나 핑
+    osc.frequency.setValueAtTime(932.33, now);
     g.gain.setValueAtTime(0.28, now);
     g.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
     osc.connect(g);

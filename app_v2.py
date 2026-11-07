@@ -8113,4 +8113,5 @@ def _render_egr_bid_addon_panel():
 try:
     _render_egr_bid_addon_panel()
 except Exception as _egr_e:
-    pass
+    import streamlit as _st
+    _st.error(f"번외 모델 렌더링 오류: {_egr_e}")
