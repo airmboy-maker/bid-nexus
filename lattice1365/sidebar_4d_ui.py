@@ -78,8 +78,8 @@ def get_sidebar_4d_global_css() -> str:
         border-left: 4px solid #f43f5e !important;
         border-radius: 10px !important;
         padding: 8px 11px !important;
-        margin-top: 2px !important;
-        margin-bottom: 2px !important;
+        margin-top: 3px !important;
+        margin-bottom: 5px !important;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45) !important;
     }
     section[data-testid="stSidebar"] div[data-testid="stAlert"] div[role="alert"],
@@ -105,8 +105,8 @@ def get_sidebar_4d_global_css() -> str:
         border: 1.2px solid rgba(168, 85, 247, 0.55) !important;
         border-left: 4px solid #a855f7 !important;
         border-radius: 10px !important;
-        margin-top: 2px !important;
-        margin-bottom: 2px !important;
+        margin-top: 3px !important;
+        margin-bottom: 5px !important;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45) !important;
     }
     section[data-testid="stSidebar"] div[data-testid="stExpander"] summary {
@@ -133,8 +133,8 @@ def get_sidebar_4d_global_css() -> str:
         border-left: 3.5px solid #10b981 !important;
         border-radius: 9px !important;
         padding: 6px 8px 6px 9px !important;
-        margin-top: 2px !important;
-        margin-bottom: 2px !important;
+        margin-top: 3px !important;
+        margin-bottom: 5px !important;
         min-height: 33px !important;
         box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35) !important;
         transition: all 0.18s ease !important;
@@ -337,7 +337,7 @@ function cleanAndStyleGatekeeperBadge() {{
     // 첫 번째 체크박스와 4D COMMAND DECK 타이틀 박스 사이에 명확한 6px 간격 강제 부여
     const chks = sidebar.querySelectorAll('div[data-testid="stCheckbox"]');
     if (chks.length > 0) {{
-      chks[0].style.marginTop = '6px';
+      chks[0].style.marginTop = '8px';
     }}
   }} catch (e) {{}}
 }}

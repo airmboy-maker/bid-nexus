@@ -7598,12 +7598,14 @@ def _render_egr_bid_addon_panel():
     with st.sidebar:
         st.markdown("---")
         st.markdown("""
-        <div style="display:block;position:relative;box-sizing:border-box;width:100%;background:linear-gradient(135deg,#0f172a,#1e1b4b);border:1.2px solid #38bdf8;border-left:4px solid #38bdf8;border-radius:10px;padding:8px 12px;margin-top:2px;margin-bottom:10px;box-shadow:0 4px 12px rgba(0,0,0,0.45);word-break:keep-all;clear:both;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
-                <span style="background:#fbbf24;color:#020617;font-size:8.5px;font-weight:900;padding:2px 7px;border-radius:999px;white-space:nowrap;">4D COMMAND DECK</span>
-                <span style="color:#38bdf8;font-size:9px;font-weight:800;white-space:nowrap;">60FPS 홀로그램</span>
+        <div style="padding-bottom:10px;display:block;">
+            <div style="display:block;position:relative;box-sizing:border-box;width:100%;background:linear-gradient(135deg,#0f172a,#1e1b4b);border:1.2px solid #38bdf8;border-left:4px solid #38bdf8;border-radius:11px;padding:11px 13px;box-shadow:0 4px 14px rgba(0,0,0,0.5);word-break:keep-all;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(56,189,248,0.18);">
+                    <span style="background:#fbbf24;color:#020617;font-size:9px;font-weight:900;padding:3px 8px;border-radius:999px;white-space:nowrap;">4D COMMAND DECK</span>
+                    <span style="color:#38bdf8;font-size:9.5px;font-weight:800;white-space:nowrap;">60FPS 홀로그램</span>
+                </div>
+                <div style="color:#f8fafc;font-size:13px;font-weight:900;line-height:1.35;letter-spacing:0.1px;">🧭 4D 입찰 엔진 매트릭스 제어</div>
             </div>
-            <div style="color:#f8fafc;font-size:13px;font-weight:900;line-height:1.3;">🧭 4D 입찰 엔진 매트릭스 제어</div>
         </div>
         """, unsafe_allow_html=True)
 
