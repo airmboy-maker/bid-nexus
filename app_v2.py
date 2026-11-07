@@ -7620,13 +7620,13 @@ def _render_egr_bid_addon_panel():
             help="48개 경쟁사 투찰 탄착군 속에서 M5 · EGR-BID · LATTICE-1365 3대 스나이퍼가 하한선 직상단을 타격하는 60FPS 배틀 아레나를 표시합니다.",
         )
         on_egr = st.checkbox(
-            "🛡️ [번외 1] 제미나이 EGR-BID (M6·M7·M8)",
+            "🛡️ [번외 1] 제미나이 EGR-BID (M6~8)",
             value=True,
             key="_addon_chk_egr_v2",
             help="기존 번외 모델: 발주기관 사정률 분위수(M6)·경쟁사 웨지(M7)·보류게이트(M8) 기반 강건 시나리오 분석기",
         )
         on_lat = st.checkbox(
-            "⚡ [번외 2] 젠스파크 LATTICE-1365 (L0~L5)",
+            "⚡ [번외 2] 젠스파크 LATTICE-1365",
             value=True,
             key="_addon_chk_lat_v2",
             help="신규 번외 모델: 1,365계단 확률장(L1)·극값 역산(L2)·기대이익장(L3)·내생 실효하한(L4) 분석기",

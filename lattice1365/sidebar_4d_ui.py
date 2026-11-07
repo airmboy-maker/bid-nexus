@@ -1,11 +1,11 @@
 def get_sidebar_4d_global_css() -> str:
     """
-    타이틀 카드(GATEKEEPER STATUS, 4D COMMAND DECK)와 하위 요소들이 절대 겹치지 않도록
-    각 컨테이너의 높이 계산과 상하 간격(margin/gap)을 명확히 분리하는 전역 CSS
+    체크박스 우측 '?' 아이콘이 박스 밖으로 삐져나가지 않도록 내부 Flexbox에 완전 수납하고,
+    4D COMMAND DECK 헤더와 첫 번째 체크박스 사이 간격을 완벽히 분리하는 정밀 CSS
     """
     return """
     <style>
-    /* 1. 좌측 사이드바 배경 및 스크롤바 숨김 유지 */
+    /* 1. 좌측 사이드바 배경 및 스크롤바 숨김 */
     section[data-testid="stSidebar"],
     section[data-testid="stSidebar"] > div:first-child,
     section[data-testid="stSidebarContent"] {
@@ -27,22 +27,20 @@ def get_sidebar_4d_global_css() -> str:
 
     section[data-testid="stSidebar"] .block-container,
     section[data-testid="stSidebarUserContent"] {
-        padding-top: 0.6rem !important;
-        padding-bottom: 0.4rem !important;
-        padding-left: 0.75rem !important;
-        padding-right: 0.75rem !important;
+        padding-top: 0.55rem !important;
+        padding-bottom: 0.35rem !important;
+        padding-left: 0.7rem !important;
+        padding-right: 0.7rem !important;
     }
-    /* 위젯 간 겹침 방지를 위해 수직 블록 간격을 0.5rem으로 확보하고 각 요소 높이를 자동(auto)으로 강제 */
     section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div {
         height: auto !important;
         min-height: 0 !important;
-        overflow: visible !important;
     }
     section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] {
-        gap: 0.48rem !important;
+        gap: 0.42rem !important;
     }
 
-    /* 2. 상단 ⚡ GATEKEEPER STATUS 헤더 — 아래 배지와 절대 겹치지 않도록 하단 여백(margin-bottom: 8px) 및 독립 블록 보장 */
+    /* 2. 상단 ⚡ GATEKEEPER STATUS 헤더 */
     section[data-testid="stSidebar"] h2,
     section[data-testid="stSidebar"] h3 {
         display: block !important;
@@ -55,13 +53,12 @@ def get_sidebar_4d_global_css() -> str:
         border-radius: 10px !important;
         padding: 8px 12px !important;
         margin-top: 0px !important;
-        margin-bottom: 8px !important;
+        margin-bottom: 6px !important;
         color: #f8fafc !important;
         font-size: 13.5px !important;
         font-weight: 900 !important;
         line-height: 1.3 !important;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
-        clear: both !important;
     }
     section[data-testid="stSidebar"] h2::before,
     section[data-testid="stSidebar"] h3::before {
@@ -71,19 +68,18 @@ def get_sidebar_4d_global_css() -> str:
         font-weight: 900;
         color: #fbbf24;
         letter-spacing: 0.6px;
-        margin-bottom: 3px;
-        line-height: 1.1;
+        margin-bottom: 2px;
     }
 
-    /* 3. ⚠️ 알림 박스(stAlert) 상하 간격 분리 */
+    /* 3. ⚠️ 알림 박스(stAlert) */
     section[data-testid="stSidebar"] div[data-testid="stAlert"] {
         background: linear-gradient(135deg, rgba(69, 10, 10, 0.88) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
         border: 1.2px solid rgba(244, 63, 94, 0.55) !important;
         border-left: 4px solid #f43f5e !important;
         border-radius: 10px !important;
         padding: 8px 11px !important;
-        margin-top: 4px !important;
-        margin-bottom: 4px !important;
+        margin-top: 2px !important;
+        margin-bottom: 2px !important;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45) !important;
     }
     section[data-testid="stSidebar"] div[data-testid="stAlert"] div[role="alert"],
@@ -96,10 +92,8 @@ def get_sidebar_4d_global_css() -> str:
     }
     section[data-testid="stSidebar"] div[data-testid="stAlert"] p {
         white-space: normal !important;
-        overflow: visible !important;
-        text-overflow: clip !important;
         word-break: keep-all !important;
-        line-height: 1.38 !important;
+        line-height: 1.36 !important;
         font-size: 11.5px !important;
         font-weight: 700 !important;
         color: #fecdd3 !important;
@@ -112,7 +106,7 @@ def get_sidebar_4d_global_css() -> str:
         border-left: 4px solid #a855f7 !important;
         border-radius: 10px !important;
         margin-top: 2px !important;
-        margin-bottom: 4px !important;
+        margin-bottom: 2px !important;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45) !important;
     }
     section[data-testid="stSidebar"] div[data-testid="stExpander"] summary {
@@ -126,30 +120,55 @@ def get_sidebar_4d_global_css() -> str:
         white-space: nowrap !important;
     }
 
-    /* 5. 사이드바 체크박스 4종 — 상단 타이틀 박스와 겹치지 않도록 독립 여백 부여 */
+    /* 5. 사이드바 체크박스 4종 — '?' 툴팁 아이콘을 박스 안쪽 우측 끝에 완벽히 수납! */
     section[data-testid="stSidebar"] div[data-testid="stCheckbox"] {
-        position: relative !important;
-        background: linear-gradient(135deg, rgba(15, 23, 42, 0.94) 0%, rgba(17, 24, 39, 0.98) 100%);
-        border: 1px solid rgba(51, 65, 85, 0.85);
-        border-left: 3.5px solid #10b981;
-        border-radius: 9px;
-        padding: 6px 9px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.94) 0%, rgba(17, 24, 39, 0.98) 100%) !important;
+        border: 1px solid rgba(51, 65, 85, 0.9) !important;
+        border-left: 3.5px solid #10b981 !important;
+        border-radius: 9px !important;
+        padding: 6px 8px 6px 9px !important;
         margin-top: 2px !important;
         margin-bottom: 2px !important;
-        min-height: 32px !important;
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
-        transition: all 0.18s ease;
+        min-height: 33px !important;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35) !important;
+        transition: all 0.18s ease !important;
+    }
+    section[data-testid="stSidebar"] div[data-testid="stCheckbox"] > label {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding-right: 2px !important;
+        box-sizing: border-box !important;
     }
     section[data-testid="stSidebar"] div[data-testid="stCheckbox"] label p {
-        font-size: 11px !important;
+        font-size: 10.5px !important;
         font-weight: 800 !important;
-        line-height: 1.25 !important;
+        line-height: 1.2 !important;
         white-space: nowrap !important;
-        letter-spacing: -0.35px !important;
+        letter-spacing: -0.45px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    /* 우측 '?' 툴팁 아이콘 크기 및 위치 고정 (카드 밖 이탈 원천 차단) */
+    section[data-testid="stSidebar"] div[data-testid="stCheckbox"] [data-testid="stTooltipIcon"],
+    section[data-testid="stSidebar"] div[data-testid="stCheckbox"] div.stTooltipIcon {
+        flex-shrink: 0 !important;
+        margin-left: 4px !important;
+        margin-right: 0px !important;
+        transform: scale(0.88) !important;
     }
     section[data-testid="stSidebar"] div[data-testid="stCheckbox"]:hover {
-        border-color: #38bdf8;
-        border-left-color: #fbbf24;
+        border-color: #38bdf8 !important;
+        border-left-color: #fbbf24 !important;
         transform: translateX(2px);
     }
 
@@ -184,21 +203,10 @@ def build_sidebar_4d_tesseract_html(active_count: int = 4) -> str:
     position: relative;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), inset 0 0 18px rgba(16, 185, 129, 0.08);
   }}
-  .scanline {{
-    position: absolute; top: 0; left: 0; right: 0; height: 1.5px;
-    background: linear-gradient(90deg, transparent, #38bdf8, #fbbf24, transparent);
-    animation: scanMove 3.2s linear infinite;
-    opacity: 0.7; pointer-events: none;
-  }}
-  @keyframes scanMove {{
-    0% {{ top: 2px; opacity: 0.2; }}
-    50% {{ opacity: 0.85; }}
-    100% {{ top: 96%; opacity: 0.2; }}
-  }}
   .top-row {{
     display: flex; justify-content: space-between; align-items: center;
-    padding-bottom: 5px; margin-bottom: 5px;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+    padding-bottom: 6px; margin-bottom: 6px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.16);
   }}
   .badge-4d {{
     background: linear-gradient(90deg, #38bdf8, #10b981);
@@ -216,17 +224,30 @@ def build_sidebar_4d_tesseract_html(active_count: int = 4) -> str:
     display: inline-block; box-shadow: 0 0 6px #10b981;
   }}
   .title-block {{
-    display: flex; justify-content: space-between; align-items: baseline;
-    margin-bottom: 6px;
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 7px;
   }}
   .main-title {{ font-size: 11.5px; font-weight: 900; color: #f8fafc; white-space: nowrap; }}
   .sub-title {{ font-size: 9.5px; font-weight: 600; color: #94a3b8; white-space: nowrap; }}
+  .canvas-frame {{
+    position: relative; overflow: hidden; border-radius: 8px;
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    margin-bottom: 7px;
+  }}
+  .scanline {{
+    position: absolute; top: 0; left: 0; right: 0; height: 1.5px;
+    background: linear-gradient(90deg, transparent, #38bdf8, #fbbf24, transparent);
+    animation: scanMove 2.8s linear infinite;
+    opacity: 0.65; pointer-events: none;
+  }}
+  @keyframes scanMove {{
+    0% {{ top: 2px; opacity: 0.2; }}
+    50% {{ opacity: 0.85; }}
+    100% {{ top: 96%; opacity: 0.2; }}
+  }}
   #tesseractCanvas {{
     width: 100%; height: 78px; display: block;
-    background: rgba(2, 6, 23, 0.72);
-    border: 1px solid rgba(56, 189, 248, 0.25);
-    border-radius: 8px;
-    margin-bottom: 7px;
+    background: rgba(2, 6, 23, 0.75);
   }}
   .telemetry-grid {{
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px;
@@ -241,7 +262,6 @@ def build_sidebar_4d_tesseract_html(active_count: int = 4) -> str:
 </head>
 <body>
 <div class="cmd-card">
-  <div class="scanline"></div>
   <div class="top-row">
     <span class="badge-4d">4D CORE v20.4</span>
     <span class="status-pill"><span class="pulse-dot"></span> {active_count}개 모듈 가동</span>
@@ -250,7 +270,10 @@ def build_sidebar_4d_tesseract_html(active_count: int = 4) -> str:
     <span class="main-title">🪐 QUANTUM MATRIX</span>
     <span class="sub-title">4차원 초입방체 코어</span>
   </div>
-  <canvas id="tesseractCanvas"></canvas>
+  <div class="canvas-frame">
+    <div class="scanline"></div>
+    <canvas id="tesseractCanvas"></canvas>
+  </div>
   <div class="telemetry-grid">
     <div class="t-cell" style="border-bottom:2px solid #38bdf8;">
       <div class="t-label">👑 M5 코어</div>
@@ -268,7 +291,6 @@ def build_sidebar_4d_tesseract_html(active_count: int = 4) -> str:
 </div>
 
 <script>
-// 상단 GATEKEEPER STATUS 배지와 헤더가 절대 겹치지 않도록 상단 여백(marginTop: 8px) 확보
 function cleanAndStyleGatekeeperBadge() {{
   try {{
     const parentDoc = window.parent.document;
@@ -294,7 +316,7 @@ function cleanAndStyleGatekeeperBadge() {{
           el.style.boxSizing = 'border-box';
           el.style.width = '100%';
           el.style.padding = '6px 10px';
-          el.style.marginTop = '8px';
+          el.style.marginTop = '6px';
           el.style.marginBottom = '4px';
           el.style.borderRadius = '9px';
           el.style.fontWeight = '800';
@@ -311,10 +333,16 @@ function cleanAndStyleGatekeeperBadge() {{
         }}
       }}
     }});
+
+    // 첫 번째 체크박스와 4D COMMAND DECK 타이틀 박스 사이에 명확한 6px 간격 강제 부여
+    const chks = sidebar.querySelectorAll('div[data-testid="stCheckbox"]');
+    if (chks.length > 0) {{
+      chks[0].style.marginTop = '6px';
+    }}
   }} catch (e) {{}}
 }}
 cleanAndStyleGatekeeperBadge();
-setInterval(cleanAndStyleGatekeeperBadge, 800);
+setInterval(cleanAndStyleGatekeeperBadge, 700);
 
 const canvas = document.getElementById('tesseractCanvas');
 const ctx = canvas.getContext('2d');
