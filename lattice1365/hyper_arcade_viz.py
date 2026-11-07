@@ -109,6 +109,10 @@ function initArenaAudio() {{
   if (!arenaAudioCtx) arenaAudioCtx = new AC();
   if (arenaAudioCtx.state === 'suspended') arenaAudioCtx.resume();
   return arenaAudioCtx;
+}
+window.addEventListener('pointerdown', () => { initArenaAudio(); }, { passive: true });
+function _dummy_keep() {
+  return arenaAudioCtx;
 }}
 
 function toggleArenaSound() {{
@@ -135,7 +139,7 @@ function playRivalPip(isDead) {{
     const g = ac.createGain();
     osc.type = 'sine';
     osc.frequency.setValueAtTime(isDead ? 240 : 620 + Math.random() * 280, now);
-    g.gain.setValueAtTime(0.035, now);
+    g.gain.setValueAtTime(0.14, now);
     g.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
     osc.connect(g);
     g.connect(ac.destination);
@@ -156,7 +160,7 @@ function playSniperLockLaser(pitchFreq) {{
     osc.type = 'sawtooth';
     osc.frequency.setValueAtTime(1850, now);
     osc.frequency.exponentialRampToValueAtTime(130, now + 0.19);
-    g.gain.setValueAtTime(0.16, now);
+    g.gain.setValueAtTime(0.42, now);
     g.gain.exponentialRampToValueAtTime(0.001, now + 0.21);
     osc.connect(g);
     g.connect(ac.destination);
@@ -168,7 +172,7 @@ function playSniperLockLaser(pitchFreq) {{
     const bg = ac.createGain();
     beep.type = 'triangle';
     beep.frequency.setValueAtTime(pitchFreq, now + 0.06);
-    bg.gain.setValueAtTime(0.18, now + 0.06);
+    bg.gain.setValueAtTime(0.48, now + 0.06);
     bg.gain.exponentialRampToValueAtTime(0.001, now + 0.34);
     beep.connect(bg);
     bg.connect(ac.destination);
@@ -393,7 +397,7 @@ function playDeflectSound() {{
     osc.type = 'sine';
     osc.frequency.setValueAtTime(440, now);
     osc.frequency.exponentialRampToValueAtTime(880, now + 0.11);
-    g.gain.setValueAtTime(0.09, now);
+    g.gain.setValueAtTime(0.32, now);
     g.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
     osc.connect(g);
     g.connect(shCtx.destination);
@@ -566,7 +570,7 @@ function playSonarPing() {{
     const g = wvCtx.createGain();
     osc.type = 'sine';
     osc.frequency.setValueAtTime(932.33, now); // Bb5 소나 핑
-    g.gain.setValueAtTime(0.08, now);
+    g.gain.setValueAtTime(0.28, now);
     g.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
     osc.connect(g);
     g.connect(wvCtx.destination);

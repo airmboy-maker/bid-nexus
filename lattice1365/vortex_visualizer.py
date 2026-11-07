@@ -277,7 +277,7 @@ function playVortexStartSound() {{
     osc.frequency.setValueAtTime(110, now);
     osc.frequency.exponentialRampToValueAtTime(420, now + 0.45);
     gain.gain.setValueAtTime(0.001, now);
-    gain.gain.linearRampToValueAtTime(0.11, now + 0.08);
+    gain.gain.linearRampToValueAtTime(0.32, now + 0.08);
     gain.gain.exponentialRampToValueAtTime(0.001, now + 0.48);
     osc.connect(gain);
     gain.connect(ctxA.destination);
@@ -302,7 +302,7 @@ function playCyberLockSound(stepIdx, isGoldPick) {{
     osc1.frequency.setValueAtTime(f1 * 1.4, now);
     osc1.frequency.exponentialRampToValueAtTime(f1, now + 0.09);
     gain1.gain.setValueAtTime(0.001, now);
-    gain1.gain.linearRampToValueAtTime(isGoldPick ? 0.22 : 0.15, now + 0.015);
+    gain1.gain.linearRampToValueAtTime(isGoldPick ? 0.55 : 0.38, now + 0.015);
     gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
     osc1.connect(gain1);
     gain1.connect(ctxA.destination);
@@ -315,7 +315,7 @@ function playCyberLockSound(stepIdx, isGoldPick) {{
     sub.type = 'sine';
     sub.frequency.setValueAtTime(160, now);
     sub.frequency.exponentialRampToValueAtTime(42, now + 0.22);
-    subGain.gain.setValueAtTime(0.18, now);
+    subGain.gain.setValueAtTime(0.45, now);
     subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
     sub.connect(subGain);
     subGain.connect(ctxA.destination);
@@ -329,7 +329,7 @@ function playCyberLockSound(stepIdx, isGoldPick) {{
       osc2.type = 'sine';
       osc2.frequency.setValueAtTime(f1 * 1.5, now + 0.03); // 5도 화음
       gain2.gain.setValueAtTime(0.001, now + 0.03);
-      gain2.gain.linearRampToValueAtTime(0.16, now + 0.05);
+      gain2.gain.linearRampToValueAtTime(0.42, now + 0.05);
       gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
       osc2.connect(gain2);
       gain2.connect(ctxA.destination);
@@ -352,7 +352,7 @@ function playCompleteArpeggio() {{
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(freq, now);
       g.gain.setValueAtTime(0.001, now);
-      g.gain.linearRampToValueAtTime(0.13, now + 0.015);
+      g.gain.linearRampToValueAtTime(0.35, now + 0.015);
       g.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
       osc.connect(g);
       g.connect(ctxA.destination);
