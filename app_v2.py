@@ -1813,6 +1813,9 @@ except Exception as _e_cert:
 # 📡 탭 0: 인크리멘탈 기업 연동 레이더
 # =================================================================================
 with tab_radar:
+    import importlib
+    import lattice1365.prism_radar_cards as _prc_mod
+    importlib.reload(_prc_mod)
     from lattice1365.prism_radar_cards import get_prism_deck_css, build_orbital_radar_header_html, build_cockpit_sub_header_html
     st.markdown(get_prism_deck_css(), unsafe_allow_html=True)
     st.markdown(build_orbital_radar_header_html(), unsafe_allow_html=True)
@@ -1875,6 +1878,9 @@ with tab_radar:
     if not live_bids:
         st.warning("선택하신 조건에 일치하는 실시간 공고가 없습니다. 지역이나 규모 필터를 넓혀보세요.")
     else:
+        import importlib
+        import lattice1365.prism_radar_cards as _prc_mod
+        importlib.reload(_prc_mod)
         from lattice1365.prism_radar_cards import get_prism_deck_css, build_prism_notice_card_html
         st.markdown(get_prism_deck_css(), unsafe_allow_html=True)
         for idx, bid_item in enumerate(live_bids):
