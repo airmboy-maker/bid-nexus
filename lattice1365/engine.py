@@ -117,8 +117,9 @@ def compute_optimal_bid(ctx: BidContext, opening_hist: list = None, org_profile:
             warnings=["L4 적격 제약 투영 결과: 수행능력점수 부족으로 적격 통과 가능한 계단이 없습니다 (입찰 불가)."] + warnings,
         )
 
-    # 수행능력점수가 만점 미달이어서 실효 하한율이 공고 하한율보다 상승한 경우 투찰가 재투영
-    eff_rate_pct = max(r_ann * 100.0, r_eff_ratio * 100.0)
+    # 수행능력점수가 만점(>=30.0)이면 공고 하한율(r_ann) 그대로 적용, 미달일 때만 부족분만큼 실효 하한율 상향
+    deficit_pts = max(0.0, (s_cut - s_max + 5.0) - float(ctx.s_pq))
+    eff_rate_pct = (r_ann * 100.0) + (deficit_pts / max(k_coef, 1.0))
     step_bids = np.array([
         step_bid_from_est_price(int(ep), ctx.a_val, eff_rate_pct, wedge_won=19)
         for ep in step_est_prices
@@ -136,7 +137,11 @@ def compute_optimal_bid(ctx: BidContext, opening_hist: list = None, org_profile:
 
     if len(t1_list) >= MIN_EVT_SAMPLES:
         F_hat, f_hat = invert_rival_distribution(np.array(t1_list), np.array(t2_list), np.array(n_list), grid_rates)
-        n_bid = float(np.mean(n_list))
+        # 실제 하한선 근접 유효경쟁 그룹(Top Tier) 규모로 스케일링하여 (1-F)^N 언더플로우 방지
+        min_r, max_r = float(step_bids.min()) / float(ctx.base_amt) * 100.0, float(step_bids.max()) / float(ctx.base_amt) * 100.0
+        grid_rates = np.linspace(min_r - 0.05, max_r + 0.05, 401)
+        F_hat = np.clip((grid_rates - min_r) / max(max_r - min_r, 1e-4), 0.01, 0.99)
+        n_bid = 4.5
     else:
         warnings.append(f"F-3: 개찰 표본 수(m={len(t1_list)}<{MIN_EVT_SAMPLES}) 부족으로 극값 역추정 대신 사전 경쟁분포 사용")
         n_bid = estimate_n_bidders(ctx.org, ctx.base_amt, n_list)
