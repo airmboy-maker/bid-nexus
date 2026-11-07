@@ -7735,6 +7735,14 @@ def _render_egr_bid_addon_panel():
                 p2 = ai_sel["primary_2_pick"]
                 b2 = ai_sel["backup_2_pick"]
                 c4 = ai_sel["exact_combo_4"]
+                from lattice1365.vortex_visualizer import build_quantum_lotto_vortex_html
+                vortex_html = build_quantum_lotto_vortex_html(
+                    ai_sel=ai_sel,
+                    target_model_label=target_model_choice,
+                    target_ep=t_ep,
+                    base_amt=int(in_base),
+                )
+                components.html(vortex_html, height=435, scrolling=False)
 
                 st.markdown(f"""
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:14px;">
