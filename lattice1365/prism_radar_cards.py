@@ -112,6 +112,174 @@ def get_prism_deck_css() -> str:
     .q-reactor-ring-spin { transform-origin: 50% 50%; animation: reactorSpin 9s linear infinite; }
     .q-reactor-tag { font-size: 9.5px; font-weight: 900; color: #34d399; letter-spacing: 0.5px; display: block; }
     .q-reactor-sub { font-size: 10px; font-weight: 700; color: #94a3b8; margin-top: 1px; }
+    
+    /* =========================================================================
+       🛸 [ORBITAL RADAR COCKPIT UI] 상단 탭 바 + 레이더 헤더 + 검색창 + 5대 필터 4D 고도화
+       ========================================================================= */
+    @keyframes sonarSweep {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    @keyframes radarPulseRing {
+        0% { r: 6px; opacity: 0.9; }
+        100% { r: 28px; opacity: 0.0; }
+    }
+
+    /* 1. 상단 메인 탭 바 (stTabs) — 밋밋한 텍스트 탭을 4D 홀로그램 캡슐 독(Dock)으로 개조 */
+    div[data-testid="stTabs"] [ data-baseweb="tab-list" ] {
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.92) 0%, rgba(6, 10, 21, 0.98) 100%) !important;
+        border: 1px solid rgba(56, 189, 248, 0.32) !important;
+        border-radius: 14px !important;
+        padding: 7px 10px !important;
+        gap: 8px !important;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+        margin-bottom: 14px !important;
+    }
+    div[data-testid="stTabs"] button[role="tab"] {
+        background: rgba(15, 23, 42, 0.75) !important;
+        border: 1px solid rgba(51, 65, 85, 0.8) !important;
+        border-radius: 10px !important;
+        padding: 8px 15px !important;
+        color: #94a3b8 !important;
+        font-weight: 800 !important;
+        font-size: 12.5px !important;
+        transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1) !important;
+    }
+    div[data-testid="stTabs"] button[role="tab"]:hover {
+        border-color: #38bdf8 !important;
+        color: #f8fafc !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 16px rgba(56, 189, 248, 0.25) !important;
+    }
+    div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
+        background: linear-gradient(135deg, rgba(14, 165, 233, 0.28) 0%, rgba(16, 185, 129, 0.24) 100%) !important;
+        border: 1.5px solid #38bdf8 !important;
+        border-bottom: 3px solid #fbbf24 !important;
+        color: #ffffff !important;
+        font-weight: 900 !important;
+        box-shadow: 0 0 20px rgba(56, 189, 248, 0.38), inset 0 0 12px rgba(56, 189, 248, 0.2) !important;
+        transform: translateY(-1px) !important;
+    }
+    div[data-testid="stTabs"] [data-baseweb="tab-highlight"],
+    div[data-testid="stTabs"] [data-baseweb="tab-border"] {
+        display: none !important;
+    }
+
+    /* 2. 1-Click 기업명 인크리멘탈 검색창 (stTextInput) — 사이버 스캐너 입력 포드화 */
+    div[data-testid="stTextInput"] {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(9, 13, 24, 0.96) 100%) !important;
+        border: 1px solid rgba(56, 189, 248, 0.35) !important;
+        border-left: 4px solid #38bdf8 !important;
+        border-radius: 12px !important;
+        padding: 12px 16px 14px 16px !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), inset 0 0 18px rgba(56, 189, 248, 0.06) !important;
+        margin-bottom: 10px !important;
+        transition: all 0.25s ease !important;
+    }
+    div[data-testid="stTextInput"]:hover,
+    div[data-testid="stTextInput"]:focus-within {
+        border-color: #fbbf24 !important;
+        border-left-color: #f59e0b !important;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65), 0 0 22px rgba(56, 189, 248, 0.28) !important;
+    }
+    div[data-testid="stTextInput"] label p {
+        color: #7dd3fc !important;
+        font-size: 12.5px !important;
+        font-weight: 900 !important;
+        letter-spacing: 0.2px !important;
+    }
+    div[data-testid="stTextInput"] [data-baseweb="input"] {
+        background: rgba(2, 6, 23, 0.9) !important;
+        border: 1.5px solid rgba(56, 189, 248, 0.45) !important;
+        border-radius: 9px !important;
+        box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.7) !important;
+    }
+    div[data-testid="stTextInput"] input {
+        color: #fef08a !important;
+        font-weight: 800 !important;
+        font-size: 14px !important;
+        padding: 10px 14px !important;
+    }
+
+    /* 3. 5대 다차원 선택형 필터 컨트롤러 (stSelectbox) — 각각을 4D 전술 모듈 카드로 변환 */
+    div[data-testid="stSelectbox"] {
+        background: linear-gradient(145deg, rgba(15, 23, 42, 0.92) 0%, rgba(8, 12, 22, 0.98) 100%) !important;
+        border: 1px solid rgba(56, 189, 248, 0.32) !important;
+        border-top: 2.5px solid #38bdf8 !important;
+        border-radius: 12px !important;
+        padding: 10px 13px 12px 13px !important;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+        transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1) !important;
+    }
+    div[data-testid="stSelectbox"]:hover {
+        border-color: #34d399 !important;
+        border-top-color: #fbbf24 !important;
+        transform: translateY(-3px) !important;
+        box-shadow: 0 12px 26px rgba(0, 0, 0, 0.7), 0 0 18px rgba(56, 189, 248, 0.25) !important;
+    }
+    div[data-testid="stSelectbox"] label p {
+        font-size: 12px !important;
+        font-weight: 900 !important;
+        color: #cbd5e1 !important;
+        letter-spacing: 0.2px !important;
+    }
+    div[data-testid="stSelectbox"] [data-baseweb="select"] > div {
+        background: rgba(2, 6, 23, 0.88) !important;
+        border: 1px solid rgba(71, 85, 105, 0.85) !important;
+        border-radius: 8px !important;
+        color: #f8fafc !important;
+        font-weight: 800 !important;
+        font-size: 13.5px !important;
+        min-height: 40px !important;
+    }
+    div[data-testid="stSelectbox"]:hover [data-baseweb="select"] > div {
+        border-color: #38bdf8 !important;
+        color: #38bdf8 !important;
+    }
+
+    /* 4. 레이더 지휘소 마스터 배너 & 섹션 캡슐 헤더 */
+    .orbital-radar-banner {
+        display: grid;
+        grid-template-columns: 84px 1fr auto;
+        gap: 18px;
+        align-items: center;
+        background:
+            radial-gradient(circle at 15% 50%, rgba(16, 185, 129, 0.18) 0%, transparent 45%),
+            radial-gradient(circle at 85% 30%, rgba(56, 189, 248, 0.16) 0%, transparent 50%),
+            linear-gradient(135deg, #09101f 0%, #050914 100%);
+        border: 1.5px solid rgba(56, 189, 248, 0.45);
+        border-left: 5px solid #10b981;
+        border-radius: 16px;
+        padding: 16px 22px;
+        margin-top: 6px;
+        margin-bottom: 14px;
+        box-shadow: 0 14px 34px rgba(0, 0, 0, 0.65), inset 0 0 24px rgba(16, 185, 129, 0.08);
+        position: relative;
+        overflow: hidden;
+    }
+    @media (max-width: 768px) {
+        .orbital-radar-banner { grid-template-columns: 1fr; }
+    }
+    .radar-scope-box {
+        width: 78px; height: 78px;
+        background: radial-gradient(circle, rgba(6, 78, 59, 0.55) 0%, rgba(2, 6, 23, 0.95) 75%);
+        border: 1.5px solid rgba(16, 185, 129, 0.6);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.35), inset 0 0 12px rgba(16, 185, 129, 0.3);
+    }
+    .cockpit-sub-hdr {
+        display: flex; align-items: center; justify-content: space-between;
+        background: linear-gradient(90deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.2) 100%);
+        border-left: 4px solid #fbbf24;
+        border-top: 1px solid rgba(251, 191, 36, 0.28);
+        border-bottom: 1px solid rgba(56, 189, 248, 0.22);
+        border-radius: 0 10px 10px 0;
+        padding: 8px 14px;
+        margin-top: 12px;
+        margin-bottom: 8px;
+    }
+
     </style>
     """
     return "\n".join(line.lstrip() for line in css.splitlines())
@@ -245,3 +413,60 @@ def build_prism_notice_card_html(n: Dict[str, Any], idx: int = 0) -> str:
 </div>
 """
     return "\n".join(line.lstrip() for line in raw_html.splitlines() if line.strip())
+
+
+def build_orbital_radar_header_html() -> str:
+    """
+    밋밋하던 '📡 나라장터 실시간 다차원 필터 레이더' 제목을
+    360도 회전 초음파 소나(Sonar) + 5차원 스펙트럼 텔레메트리가 결합된 4D 지휘 배너로 변환
+    """
+    raw = """
+<div class="orbital-radar-banner">
+<div class="radar-scope-box">
+<svg width="70" height="70" viewBox="0 0 70 70">
+<circle cx="35" cy="35" r="30" fill="none" stroke="rgba(16,185,129,0.28)" stroke-width="1" />
+<circle cx="35" cy="35" r="20" fill="none" stroke="rgba(16,185,129,0.28)" stroke-width="1" stroke-dasharray="3 3" />
+<circle cx="35" cy="35" r="10" fill="none" stroke="rgba(16,185,129,0.28)" stroke-width="1" />
+<line x1="5" y1="35" x2="65" y2="35" stroke="rgba(16,185,129,0.22)" stroke-width="1" />
+<line x1="35" y1="5" x2="35" y2="65" stroke="rgba(16,185,129,0.22)" stroke-width="1" />
+<g style="transform-origin:35px 35px;animation:sonarSweep 3.2s linear infinite;">
+<path d="M35,35 L35,5 A30,30 0 0,1 61,20 Z" fill="rgba(16,185,129,0.32)" />
+<line x1="35" y1="35" x2="35" y2="5" stroke="#34d399" stroke-width="2" />
+</g>
+<circle cx="46" cy="22" r="2.8" fill="#fbbf24" />
+<circle cx="23" cy="44" r="2.2" fill="#38bdf8" />
+<circle cx="48" cy="46" r="2.5" fill="#10b981" />
+<circle cx="35" cy="35" r="3" fill="#ecfdf5" />
+</svg>
+</div>
+<div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap;">
+<span style="background:linear-gradient(90deg,#10b981,#0ea5e9);color:#020617;font-size:10px;font-weight:900;padding:2px 9px;border-radius:999px;letter-spacing:0.5px;">ORBITAL G2B RADAR v20.4</span>
+<span style="background:rgba(56,189,248,0.14);border:1px solid rgba(56,189,248,0.4);color:#7dd3fc;font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;">● 5D INCREMENTAL ENGINE</span>
+<span style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.45);color:#fde68a;font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;">⚡ 초성 실시간 매칭</span>
+</div>
+<div style="font-size:20px;font-weight:900;color:#f8fafc;letter-spacing:-0.4px;margin-bottom:4px;text-shadow:0 2px 12px rgba(16,185,129,0.25);">
+📡 나라장터 실시간 다차원 필터 레이더 <span style="color:#38bdf8;font-size:15px;">(인크리멘탈 동종 검색 연동)</span>
+</div>
+<div style="font-size:12px;color:#94a3b8;font-weight:600;">
+기업명을 <b style="color:#fef08a;">1글자(또는 초성)</b>만 입력해도 대표자명과 5개년 연도별 실적이 즉시 공명(Resonance)되며, 5대 다차원 필터로 최적 공고를 실시간 포착합니다.
+</div>
+</div>
+<div style="background:rgba(15,23,42,0.9);border:1px solid rgba(56,189,248,0.35);border-radius:12px;padding:10px 14px;text-align:right;min-width:155px;">
+<div style="font-size:10px;font-weight:800;color:#94a3b8;margin-bottom:2px;">RADAR SCAN STATUS</div>
+<div style="font-size:15px;font-weight:900;color:#34d399;letter-spacing:0.3px;">● ACTIVE LOCK</div>
+<div style="font-size:10.5px;font-weight:700;color:#38bdf8;margin-top:3px;">3대 트랙 자동 연동 대기</div>
+</div>
+</div>
+"""
+    return "\n".join(line.lstrip() for line in raw.splitlines() if line.strip())
+
+
+def build_cockpit_sub_header_html(icon_title: str, badge_text: str, accent: str = "#fbbf24") -> str:
+    raw = f"""
+<div class="cockpit-sub-hdr" style="border-left-color:{accent};">
+<span style="font-size:14.5px;font-weight:900;color:#f8fafc;letter-spacing:-0.2px;">{icon_title}</span>
+<span style="background:rgba(15,23,42,0.9);border:1px solid {accent};color:{accent};font-size:10px;font-weight:900;padding:2px 9px;border-radius:999px;letter-spacing:0.4px;">{badge_text}</span>
+</div>
+"""
+    return "\n".join(line.lstrip() for line in raw.splitlines() if line.strip())

@@ -1813,10 +1813,11 @@ except Exception as _e_cert:
 # 📡 탭 0: 인크리멘탈 기업 연동 레이더
 # =================================================================================
 with tab_radar:
-    st.subheader("📡 나라장터 실시간 다차원 필터 레이더 (인크리멘탈 동종 검색 연동)")
-    st.caption("기업명을 1글자만 쳐도 대표자명과 5개년 연도별 실적이 자동 선별되며, 5대 다차원 리스트 필터로 맞춤형 실시간 공고를 즉시 추출합니다.")
+    from lattice1365.prism_radar_cards import get_prism_deck_css, build_orbital_radar_header_html, build_cockpit_sub_header_html
+    st.markdown(get_prism_deck_css(), unsafe_allow_html=True)
+    st.markdown(build_orbital_radar_header_html(), unsafe_allow_html=True)
 
-    st.markdown("##### 🏢 1-Click 기업명 인크리멘탈 퀵 체인지 (초성 지원)")
+    st.markdown(build_cockpit_sub_header_html("🏢 1-Click 기업명 인크리멘탈 퀵 체인지 (초성·대표자 즉시 공명)", "NEURAL QUICK-SEARCH", "#38bdf8"), unsafe_allow_html=True)
     iq_col1, iq_col2 = st.columns([3, 1])
     radar_comp_search = iq_col1.text_input("기업명, 대표자명 또는 초성 입력 (예: '선', '태양', '김태양', 'ㅌㅇ', '강원')", value="", key="radar_inc_search")
     
@@ -1837,7 +1838,7 @@ with tab_radar:
             st.warning(f"'{clean_r_val}'과 일치하는 등록 기업이 없습니다.")
 
     st.markdown("---")
-    st.markdown("##### 🎛️ 5대 다차원 선택형 필터 컨트롤러")
+    st.markdown(build_cockpit_sub_header_html("🎛️ 5대 다차원 선택형 필터 컨트롤러 (공종 · 지역 · 규모 · 발주처 · 정렬)", "5D TACTICAL MATRIX", "#fbbf24"), unsafe_allow_html=True)
     
     f_c1, f_c2, f_c3 = st.columns(3)
     available_lics = comp.get("lics", ["건축공사업", "전기공사업"])
