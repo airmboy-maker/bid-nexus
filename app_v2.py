@@ -7596,10 +7596,16 @@ def _render_egr_bid_addon_panel():
         st.markdown("---")
         st.markdown("<div style='font-size:12px;font-weight:800;color:#fbbf24;margin-bottom:6px;'>🧭 모듈 개별 선택 (독립 ON/OFF)</div>", unsafe_allow_html=True)
         on_picker = st.checkbox(
-            "🎯 [공통] AI 복수예가 2픽 & 1,365 조합기",
+            "🎯 [공통 1] AI 복수예가 3D 로또 추첨 & 2픽",
             value=True,
             key="_addon_chk_picker_v2",
-            help="번외 모델을 모두 꺼도 기본 M5 기준선 타점으로 나라장터 최적 2개 추첨번호(Best 2-Pick)와 1,365 조합을 단독 분석합니다.",
+            help="번외 모델을 모두 꺼도 기본 M5 기준선 타점으로 나라장터 최적 2개 추첨번호(Best 2-Pick)와 3D 양자 로또 추첨기를 실행합니다.",
+        )
+        on_arena = st.checkbox(
+            "🔥 [공통 2] 3대 엔진 vs 경쟁사 스나이퍼 배틀",
+            value=True,
+            key="_addon_chk_arena_v2",
+            help="48개 경쟁사 투찰 탄착군 속에서 M5 · EGR-BID · LATTICE-1365 3대 스나이퍼가 하한선 직상단을 타격하는 60FPS 배틀 아레나를 표시합니다.",
         )
         on_egr = st.checkbox(
             "🛡️ [번외 1] 제미나이 EGR-BID (M6·M7·M8)",
@@ -7615,7 +7621,7 @@ def _render_egr_bid_addon_panel():
         )
 
     slot = st.empty()
-    if not on_picker and not on_egr and not on_lat:
+    if not on_picker and not on_arena and not on_egr and not on_lat:
         slot.empty()
         return
 
@@ -7800,6 +7806,26 @@ def _render_egr_bid_addon_panel():
                     )
 
 
+                # =====================================================================
+        # [SECTION 0.5] 🔥 3대 엔진 vs N개 경쟁사 실시간 스나이퍼 배틀 아레나
+        # =====================================================================
+        from lattice1365.hyper_arcade_viz import (
+            build_tactical_sniper_arena_html,
+            build_egr_shield_matrix_html,
+            build_lattice_wave_rider_html,
+        )
+        if on_arena:
+            with st.expander("🔥 [실시간 개찰 배틀 시뮬레이터] 3대 엔진(M5 · EGR-BID · LATTICE-1365) vs 경쟁사 탄착 스나이퍼 아레나 (클릭하여 열기/닫기)", expanded=True):
+                arena_html = build_tactical_sniper_arena_html(
+                    m5_bid=int(m5_bid),
+                    egr_bid=int(res.recommendation_won) if res.recommendation_won else 0,
+                    lat_bid=int(lat.optimal_price) if lat.feasible else 0,
+                    lower_cut=int(m1_m5["m5_lower_limit"]),
+                    net_cost_98=int(m1_m5["min_net_cost_bid"]),
+                    n_rivals=48,
+                )
+                components.html(arena_html, height=385, scrolling=False)
+
         # [SECTION A] 기존 번외 1: 제미나이 EGR-BID (M6·M7·M8) 전용 대시보드 (그대로 복원!)
         # =====================================================================
         if on_egr:
@@ -7867,6 +7893,13 @@ def _render_egr_bid_addon_panel():
                         "M5 대비 차액(원)": sc_bid - m5_bid,
                     })
             df_egr = pd.DataFrame(egr_rows)
+            shield_html = build_egr_shield_matrix_html(
+                q_map=q_info,
+                status_str=res.status,
+                egr_bid=int(res.recommendation_won) if res.recommendation_won else 0,
+                min_nc_98=int(m1_m5["min_net_cost_bid"]),
+            )
+            components.html(shield_html, height=280, scrolling=False)
 
             ec1, ec2 = st.columns([5, 7])
             with ec1:
@@ -7999,6 +8032,15 @@ def _render_egr_bid_addon_panel():
                     "M5 대비 차액(원)": int(lat.optimal_price - m5_bid),
                 })
             df_lat = pd.DataFrame(lat_rows)
+            if lat.feasible:
+                wave_html = build_lattice_wave_rider_html(
+                    opt_step=int(lat.optimal_step),
+                    opt_price=int(lat.optimal_price),
+                    exp_profit=int(lat.expected_profit),
+                    p_miss_pct=float(lat.p_miss * 100.0),
+                    eff_floor_pct=float(lat.effective_floor_rate),
+                )
+                components.html(wave_html, height=285, scrolling=False)
 
             lc1, lc2 = st.columns([5, 7])
             with lc1:
