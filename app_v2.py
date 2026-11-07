@@ -1885,6 +1885,15 @@ with tab_radar:
         importlib.reload(_prc_mod)
         importlib.reload(_bv_mod)
         importlib.reload(_ndv_mod)
+        get_prism_deck_css = _prc_mod.get_prism_deck_css
+        build_prism_notice_card_html = _prc_mod.build_prism_notice_card_html
+        analyze_construction_profile = _ndv_mod.analyze_construction_profile
+        build_notice_dossier_html = _ndv_mod.build_notice_dossier_html
+        generate_notice_attachments = _ndv_mod.generate_notice_attachments
+        generate_master_zip_bundle = _ndv_mod.generate_master_zip_bundle
+        build_boq_preview_table_html = _ndv_mod.build_boq_preview_table_html
+        build_spec_sheet_html = _ndv_mod.build_spec_sheet_html
+        build_manifest_table_html = _ndv_mod.build_manifest_table_html
         st.markdown(_prc_mod.get_prism_deck_css(), unsafe_allow_html=True)
         st.markdown(_bv_mod.get_boutique_vault_css(), unsafe_allow_html=True)
         _b_notices = list(live_bids)
