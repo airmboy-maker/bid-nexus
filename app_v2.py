@@ -1536,265 +1536,261 @@ def _check_security_pin_gate():
 _check_security_pin_gate()
 
 st.title("⚡ BID-NEXUS: 완전 자율형 공공입찰 전자동화 터미널")
-import lattice1365.native_deck_controller as _ndc_mod
-_is_cab_mode, _cur_cab_zone = _ndc_mod.render_master_mode_and_zone_selector()
-_ndc_mod.render_top_cabinet_switcher_bar(_is_cab_mode, _cur_cab_zone)
-with _ndc_mod.make_zone_container(_is_cab_mode, _cur_cab_zone, '[Z1]'):
-    with st.expander("🏢 [1단계] 기업 적격심사 마스터 스펙 등록 및 수정 (클릭하여 열기/닫기)", expanded=False):
-        # 🔒 1단계: 기업 적격심사 마스터 등록
-        if not is_profile_ready:
-            st.title("🔒 1단계: 기업 적격심사 마스터 항목 등록")
-            st.info("💡 **기업명, 대표자명 또는 초성을 입력하면** 5개년 연도별 실적과 특수면허/기술자 스펙이 자동 매핑됩니다.")
+with st.expander("🏢 [1단계] 기업 적격심사 마스터 스펙 등록 및 수정 (클릭하여 열기/닫기)", expanded=False):
+    # 🔒 1단계: 기업 적격심사 마스터 등록
+    if not is_profile_ready:
+        st.title("🔒 1단계: 기업 적격심사 마스터 항목 등록")
+        st.info("💡 **기업명, 대표자명 또는 초성을 입력하면** 5개년 연도별 실적과 특수면허/기술자 스펙이 자동 매핑됩니다.")
+
+        st.markdown("### 🔍 1-Click 인크리멘탈 동종 기업명 자동 검색")
+        q_col1, q_col2 = st.columns([3, 1])
+        search_input = q_col1.text_input("기업명, 대표자명 또는 초성 입력", value="", placeholder="예: '선', '태양', '김태양', 'ㅌㅇ', '강원'", key="inc_search_box")
     
-            st.markdown("### 🔍 1-Click 인크리멘탈 동종 기업명 자동 검색")
-            q_col1, q_col2 = st.columns([3, 1])
-            search_input = q_col1.text_input("기업명, 대표자명 또는 초성 입력", value="", placeholder="예: '선', '태양', '김태양', 'ㅌㅇ', '강원'", key="inc_search_box")
-        
-            clean_val = normalize_text(search_input)
-            if clean_val:
-                matches = search_companies_incremental(clean_val)
-                if matches:
-                    st.markdown(f"**🎯 '{clean_val}' 일치 기업 후보 ({len(matches)}개사):**")
-                    grid_cols = st.columns(4)
-                    for m_idx, comp_cand in enumerate(matches[:12]):
-                        col_target = grid_cols[m_idx % 4]
-                        if col_target.button(f"🏢 {comp_cand.get('name', '기업')}\n(대표: {comp_cand.get('ceo', '대표')})", key=f"cand_btn_{m_idx}", use_container_width=True):
-                            comp = comp_cand
-                            c_perf = comp.get('perf_5yr', {})
-                            if '전기공사업' not in c_perf:
-                                c_perf['전기공사업'] = [500000000, 650000000, 800000000, 950000000, 1100000000]
-                            if '건축공사업' not in c_perf and '토목건축공사업' not in c_perf:
-                                c_perf['건축공사업'] = [800000000, 1000000000, 1200000000, 1400000000, 1600000000]
-                            comp['perf_5yr'] = c_perf
-                            c_lics = list(comp.get('license', []))
-                            if '전기공사업' not in c_lics:
-                                c_lics.append('전기공사업')
-                            comp['license'] = c_lics
-                            st.session_state['scraped_data'] = comp
-                            st.session_state['selected_licenses'] = c_lics
-                            st.toast("✅ " + str(comp.get("name", "")) + " 스펙이 즉시 주입되었습니다!", icon="🏢")
-                            st.rerun()
-                else:
-                    st.warning(f"'{clean_val}'과 일치하는 등록 기업이 없습니다. 직접 공공망 조회를 실행하거나 폼에 입력하세요.")
-    
-            if q_col2.button("🔍 공공망 강제 재조회", type="primary", use_container_width=True):
-                if search_input.strip():
-                    with st.spinner("국토부 KISCON 및 협회 전산망에서 데이터를 실시간 조회 중..."):
-                        scraped = fetch_association_company_data(search_input, DATA_API_KEY)
-                        st.session_state["scraped_data"] = scraped
-                        st.toast(f"✅ {scraped['source']} 연동 완료!", icon="🎉")
-                else:
-                    st.warning("조회할 법인명이나 사업자등록번호를 입력하세요.")
-    
-            s_data = st.session_state["scraped_data"] or {
-                "name": "(주)태양전기건설", "ceo": "김태양", "biz_no": "221-81-12345", "region": "강원특별자치도 춘천시 공지로 312",
-                "lics": ["건축공사업", "전기공사업"],
-                "license_specs": {
-                    "건축공사업": {"cap": 6800000000, "yearly_perf": {"2021": 820000000, "2022": 950000000, "2023": 780000000, "2024": 1010000000, "2025": 940000000}, "perf": 4500000000, "rank": "강원 12위"},
-                    "전기공사업": {"cap": 4200000000, "yearly_perf": {"2021": 550000000, "2022": 600000000, "2023": 580000000, "2024": 650000000, "2025": 720000000}, "perf": 3100000000, "rank": "강원 8위"}
-                },
-                "special_certs": ["무정전공사 시공자격", "활선공사 시공자격", "신재생에너지설비 전문기업"],
-                "engineers": {"특급": 0, "고급": 0, "중급": 0, "초급": 0, "_ocr_status": "ERROR_UNVERIFIED"},
-                "credit_grade": "A-", "debt_ratio": 92.5, "cur_ratio": 145.0, "sanction_days": 0
-            }
-    
-            st.markdown("---")
-            col_m1, col_m2 = st.columns([1.2, 1])
-            with col_m1:
-                st.markdown("#### 🏢 기업 기본 정보 및 대표자 검토/승인")
-                with st.form("gatekeeper_profile_form"):
-                    c_f_top1, c_f_top2 = st.columns(2)
-                    f_name = c_f_top1.text_input("상호(기업명)", value=s_data.get("name", ""))
-                    f_ceo = c_f_top2.text_input("대표자명 (대표이사)", value=s_data.get("ceo", "대표이사"))
-                
-                    c_f_mid1, c_f_mid2 = st.columns(2)
-                    f_biz = c_f_mid1.text_input("사업자등록번호", value=s_data.get("biz_no", ""))
-                    f_reg = c_f_mid2.text_input("본점 소재지", value=s_data.get("region", ""))
-                
-                    c_f1, c_f2 = st.columns(2)
-                    f_credit = c_f1.selectbox("신용평가등급 (공공입찰용)", ["AAA", "AA", "A+", "A0", "A-", "BBB+", "BBB0", "BBB-", "BB+", "BB0", "BB-", "B 이하"], index=4)
-                    all_lics = ["건축공사업", "토목공사업", "토목건축공사업", "전기공사업", "정보통신공사업", "소방시설공사업"]
-                    default_lics = [lic for lic in s_data.get("lics", []) if lic in all_lics] or ["건축공사업"]
-                    # --- 면허 동기화 로직 강제 적용 ---
-                    _raw_lics = st.session_state.get("selected_licenses", ["건축공사업", "전기공사업"])
-                    if not _raw_lics: _raw_lics = ["건축공사업", "전기공사업"]
-                    if "전기공사업" not in _raw_lics: _raw_lics = list(_raw_lics) + ["전기공사업"]
-                    _all_opts = list(set(["건축공사업", "토목공사업", "토목건축공사업", "전기공사업", "정보통신공사업", "소방시설공사업", "지반조성ㆍ포장공사업"] + _raw_lics))
-                    selected_licenses = st.multiselect("보유 법정 면허", options=_all_opts, default=_raw_lics, key="lic_ms_v3")
-                    st.session_state["selected_licenses"] = selected_licenses
-    
-                    st.markdown("##### ⚡ 특수 시공자격 (선택)")
-                    f_special = st.multiselect("보유 특수자격 선택", ALL_SPECIAL_CERTS, default=s_data.get("special_certs", ["무정전공사 시공자격", "활선공사 시공자격"]))
-    
-                    st.markdown("##### 👷 상주 기술인력 보유 현황")
-                    eng_cols = st.columns(4)
-                    cur_eng = s_data.get("engineers", {"특급": 0, "고급": 0, "중급": 0, "초급": 0, "_ocr_status": "ERROR_UNVERIFIED"})
-                    f_eng_exp = eng_cols[0].number_input("특급 기술자(명)", min_value=0, value=int(cur_eng.get("특급", 2)))
-                    f_eng_adv = eng_cols[1].number_input("고급 기술자(명)", min_value=0, value=int(cur_eng.get("고급", 3)))
-                    f_eng_mid = eng_cols[2].number_input("중급 기술자(명)", min_value=0, value=int(cur_eng.get("중급", 4)))
-                    f_eng_beg = eng_cols[3].number_input("초급 기술자(명)", min_value=0, value=int(cur_eng.get("초급", 5)))
-    
-                    c_f3, c_f4 = st.columns(2)
-                    f_debt = c_f3.number_input("부채비율 (%)", value=float(s_data.get("debt_ratio", 92.5)), step=0.1)
-                    f_cur = c_f4.number_input("유동비율 (%)", value=float(s_data.get("cur_ratio", 145.0)), step=0.1)
-    
-                    st.markdown("##### 🎖️ 신인도 가점")
-                    c_f7, c_f8 = st.columns(2)
-                    f_job = c_f7.checkbox("일자리창출 우수기업 (+0.5점)", value=True)
-                    f_women = c_f8.checkbox("여성 / 장애인 기업 (+1.0점)", value=False)
-                    f_sanction = st.number_input("최근 1년 영업정지 누적일수", min_value=0, value=int(s_data.get("sanction_days", 0)), step=15)
-    
-                    st.markdown("---")
-                    submit_btn = st.form_submit_button("💾 적격 마스터 스펙 승인 및 결과 화면 활성화", type="primary", use_container_width=True)
-    
-                    if submit_btn:
-                        lic_specs_dict = s_data.get("license_specs", {})
-                        f_lics = locals().get("f_lics") or locals().get("selected_licenses") or ["건축공사업", "토목건축공사업"]
-                        for lic_nm in f_lics:
-                            if lic_nm not in lic_specs_dict:
-                                lic_specs_dict[lic_nm] = {
-                                    "cap": 5000000000,
-                                    "yearly_perf": {"2021": 700000000, "2022": 700000000, "2023": 700000000, "2024": 700000000, "2025": 700000000},
-                                    "perf": 3500000000, "rank": "적격"
-                                }
-                    
-                        new_profile = {
-                            "is_verified": True, "biz_no": f_biz, "name": f_name, "ceo": f_ceo, "region": f_reg, "lics": f_lics,
-                            "special_certs": f_special,
-                            "engineers": {"특급": f_eng_exp, "고급": f_eng_adv, "중급": f_eng_mid, "초급": f_eng_beg},
-                            "license_specs": lic_specs_dict, "credit_grade": f_credit, "debt_ratio": f_debt, "cur_ratio": f_cur,
-                            "cap_amount": list(lic_specs_dict.values())[0]["cap"] if lic_specs_dict else 6800000000,
-                            "perf_record": list(lic_specs_dict.values())[0]["perf"] if lic_specs_dict else 4500000000,
-                            "is_women": f_women, "is_job_creator": f_job, "sanction_days": f_sanction
-                        }
-                        save_company_profile(new_profile)
-                        st.session_state["comp_profile"] = new_profile
-                        st.session_state.pop("auto_state", None)
+        clean_val = normalize_text(search_input)
+        if clean_val:
+            matches = search_companies_incremental(clean_val)
+            if matches:
+                st.markdown(f"**🎯 '{clean_val}' 일치 기업 후보 ({len(matches)}개사):**")
+                grid_cols = st.columns(4)
+                for m_idx, comp_cand in enumerate(matches[:12]):
+                    col_target = grid_cols[m_idx % 4]
+                    if col_target.button(f"🏢 {comp_cand.get('name', '기업')}\n(대표: {comp_cand.get('ceo', '대표')})", key=f"cand_btn_{m_idx}", use_container_width=True):
+                        comp = comp_cand
+                        c_perf = comp.get('perf_5yr', {})
+                        if '전기공사업' not in c_perf:
+                            c_perf['전기공사업'] = [500000000, 650000000, 800000000, 950000000, 1100000000]
+                        if '건축공사업' not in c_perf and '토목건축공사업' not in c_perf:
+                            c_perf['건축공사업'] = [800000000, 1000000000, 1200000000, 1400000000, 1600000000]
+                        comp['perf_5yr'] = c_perf
+                        c_lics = list(comp.get('license', []))
+                        if '전기공사업' not in c_lics:
+                            c_lics.append('전기공사업')
+                        comp['license'] = c_lics
+                        st.session_state['scraped_data'] = comp
+                        st.session_state['selected_licenses'] = c_lics
+                        st.toast("✅ " + str(comp.get("name", "")) + " 스펙이 즉시 주입되었습니다!", icon="🏢")
                         st.rerun()
-    
-            with col_m2:
-                st.markdown("#### 📄 기술자 보유증명서(PDF) 업로드로 3초 자동인식")
-                eng_file = st.file_uploader("건설기술인 보유증명서 업로드 (PDF)", type=["pdf"], key="gatekeeper_eng_pdf")
-                if eng_file is not None:
-                    if st.button("🤖 AI 기술자 등급별 인원 자동 추출", use_container_width=True, type="primary"):
-                        with st.spinner("Gemini 비전 AI가 보유증명서 표를 분석하는 중..."):
-                            parsed_eng = parse_engineer_certificate_pdf(eng_file.read())
-                            if "scraped_data" in st.session_state and st.session_state["scraped_data"]:
-                                st.session_state["scraped_data"]["engineers"] = parsed_eng
-                            st.success(f"🎯 **추출 성공**: 특급 {parsed_eng['특급']}명, 고급 {parsed_eng['고급']}명, 중급 {parsed_eng['중급']}명, 초급 {parsed_eng['초급']}명")
-                            st.rerun()
-    
-                st.markdown("---")
-                st.markdown("#### 📊 최근 5개년 연도별 실적 총괄표")
-                import pandas as pd
-                _sdata = st.session_state.get("scraped_data", {})
-                if isinstance(_sdata, list) and len(_sdata) > 0:
-                    _sdata = _sdata[0]
-                if not isinstance(_sdata, dict):
-                    _sdata = {}
-                _pdict = _sdata.get("perf_5yr", {})
-                if not _pdict:
-                    _pdict = {
-                        "건축공사업": [800000000, 1000000000, 1200000000, 1400000000, 1600000000],
-                        "전기공사업": [500000000, 650000000, 800000000, 950000000, 1100000000]
-                    }
-                _rows = []
-                _years = ["2020년", "2021년", "2022년", "2023년", "2024년"]
-                for _lname, _amts in _pdict.items():
-                    _r = {"면허/업종": _lname}
-                    for _yidx, _yr in enumerate(_years):
-                        _val = _amts[_yidx] if _yidx < len(_amts) else _amts[-1]
-                        _r[_yr] = f"{_val:,.0f}원"
-                    _rows.append(_r)
-                st.dataframe(pd.DataFrame(_rows), use_container_width=True, hide_index=True)
-        # 🔓 2단계: 승인 완료 후에만 열리는 분석 결과 화면
-        comp = st.session_state["comp_profile"]
-    
-        if "auto_state" not in st.session_state or st.session_state["auto_state"] is None or "skewness" not in st.session_state["auto_state"]:
-            st.session_state["auto_state"] = execute_full_autonomous_pipeline(comp, auto_save=True)
-    
-        st_pack = st.session_state.get("auto_state", {})
-        if isinstance(st_pack, tuple):
-            st_pack = st_pack[0] if len(st_pack) > 0 and isinstance(st_pack[0], dict) else {}
-        elif not isinstance(st_pack, dict):
-            st_pack = {}
-    
-        data = st_pack.get("data", {})
-        q_auto = st_pack.get("q_auto", {})
-    
-        deadline_str = data.get("입찰마감일시", "2026-11-13 10:00")
-        try:
-            deadline_dt = datetime.strptime(deadline_str, "%Y-%m-%d %H:%M")
-            diff = deadline_dt - datetime.now()
-            if diff.total_seconds() > 0:
-                d_days = diff.days
-                d_hours = diff.seconds // 3600
-                d_mins = (diff.seconds % 3600) // 60
-                timer_display = f"⏳ 마감 D-{d_days} ({d_hours}시간 {d_mins}분 남음)"
             else:
-                timer_display = "⌛ 입찰 마감 완료"
-        except Exception:
-            timer_display = "⏳ 입찰 진행 중"
-    
-    # [상단 이동됨] st.title("⚡ BID-NEXUS: 완전 자율형 공공입찰 전자동화 터미널")
-    col_header1, col_header2 = st.columns([3, 1])
-    if isinstance(comp, (list, tuple)) and len(comp) > 0:
-        comp = comp[0]
-    if not isinstance(comp, dict):
-        comp = {}
-    
-    comp = comp[0] if isinstance(comp, (list, tuple)) and len(comp) > 0 else (comp if isinstance(comp, dict) else {}); eng_val = comp.get('engineers', comp.get('tech_headcount', {}))
-    total_eng = sum(v for v in eng_val.values() if isinstance(v, (int, float)) and not isinstance(v, bool)) if isinstance(eng_val, dict) else (len(eng_val) if isinstance(eng_val, list) else 14)
-    c_nm = comp.get('name', '기업')
-    c_ceo = comp.get('ceo', '대표이사')
-    c_crd = comp.get('credit_grade', 'A-')
-    col_header1.caption(f'기준 기업: **{c_nm}** (대표: {c_ceo}) | 신용 {c_crd} → 기술자 총 {total_eng}명 매칭')
-    col_header2.markdown(f'<div class="timer-badge">{timer_display}</div>', unsafe_allow_html=True)
-    
-    b1, b2, b3, b4 = st.columns(4)
-    b1.metric("타겟 공고", data.get("공고명", "공고"), st_pack.get("inst_name", "-"))
-    if not isinstance(q_auto, dict):
-        q_auto = {}
-    
-    tot_ab = q_auto.get("total_ability", q_auto.get("score", 29.5))
+                st.warning(f"'{clean_val}'과 일치하는 등록 기업이 없습니다. 직접 공공망 조회를 실행하거나 폼에 입력하세요.")
+
+        if q_col2.button("🔍 공공망 강제 재조회", type="primary", use_container_width=True):
+            if search_input.strip():
+                with st.spinner("국토부 KISCON 및 협회 전산망에서 데이터를 실시간 조회 중..."):
+                    scraped = fetch_association_company_data(search_input, DATA_API_KEY)
+                    st.session_state["scraped_data"] = scraped
+                    st.toast(f"✅ {scraped['source']} 연동 완료!", icon="🎉")
+            else:
+                st.warning("조회할 법인명이나 사업자등록번호를 입력하세요.")
+
+        s_data = st.session_state["scraped_data"] or {
+            "name": "(주)태양전기건설", "ceo": "김태양", "biz_no": "221-81-12345", "region": "강원특별자치도 춘천시 공지로 312",
+            "lics": ["건축공사업", "전기공사업"],
+            "license_specs": {
+                "건축공사업": {"cap": 6800000000, "yearly_perf": {"2021": 820000000, "2022": 950000000, "2023": 780000000, "2024": 1010000000, "2025": 940000000}, "perf": 4500000000, "rank": "강원 12위"},
+                "전기공사업": {"cap": 4200000000, "yearly_perf": {"2021": 550000000, "2022": 600000000, "2023": 580000000, "2024": 650000000, "2025": 720000000}, "perf": 3100000000, "rank": "강원 8위"}
+            },
+            "special_certs": ["무정전공사 시공자격", "활선공사 시공자격", "신재생에너지설비 전문기업"],
+            "engineers": {"특급": 0, "고급": 0, "중급": 0, "초급": 0, "_ocr_status": "ERROR_UNVERIFIED"},
+            "credit_grade": "A-", "debt_ratio": 92.5, "cur_ratio": 145.0, "sanction_days": 0
+        }
+
+        st.markdown("---")
+        col_m1, col_m2 = st.columns([1.2, 1])
+        with col_m1:
+            st.markdown("#### 🏢 기업 기본 정보 및 대표자 검토/승인")
+            with st.form("gatekeeper_profile_form"):
+                c_f_top1, c_f_top2 = st.columns(2)
+                f_name = c_f_top1.text_input("상호(기업명)", value=s_data.get("name", ""))
+                f_ceo = c_f_top2.text_input("대표자명 (대표이사)", value=s_data.get("ceo", "대표이사"))
+            
+                c_f_mid1, c_f_mid2 = st.columns(2)
+                f_biz = c_f_mid1.text_input("사업자등록번호", value=s_data.get("biz_no", ""))
+                f_reg = c_f_mid2.text_input("본점 소재지", value=s_data.get("region", ""))
+            
+                c_f1, c_f2 = st.columns(2)
+                f_credit = c_f1.selectbox("신용평가등급 (공공입찰용)", ["AAA", "AA", "A+", "A0", "A-", "BBB+", "BBB0", "BBB-", "BB+", "BB0", "BB-", "B 이하"], index=4)
+                all_lics = ["건축공사업", "토목공사업", "토목건축공사업", "전기공사업", "정보통신공사업", "소방시설공사업"]
+                default_lics = [lic for lic in s_data.get("lics", []) if lic in all_lics] or ["건축공사업"]
+                # --- 면허 동기화 로직 강제 적용 ---
+                _raw_lics = st.session_state.get("selected_licenses", ["건축공사업", "전기공사업"])
+                if not _raw_lics: _raw_lics = ["건축공사업", "전기공사업"]
+                if "전기공사업" not in _raw_lics: _raw_lics = list(_raw_lics) + ["전기공사업"]
+                _all_opts = list(set(["건축공사업", "토목공사업", "토목건축공사업", "전기공사업", "정보통신공사업", "소방시설공사업", "지반조성ㆍ포장공사업"] + _raw_lics))
+                selected_licenses = st.multiselect("보유 법정 면허", options=_all_opts, default=_raw_lics, key="lic_ms_v3")
+                st.session_state["selected_licenses"] = selected_licenses
+
+                st.markdown("##### ⚡ 특수 시공자격 (선택)")
+                f_special = st.multiselect("보유 특수자격 선택", ALL_SPECIAL_CERTS, default=s_data.get("special_certs", ["무정전공사 시공자격", "활선공사 시공자격"]))
+
+                st.markdown("##### 👷 상주 기술인력 보유 현황")
+                eng_cols = st.columns(4)
+                cur_eng = s_data.get("engineers", {"특급": 0, "고급": 0, "중급": 0, "초급": 0, "_ocr_status": "ERROR_UNVERIFIED"})
+                f_eng_exp = eng_cols[0].number_input("특급 기술자(명)", min_value=0, value=int(cur_eng.get("특급", 2)))
+                f_eng_adv = eng_cols[1].number_input("고급 기술자(명)", min_value=0, value=int(cur_eng.get("고급", 3)))
+                f_eng_mid = eng_cols[2].number_input("중급 기술자(명)", min_value=0, value=int(cur_eng.get("중급", 4)))
+                f_eng_beg = eng_cols[3].number_input("초급 기술자(명)", min_value=0, value=int(cur_eng.get("초급", 5)))
+
+                c_f3, c_f4 = st.columns(2)
+                f_debt = c_f3.number_input("부채비율 (%)", value=float(s_data.get("debt_ratio", 92.5)), step=0.1)
+                f_cur = c_f4.number_input("유동비율 (%)", value=float(s_data.get("cur_ratio", 145.0)), step=0.1)
+
+                st.markdown("##### 🎖️ 신인도 가점")
+                c_f7, c_f8 = st.columns(2)
+                f_job = c_f7.checkbox("일자리창출 우수기업 (+0.5점)", value=True)
+                f_women = c_f8.checkbox("여성 / 장애인 기업 (+1.0점)", value=False)
+                f_sanction = st.number_input("최근 1년 영업정지 누적일수", min_value=0, value=int(s_data.get("sanction_days", 0)), step=15)
+
+                st.markdown("---")
+                submit_btn = st.form_submit_button("💾 적격 마스터 스펙 승인 및 결과 화면 활성화", type="primary", use_container_width=True)
+
+                if submit_btn:
+                    lic_specs_dict = s_data.get("license_specs", {})
+                    f_lics = locals().get("f_lics") or locals().get("selected_licenses") or ["건축공사업", "토목건축공사업"]
+                    for lic_nm in f_lics:
+                        if lic_nm not in lic_specs_dict:
+                            lic_specs_dict[lic_nm] = {
+                                "cap": 5000000000,
+                                "yearly_perf": {"2021": 700000000, "2022": 700000000, "2023": 700000000, "2024": 700000000, "2025": 700000000},
+                                "perf": 3500000000, "rank": "적격"
+                            }
+                
+                    new_profile = {
+                        "is_verified": True, "biz_no": f_biz, "name": f_name, "ceo": f_ceo, "region": f_reg, "lics": f_lics,
+                        "special_certs": f_special,
+                        "engineers": {"특급": f_eng_exp, "고급": f_eng_adv, "중급": f_eng_mid, "초급": f_eng_beg},
+                        "license_specs": lic_specs_dict, "credit_grade": f_credit, "debt_ratio": f_debt, "cur_ratio": f_cur,
+                        "cap_amount": list(lic_specs_dict.values())[0]["cap"] if lic_specs_dict else 6800000000,
+                        "perf_record": list(lic_specs_dict.values())[0]["perf"] if lic_specs_dict else 4500000000,
+                        "is_women": f_women, "is_job_creator": f_job, "sanction_days": f_sanction
+                    }
+                    save_company_profile(new_profile)
+                    st.session_state["comp_profile"] = new_profile
+                    st.session_state.pop("auto_state", None)
+                    st.rerun()
+
+        with col_m2:
+            st.markdown("#### 📄 기술자 보유증명서(PDF) 업로드로 3초 자동인식")
+            eng_file = st.file_uploader("건설기술인 보유증명서 업로드 (PDF)", type=["pdf"], key="gatekeeper_eng_pdf")
+            if eng_file is not None:
+                if st.button("🤖 AI 기술자 등급별 인원 자동 추출", use_container_width=True, type="primary"):
+                    with st.spinner("Gemini 비전 AI가 보유증명서 표를 분석하는 중..."):
+                        parsed_eng = parse_engineer_certificate_pdf(eng_file.read())
+                        if "scraped_data" in st.session_state and st.session_state["scraped_data"]:
+                            st.session_state["scraped_data"]["engineers"] = parsed_eng
+                        st.success(f"🎯 **추출 성공**: 특급 {parsed_eng['특급']}명, 고급 {parsed_eng['고급']}명, 중급 {parsed_eng['중급']}명, 초급 {parsed_eng['초급']}명")
+                        st.rerun()
+
+            st.markdown("---")
+            st.markdown("#### 📊 최근 5개년 연도별 실적 총괄표")
+            import pandas as pd
+            _sdata = st.session_state.get("scraped_data", {})
+            if isinstance(_sdata, list) and len(_sdata) > 0:
+                _sdata = _sdata[0]
+            if not isinstance(_sdata, dict):
+                _sdata = {}
+            _pdict = _sdata.get("perf_5yr", {})
+            if not _pdict:
+                _pdict = {
+                    "건축공사업": [800000000, 1000000000, 1200000000, 1400000000, 1600000000],
+                    "전기공사업": [500000000, 650000000, 800000000, 950000000, 1100000000]
+                }
+            _rows = []
+            _years = ["2020년", "2021년", "2022년", "2023년", "2024년"]
+            for _lname, _amts in _pdict.items():
+                _r = {"면허/업종": _lname}
+                for _yidx, _yr in enumerate(_years):
+                    _val = _amts[_yidx] if _yidx < len(_amts) else _amts[-1]
+                    _r[_yr] = f"{_val:,.0f}원"
+                _rows.append(_r)
+            st.dataframe(pd.DataFrame(_rows), use_container_width=True, hide_index=True)
+    # 🔓 2단계: 승인 완료 후에만 열리는 분석 결과 화면
+    comp = st.session_state["comp_profile"]
+
+    if "auto_state" not in st.session_state or st.session_state["auto_state"] is None or "skewness" not in st.session_state["auto_state"]:
+        st.session_state["auto_state"] = execute_full_autonomous_pipeline(comp, auto_save=True)
+
+    st_pack = st.session_state.get("auto_state", {})
+    if isinstance(st_pack, tuple):
+        st_pack = st_pack[0] if len(st_pack) > 0 and isinstance(st_pack[0], dict) else {}
+    elif not isinstance(st_pack, dict):
+        st_pack = {}
+
+    data = st_pack.get("data", {})
+    q_auto = st_pack.get("q_auto", {})
+
+    deadline_str = data.get("입찰마감일시", "2026-11-13 10:00")
     try:
-        tot_ab_val = float(tot_ab)
+        deadline_dt = datetime.strptime(deadline_str, "%Y-%m-%d %H:%M")
+        diff = deadline_dt - datetime.now()
+        if diff.total_seconds() > 0:
+            d_days = diff.days
+            d_hours = diff.seconds // 3600
+            d_mins = (diff.seconds % 3600) // 60
+            timer_display = f"⏳ 마감 D-{d_days} ({d_hours}시간 {d_mins}분 남음)"
+        else:
+            timer_display = "⌛ 입찰 마감 완료"
     except Exception:
-        tot_ab_val = 29.5
-    
-    verdict_val = str(q_auto.get("verdict", q_auto.get("result", "적격 통과 (A등급)")))[ :12]
-    b2.metric("적격심사 판정", f"{min(30.0, float(locals().get('tot_ab_val', 30.0))):.1f} / 30.0 점", verdict_val)
-    t_bid = st_pack.get("target_bid", st_pack.get("bid_price", 185000000))
-    try:
-        t_bid_val, _sync_rate, _sync_prof, _sync_mpct = _v204_Sync_Top_KPI(locals().get('t_base', locals().get('base_val', locals().get('b_val', 3605411000))), locals().get('t_a', locals().get('a_val', 170640956)), locals().get('t_limit', locals().get('limit_val', 88.745)), str(locals().get('t_id', st.session_state.get('selected_bid_id', '202611-00892'))), st.session_state.get('_user_locked_rate', None))
-    except Exception:
-        t_bid_val, _sync_rate, _sync_prof, _sync_mpct = _v204_Sync_Top_KPI(locals().get('t_base', locals().get('base_val', locals().get('b_val', 3605411000))), locals().get('t_a', locals().get('a_val', 170640956)), locals().get('t_limit', locals().get('limit_val', 88.745)), str(locals().get('t_id', st.session_state.get('selected_bid_id', '202611-00892'))), st.session_state.get('_user_locked_rate', None))
-    
-    a_rate = st_pack.get("act_rate", st_pack.get("bid_rate", 88.745))
-    try:
-        a_rate_val = _sync_rate if '_sync_rate' in locals() else 88.405
-    except Exception:
-        a_rate_val = _sync_rate if '_sync_rate' in locals() else 88.405
-    
-    b3.metric("AI 최적 투찰가", f"{t_bid_val:,}원", f"투찰률 {a_rate_val:.3f}%")
-    e_profit = st_pack.get("est_profit", st_pack.get("profit", 15200000))
-    try:
-        e_profit_val = _sync_prof if '_sync_prof' in locals() else 248939227
-    except Exception:
-        e_profit_val = _sync_prof if '_sync_prof' in locals() else 248939227
-    
-    m_pct = st_pack.get("margin_pct", st_pack.get("margin", 8.21))
-    try:
-        m_pct_val = _sync_mpct if '_sync_mpct' in locals() else 7.81
-        t_bid_val, a_rate_val, e_profit_val, m_pct_val = _v204_Sync_Top_KPI(locals().get('t_base', locals().get('base_val', locals().get('b_val', 3605411000))), locals().get('t_a', locals().get('a_val', 170640956)), locals().get('t_limit', locals().get('limit_val', 88.745)), str(locals().get('t_id', st.session_state.get('selected_bid_id', '202611-00892'))), st.session_state.get('_user_locked_rate', None))
-    except Exception:
-        m_pct_val = _sync_mpct if '_sync_mpct' in locals() else 7.81
-    
-    b4.metric("예상 영업이익 (실행원가 81.5%)", f"{e_profit_val:,}원", f"마진율 {m_pct_val:.2f}%")
-    
-    st.markdown("---")
-    
-tab_radar, tab1, tab_quantum_ai, tab_sim, tab_dox, tab_profile, tab4 = _ndc_mod.route_7_main_tabs([
+        timer_display = "⏳ 입찰 진행 중"
+
+# [상단 이동됨] st.title("⚡ BID-NEXUS: 완전 자율형 공공입찰 전자동화 터미널")
+col_header1, col_header2 = st.columns([3, 1])
+if isinstance(comp, (list, tuple)) and len(comp) > 0:
+    comp = comp[0]
+if not isinstance(comp, dict):
+    comp = {}
+
+comp = comp[0] if isinstance(comp, (list, tuple)) and len(comp) > 0 else (comp if isinstance(comp, dict) else {}); eng_val = comp.get('engineers', comp.get('tech_headcount', {}))
+total_eng = sum(v for v in eng_val.values() if isinstance(v, (int, float)) and not isinstance(v, bool)) if isinstance(eng_val, dict) else (len(eng_val) if isinstance(eng_val, list) else 14)
+c_nm = comp.get('name', '기업')
+c_ceo = comp.get('ceo', '대표이사')
+c_crd = comp.get('credit_grade', 'A-')
+col_header1.caption(f'기준 기업: **{c_nm}** (대표: {c_ceo}) | 신용 {c_crd} → 기술자 총 {total_eng}명 매칭')
+col_header2.markdown(f'<div class="timer-badge">{timer_display}</div>', unsafe_allow_html=True)
+
+b1, b2, b3, b4 = st.columns(4)
+b1.metric("타겟 공고", data.get("공고명", "공고"), st_pack.get("inst_name", "-"))
+if not isinstance(q_auto, dict):
+    q_auto = {}
+
+tot_ab = q_auto.get("total_ability", q_auto.get("score", 29.5))
+try:
+    tot_ab_val = float(tot_ab)
+except Exception:
+    tot_ab_val = 29.5
+
+verdict_val = str(q_auto.get("verdict", q_auto.get("result", "적격 통과 (A등급)")))[ :12]
+b2.metric("적격심사 판정", f"{min(30.0, float(locals().get('tot_ab_val', 30.0))):.1f} / 30.0 점", verdict_val)
+t_bid = st_pack.get("target_bid", st_pack.get("bid_price", 185000000))
+try:
+    t_bid_val, _sync_rate, _sync_prof, _sync_mpct = _v204_Sync_Top_KPI(locals().get('t_base', locals().get('base_val', locals().get('b_val', 3605411000))), locals().get('t_a', locals().get('a_val', 170640956)), locals().get('t_limit', locals().get('limit_val', 88.745)), str(locals().get('t_id', st.session_state.get('selected_bid_id', '202611-00892'))), st.session_state.get('_user_locked_rate', None))
+except Exception:
+    t_bid_val, _sync_rate, _sync_prof, _sync_mpct = _v204_Sync_Top_KPI(locals().get('t_base', locals().get('base_val', locals().get('b_val', 3605411000))), locals().get('t_a', locals().get('a_val', 170640956)), locals().get('t_limit', locals().get('limit_val', 88.745)), str(locals().get('t_id', st.session_state.get('selected_bid_id', '202611-00892'))), st.session_state.get('_user_locked_rate', None))
+
+a_rate = st_pack.get("act_rate", st_pack.get("bid_rate", 88.745))
+try:
+    a_rate_val = _sync_rate if '_sync_rate' in locals() else 88.405
+except Exception:
+    a_rate_val = _sync_rate if '_sync_rate' in locals() else 88.405
+
+b3.metric("AI 최적 투찰가", f"{t_bid_val:,}원", f"투찰률 {a_rate_val:.3f}%")
+e_profit = st_pack.get("est_profit", st_pack.get("profit", 15200000))
+try:
+    e_profit_val = _sync_prof if '_sync_prof' in locals() else 248939227
+except Exception:
+    e_profit_val = _sync_prof if '_sync_prof' in locals() else 248939227
+
+m_pct = st_pack.get("margin_pct", st_pack.get("margin", 8.21))
+try:
+    m_pct_val = _sync_mpct if '_sync_mpct' in locals() else 7.81
+    t_bid_val, a_rate_val, e_profit_val, m_pct_val = _v204_Sync_Top_KPI(locals().get('t_base', locals().get('base_val', locals().get('b_val', 3605411000))), locals().get('t_a', locals().get('a_val', 170640956)), locals().get('t_limit', locals().get('limit_val', 88.745)), str(locals().get('t_id', st.session_state.get('selected_bid_id', '202611-00892'))), st.session_state.get('_user_locked_rate', None))
+except Exception:
+    m_pct_val = _sync_mpct if '_sync_mpct' in locals() else 7.81
+
+b4.metric("예상 영업이익 (실행원가 81.5%)", f"{e_profit_val:,}원", f"마진율 {m_pct_val:.2f}%")
+
+st.markdown("---")
+
+tab_radar, tab1, tab_quantum_ai, tab_sim, tab_dox, tab_profile, tab4 = st.tabs([
     "📡 [레이더] 나라장터 실시간 다차원 필터 수집기",
     "🎯 [핵심] 적격 분석 & 통합 산출물",
     "⚡ [4차원 입체 추론] 15C4 왜도 & 데드존 매핑",
@@ -1802,7 +1798,7 @@ tab_radar, tab1, tab_quantum_ai, tab_sim, tab_dox, tab_profile, tab4 = _ndc_mod.
     "📑 [증빙] 적격 증빙서류 일람표 & 통합 출력",
     "⚙️ [관리] 마스터 기업 스펙 & 기술자 OCR",
     "📂 [원장] 영구 저장 원장"
-], _is_cab_mode, _cur_cab_zone)
+])
 
 try:
     printable_html_doc = generate_official_printable_html(data if isinstance(data, dict) else {}, q_auto if isinstance(q_auto, dict) else {}, comp[0] if isinstance(comp, list) and comp else (comp if isinstance(comp, dict) else {}), st_pack if isinstance(st_pack, dict) else {})
@@ -1817,214 +1813,120 @@ except Exception as _e_cert:
 # 📡 탭 0: 인크리멘탈 기업 연동 레이더
 # =================================================================================
 with tab_radar:
-    with st.expander('🎛️ [스마트 검색 & 5대 다차원 필터 캐비닛 열기/닫기] — 기업 초성 검색 · 면허 · 지역 · 규모 설정', expanded=not _is_cab_mode):
-        import importlib
-        import lattice1365.prism_radar_cards as _prc_mod
-        importlib.reload(_prc_mod)
-        from lattice1365.prism_radar_cards import get_prism_deck_css, build_orbital_radar_header_html, build_cockpit_sub_header_html
-        st.markdown(get_prism_deck_css(), unsafe_allow_html=True)
-        st.markdown(build_orbital_radar_header_html(), unsafe_allow_html=True)
+    import importlib
+    import lattice1365.prism_radar_cards as _prc_mod
+    importlib.reload(_prc_mod)
+    from lattice1365.prism_radar_cards import get_prism_deck_css, build_orbital_radar_header_html, build_cockpit_sub_header_html
+    st.markdown(get_prism_deck_css(), unsafe_allow_html=True)
+    st.markdown(build_orbital_radar_header_html(), unsafe_allow_html=True)
+
+    st.markdown(build_cockpit_sub_header_html("🏢 1-Click 기업명 인크리멘탈 퀵 체인지 (초성·대표자 즉시 공명)", "NEURAL QUICK-SEARCH", "#38bdf8"), unsafe_allow_html=True)
+    iq_col1, iq_col2 = st.columns([3, 1])
+    radar_comp_search = iq_col1.text_input("기업명, 대표자명 또는 초성 입력 (예: '선', '태양', '김태양', 'ㅌㅇ', '강원')", value="", key="radar_inc_search")
     
-        st.markdown(build_cockpit_sub_header_html("🏢 1-Click 기업명 인크리멘탈 퀵 체인지 (초성·대표자 즉시 공명)", "NEURAL QUICK-SEARCH", "#38bdf8"), unsafe_allow_html=True)
-        iq_col1, iq_col2 = st.columns([3, 1])
-        radar_comp_search = iq_col1.text_input("기업명, 대표자명 또는 초성 입력 (예: '선', '태양', '김태양', 'ㅌㅇ', '강원')", value="", key="radar_inc_search")
-        
-        clean_r_val = normalize_text(radar_comp_search)
-        if clean_r_val:
-            r_matches = search_companies_incremental(clean_r_val)
-            if r_matches:
-                st.markdown(f"**🎯 '{clean_r_val}' 일치 기업 ({len(r_matches)}개사):**")
-                r_cand_cols = st.columns(min(len(r_matches), 4))
-                for rm_idx, r_comp in enumerate(r_matches[:4]):
-                    if r_cand_cols[rm_idx].button(f"🎯 {r_comp.get('name', '기업')}\n(대표: {r_comp.get('ceo', '대표')})", key=f"r_cand_btn_{rm_idx}", use_container_width=True):
-                        save_company_profile(r_comp)
-                        st.session_state["comp_profile"] = r_comp
-                        st.session_state["auto_state"] = execute_full_autonomous_pipeline(r_comp, auto_save=True)
-                        st.toast(f"✅ 기준 기업이 '{r_comp.get('name', '기업')}'(대표: {r_comp.get('ceo')})으로 즉시 변경되었습니다!", icon="🏢")
-                        st.rerun()
-            else:
-                st.warning(f"'{clean_r_val}'과 일치하는 등록 기업이 없습니다.")
+    clean_r_val = normalize_text(radar_comp_search)
+    if clean_r_val:
+        r_matches = search_companies_incremental(clean_r_val)
+        if r_matches:
+            st.markdown(f"**🎯 '{clean_r_val}' 일치 기업 ({len(r_matches)}개사):**")
+            r_cand_cols = st.columns(min(len(r_matches), 4))
+            for rm_idx, r_comp in enumerate(r_matches[:4]):
+                if r_cand_cols[rm_idx].button(f"🎯 {r_comp.get('name', '기업')}\n(대표: {r_comp.get('ceo', '대표')})", key=f"r_cand_btn_{rm_idx}", use_container_width=True):
+                    save_company_profile(r_comp)
+                    st.session_state["comp_profile"] = r_comp
+                    st.session_state["auto_state"] = execute_full_autonomous_pipeline(r_comp, auto_save=True)
+                    st.toast(f"✅ 기준 기업이 '{r_comp.get('name', '기업')}'(대표: {r_comp.get('ceo')})으로 즉시 변경되었습니다!", icon="🏢")
+                    st.rerun()
+        else:
+            st.warning(f"'{clean_r_val}'과 일치하는 등록 기업이 없습니다.")
+
+    st.markdown("---")
+    st.markdown(build_cockpit_sub_header_html("🎛️ 5대 다차원 선택형 필터 컨트롤러 (공종 · 지역 · 규모 · 발주처 · 정렬)", "5D TACTICAL MATRIX", "#fbbf24"), unsafe_allow_html=True)
     
-        st.markdown("---")
-        st.markdown(build_cockpit_sub_header_html("🎛️ 5대 다차원 선택형 필터 컨트롤러 (공종 · 지역 · 규모 · 발주처 · 정렬)", "5D TACTICAL MATRIX", "#fbbf24"), unsafe_allow_html=True)
-        
-        f_c1, f_c2, f_c3 = st.columns(3)
-        available_lics = comp.get("lics", ["건축공사업", "전기공사업"])
-        all_known_lics = ["건축공사업", "토목공사업", "토목건축공사업", "전기공사업", "정보통신공사업", "소방시설공사업"]
-        lic_choices = list(dict.fromkeys(available_lics + all_known_lics))
-        
-        sel_lic = f_c1.selectbox("1️⃣ 보유 공종 및 면허", lic_choices, index=0)
-        
-        comp_region_name = "강원특별자치도"
-        for r_cand in REGION_LIST:
-            if r_cand[:2] in comp.get("region", ""):
-                comp_region_name = r_cand
-                break
-                
-        sel_reg = f_c2.selectbox("2️⃣ 관할 지역제한", REGION_LIST, index=REGION_LIST.index(comp_region_name) if comp_region_name in REGION_LIST else 0)
-        sel_scale = f_c3.selectbox("3️⃣ 공사 추정금액 규모", SCALE_LIST, index=0)
+    f_c1, f_c2, f_c3 = st.columns(3)
+    available_lics = comp.get("lics", ["건축공사업", "전기공사업"])
+    all_known_lics = ["건축공사업", "토목공사업", "토목건축공사업", "전기공사업", "정보통신공사업", "소방시설공사업"]
+    lic_choices = list(dict.fromkeys(available_lics + all_known_lics))
     
-        f_c4, f_c5, f_c6 = st.columns([1.2, 1.2, 1.1])
-        sel_inst_type = f_c4.selectbox("4️⃣ 발주기관 유형", INST_TYPE_LIST, index=0)
-        sel_sort = f_c5.selectbox("5️⃣ 정렬 기준", ["⏰ 입찰마감 임박순", "💰 기초금액 높은순", "💵 기초금액 낮은순"], index=0)
-        
-        do_scrape = f_c6.button("⚡ 조건부 실시간 공고 스크랩", type="primary", use_container_width=True)
+    sel_lic = f_c1.selectbox("1️⃣ 보유 공종 및 면허", lic_choices, index=0)
     
-        if do_scrape or "radar_cache_adv" not in st.session_state:
-            st.session_state["radar_cache_adv"] = fetch_live_g2b_bids_advanced(
-                sel_lic, sel_reg, sel_scale, sel_inst_type, sel_sort, DATA_API_KEY
-            )
+    comp_region_name = "강원특별자치도"
+    for r_cand in REGION_LIST:
+        if r_cand[:2] in comp.get("region", ""):
+            comp_region_name = r_cand
+            break
+            
+    sel_reg = f_c2.selectbox("2️⃣ 관할 지역제한", REGION_LIST, index=REGION_LIST.index(comp_region_name) if comp_region_name in REGION_LIST else 0)
+    sel_scale = f_c3.selectbox("3️⃣ 공사 추정금액 규모", SCALE_LIST, index=0)
+
+    f_c4, f_c5, f_c6 = st.columns([1.2, 1.2, 1.1])
+    sel_inst_type = f_c4.selectbox("4️⃣ 발주기관 유형", INST_TYPE_LIST, index=0)
+    sel_sort = f_c5.selectbox("5️⃣ 정렬 기준", ["⏰ 입찰마감 임박순", "💰 기초금액 높은순", "💵 기초금액 낮은순"], index=0)
     
-        live_bids = st.session_state["radar_cache_adv"]
-    
-        st.markdown("---")
+    do_scrape = f_c6.button("⚡ 조건부 실시간 공고 스크랩", type="primary", use_container_width=True)
+
+    if do_scrape or "radar_cache_adv" not in st.session_state:
+        st.session_state["radar_cache_adv"] = fetch_live_g2b_bids_advanced(
+            sel_lic, sel_reg, sel_scale, sel_inst_type, sel_sort, DATA_API_KEY
+        )
+
+    live_bids = st.session_state["radar_cache_adv"]
+
+    st.markdown("---")
     st.markdown(f"##### 🎯 필터 매칭 결과: **[{sel_lic} | {sel_reg} | {sel_scale}]** ({len(live_bids)}건 감지)")
 
     if not live_bids:
         st.warning("선택하신 조건에 일치하는 실시간 공고가 없습니다. 지역이나 규모 필터를 넓혀보세요.")
     else:
+        import importlib
         import lattice1365.prism_radar_cards as _prc_mod
-        import lattice1365.boutique_vault_ui as _bv_mod
-        import lattice1365.notice_dossier_vault as _ndv_mod
-        get_prism_deck_css = _prc_mod.get_prism_deck_css
-        build_prism_notice_card_html = _prc_mod.build_prism_notice_card_html
-        analyze_construction_profile = _ndv_mod.analyze_construction_profile
-        build_notice_dossier_html = _ndv_mod.build_notice_dossier_html
-        generate_notice_attachments = _ndv_mod.generate_notice_attachments
-        generate_master_zip_bundle = _ndv_mod.generate_master_zip_bundle
-        build_boq_preview_table_html = _ndv_mod.build_boq_preview_table_html
-        build_spec_sheet_html = _ndv_mod.build_spec_sheet_html
-        build_manifest_table_html = _ndv_mod.build_manifest_table_html
+        importlib.reload(_prc_mod)
+        from lattice1365.prism_radar_cards import get_prism_deck_css, build_prism_notice_card_html
         st.markdown(get_prism_deck_css(), unsafe_allow_html=True)
-        st.markdown(_bv_mod.get_boutique_vault_css(), unsafe_allow_html=True)
-        _b_notices = list(live_bids)
-        if '_boutique_selected_idx' not in st.session_state:
-            st.session_state['_boutique_selected_idx'] = 0
-        if '_boutique_cart_ids' not in st.session_state:
-            st.session_state['_boutique_cart_ids'] = [analyze_construction_profile(_b_notices[0], 0)['nid']] if _b_notices else []
-        _sel_idx = min(st.session_state['_boutique_selected_idx'], max(0, len(_b_notices) - 1))
-        _active_n = _b_notices[_sel_idx]
-        _active_prof = analyze_construction_profile(_active_n, _sel_idx)
-        _cart_list = [analyze_construction_profile(_x, _i) for _i, _x in enumerate(_b_notices) if analyze_construction_profile(_x, _i)['nid'] in st.session_state['_boutique_cart_ids']]
-        _hdr_c1, _hdr_c2 = st.columns([1.5, 2.0])
-        with _hdr_c2:
-            _view_mode = st.radio('✨ 공고 진열 모드', ['💎 1페이지 3건 캐비닛 쇼룸 (무스크롤)', '🛍️ 3×3 전체 부티크 쇼룸', '🌌 와이드 프리즘 덱 (기존 전체 펼침)'], horizontal=True, key='_boutique_view_mode_radio', label_visibility='collapsed')
-        st.markdown(_bv_mod.build_boutique_cart_bar_html(len(_b_notices), _cart_list, _active_prof, _view_mode), unsafe_allow_html=True)
-        if '1페이지 3건' in _view_mode or '3×3' in _view_mode:
-            if '_zs_page' not in st.session_state:
-                st.session_state['_zs_page'] = 0
-            if '1페이지 3건' in _view_mode:
-                _p_size = 3
-                _tot_p = max(1, (len(_b_notices) + _p_size - 1) // _p_size)
-                _cur_p = min(st.session_state['_zs_page'], _tot_p - 1)
-                _s_i, _e_i = _cur_p * _p_size, min(len(_b_notices), (_cur_p + 1) * _p_size)
-                _pc1, _pc2, _pc3 = st.columns([1.1, 2.8, 1.1])
-                if _pc1.button('◀ 이전 3건 캐비닛', key='prev_3_cab', disabled=(_cur_p <= 0), use_container_width=True):
-                    st.session_state['_zs_page'] = max(0, _cur_p - 1)
-                    st.rerun()
-                _pc2.markdown(f"<div style='text-align:center;padding:6px;background:rgba(15,23,42,0.9);border:1px solid rgba(251,191,36,0.4);border-radius:10px;font-size:13px;font-weight:900;color:#fde68a;'>💎 보물섬 쇼케이스 — PAGE {_cur_p+1} / {_tot_p} (공고 #{_s_i+1}~#{_e_i} / 총 {len(_b_notices)}건)</div>", unsafe_allow_html=True)
-                if _pc3.button('다음 3건 캐비닛 ▶', key='next_3_cab', disabled=(_cur_p >= _tot_p - 1), use_container_width=True):
-                    st.session_state['_zs_page'] = min(_tot_p - 1, _cur_p + 1)
-                    st.rerun()
-                _iter_range = range(_s_i, _e_i, 3)
-            else:
-                _iter_range = range(0, len(_b_notices), 3)
-            for _row_start in _iter_range:
-                _g_cols = st.columns(3)
-                for _c_offset in range(3):
-                    _g_idx = _row_start + _c_offset
-                    if _g_idx < len(_b_notices):
-                        _gn = _b_notices[_g_idx]
-                        _gprof = analyze_construction_profile(_gn, _g_idx)
-                        _is_act = (_g_idx == _sel_idx)
-                        _in_cart = (_gprof['nid'] in st.session_state['_boutique_cart_ids'])
-                        with _g_cols[_c_offset]:
-                            st.markdown(_bv_mod.build_jewel_showcase_tile_html(_gprof, _g_idx, _is_act, _in_cart), unsafe_allow_html=True)
-                            _b_col1, _b_col2 = st.columns([1.5, 1.0])
-                            if _b_col1.button('🗝️ 캐비닛 열기' if not _is_act else '✨ 현재 열람중', key=f'btn_open_cab_{_g_idx}', type='secondary' if not _is_act else 'primary', use_container_width=True):
-                                st.session_state['_boutique_selected_idx'] = _g_idx
-                                st.rerun()
-                            if _b_col2.button('💖 카트담기' if not _in_cart else '🗑️ 찜해제', key=f'btn_cart_grid_{_g_idx}', use_container_width=True):
-                                if _in_cart:
-                                    st.session_state['_boutique_cart_ids'].remove(_gprof['nid'])
-                                else:
-                                    st.session_state['_boutique_cart_ids'].append(_gprof['nid'])
-                                st.rerun()
-            with st.expander(f"🗝️ [선택된 보물 캐비닛 상세 도감 & 문서볼트 열기] [{_active_prof['nid']}] {_active_prof['title']}", expanded=False):
-                idx = _sel_idx
-                bid_item = _active_n
-                _prof = _active_prof
+        for idx, bid_item in enumerate(live_bids):
                 st.markdown(build_prism_notice_card_html(bid_item, idx), unsafe_allow_html=True)
-                st.markdown(build_notice_dossier_html(_prof), unsafe_allow_html=True)
-                _doc_html, _boq_csv, _bid_json, _spec_txt = generate_notice_attachments(_prof)
-                _zip_bytes, _zip_meta = generate_master_zip_bundle(_prof)
-                st.download_button(label=f"📦 [1-Click 마스터 번들 다운로드] (G2B_마스터패키지_{_prof['nid']}.zip · {_zip_meta['zip_size_kb']} KB)", data=_zip_bytes, file_name=f"G2B_마스터패키지_{_prof['nid']}.zip", mime='application/zip', key=f"dl_active_zip_{_prof['nid']}_{_sel_idx}", type='primary', use_container_width=True)
-                _pv_t1, _pv_t2, _pv_t3 = st.tabs(['📊 [인앱 열람 1] 공내역서 규격 양식표', '📐 [인앱 열람 2] 공사시방서 & AI 전략 규격서', '🔐 [인앱 열람 3] SHA-256 무결성 검증서'])
-                with _pv_t1:
-                    st.markdown(build_boq_preview_table_html(_prof), unsafe_allow_html=True)
-                with _pv_t2:
-                    st.markdown(build_spec_sheet_html(_prof), unsafe_allow_html=True)
-                with _pv_t3:
-                    st.markdown(build_manifest_table_html(_prof, _zip_meta), unsafe_allow_html=True)
-                    c_btn1, c_btn2 = st.columns([1.5, 4.5])
-                    if c_btn1.button(f"⚡ 이 공고 즉시 분석 및 투찰 전환", key=f"btn_pick_adv_{idx}", type="primary"):
-                        preset = {
-                            "공고명": bid_item.get('공고명', '공고'), "수요기관": bid_item.get('발주처', '조달청'), "발주기관": bid_item.get('발주처', '조달청'),
-                            "주요공종": bid_item.get("필요면허", bid_item.get("면허", "건축공사업")), "기초금액": bid_item.get('기초금액', 1000000000), "A값_합산액": bid_item.get('A값', 50000000),
-                            "낙찰하한율": bid_item["하한율"], "순공사원가": 0, "추정가격": round(bid_item.get('기초금액', 1000000000) * 0.91),
-                            "지역제한": bid_item.get("지역제한", bid_item.get("제한지역", bid_item.get("지역", "강원특별자치도"))), "입찰마감일시": bid_item.get('마감일시', '2026-11-13 10:00'), "필요면허": [bid_item.get("필요면허", bid_item.get("면허", "건축공사업"))],
-                            "독소조항": [{"title": "물가변동 배제 특약", "desc": "실착공 이후 물가변동 미반영 특약 주의", "level": "주의"}],
-                            "위험도점수": 20
-                        }
-                        st.session_state["auto_state"] = execute_full_autonomous_pipeline(comp, preset_data=preset, auto_save=True)
-                        st.toast(f"✅ '{bid_item.get('공고명', '공고')}'으로 전체 파이프라인이 전환되었습니다!", icon="🚀")
-                        st.rerun()
-    
-        else:
-            for idx, bid_item in enumerate(live_bids):
-                    st.markdown(build_prism_notice_card_html(bid_item, idx), unsafe_allow_html=True)
-                    from lattice1365.notice_dossier_vault import analyze_construction_profile, build_notice_dossier_html, generate_notice_attachments, generate_master_zip_bundle, build_boq_preview_table_html, build_spec_sheet_html, build_manifest_table_html
-                    _prof = analyze_construction_profile(bid_item, idx)
-                    with st.expander(f"🔍 [AI 현장도감 & 스마트 문서볼트] {_prof['title']} — 원클릭 통합 패키지(.ZIP) · 내역서 X-Ray 열람", expanded=False):
-                        st.markdown(build_notice_dossier_html(_prof), unsafe_allow_html=True)
-                        _doc_html, _boq_csv, _bid_json, _spec_txt = generate_notice_attachments(_prof)
-                        _zip_bytes, _zip_meta = generate_master_zip_bundle(_prof)
-                        st.download_button(
-                            label=f"📦 [1-Click 마스터 번들] 입찰공고문 + 공내역서 + G2B제원 + 시방서 + AI전략서 일괄 다운로드 (G2B_마스터패키지_{_prof['nid']}.zip · {_zip_meta['zip_size_kb']} KB · SHA256 검증완료)",
-                            data=_zip_bytes,
-                            file_name=f"G2B_마스터패키지_{_prof['nid']}.zip",
-                            mime="application/zip",
-                            key=f"dl_master_zip_{_prof['nid']}_{idx}",
-                            type="primary",
-                            use_container_width=True,
-                        )
-                        _dl_c1, _dl_c2, _dl_c3, _dl_c4 = st.columns(4)
-                        _dl_c1.download_button("📄 입찰공고문 전문 (.html)", data=_doc_html, file_name=f"입찰공고문_{_prof['nid']}.html", mime="text/html", key=f"dl_doc_{_prof['nid']}_{idx}", use_container_width=True)
-                        _dl_c2.download_button("📊 공내역서·물량내역 (.csv)", data=_boq_csv, file_name=f"공내역서_{_prof['nid']}.csv", mime="text/csv", key=f"dl_boq_{_prof['nid']}_{idx}", use_container_width=True)
-                        _dl_c3.download_button("📦 G2B 전자입찰 제원 (.json)", data=_bid_json, file_name=f"G2B제원_{_prof['nid']}.json", mime="application/json", key=f"dl_json_{_prof['nid']}_{idx}", use_container_width=True)
-                        _dl_c4.download_button("📐 공사시방서·특기사항 (.txt)", data=_spec_txt, file_name=f"공사시방서_{_prof['nid']}.txt", mime="text/plain", key=f"dl_spec_{_prof['nid']}_{idx}", use_container_width=True)
-                        _pv_t1, _pv_t2, _pv_t3 = st.tabs(["📊 [인앱 열람 1] 공내역서(CSV) 실시간 프리뷰", "📐 [인앱 열람 2] 공사시방서 & AI 투찰전략서", "🔐 [인앱 열람 3] G2B JSON & SHA-256 무결성 매니페스트"])
-                        with _pv_t1:
-                            st.markdown(build_boq_preview_table_html(_prof), unsafe_allow_html=True)
-                        with _pv_t2:
-                            st.markdown(build_spec_sheet_html(_prof), unsafe_allow_html=True)
-                        with _pv_t3:
-                            st.markdown(build_manifest_table_html(_prof, _zip_meta), unsafe_allow_html=True)
-                    
-                    c_btn1, c_btn2 = st.columns([1.5, 4.5])
-                    if c_btn1.button(f"⚡ 이 공고 즉시 분석 및 투찰 전환", key=f"btn_pick_adv_{idx}", type="primary"):
-                        preset = {
-                            "공고명": bid_item.get('공고명', '공고'), "수요기관": bid_item.get('발주처', '조달청'), "발주기관": bid_item.get('발주처', '조달청'),
-                            "주요공종": bid_item.get("필요면허", bid_item.get("면허", "건축공사업")), "기초금액": bid_item.get('기초금액', 1000000000), "A값_합산액": bid_item.get('A값', 50000000),
-                            "낙찰하한율": bid_item["하한율"], "순공사원가": 0, "추정가격": round(bid_item.get('기초금액', 1000000000) * 0.91),
-                            "지역제한": bid_item.get("지역제한", bid_item.get("제한지역", bid_item.get("지역", "강원특별자치도"))), "입찰마감일시": bid_item.get('마감일시', '2026-11-13 10:00'), "필요면허": [bid_item.get("필요면허", bid_item.get("면허", "건축공사업"))],
-                            "독소조항": [{"title": "물가변동 배제 특약", "desc": "실착공 이후 물가변동 미반영 특약 주의", "level": "주의"}],
-                            "위험도점수": 20
-                        }
-                        st.session_state["auto_state"] = execute_full_autonomous_pipeline(comp, preset_data=preset, auto_save=True)
-                        st.toast(f"✅ '{bid_item.get('공고명', '공고')}'으로 전체 파이프라인이 전환되었습니다!", icon="🚀")
-                        st.rerun()
-    
+                from lattice1365.notice_dossier_vault import analyze_construction_profile, build_notice_dossier_html, generate_notice_attachments, generate_master_zip_bundle, build_boq_preview_table_html, build_spec_sheet_html, build_manifest_table_html
+                _prof = analyze_construction_profile(bid_item, idx)
+                with st.expander(f"🔍 [AI 현장도감 & 스마트 문서볼트] {_prof['title']} — 원클릭 통합 패키지(.ZIP) · 내역서 X-Ray 열람", expanded=False):
+                    st.markdown(build_notice_dossier_html(_prof), unsafe_allow_html=True)
+                    _doc_html, _boq_csv, _bid_json, _spec_txt = generate_notice_attachments(_prof)
+                    _zip_bytes, _zip_meta = generate_master_zip_bundle(_prof)
+                    st.download_button(
+                        label=f"📦 [1-Click 마스터 번들] 입찰공고문 + 공내역서 + G2B제원 + 시방서 + AI전략서 일괄 다운로드 (G2B_마스터패키지_{_prof['nid']}.zip · {_zip_meta['zip_size_kb']} KB · SHA256 검증완료)",
+                        data=_zip_bytes,
+                        file_name=f"G2B_마스터패키지_{_prof['nid']}.zip",
+                        mime="application/zip",
+                        key=f"dl_master_zip_{_prof['nid']}_{idx}",
+                        type="primary",
+                        use_container_width=True,
+                    )
+                    _dl_c1, _dl_c2, _dl_c3, _dl_c4 = st.columns(4)
+                    _dl_c1.download_button("📄 입찰공고문 전문 (.html)", data=_doc_html, file_name=f"입찰공고문_{_prof['nid']}.html", mime="text/html", key=f"dl_doc_{_prof['nid']}_{idx}", use_container_width=True)
+                    _dl_c2.download_button("📊 공내역서·물량내역 (.csv)", data=_boq_csv, file_name=f"공내역서_{_prof['nid']}.csv", mime="text/csv", key=f"dl_boq_{_prof['nid']}_{idx}", use_container_width=True)
+                    _dl_c3.download_button("📦 G2B 전자입찰 제원 (.json)", data=_bid_json, file_name=f"G2B제원_{_prof['nid']}.json", mime="application/json", key=f"dl_json_{_prof['nid']}_{idx}", use_container_width=True)
+                    _dl_c4.download_button("📐 공사시방서·특기사항 (.txt)", data=_spec_txt, file_name=f"공사시방서_{_prof['nid']}.txt", mime="text/plain", key=f"dl_spec_{_prof['nid']}_{idx}", use_container_width=True)
+                    _pv_t1, _pv_t2, _pv_t3 = st.tabs(["📊 [인앱 열람 1] 공내역서(CSV) 실시간 프리뷰", "📐 [인앱 열람 2] 공사시방서 & AI 투찰전략서", "🔐 [인앱 열람 3] G2B JSON & SHA-256 무결성 매니페스트"])
+                    with _pv_t1:
+                        st.markdown(build_boq_preview_table_html(_prof), unsafe_allow_html=True)
+                    with _pv_t2:
+                        st.markdown(build_spec_sheet_html(_prof), unsafe_allow_html=True)
+                    with _pv_t3:
+                        st.markdown(build_manifest_table_html(_prof, _zip_meta), unsafe_allow_html=True)
+                
+                c_btn1, c_btn2 = st.columns([1.5, 4.5])
+                if c_btn1.button(f"⚡ 이 공고 즉시 분석 및 투찰 전환", key=f"btn_pick_adv_{idx}", type="primary"):
+                    preset = {
+                        "공고명": bid_item.get('공고명', '공고'), "수요기관": bid_item.get('발주처', '조달청'), "발주기관": bid_item.get('발주처', '조달청'),
+                        "주요공종": bid_item.get("필요면허", bid_item.get("면허", "건축공사업")), "기초금액": bid_item.get('기초금액', 1000000000), "A값_합산액": bid_item.get('A값', 50000000),
+                        "낙찰하한율": bid_item["하한율"], "순공사원가": 0, "추정가격": round(bid_item.get('기초금액', 1000000000) * 0.91),
+                        "지역제한": bid_item.get("지역제한", bid_item.get("제한지역", bid_item.get("지역", "강원특별자치도"))), "입찰마감일시": bid_item.get('마감일시', '2026-11-13 10:00'), "필요면허": [bid_item.get("필요면허", bid_item.get("면허", "건축공사업"))],
+                        "독소조항": [{"title": "물가변동 배제 특약", "desc": "실착공 이후 물가변동 미반영 특약 주의", "level": "주의"}],
+                        "위험도점수": 20
+                    }
+                    st.session_state["auto_state"] = execute_full_autonomous_pipeline(comp, preset_data=preset, auto_save=True)
+                    st.toast(f"✅ '{bid_item.get('공고명', '공고')}'으로 전체 파이프라인이 전환되었습니다!", icon="🚀")
+                    st.rerun()
+
 with tab1:
     col_l, col_r = st.columns([1, 1.2])
     with col_l:
@@ -7695,554 +7597,553 @@ def render_phase9_bidding_machine_workstation():
 render_phase9_bidding_machine_workstation()
 # ==================== [PHASE 9: BIDDING MACHINE HOUSING ROUTER END] ====================
 
-with _ndc_mod.make_zone_container(_is_cab_mode, _cur_cab_zone, '[Z6]'):
-    # === [EGR-BID ADD-ON STREAMLIT PANEL] ===
-    def _render_egr_bid_addon_panel():
-        import hashlib, io, csv, streamlit as st, pandas as pd
-        import streamlit.components.v1 as components
-        from decimal import Decimal
-        from research.egr_bid.evidence_contract import VerifiedNotice
-        from research.egr_bid.robust_selector import egr_bid_recommend
-        from research.egr_bid.csv_loader import load_verified_history_from_csv
-        from research.egr_bid.tests.test_egr_bid_synthetic import _make_verified_history
-        from research.egr_bid.report_formatter import (
-            compute_m1_to_m5_breakdown, format_printable_html_report
+# === [EGR-BID ADD-ON STREAMLIT PANEL] ===
+def _render_egr_bid_addon_panel():
+    import hashlib, io, csv, streamlit as st, pandas as pd
+    import streamlit.components.v1 as components
+    from decimal import Decimal
+    from research.egr_bid.evidence_contract import VerifiedNotice
+    from research.egr_bid.robust_selector import egr_bid_recommend
+    from research.egr_bid.csv_loader import load_verified_history_from_csv
+    from research.egr_bid.tests.test_egr_bid_synthetic import _make_verified_history
+    from research.egr_bid.report_formatter import (
+        compute_m1_to_m5_breakdown, format_printable_html_report
+    )
+
+    # 좌측 사이드바 전체에 4D 아이소메트릭 홀로그램 CSS 주입 + 60FPS 4D 테서랙트(초입방체) 지휘 콘솔 탑재!
+    from lattice1365.sidebar_4d_ui import get_sidebar_4d_global_css, build_sidebar_4d_tesseract_html
+    st.markdown(get_sidebar_4d_global_css(), unsafe_allow_html=True)
+
+    with st.sidebar:
+        # ZONE 1(상단 보안)과 ZONE 2(하단 AI 엔진 랩)를 분리하는 시각적 디바이더 + 하단 물리 스페이서(height:10px)로 겹침 원천 차단
+        st.markdown("""
+        <div style="padding-top:10px;padding-bottom:10px;display:block;">
+            <div style="border-top:1.5px dashed rgba(56,189,248,0.35);padding-top:10px;display:flex;justify-content:space-between;align-items:center;">
+                <span style="color:#7dd3fc;font-size:13px;font-weight:900;letter-spacing:0.3px;">🧭 AI ENGINE LAB</span>
+                <span style="background:rgba(56,189,248,0.16);border:1px solid rgba(56,189,248,0.45);color:#38bdf8;font-size:8.5px;font-weight:900;padding:2px 7px;border-radius:999px;">ZONE 2 · ADD-ON</span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        g_col1, g_col2 = st.columns(2)
+        with g_col1:
+            on_picker = st.checkbox(
+                "🎯 3D 로또추첨",
+                value=True,
+                key="_addon_chk_picker_v2",
+            )
+            on_egr = st.checkbox(
+                "🛡️ EGR 방어선",
+                value=True,
+                key="_addon_chk_egr_v2",
+            )
+        with g_col2:
+            on_arena = st.checkbox(
+                "🔥 스나이퍼배틀",
+                value=True,
+                key="_addon_chk_arena_v2",
+            )
+            on_lat = st.checkbox(
+                "⚡ LATTICE 격자",
+                value=True,
+                key="_addon_chk_lat_v2",
+            )
+
+        _active_cnt = sum([bool(on_picker), bool(on_arena), bool(on_egr), bool(on_lat)])
+        components.html(build_sidebar_4d_tesseract_html(active_count=_active_cnt), height=232, scrolling=False)
+
+    slot = st.empty()
+    if not on_picker and not on_arena and not on_egr and not on_lat:
+        slot.empty()
+        return
+
+    with slot.container():
+        st.markdown("---")
+        with st.expander("⚙️ [번외 모델 공통: 공고 제원 변경 및 실제 나라장터 개찰결과 CSV 업로드] (클릭하여 열기)", expanded=False):
+            c1, c2, c3, c4 = st.columns(4)
+            with c1:
+                in_nno = st.text_input("공고번호", value="R26BK01812785-000", key="_egr_nno_b")
+                in_title = st.text_input("공고명", value="소양초 공간재구조화 조성공사", key="_egr_ttl_b")
+            with c2:
+                in_base = st.number_input("기초금액 (원)", min_value=1000000, value=3605411000, step=1000000, key="_egr_base_b")
+                in_aval = st.number_input("A값 (원)", min_value=0, value=170640956, step=100000, key="_egr_aval_b")
+            with c3:
+                in_ncost = st.number_input("순공사원가 (원)", min_value=1000000, value=3082754189, step=1000000, key="_egr_nc_b")
+                in_limit = st.number_input("공고 낙찰하한율 (%)", min_value=50.0, max_value=99.0, value=88.745, step=0.001, format="%.3f", key="_egr_lmt_b")
+            with c4:
+                in_perf = st.number_input("수행능력점수 S_pq (만점 30)", min_value=0.0, max_value=30.0, value=30.0, step=0.5, key="_egr_prf_b")
+                firm_cost_m = st.number_input("우리 회사 증빙 원가 (백만원, 0=자동)", min_value=0, max_value=100000, value=0, step=10, key="_egr_fc_b")
+
+            ev_col1, ev_col2 = st.columns([2, 2])
+            with ev_col1:
+                ev_mode = st.radio(
+                    "개찰 이력 데이터 소스",
+                    options=["기본 실전형 개찰 템플릿 CSV (6건)", "검증 샌드박스 이력 (8건)", "증거 부족 시뮬레이션 (M8 자동보류)"],
+                    horizontal=True,
+                    key="_egr_ev_mode_b",
+                )
+            with ev_col2:
+                uploaded_csv = st.file_uploader("실제 나라장터 개찰결과 CSV 업로드 (선택)", type=["csv"], key="_egr_csv_up_b")
+
+        if uploaded_csv is not None:
+            hist_data = load_verified_history_from_csv(uploaded_csv)
+            src_label = f"업로드 CSV ({len(hist_data)}건)"
+        elif "템플릿" in ev_mode:
+            hist_data = load_verified_history_from_csv("research/egr_bid/verified_opening_template.csv")
+            src_label = f"verified_opening_template.csv ({len(hist_data)}건)"
+        elif "부족" in ev_mode:
+            hist_data = []
+            src_label = "증거 없음 (0건)"
+        else:
+            hist_data = _make_verified_history(n=8, rate_spread=0.0003, with_comp=True)
+            src_label = "샌드박스 이력 (8건)"
+
+        canon_seed = "202611-00892" if in_nno.strip() in ("R26BK01812785-000", "202611-00892") else in_nno.strip()
+        m1_m5 = compute_m1_to_m5_breakdown(
+            canon_seed, int(in_base), int(in_aval),
+            Decimal(str(in_limit)), Decimal(str(in_perf)), "MOIS_BP3_30B_50B", int(in_ncost)
         )
-    
-        # 좌측 사이드바 전체에 4D 아이소메트릭 홀로그램 CSS 주입 + 60FPS 4D 테서랙트(초입방체) 지휘 콘솔 탑재!
-        from lattice1365.sidebar_4d_ui import get_sidebar_4d_global_css, build_sidebar_4d_tesseract_html
-        st.markdown(get_sidebar_4d_global_css(), unsafe_allow_html=True)
-    
-        with st.sidebar:
-            # ZONE 1(상단 보안)과 ZONE 2(하단 AI 엔진 랩)를 분리하는 시각적 디바이더 + 하단 물리 스페이서(height:10px)로 겹침 원천 차단
+        m5_bid = m1_m5["m5_bid"]
+        m5_picks = m1_m5["m5_lucky_4"]
+        lat = m1_m5["lattice_res"]
+        lat_p4 = lat.ladder.get("lucky_4_slots", [1, 5, 11, 15])
+        l0 = lat.ladder.get("l0_params", {"mu": 100.08, "delta": 0.35, "rho": 0.30})
+
+        notice_obj = VerifiedNotice(
+            notice_id=canon_seed,
+            revision_id="REV-0",
+            source_sha256=hashlib.sha256(f"{in_nno}_{in_base}_{in_aval}_{in_ncost}".encode()).hexdigest(),
+            source_verified=True,
+            is_demo_data=False,
+            profile_key="MOIS_BP3_30B_50B",
+            base_amt=int(in_base),
+            a_val=int(in_aval),
+            net_cost_base=int(in_ncost),
+            deadline_at="2026-11-13 10:00",
+            limit_rate=Decimal(str(in_limit)),
+            perf_score=Decimal(str(in_perf)),
+        )
+        cost_won = int(firm_cost_m) * 1000000 if firm_cost_m > 0 else None
+        res = egr_bid_recommend(notice_obj, hist_data, cost_input=cost_won)
+
+        egr_bid_str = f"{res.recommendation_won:,}원" if res.recommendation_won else "추천 보류 (HOLD)"
+        diff_str = f"M5 대비 {res.recommendation_won - m5_bid:+,}원" if res.recommendation_won else "근거 부족 자동 차단"
+        status_color = "#10b981" if res.status == "PASS_ADVISORY" else ("#f59e0b" if "HOLD" in res.status else "#ef4444")
+        q_info = res.calibration_summary.get("m6_quantiles_pct", {}) if res.calibration_summary else {}
+        w80_info = res.calibration_summary.get("m6_pi80_width_pct", "-") if res.calibration_summary else "-"
+
+        # =====================================================================
+                # =====================================================================
+        # [SECTION 0] 🎯 AI 복수예가 추첨 번호(1~15번) & 1,365 조합 자동화 센터
+        if on_picker:
+            # =====================================================================
+            from lattice1365.selector_ai import compute_ai_slot_selection_Automation
+            with st.expander("🎯 [AI 복수예가 추첨 번호 & 1,365 조합 자동 추천기] 나라장터 응찰 시 체크할 최적 2개 번호 & TOP 10 조합 (클릭하여 열기/닫기)", expanded=True):
+                sel_c1, sel_c2 = st.columns([2, 2])
+                with sel_c1:
+                    target_model_choice = st.radio(
+                        "추첨 번호 역산 기준 모델 선택",
+                        options=["👑 기준선: M5 양자계단", "🛡️ 번외 1: 제미나이 EGR-BID (Q50)", "⚡ 번외 2: 젠스파크 LATTICE-1365"],
+                        horizontal=True,
+                        key="_ai_slot_target_model",
+                    )
+                with sel_c2:
+                    bias_w = st.slider(
+                        "입찰자 중앙 번호 선호 편향(Behavioral Bias) 반영 강도",
+                        min_value=0.0, max_value=1.0, value=0.65, step=0.05,
+                        key="_ai_slot_bias_slider",
+                        help="0.0이면 1~15번 완전 균등 난수, 0.65 이상이면 실제 입찰자들의 중앙 번호(5~11번) 및 3·7번 집중 선택 편향을 반영합니다.",
+                    )
+
+                if "EGR-BID" in target_model_choice and res.verified_rule_checks and "scenario_evaluation" in res.verified_rule_checks:
+                    t_ep = int(res.verified_rule_checks["scenario_evaluation"]["scenarios"][2]["est_price"])
+                elif "LATTICE" in target_model_choice and lat.feasible:
+                    t_ep = int(lat.ladder["est_prices"][lat.optimal_step - 1])
+                else:
+                    t_ep = int(m1_m5["m5_est_price"])
+
+                ai_sel = compute_ai_slot_selection_Automation(
+                    notice_no=canon_seed,
+                    base_amt=int(in_base),
+                    a_val=int(in_aval),
+                    limit_rate_pct=float(in_limit),
+                    target_est_price=t_ep,
+                    bias_strength=float(bias_w),
+                )
+                p2 = ai_sel["primary_2_pick"]
+                b2 = ai_sel["backup_2_pick"]
+                c4 = ai_sel["exact_combo_4"]
+                from lattice1365.vortex_visualizer import build_quantum_lotto_vortex_html
+                vortex_html = build_quantum_lotto_vortex_html(
+                    ai_sel=ai_sel,
+                    target_model_label=target_model_choice,
+                    target_ep=t_ep,
+                    base_amt=int(in_base),
+                )
+                components.html(vortex_html, height=435, scrolling=False)
+
+                st.markdown(f"""
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:14px;">
+                    <div style="background:#0f172a;border:1.5px solid #38bdf8;border-radius:10px;padding:14px;">
+                        <div style="color:#7dd3fc;font-size:12px;font-weight:800;">👑 나라장터 투찰창 1순위 추천 (Best 2-Pick)</div>
+                        <div style="color:#f8fafc;font-size:23px;font-weight:900;margin:4px 0;">{p2[0]}번 · {p2[1]}번</div>
+                        <div style="color:#94a3b8;font-size:12px;">실제 입찰서 제출 시 체크할 최우선 2개 번호</div>
+                    </div>
+                    <div style="background:#0f172a;border:1.5px solid #f59e0b;border-radius:10px;padding:14px;">
+                        <div style="color:#fcd34d;font-size:12px;font-weight:800;">🛡️ 2순위 예비 추천 번호 (Backup 2-Pick)</div>
+                        <div style="color:#fbbf24;font-size:23px;font-weight:900;margin:4px 0;">{b2[0]}번 · {b2[1]}번</div>
+                        <div style="color:#94a3b8;font-size:12px;">공동도급/분산 응찰 시 교차 선택 번호</div>
+                    </div>
+                    <div style="background:#0f172a;border:1.5px solid #10b981;border-radius:10px;padding:14px;">
+                        <div style="color:#6ee7b7;font-size:12px;font-weight:800;">🍀 목표 타점 4개 추첨 조합 (15C4)</div>
+                        <div style="color:#34d399;font-size:21px;font-weight:900;margin:4px 0;">{c4[0]}번 · {c4[1]}번 · {c4[2]}번 · {c4[3]}번</div>
+                        <div style="color:#94a3b8;font-size:12px;">양자계단 #{ai_sel['exact_step_no']}/1,365 (목표예가 {t_ep:,}원)</div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                df_slots = pd.DataFrame(ai_sel["slot_table"])
+                df_top10 = pd.DataFrame([
+                    {
+                        "순위": f"TOP {r['rank']}",
+                        "계단번호": f"#{r['step_no']}/1,365",
+                        "4개 추첨번호 조합": r["combo_str"],
+                        "핵심 2개 번호(2-Pick)": r["best_2_str"],
+                        "조합 예정가격(원)": r["est_price"],
+                        "사정률(%)": r["sajeong_rate"],
+                        "대응 추천투찰가(원)": r["recommended_bid"],
+                        "AI 시너지 점수": r["synergy_score"],
+                    }
+                    for r in ai_sel["top_10_combos"]
+                ])
+
+                sc_left, sc_right = st.columns([5, 7])
+                with sc_left:
+                    st.markdown("###### 📊 1~15번 번호별 AI 다수결 선택확률(%) 분포")
+                    st.bar_chart(df_slots.set_index("번호")[["AI 다수결 선택확률(%)"]], height=250)
+                    st.dataframe(
+                        df_slots[["번호", "예비가격(원)", "사정률(%)", "AI 다수결 선택확률(%)", "추천등급"]].style.format({
+                            "예비가격(원)": "{:,}원", "사정률(%)": "{:.4f}%", "AI 다수결 선택확률(%)": "{:.2f}%",
+                        }),
+                        use_container_width=True, height=240,
+                    )
+                with sc_right:
+                    st.markdown("###### 🏆 1,365개 조합 중 목표 타점 × 다수결 시너지 TOP 10 조합표")
+                    st.dataframe(
+                        df_top10.set_index("순위").style.format({
+                            "조합 예정가격(원)": "{:,}원", "사정률(%)": "{:.4f}%",
+                            "대응 추천투찰가(원)": "{:,}원", "AI 시너지 점수": "{:.2f}점",
+                        }),
+                        use_container_width=True, height=505,
+                    )
+
+
+                # =====================================================================
+        # [SECTION 0.5] 🔥 3대 엔진 vs N개 경쟁사 실시간 스나이퍼 배틀 아레나
+        # =====================================================================
+        from lattice1365.hyper_arcade_viz import (
+            build_tactical_sniper_arena_html,
+            build_egr_shield_matrix_html,
+            build_lattice_wave_rider_html,
+        )
+        if on_arena:
+            with st.expander("🔥 [실시간 개찰 배틀 시뮬레이터] 3대 엔진(M5 · EGR-BID · LATTICE-1365) vs 경쟁사 탄착 스나이퍼 아레나 (클릭하여 열기/닫기)", expanded=True):
+                arena_html = build_tactical_sniper_arena_html(
+                    m5_bid=int(m5_bid),
+                    egr_bid=int(res.recommendation_won) if res.recommendation_won else 0,
+                    lat_bid=int(lat.optimal_price) if lat.feasible else 0,
+                    lower_cut=int(m1_m5["m5_lower_limit"]),
+                    net_cost_98=int(m1_m5["min_net_cost_bid"]),
+                    n_rivals=48,
+                )
+                components.html(arena_html, height=385, scrolling=False)
+
+        # [SECTION A] 기존 번외 1: 제미나이 EGR-BID (M6·M7·M8) 전용 대시보드 (그대로 복원!)
+        # =====================================================================
+        if on_egr:
             st.markdown("""
-            <div style="padding-top:10px;padding-bottom:10px;display:block;">
-                <div style="border-top:1.5px dashed rgba(56,189,248,0.35);padding-top:10px;display:flex;justify-content:space-between;align-items:center;">
-                    <span style="color:#7dd3fc;font-size:13px;font-weight:900;letter-spacing:0.3px;">🧭 AI ENGINE LAB</span>
-                    <span style="background:rgba(56,189,248,0.16);border:1px solid rgba(56,189,248,0.45);color:#38bdf8;font-size:8.5px;font-weight:900;padding:2px 7px;border-radius:999px;">ZONE 2 · ADD-ON</span>
+            <div style="background:linear-gradient(135deg,#0f172a 0%,#1e293b 60%,#0f172a 100%);border:1.5px solid #f59e0b;border-radius:14px;padding:18px 22px;margin-bottom:14px;box-shadow:0 8px 24px rgba(0,0,0,0.45);">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                    <div>
+                        <span style="background:#f59e0b;color:#0f172a;font-weight:800;font-size:12px;padding:3px 10px;border-radius:999px;letter-spacing:0.5px;">번외 모델 1 · GEMINI EGR-BID (M6·M7·M8)</span>
+                        <h3 style="color:#f8fafc;margin:6px 0 2px 0;font-size:20px;font-weight:800;">🛡️ [번외 1] EGR-BID 분포 강건 시나리오 사정분석 & 시각화 대시보드</h3>
+                        <p style="color:#94a3b8;font-size:13px;margin:0;">발주기관 개찰분포(M6) · 경쟁사 웨지분포(M7) · 불확실성 보류게이트(M8) 기반 6단계 표준 사정과정 및 시나리오 통과율</p>
+                    </div>
+                    <div style="text-align:right;">
+                        <span style="background:rgba(245,158,11,0.15);border:1px solid #f59e0b;color:#fbbf24;font-size:12px;font-weight:700;padding:4px 10px;border-radius:8px;">T01~T12 (12/12 PASS)</span>
+                    </div>
                 </div>
             </div>
             """, unsafe_allow_html=True)
-    
-            g_col1, g_col2 = st.columns(2)
-            with g_col1:
-                on_picker = st.checkbox(
-                    "🎯 3D 로또추첨",
-                    value=True,
-                    key="_addon_chk_picker_v2",
-                )
-                on_egr = st.checkbox(
-                    "🛡️ EGR 방어선",
-                    value=True,
-                    key="_addon_chk_egr_v2",
-                )
-            with g_col2:
-                on_arena = st.checkbox(
-                    "🔥 스나이퍼배틀",
-                    value=True,
-                    key="_addon_chk_arena_v2",
-                )
-                on_lat = st.checkbox(
-                    "⚡ LATTICE 격자",
-                    value=True,
-                    key="_addon_chk_lat_v2",
-                )
-    
-            _active_cnt = sum([bool(on_picker), bool(on_arena), bool(on_egr), bool(on_lat)])
-            components.html(build_sidebar_4d_tesseract_html(active_count=_active_cnt), height=232, scrolling=False)
-    
-        slot = st.empty()
-        if not on_picker and not on_arena and not on_egr and not on_lat:
-            slot.empty()
-            return
-    
-        with slot.container():
-            st.markdown("---")
-            with st.expander("⚙️ [번외 모델 공통: 공고 제원 변경 및 실제 나라장터 개찰결과 CSV 업로드] (클릭하여 열기)", expanded=False):
-                c1, c2, c3, c4 = st.columns(4)
-                with c1:
-                    in_nno = st.text_input("공고번호", value="R26BK01812785-000", key="_egr_nno_b")
-                    in_title = st.text_input("공고명", value="소양초 공간재구조화 조성공사", key="_egr_ttl_b")
-                with c2:
-                    in_base = st.number_input("기초금액 (원)", min_value=1000000, value=3605411000, step=1000000, key="_egr_base_b")
-                    in_aval = st.number_input("A값 (원)", min_value=0, value=170640956, step=100000, key="_egr_aval_b")
-                with c3:
-                    in_ncost = st.number_input("순공사원가 (원)", min_value=1000000, value=3082754189, step=1000000, key="_egr_nc_b")
-                    in_limit = st.number_input("공고 낙찰하한율 (%)", min_value=50.0, max_value=99.0, value=88.745, step=0.001, format="%.3f", key="_egr_lmt_b")
-                with c4:
-                    in_perf = st.number_input("수행능력점수 S_pq (만점 30)", min_value=0.0, max_value=30.0, value=30.0, step=0.5, key="_egr_prf_b")
-                    firm_cost_m = st.number_input("우리 회사 증빙 원가 (백만원, 0=자동)", min_value=0, max_value=100000, value=0, step=10, key="_egr_fc_b")
-    
-                ev_col1, ev_col2 = st.columns([2, 2])
-                with ev_col1:
-                    ev_mode = st.radio(
-                        "개찰 이력 데이터 소스",
-                        options=["기본 실전형 개찰 템플릿 CSV (6건)", "검증 샌드박스 이력 (8건)", "증거 부족 시뮬레이션 (M8 자동보류)"],
-                        horizontal=True,
-                        key="_egr_ev_mode_b",
-                    )
-                with ev_col2:
-                    uploaded_csv = st.file_uploader("실제 나라장터 개찰결과 CSV 업로드 (선택)", type=["csv"], key="_egr_csv_up_b")
-    
-            if uploaded_csv is not None:
-                hist_data = load_verified_history_from_csv(uploaded_csv)
-                src_label = f"업로드 CSV ({len(hist_data)}건)"
-            elif "템플릿" in ev_mode:
-                hist_data = load_verified_history_from_csv("research/egr_bid/verified_opening_template.csv")
-                src_label = f"verified_opening_template.csv ({len(hist_data)}건)"
-            elif "부족" in ev_mode:
-                hist_data = []
-                src_label = "증거 없음 (0건)"
-            else:
-                hist_data = _make_verified_history(n=8, rate_spread=0.0003, with_comp=True)
-                src_label = "샌드박스 이력 (8건)"
-    
-            canon_seed = "202611-00892" if in_nno.strip() in ("R26BK01812785-000", "202611-00892") else in_nno.strip()
-            m1_m5 = compute_m1_to_m5_breakdown(
-                canon_seed, int(in_base), int(in_aval),
-                Decimal(str(in_limit)), Decimal(str(in_perf)), "MOIS_BP3_30B_50B", int(in_ncost)
-            )
-            m5_bid = m1_m5["m5_bid"]
-            m5_picks = m1_m5["m5_lucky_4"]
-            lat = m1_m5["lattice_res"]
-            lat_p4 = lat.ladder.get("lucky_4_slots", [1, 5, 11, 15])
-            l0 = lat.ladder.get("l0_params", {"mu": 100.08, "delta": 0.35, "rho": 0.30})
-    
-            notice_obj = VerifiedNotice(
-                notice_id=canon_seed,
-                revision_id="REV-0",
-                source_sha256=hashlib.sha256(f"{in_nno}_{in_base}_{in_aval}_{in_ncost}".encode()).hexdigest(),
-                source_verified=True,
-                is_demo_data=False,
-                profile_key="MOIS_BP3_30B_50B",
-                base_amt=int(in_base),
-                a_val=int(in_aval),
-                net_cost_base=int(in_ncost),
-                deadline_at="2026-11-13 10:00",
-                limit_rate=Decimal(str(in_limit)),
-                perf_score=Decimal(str(in_perf)),
-            )
-            cost_won = int(firm_cost_m) * 1000000 if firm_cost_m > 0 else None
-            res = egr_bid_recommend(notice_obj, hist_data, cost_input=cost_won)
-    
-            egr_bid_str = f"{res.recommendation_won:,}원" if res.recommendation_won else "추천 보류 (HOLD)"
-            diff_str = f"M5 대비 {res.recommendation_won - m5_bid:+,}원" if res.recommendation_won else "근거 부족 자동 차단"
-            status_color = "#10b981" if res.status == "PASS_ADVISORY" else ("#f59e0b" if "HOLD" in res.status else "#ef4444")
-            q_info = res.calibration_summary.get("m6_quantiles_pct", {}) if res.calibration_summary else {}
-            w80_info = res.calibration_summary.get("m6_pi80_width_pct", "-") if res.calibration_summary else "-"
-    
-            # =====================================================================
-                    # =====================================================================
-            # [SECTION 0] 🎯 AI 복수예가 추첨 번호(1~15번) & 1,365 조합 자동화 센터
-            if on_picker:
-                # =====================================================================
-                from lattice1365.selector_ai import compute_ai_slot_selection_Automation
-                with st.expander("🎯 [AI 복수예가 추첨 번호 & 1,365 조합 자동 추천기] 나라장터 응찰 시 체크할 최적 2개 번호 & TOP 10 조합 (클릭하여 열기/닫기)", expanded=True):
-                    sel_c1, sel_c2 = st.columns([2, 2])
-                    with sel_c1:
-                        target_model_choice = st.radio(
-                            "추첨 번호 역산 기준 모델 선택",
-                            options=["👑 기준선: M5 양자계단", "🛡️ 번외 1: 제미나이 EGR-BID (Q50)", "⚡ 번외 2: 젠스파크 LATTICE-1365"],
-                            horizontal=True,
-                            key="_ai_slot_target_model",
-                        )
-                    with sel_c2:
-                        bias_w = st.slider(
-                            "입찰자 중앙 번호 선호 편향(Behavioral Bias) 반영 강도",
-                            min_value=0.0, max_value=1.0, value=0.65, step=0.05,
-                            key="_ai_slot_bias_slider",
-                            help="0.0이면 1~15번 완전 균등 난수, 0.65 이상이면 실제 입찰자들의 중앙 번호(5~11번) 및 3·7번 집중 선택 편향을 반영합니다.",
-                        )
-    
-                    if "EGR-BID" in target_model_choice and res.verified_rule_checks and "scenario_evaluation" in res.verified_rule_checks:
-                        t_ep = int(res.verified_rule_checks["scenario_evaluation"]["scenarios"][2]["est_price"])
-                    elif "LATTICE" in target_model_choice and lat.feasible:
-                        t_ep = int(lat.ladder["est_prices"][lat.optimal_step - 1])
-                    else:
-                        t_ep = int(m1_m5["m5_est_price"])
-    
-                    ai_sel = compute_ai_slot_selection_Automation(
-                        notice_no=canon_seed,
-                        base_amt=int(in_base),
-                        a_val=int(in_aval),
-                        limit_rate_pct=float(in_limit),
-                        target_est_price=t_ep,
-                        bias_strength=float(bias_w),
-                    )
-                    p2 = ai_sel["primary_2_pick"]
-                    b2 = ai_sel["backup_2_pick"]
-                    c4 = ai_sel["exact_combo_4"]
-                    from lattice1365.vortex_visualizer import build_quantum_lotto_vortex_html
-                    vortex_html = build_quantum_lotto_vortex_html(
-                        ai_sel=ai_sel,
-                        target_model_label=target_model_choice,
-                        target_ep=t_ep,
-                        base_amt=int(in_base),
-                    )
-                    components.html(vortex_html, height=435, scrolling=False)
-    
-                    st.markdown(f"""
-                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:14px;">
-                        <div style="background:#0f172a;border:1.5px solid #38bdf8;border-radius:10px;padding:14px;">
-                            <div style="color:#7dd3fc;font-size:12px;font-weight:800;">👑 나라장터 투찰창 1순위 추천 (Best 2-Pick)</div>
-                            <div style="color:#f8fafc;font-size:23px;font-weight:900;margin:4px 0;">{p2[0]}번 · {p2[1]}번</div>
-                            <div style="color:#94a3b8;font-size:12px;">실제 입찰서 제출 시 체크할 최우선 2개 번호</div>
-                        </div>
-                        <div style="background:#0f172a;border:1.5px solid #f59e0b;border-radius:10px;padding:14px;">
-                            <div style="color:#fcd34d;font-size:12px;font-weight:800;">🛡️ 2순위 예비 추천 번호 (Backup 2-Pick)</div>
-                            <div style="color:#fbbf24;font-size:23px;font-weight:900;margin:4px 0;">{b2[0]}번 · {b2[1]}번</div>
-                            <div style="color:#94a3b8;font-size:12px;">공동도급/분산 응찰 시 교차 선택 번호</div>
-                        </div>
-                        <div style="background:#0f172a;border:1.5px solid #10b981;border-radius:10px;padding:14px;">
-                            <div style="color:#6ee7b7;font-size:12px;font-weight:800;">🍀 목표 타점 4개 추첨 조합 (15C4)</div>
-                            <div style="color:#34d399;font-size:21px;font-weight:900;margin:4px 0;">{c4[0]}번 · {c4[1]}번 · {c4[2]}번 · {c4[3]}번</div>
-                            <div style="color:#94a3b8;font-size:12px;">양자계단 #{ai_sel['exact_step_no']}/1,365 (목표예가 {t_ep:,}원)</div>
-                        </div>
-                    </div>
-                    """, unsafe_allow_html=True)
-    
-                    df_slots = pd.DataFrame(ai_sel["slot_table"])
-                    df_top10 = pd.DataFrame([
-                        {
-                            "순위": f"TOP {r['rank']}",
-                            "계단번호": f"#{r['step_no']}/1,365",
-                            "4개 추첨번호 조합": r["combo_str"],
-                            "핵심 2개 번호(2-Pick)": r["best_2_str"],
-                            "조합 예정가격(원)": r["est_price"],
-                            "사정률(%)": r["sajeong_rate"],
-                            "대응 추천투찰가(원)": r["recommended_bid"],
-                            "AI 시너지 점수": r["synergy_score"],
-                        }
-                        for r in ai_sel["top_10_combos"]
-                    ])
-    
-                    sc_left, sc_right = st.columns([5, 7])
-                    with sc_left:
-                        st.markdown("###### 📊 1~15번 번호별 AI 다수결 선택확률(%) 분포")
-                        st.bar_chart(df_slots.set_index("번호")[["AI 다수결 선택확률(%)"]], height=250)
-                        st.dataframe(
-                            df_slots[["번호", "예비가격(원)", "사정률(%)", "AI 다수결 선택확률(%)", "추천등급"]].style.format({
-                                "예비가격(원)": "{:,}원", "사정률(%)": "{:.4f}%", "AI 다수결 선택확률(%)": "{:.2f}%",
-                            }),
-                            use_container_width=True, height=240,
-                        )
-                    with sc_right:
-                        st.markdown("###### 🏆 1,365개 조합 중 목표 타점 × 다수결 시너지 TOP 10 조합표")
-                        st.dataframe(
-                            df_top10.set_index("순위").style.format({
-                                "조합 예정가격(원)": "{:,}원", "사정률(%)": "{:.4f}%",
-                                "대응 추천투찰가(원)": "{:,}원", "AI 시너지 점수": "{:.2f}점",
-                            }),
-                            use_container_width=True, height=505,
-                        )
-    
-    
-                    # =====================================================================
-            # [SECTION 0.5] 🔥 3대 엔진 vs N개 경쟁사 실시간 스나이퍼 배틀 아레나
-            # =====================================================================
-            from lattice1365.hyper_arcade_viz import (
-                build_tactical_sniper_arena_html,
-                build_egr_shield_matrix_html,
-                build_lattice_wave_rider_html,
-            )
-            if on_arena:
-                with st.expander("🔥 [실시간 개찰 배틀 시뮬레이터] 3대 엔진(M5 · EGR-BID · LATTICE-1365) vs 경쟁사 탄착 스나이퍼 아레나 (클릭하여 열기/닫기)", expanded=True):
-                    arena_html = build_tactical_sniper_arena_html(
-                        m5_bid=int(m5_bid),
-                        egr_bid=int(res.recommendation_won) if res.recommendation_won else 0,
-                        lat_bid=int(lat.optimal_price) if lat.feasible else 0,
-                        lower_cut=int(m1_m5["m5_lower_limit"]),
-                        net_cost_98=int(m1_m5["min_net_cost_bid"]),
-                        n_rivals=48,
-                    )
-                    components.html(arena_html, height=385, scrolling=False)
-    
-            # [SECTION A] 기존 번외 1: 제미나이 EGR-BID (M6·M7·M8) 전용 대시보드 (그대로 복원!)
-            # =====================================================================
-            if on_egr:
-                st.markdown("""
-                <div style="background:linear-gradient(135deg,#0f172a 0%,#1e293b 60%,#0f172a 100%);border:1.5px solid #f59e0b;border-radius:14px;padding:18px 22px;margin-bottom:14px;box-shadow:0 8px 24px rgba(0,0,0,0.45);">
-                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-                        <div>
-                            <span style="background:#f59e0b;color:#0f172a;font-weight:800;font-size:12px;padding:3px 10px;border-radius:999px;letter-spacing:0.5px;">번외 모델 1 · GEMINI EGR-BID (M6·M7·M8)</span>
-                            <h3 style="color:#f8fafc;margin:6px 0 2px 0;font-size:20px;font-weight:800;">🛡️ [번외 1] EGR-BID 분포 강건 시나리오 사정분석 & 시각화 대시보드</h3>
-                            <p style="color:#94a3b8;font-size:13px;margin:0;">발주기관 개찰분포(M6) · 경쟁사 웨지분포(M7) · 불확실성 보류게이트(M8) 기반 6단계 표준 사정과정 및 시나리오 통과율</p>
-                        </div>
-                        <div style="text-align:right;">
-                            <span style="background:rgba(245,158,11,0.15);border:1px solid #f59e0b;color:#fbbf24;font-size:12px;font-weight:700;padding:4px 10px;border-radius:8px;">T01~T12 (12/12 PASS)</span>
-                        </div>
-                    </div>
+
+            st.markdown(f"""
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:16px;">
+                <div style="background:#111827;border:1px solid #374151;border-left:4px solid #38bdf8;border-radius:10px;padding:14px;">
+                    <div style="color:#9ca3af;font-size:12px;font-weight:700;">👑 [기준선] 기존 M5 양자계단 추천가</div>
+                    <div style="color:#f8fafc;font-size:21px;font-weight:800;margin:4px 0;">{m5_bid:,}원</div>
+                    <div style="color:#38bdf8;font-size:12px;">계단 #{m1_m5['m5_step_no']}/1,365 · 예가 {m5_picks[0]}·{m5_picks[1]}·{m5_picks[2]}·{m5_picks[3]}번</div>
                 </div>
-                """, unsafe_allow_html=True)
-    
-                st.markdown(f"""
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:16px;">
-                    <div style="background:#111827;border:1px solid #374151;border-left:4px solid #38bdf8;border-radius:10px;padding:14px;">
-                        <div style="color:#9ca3af;font-size:12px;font-weight:700;">👑 [기준선] 기존 M5 양자계단 추천가</div>
-                        <div style="color:#f8fafc;font-size:21px;font-weight:800;margin:4px 0;">{m5_bid:,}원</div>
-                        <div style="color:#38bdf8;font-size:12px;">계단 #{m1_m5['m5_step_no']}/1,365 · 예가 {m5_picks[0]}·{m5_picks[1]}·{m5_picks[2]}·{m5_picks[3]}번</div>
-                    </div>
-                    <div style="background:#111827;border:1px solid #374151;border-left:4px solid #f59e0b;border-radius:10px;padding:14px;">
-                        <div style="color:#9ca3af;font-size:12px;font-weight:700;">🛡️ [번외 1] EGR-BID 강건 시나리오 선택가</div>
-                        <div style="color:#fbbf24;font-size:21px;font-weight:800;margin:4px 0;">{egr_bid_str}</div>
-                        <div style="color:#fcd34d;font-size:12px;">{diff_str} ({src_label})</div>
-                    </div>
-                    <div style="background:#111827;border:1px solid #374151;border-left:4px solid {status_color};border-radius:10px;padding:14px;">
-                        <div style="color:#9ca3af;font-size:12px;font-weight:700;">🧭 [M8 게이트] 불확실성·보류 판정</div>
-                        <div style="color:{status_color};font-size:19px;font-weight:800;margin:4px 0;">{res.status}</div>
-                        <div style="color:#9ca3af;font-size:12px;">{', '.join(res.reasons)}</div>
-                    </div>
-                    <div style="background:#111827;border:1px solid #374151;border-left:4px solid #a855f7;border-radius:10px;padding:14px;">
-                        <div style="color:#9ca3af;font-size:12px;font-weight:700;">🔒 [법정 하한] 순공사원가 98% 배제선</div>
-                        <div style="color:#e9d5ff;font-size:21px;font-weight:800;margin:4px 0;">{m1_m5['min_net_cost_bid']:,}원</div>
-                        <div style="color:#c084fc;font-size:12px;">기초 순공사원가 {int(in_ncost):,}원 기준</div>
-                    </div>
+                <div style="background:#111827;border:1px solid #374151;border-left:4px solid #f59e0b;border-radius:10px;padding:14px;">
+                    <div style="color:#9ca3af;font-size:12px;font-weight:700;">🛡️ [번외 1] EGR-BID 강건 시나리오 선택가</div>
+                    <div style="color:#fbbf24;font-size:21px;font-weight:800;margin:4px 0;">{egr_bid_str}</div>
+                    <div style="color:#fcd34d;font-size:12px;">{diff_str} ({src_label})</div>
                 </div>
-                """, unsafe_allow_html=True)
-    
-                egr_rows = []
-                for m in m1_m5["models"]:
+                <div style="background:#111827;border:1px solid #374151;border-left:4px solid {status_color};border-radius:10px;padding:14px;">
+                    <div style="color:#9ca3af;font-size:12px;font-weight:700;">🧭 [M8 게이트] 불확실성·보류 판정</div>
+                    <div style="color:{status_color};font-size:19px;font-weight:800;margin:4px 0;">{res.status}</div>
+                    <div style="color:#9ca3af;font-size:12px;">{', '.join(res.reasons)}</div>
+                </div>
+                <div style="background:#111827;border:1px solid #374151;border-left:4px solid #a855f7;border-radius:10px;padding:14px;">
+                    <div style="color:#9ca3af;font-size:12px;font-weight:700;">🔒 [법정 하한] 순공사원가 98% 배제선</div>
+                    <div style="color:#e9d5ff;font-size:21px;font-weight:800;margin:4px 0;">{m1_m5['min_net_cost_bid']:,}원</div>
+                    <div style="color:#c084fc;font-size:12px;">기초 순공사원가 {int(in_ncost):,}원 기준</div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            egr_rows = []
+            for m in m1_m5["models"]:
+                egr_rows.append({
+                    "모델/시나리오 구분": ("👑 " if m["code"] == "M5" else "• ") + m["name"],
+                    "사정률(%)": float(m["rate"]),
+                    "예정가격(원)": int(m["est_price"]),
+                    "낙찰하한선(원)": int(m["lower_limit"]),
+                    "추천투찰가(원)": int(m["recommended_bid"]),
+                    "M5 대비 차액(원)": int(m["recommended_bid"] - m5_bid),
+                })
+            if res.verified_rule_checks and "scenario_evaluation" in res.verified_rule_checks:
+                for sc in res.verified_rule_checks["scenario_evaluation"]["scenarios"]:
+                    sc_bid = int(sc["lower_limit"]) + 19
+                    is_picked = (res.recommendation_won is not None and abs(sc_bid - res.recommendation_won) < 200)
+                    prefix = "🛡️ " if is_picked else "◦ "
                     egr_rows.append({
-                        "모델/시나리오 구분": ("👑 " if m["code"] == "M5" else "• ") + m["name"],
-                        "사정률(%)": float(m["rate"]),
-                        "예정가격(원)": int(m["est_price"]),
-                        "낙찰하한선(원)": int(m["lower_limit"]),
-                        "추천투찰가(원)": int(m["recommended_bid"]),
-                        "M5 대비 차액(원)": int(m["recommended_bid"] - m5_bid),
+                        "모델/시나리오 구분": f"{prefix}EGR M6-{sc['scenario_id'].upper()} 분위수",
+                        "사정률(%)": float(sc["rate_pct"]),
+                        "예정가격(원)": int(sc["est_price"]),
+                        "낙찰하한선(원)": int(sc["lower_limit"]),
+                        "추천투찰가(원)": sc_bid,
+                        "M5 대비 차액(원)": sc_bid - m5_bid,
                     })
-                if res.verified_rule_checks and "scenario_evaluation" in res.verified_rule_checks:
-                    for sc in res.verified_rule_checks["scenario_evaluation"]["scenarios"]:
-                        sc_bid = int(sc["lower_limit"]) + 19
-                        is_picked = (res.recommendation_won is not None and abs(sc_bid - res.recommendation_won) < 200)
-                        prefix = "🛡️ " if is_picked else "◦ "
-                        egr_rows.append({
-                            "모델/시나리오 구분": f"{prefix}EGR M6-{sc['scenario_id'].upper()} 분위수",
-                            "사정률(%)": float(sc["rate_pct"]),
-                            "예정가격(원)": int(sc["est_price"]),
-                            "낙찰하한선(원)": int(sc["lower_limit"]),
-                            "추천투찰가(원)": sc_bid,
-                            "M5 대비 차액(원)": sc_bid - m5_bid,
-                        })
-                df_egr = pd.DataFrame(egr_rows)
-                shield_html = build_egr_shield_matrix_html(
-                    q_map=q_info,
-                    status_str=res.status,
-                    egr_bid=int(res.recommendation_won) if res.recommendation_won else 0,
-                    min_nc_98=int(m1_m5["min_net_cost_bid"]),
+            df_egr = pd.DataFrame(egr_rows)
+            shield_html = build_egr_shield_matrix_html(
+                q_map=q_info,
+                status_str=res.status,
+                egr_bid=int(res.recommendation_won) if res.recommendation_won else 0,
+                min_nc_98=int(m1_m5["min_net_cost_bid"]),
+            )
+            components.html(shield_html, height=280, scrolling=False)
+
+            ec1, ec2 = st.columns([5, 7])
+            with ec1:
+                st.markdown("##### 🔍 [번외 1] EGR-BID 6단계 표준 사정과정 판정표")
+                proc_egr = [
+                    {"단계": "STEP 1", "검증 항목": "원문 해시·시점 검증", "산출 근거 및 수치": f"SHA256 무결성 확인 ({src_label})", "판정": "✅ PASS"},
+                    {"단계": "STEP 2", "검증 항목": "M6 발주기관 사정률 분포", "산출 근거 및 수치": f"Q10={q_info.get('q10','-')}% / Q50={q_info.get('q50','-')}% / Q90={q_info.get('q90','-')}%", "판정": "✅ PASS" if q_info else "⏸️ HOLD"},
+                    {"단계": "STEP 3", "검증 항목": "M7 경쟁사 웨지 분석", "산출 근거 및 수치": f"80% 예측구간 폭 {w80_info}%p 수렴", "판정": "✅ PASS" if q_info else "⏸️ HOLD"},
+                    {"단계": "STEP 4", "검증 항목": "적격심사·98% 원가선", "산출 근거 및 수치": f"종합 {m1_m5['m5_total_score']:.2f}점 / {m1_m5['min_net_cost_bid']:,}원", "판정": "✅ PASS"},
+                    {"단계": "STEP 5", "검증 항목": "M8 불확실성 보류 게이트", "산출 근거 및 수치": f"{res.status} ({', '.join(res.reasons)})", "판정": "✅ PASS" if res.status == "PASS_ADVISORY" else "🛑 HOLD"},
+                    {"단계": "STEP 6", "검증 항목": "최종 투트랙 타점 확정", "산출 근거 및 수치": f"M5 {m5_bid:,}원 vs EGR {egr_bid_str}", "판정": "👑 확정"},
+                ]
+                st.table(pd.DataFrame(proc_egr).set_index("단계"))
+            with ec2:
+                st.markdown("##### 📊 [번외 1] M1~M5 및 EGR-BID 사정결과 대조표")
+                st.dataframe(
+                    df_egr.style.format({
+                        "사정률(%)": "{:.4f}%", "예정가격(원)": "{:,}원",
+                        "낙찰하한선(원)": "{:,}원", "추천투찰가(원)": "{:,}원", "M5 대비 차액(원)": "{:+,}원",
+                    }),
+                    use_container_width=True, height=285,
                 )
-                components.html(shield_html, height=280, scrolling=False)
-    
-                ec1, ec2 = st.columns([5, 7])
-                with ec1:
-                    st.markdown("##### 🔍 [번외 1] EGR-BID 6단계 표준 사정과정 판정표")
-                    proc_egr = [
-                        {"단계": "STEP 1", "검증 항목": "원문 해시·시점 검증", "산출 근거 및 수치": f"SHA256 무결성 확인 ({src_label})", "판정": "✅ PASS"},
-                        {"단계": "STEP 2", "검증 항목": "M6 발주기관 사정률 분포", "산출 근거 및 수치": f"Q10={q_info.get('q10','-')}% / Q50={q_info.get('q50','-')}% / Q90={q_info.get('q90','-')}%", "판정": "✅ PASS" if q_info else "⏸️ HOLD"},
-                        {"단계": "STEP 3", "검증 항목": "M7 경쟁사 웨지 분석", "산출 근거 및 수치": f"80% 예측구간 폭 {w80_info}%p 수렴", "판정": "✅ PASS" if q_info else "⏸️ HOLD"},
-                        {"단계": "STEP 4", "검증 항목": "적격심사·98% 원가선", "산출 근거 및 수치": f"종합 {m1_m5['m5_total_score']:.2f}점 / {m1_m5['min_net_cost_bid']:,}원", "판정": "✅ PASS"},
-                        {"단계": "STEP 5", "검증 항목": "M8 불확실성 보류 게이트", "산출 근거 및 수치": f"{res.status} ({', '.join(res.reasons)})", "판정": "✅ PASS" if res.status == "PASS_ADVISORY" else "🛑 HOLD"},
-                        {"단계": "STEP 6", "검증 항목": "최종 투트랙 타점 확정", "산출 근거 및 수치": f"M5 {m5_bid:,}원 vs EGR {egr_bid_str}", "판정": "👑 확정"},
-                    ]
-                    st.table(pd.DataFrame(proc_egr).set_index("단계"))
-                with ec2:
-                    st.markdown("##### 📊 [번외 1] M1~M5 및 EGR-BID 사정결과 대조표")
-                    st.dataframe(
-                        df_egr.style.format({
-                            "사정률(%)": "{:.4f}%", "예정가격(원)": "{:,}원",
-                            "낙찰하한선(원)": "{:,}원", "추천투찰가(원)": "{:,}원", "M5 대비 차액(원)": "{:+,}원",
-                        }),
-                        use_container_width=True, height=285,
-                    )
-    
-                if res.verified_rule_checks and "scenario_evaluation" in res.verified_rule_checks:
-                    scen_eval = res.verified_rule_checks["scenario_evaluation"]
-                    ev1, ev2 = st.columns([3, 2])
-                    with ev1:
-                        st.markdown("##### 📈 [번외 1] 모델 및 M6 분위수별 사정률(%) 비교 차트")
-                        st.bar_chart(df_egr.set_index("모델/시나리오 구분")[["사정률(%)"]], height=220)
-                    with ev2:
-                        st.markdown("##### 🎯 [번외 1] 후보 투찰가별 시나리오 적격심사 통과율 게이지")
-                        bars_html = []
-                        for c in scen_eval["candidates"][::2]:
-                            pct = int(round(c["eligibility_ratio"] * 100))
-                            b_col = "#10b981" if pct >= 60 else "#ef4444"
-                            tag = " 🛡️[최종선택]" if res.recommendation_won == c["bid_amount"] else ""
-                            bars_html.append(f"""
-                            <div style="margin-bottom:7px;background:#1e293b;padding:7px 12px;border-radius:8px;border:1px solid #334155;">
-                                <div style="display:flex;justify-content:space-between;font-size:12px;color:#f8fafc;font-weight:700;">
-                                    <span>{c['bid_amount']:,}원{tag}</span>
-                                    <span style="color:{b_col};">{c['eligible_scenarios']}/{c['total_scenarios']} 시나리오 통과 ({pct}%)</span>
-                                </div>
-                                <div style="width:100%;background:#0f172a;height:7px;border-radius:4px;margin-top:5px;overflow:hidden;">
-                                    <div style="width:{pct}%;background:{b_col};height:100%;"></div>
-                                </div>
+
+            if res.verified_rule_checks and "scenario_evaluation" in res.verified_rule_checks:
+                scen_eval = res.verified_rule_checks["scenario_evaluation"]
+                ev1, ev2 = st.columns([3, 2])
+                with ev1:
+                    st.markdown("##### 📈 [번외 1] 모델 및 M6 분위수별 사정률(%) 비교 차트")
+                    st.bar_chart(df_egr.set_index("모델/시나리오 구분")[["사정률(%)"]], height=220)
+                with ev2:
+                    st.markdown("##### 🎯 [번외 1] 후보 투찰가별 시나리오 적격심사 통과율 게이지")
+                    bars_html = []
+                    for c in scen_eval["candidates"][::2]:
+                        pct = int(round(c["eligibility_ratio"] * 100))
+                        b_col = "#10b981" if pct >= 60 else "#ef4444"
+                        tag = " 🛡️[최종선택]" if res.recommendation_won == c["bid_amount"] else ""
+                        bars_html.append(f"""
+                        <div style="margin-bottom:7px;background:#1e293b;padding:7px 12px;border-radius:8px;border:1px solid #334155;">
+                            <div style="display:flex;justify-content:space-between;font-size:12px;color:#f8fafc;font-weight:700;">
+                                <span>{c['bid_amount']:,}원{tag}</span>
+                                <span style="color:{b_col};">{c['eligible_scenarios']}/{c['total_scenarios']} 시나리오 통과 ({pct}%)</span>
                             </div>
-                            """)
-                        st.markdown("".join(bars_html), unsafe_allow_html=True)
-    
-                egr_html_doc = format_printable_html_report(
-                    notice_obj, in_title, res, m1_m5, src_label, firm_cost_won=cost_won, standalone_doc=True, report_mode="egr_only"
+                            <div style="width:100%;background:#0f172a;height:7px;border-radius:4px;margin-top:5px;overflow:hidden;">
+                                <div style="width:{pct}%;background:{b_col};height:100%;"></div>
+                            </div>
+                        </div>
+                        """)
+                    st.markdown("".join(bars_html), unsafe_allow_html=True)
+
+            egr_html_doc = format_printable_html_report(
+                notice_obj, in_title, res, m1_m5, src_label, firm_cost_won=cost_won, standalone_doc=True, report_mode="egr_only"
+            )
+            with st.expander("🖨️ [번외 1 전용 출력물] EGR-BID (M6·M7·M8) A4 프린터 결재 양식서 보기 및 다운로드", expanded=not on_lat):
+                components.html(egr_html_doc, height=860, scrolling=True)
+                st.download_button(
+                    "🖨️ [번외 1: EGR-BID 단독] 공식 사정분석서 (.html) 다운로드",
+                    data=egr_html_doc.encode("utf-8"),
+                    file_name=f"BID_NEXUS_EGR_ONLY_{canon_seed}.html",
+                    mime="text/html",
+                    use_container_width=True,
+                    key="_dl_egr_only_html",
                 )
-                with st.expander("🖨️ [번외 1 전용 출력물] EGR-BID (M6·M7·M8) A4 프린터 결재 양식서 보기 및 다운로드", expanded=not on_lat):
-                    components.html(egr_html_doc, height=860, scrolling=True)
-                    st.download_button(
-                        "🖨️ [번외 1: EGR-BID 단독] 공식 사정분석서 (.html) 다운로드",
-                        data=egr_html_doc.encode("utf-8"),
-                        file_name=f"BID_NEXUS_EGR_ONLY_{canon_seed}.html",
-                        mime="text/html",
-                        use_container_width=True,
-                        key="_dl_egr_only_html",
-                    )
-    
-            # =====================================================================
-            # [SECTION B] 신규 번외 2: 젠스파크 LATTICE-1365 (L0~L5) 전용 대시보드
-            # =====================================================================
-            if on_lat:
-                st.markdown("<div style='height:12px;'></div>", unsafe_allow_html=True)
-                lat_bid_str = f"{lat.optimal_price:,}원" if lat.feasible else "입찰 불가 (점수부족)"
-                lat_ep = lat.ladder["est_prices"][lat.optimal_step - 1] if lat.feasible else 0
-                lat_rate = round((lat_ep / float(in_base)) * 100.0, 4) if lat.feasible else 0.0
-    
-                st.markdown("""
-                <div style="background:linear-gradient(135deg,#064e3b 0%,#0f172a 65%,#064e3b 100%);border:1.5px solid #10b981;border-radius:14px;padding:18px 22px;margin-bottom:14px;box-shadow:0 8px 24px rgba(0,0,0,0.45);">
-                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-                        <div>
-                            <span style="background:#10b981;color:#0f172a;font-weight:800;font-size:12px;padding:3px 10px;border-radius:999px;letter-spacing:0.5px;">번외 모델 2 · GENSPARK LATTICE-1365 (L0~L5)</span>
-                            <h3 style="color:#f8fafc;margin:6px 0 2px 0;font-size:20px;font-weight:800;">⚡ [번외 2] LATTICE-1365 계단 확률장 이론 사정분석 & 시각화 대시보드</h3>
-                            <p style="color:#a7f3d0;font-size:13px;margin:0;">공통충격 슬롯(L0) · 1,365계단 확률장(L1) · 극값(EVT) 경쟁자 역산(L2) · 기대이익장(L3) · 내생 실효하한 투영(L4)</p>
-                        </div>
-                        <div style="text-align:right;">
-                            <span style="background:rgba(16,185,129,0.2);border:1px solid #10b981;color:#34d399;font-size:12px;font-weight:700;padding:4px 10px;border-radius:8px;">MANDATORY 6/6 TEST PASS</span>
-                        </div>
+
+        # =====================================================================
+        # [SECTION B] 신규 번외 2: 젠스파크 LATTICE-1365 (L0~L5) 전용 대시보드
+        # =====================================================================
+        if on_lat:
+            st.markdown("<div style='height:12px;'></div>", unsafe_allow_html=True)
+            lat_bid_str = f"{lat.optimal_price:,}원" if lat.feasible else "입찰 불가 (점수부족)"
+            lat_ep = lat.ladder["est_prices"][lat.optimal_step - 1] if lat.feasible else 0
+            lat_rate = round((lat_ep / float(in_base)) * 100.0, 4) if lat.feasible else 0.0
+
+            st.markdown("""
+            <div style="background:linear-gradient(135deg,#064e3b 0%,#0f172a 65%,#064e3b 100%);border:1.5px solid #10b981;border-radius:14px;padding:18px 22px;margin-bottom:14px;box-shadow:0 8px 24px rgba(0,0,0,0.45);">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                    <div>
+                        <span style="background:#10b981;color:#0f172a;font-weight:800;font-size:12px;padding:3px 10px;border-radius:999px;letter-spacing:0.5px;">번외 모델 2 · GENSPARK LATTICE-1365 (L0~L5)</span>
+                        <h3 style="color:#f8fafc;margin:6px 0 2px 0;font-size:20px;font-weight:800;">⚡ [번외 2] LATTICE-1365 계단 확률장 이론 사정분석 & 시각화 대시보드</h3>
+                        <p style="color:#a7f3d0;font-size:13px;margin:0;">공통충격 슬롯(L0) · 1,365계단 확률장(L1) · 극값(EVT) 경쟁자 역산(L2) · 기대이익장(L3) · 내생 실효하한 투영(L4)</p>
+                    </div>
+                    <div style="text-align:right;">
+                        <span style="background:rgba(16,185,129,0.2);border:1px solid #10b981;color:#34d399;font-size:12px;font-weight:700;padding:4px 10px;border-radius:8px;">MANDATORY 6/6 TEST PASS</span>
                     </div>
                 </div>
-                """, unsafe_allow_html=True)
-    
-                st.markdown(f"""
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:16px;">
-                    <div style="background:#111827;border:1px solid #374151;border-left:4px solid #10b981;border-radius:10px;padding:14px;">
-                        <div style="color:#9ca3af;font-size:12px;font-weight:700;">⚡ [번외 2] LATTICE-1365 최적 투찰가</div>
-                        <div style="color:#34d399;font-size:21px;font-weight:800;margin:4px 0;">{lat_bid_str}</div>
-                        <div style="color:#6ee7b7;font-size:12px;">계단 #{lat.optimal_step}/1,365 · 예가 {lat_p4[0]}·{lat_p4[1]}·{lat_p4[2]}·{lat_p4[3]}번</div>
-                    </div>
-                    <div style="background:#111827;border:1px solid #374151;border-left:4px solid #38bdf8;border-radius:10px;padding:14px;">
-                        <div style="color:#9ca3af;font-size:12px;font-weight:700;">💰 [L3 기대이익장] 기대이익 & 승률</div>
-                        <div style="color:#f8fafc;font-size:21px;font-weight:800;margin:4px 0;">{lat.expected_profit:,}원</div>
-                        <div style="color:#38bdf8;font-size:12px;">순서통계량 승률 {lat.win_prob*100:.1f}% (유효 N={lat.ladder.get('l2_n_bidders',4.5)})</div>
-                    </div>
-                    <div style="background:#111827;border:1px solid #374151;border-left:4px solid #f43f5e;border-radius:10px;padding:14px;">
-                        <div style="color:#9ca3af;font-size:12px;font-weight:700;">⚠️ [L1 확률장] 하한선 미달 위험 P(miss)</div>
-                        <div style="color:#fb7185;font-size:21px;font-weight:800;margin:4px 0;">{lat.p_miss*100:.1f}%</div>
-                        <div style="color:#fda4af;font-size:12px;">공통충격 ρ={l0['rho']:.2f} 반영 추첨 미달 확률</div>
-                    </div>
-                    <div style="background:#111827;border:1px solid #374151;border-left:4px solid #a855f7;border-radius:10px;padding:14px;">
-                        <div style="color:#9ca3af;font-size:12px;font-weight:700;">🔒 [L4 적격제약] 내생적 실효 하한율</div>
-                        <div style="color:#e9d5ff;font-size:21px;font-weight:800;margin:4px 0;">{lat.effective_floor_rate:.4f}%</div>
-                        <div style="color:#c084fc;font-size:12px;">공고 하한율 {float(in_limit):.3f}% · S_pq={float(in_perf):.1f}점 반영</div>
-                    </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            st.markdown(f"""
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:16px;">
+                <div style="background:#111827;border:1px solid #374151;border-left:4px solid #10b981;border-radius:10px;padding:14px;">
+                    <div style="color:#9ca3af;font-size:12px;font-weight:700;">⚡ [번외 2] LATTICE-1365 최적 투찰가</div>
+                    <div style="color:#34d399;font-size:21px;font-weight:800;margin:4px 0;">{lat_bid_str}</div>
+                    <div style="color:#6ee7b7;font-size:12px;">계단 #{lat.optimal_step}/1,365 · 예가 {lat_p4[0]}·{lat_p4[1]}·{lat_p4[2]}·{lat_p4[3]}번</div>
                 </div>
-                """, unsafe_allow_html=True)
-    
-                lat_rows = []
-                for m in m1_m5["models"]:
-                    lat_rows.append({
-                        "모델/계단 구분": ("👑 " if m["code"] == "M5" else "• ") + m["name"],
-                        "사정률(%)": float(m["rate"]),
-                        "예정가격(원)": int(m["est_price"]),
-                        "낙찰하한선(원)": int(m["lower_limit"]),
-                        "추천투찰가(원)": int(m["recommended_bid"]),
-                        "M5 대비 차액(원)": int(m["recommended_bid"] - m5_bid),
-                    })
-                if lat.feasible:
-                    lat_rows.append({
-                        "모델/계단 구분": f"⚡ LATTICE-1365 (계단 #{lat.optimal_step}/1365 최적해)",
-                        "사정률(%)": lat_rate,
-                        "예정가격(원)": int(lat_ep),
-                        "낙찰하한선(원)": int(lat.optimal_price - 19),
-                        "추천투찰가(원)": int(lat.optimal_price),
-                        "M5 대비 차액(원)": int(lat.optimal_price - m5_bid),
-                    })
-                df_lat = pd.DataFrame(lat_rows)
-                if lat.feasible:
-                    wave_html = build_lattice_wave_rider_html(
-                        opt_step=int(lat.optimal_step),
-                        opt_price=int(lat.optimal_price),
-                        exp_profit=int(lat.expected_profit),
-                        p_miss_pct=float(lat.p_miss * 100.0),
-                        eff_floor_pct=float(lat.effective_floor_rate),
-                    )
-                    components.html(wave_html, height=285, scrolling=False)
-    
-                lc1, lc2 = st.columns([5, 7])
-                with lc1:
-                    st.markdown("##### 🔍 [번외 2] LATTICE-1365 6개 레이어(L0~L5) 사정과정 표")
-                    proc_lat = [
-                        {"레이어": "L0 슬롯생성", "핵심 수식/역할": "공통충격(ρ) 포함 결합분포", "산출 결과": f"μ={l0['mu']:.4f}%, δ={l0['delta']:.3f}%, ρ={l0['rho']:.2f}", "판정": "✅ 완료"},
-                        {"레이어": "L1 확률장", "핵심 수식/역할": "1,365계단 착지확률 p[1365]", "산출 결과": f"최적 계단 #{lat.optimal_step} (예가 {lat_p4[0]}·{lat_p4[1]}·{lat_p4[2]}·{lat_p4[3]}번)", "판정": "✅ 완료"},
-                        {"레이어": "L2 극값역산", "핵심 수식/역할": "1·2위 격차로 경쟁분포 F(x) 복원", "산출 결과": f"유효 N={lat.ladder.get('l2_n_bidders',4.5)} | 승률 {lat.win_prob*100:.1f}%", "판정": "✅ 완료"},
-                        {"레이어": "L3 기대이익", "핵심 수식/역할": "W_j × (P_j - c) 최대화", "산출 결과": f"기대이익 {lat.expected_profit:,}원 (원가 {lat.ladder.get('l3_cost_won',0):,}원)", "판정": "✅ 완료"},
-                        {"레이어": "L4 적격투영", "핵심 수식/역할": "max(r_공고, r_low(S_pq))", "산출 결과": f"실효하한 {lat.effective_floor_rate:.4f}% | 미달위험 {lat.p_miss*100:.1f}%", "판정": "✅ PASS" if lat.feasible else "🛑 불가"},
-                        {"레이어": "L5 보정/밴딧", "핵심 수식/역할": "CRPS · PIT · Thompson 가중치", "산출 결과": f"CRPS={lat.ladder.get('l5_crps',0)} | 사후가중치 산출", "판정": "✅ 완료"},
-                    ]
-                    st.table(pd.DataFrame(proc_lat).set_index("레이어"))
-                with lc2:
-                    st.markdown("##### 📊 [번외 2] M1~M5 및 LATTICE-1365 사정결과 대조표")
-                    st.dataframe(
-                        df_lat.style.format({
-                            "사정률(%)": "{:.4f}%", "예정가격(원)": "{:,}원",
-                            "낙찰하한선(원)": "{:,}원", "추천투찰가(원)": "{:,}원", "M5 대비 차액(원)": "{:+,}원",
-                        }),
-                        use_container_width=True, height=285,
-                    )
-    
-                if lat.feasible:
-                    lv1, lv2 = st.columns(2)
-                    step_indices = list(range(1, 1366, 15))
-                    pmf_slice = [lat.ladder["pmf"][i - 1] * 100.0 for i in step_indices]
-                    prof_slice = [max(0.0, lat.ladder["expected_profits"][i - 1] / 1000000.0) for i in step_indices]
-                    df_field = pd.DataFrame({
-                        "계단번호(1~1365)": step_indices,
-                        "L1 계단 착지확률(%)": pmf_slice,
-                        "L3 기대이익장(백만원)": prof_slice,
-                    }).set_index("계단번호(1~1365)")
-                    with lv1:
-                        st.markdown("##### 📈 [번외 2] 1,365계단 기대이익장(L3) 분포 차트")
-                        st.area_chart(df_field[["L3 기대이익장(백만원)"]], height=220)
-                    with lv2:
-                        st.markdown("##### 📊 [번외 2] 1,365계단 착지확률질량(L1 PMF) 분포 차트")
-                        st.bar_chart(df_field[["L1 계단 착지확률(%)"]], height=220)
-    
-                lat_html_doc = format_printable_html_report(
-                    notice_obj, in_title, res, m1_m5, src_label, firm_cost_won=cost_won, standalone_doc=True, report_mode="lattice_only"
+                <div style="background:#111827;border:1px solid #374151;border-left:4px solid #38bdf8;border-radius:10px;padding:14px;">
+                    <div style="color:#9ca3af;font-size:12px;font-weight:700;">💰 [L3 기대이익장] 기대이익 & 승률</div>
+                    <div style="color:#f8fafc;font-size:21px;font-weight:800;margin:4px 0;">{lat.expected_profit:,}원</div>
+                    <div style="color:#38bdf8;font-size:12px;">순서통계량 승률 {lat.win_prob*100:.1f}% (유효 N={lat.ladder.get('l2_n_bidders',4.5)})</div>
+                </div>
+                <div style="background:#111827;border:1px solid #374151;border-left:4px solid #f43f5e;border-radius:10px;padding:14px;">
+                    <div style="color:#9ca3af;font-size:12px;font-weight:700;">⚠️ [L1 확률장] 하한선 미달 위험 P(miss)</div>
+                    <div style="color:#fb7185;font-size:21px;font-weight:800;margin:4px 0;">{lat.p_miss*100:.1f}%</div>
+                    <div style="color:#fda4af;font-size:12px;">공통충격 ρ={l0['rho']:.2f} 반영 추첨 미달 확률</div>
+                </div>
+                <div style="background:#111827;border:1px solid #374151;border-left:4px solid #a855f7;border-radius:10px;padding:14px;">
+                    <div style="color:#9ca3af;font-size:12px;font-weight:700;">🔒 [L4 적격제약] 내생적 실효 하한율</div>
+                    <div style="color:#e9d5ff;font-size:21px;font-weight:800;margin:4px 0;">{lat.effective_floor_rate:.4f}%</div>
+                    <div style="color:#c084fc;font-size:12px;">공고 하한율 {float(in_limit):.3f}% · S_pq={float(in_perf):.1f}점 반영</div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            lat_rows = []
+            for m in m1_m5["models"]:
+                lat_rows.append({
+                    "모델/계단 구분": ("👑 " if m["code"] == "M5" else "• ") + m["name"],
+                    "사정률(%)": float(m["rate"]),
+                    "예정가격(원)": int(m["est_price"]),
+                    "낙찰하한선(원)": int(m["lower_limit"]),
+                    "추천투찰가(원)": int(m["recommended_bid"]),
+                    "M5 대비 차액(원)": int(m["recommended_bid"] - m5_bid),
+                })
+            if lat.feasible:
+                lat_rows.append({
+                    "모델/계단 구분": f"⚡ LATTICE-1365 (계단 #{lat.optimal_step}/1365 최적해)",
+                    "사정률(%)": lat_rate,
+                    "예정가격(원)": int(lat_ep),
+                    "낙찰하한선(원)": int(lat.optimal_price - 19),
+                    "추천투찰가(원)": int(lat.optimal_price),
+                    "M5 대비 차액(원)": int(lat.optimal_price - m5_bid),
+                })
+            df_lat = pd.DataFrame(lat_rows)
+            if lat.feasible:
+                wave_html = build_lattice_wave_rider_html(
+                    opt_step=int(lat.optimal_step),
+                    opt_price=int(lat.optimal_price),
+                    exp_profit=int(lat.expected_profit),
+                    p_miss_pct=float(lat.p_miss * 100.0),
+                    eff_floor_pct=float(lat.effective_floor_rate),
                 )
-                with st.expander("🖨️ [번외 2 전용 출력물] LATTICE-1365 (L0~L5) A4 프린터 결재 양식서 보기 및 다운로드", expanded=not on_egr):
-                    components.html(lat_html_doc, height=860, scrolling=True)
-                    st.download_button(
-                        "🖨️ [번외 2: LATTICE-1365 단독] 공식 사정분석서 (.html) 다운로드",
-                        data=lat_html_doc.encode("utf-8"),
-                        file_name=f"BID_NEXUS_LATTICE1365_ONLY_{canon_seed}.html",
-                        mime="text/html",
-                        use_container_width=True,
-                        key="_dl_lat_only_html",
-                    )
-    
-            # 두 모델이 모두 켜져 있을 때는 3대 트랙 통합 A4 결재 양식서도 함께 제공!
-            if on_egr and on_lat:
-                both_html_doc = format_printable_html_report(
-                    notice_obj, in_title, res, m1_m5, src_label, firm_cost_won=cost_won, standalone_doc=True, report_mode="both"
+                components.html(wave_html, height=285, scrolling=False)
+
+            lc1, lc2 = st.columns([5, 7])
+            with lc1:
+                st.markdown("##### 🔍 [번외 2] LATTICE-1365 6개 레이어(L0~L5) 사정과정 표")
+                proc_lat = [
+                    {"레이어": "L0 슬롯생성", "핵심 수식/역할": "공통충격(ρ) 포함 결합분포", "산출 결과": f"μ={l0['mu']:.4f}%, δ={l0['delta']:.3f}%, ρ={l0['rho']:.2f}", "판정": "✅ 완료"},
+                    {"레이어": "L1 확률장", "핵심 수식/역할": "1,365계단 착지확률 p[1365]", "산출 결과": f"최적 계단 #{lat.optimal_step} (예가 {lat_p4[0]}·{lat_p4[1]}·{lat_p4[2]}·{lat_p4[3]}번)", "판정": "✅ 완료"},
+                    {"레이어": "L2 극값역산", "핵심 수식/역할": "1·2위 격차로 경쟁분포 F(x) 복원", "산출 결과": f"유효 N={lat.ladder.get('l2_n_bidders',4.5)} | 승률 {lat.win_prob*100:.1f}%", "판정": "✅ 완료"},
+                    {"레이어": "L3 기대이익", "핵심 수식/역할": "W_j × (P_j - c) 최대화", "산출 결과": f"기대이익 {lat.expected_profit:,}원 (원가 {lat.ladder.get('l3_cost_won',0):,}원)", "판정": "✅ 완료"},
+                    {"레이어": "L4 적격투영", "핵심 수식/역할": "max(r_공고, r_low(S_pq))", "산출 결과": f"실효하한 {lat.effective_floor_rate:.4f}% | 미달위험 {lat.p_miss*100:.1f}%", "판정": "✅ PASS" if lat.feasible else "🛑 불가"},
+                    {"레이어": "L5 보정/밴딧", "핵심 수식/역할": "CRPS · PIT · Thompson 가중치", "산출 결과": f"CRPS={lat.ladder.get('l5_crps',0)} | 사후가중치 산출", "판정": "✅ 완료"},
+                ]
+                st.table(pd.DataFrame(proc_lat).set_index("레이어"))
+            with lc2:
+                st.markdown("##### 📊 [번외 2] M1~M5 및 LATTICE-1365 사정결과 대조표")
+                st.dataframe(
+                    df_lat.style.format({
+                        "사정률(%)": "{:.4f}%", "예정가격(원)": "{:,}원",
+                        "낙찰하한선(원)": "{:,}원", "추천투찰가(원)": "{:,}원", "M5 대비 차액(원)": "{:+,}원",
+                    }),
+                    use_container_width=True, height=285,
                 )
-                with st.expander("🖨️ [번외 1 + 번외 2 통합 출력물] 3대 트랙(M5 · EGR-BID · LATTICE-1365) 통합 A4 결재 양식서 보기", expanded=True):
-                    components.html(both_html_doc, height=900, scrolling=True)
-                    st.download_button(
-                        "🖨️ [번외 1 + 번외 2 통합본] 3대 트랙 공식 사정분석서 (.html) 다운로드",
-                        data=both_html_doc.encode("utf-8"),
-                        file_name=f"BID_NEXUS_DUAL_ADDON_{canon_seed}.html",
-                        mime="text/html",
-                        use_container_width=True,
-                        key="_dl_both_html",
-                    )
-    try:
-        _render_egr_bid_addon_panel()
-    except Exception as _egr_e:
-        import streamlit as _st
-        _st.error(f"번외 모델 렌더링 오류: {_egr_e}")
+
+            if lat.feasible:
+                lv1, lv2 = st.columns(2)
+                step_indices = list(range(1, 1366, 15))
+                pmf_slice = [lat.ladder["pmf"][i - 1] * 100.0 for i in step_indices]
+                prof_slice = [max(0.0, lat.ladder["expected_profits"][i - 1] / 1000000.0) for i in step_indices]
+                df_field = pd.DataFrame({
+                    "계단번호(1~1365)": step_indices,
+                    "L1 계단 착지확률(%)": pmf_slice,
+                    "L3 기대이익장(백만원)": prof_slice,
+                }).set_index("계단번호(1~1365)")
+                with lv1:
+                    st.markdown("##### 📈 [번외 2] 1,365계단 기대이익장(L3) 분포 차트")
+                    st.area_chart(df_field[["L3 기대이익장(백만원)"]], height=220)
+                with lv2:
+                    st.markdown("##### 📊 [번외 2] 1,365계단 착지확률질량(L1 PMF) 분포 차트")
+                    st.bar_chart(df_field[["L1 계단 착지확률(%)"]], height=220)
+
+            lat_html_doc = format_printable_html_report(
+                notice_obj, in_title, res, m1_m5, src_label, firm_cost_won=cost_won, standalone_doc=True, report_mode="lattice_only"
+            )
+            with st.expander("🖨️ [번외 2 전용 출력물] LATTICE-1365 (L0~L5) A4 프린터 결재 양식서 보기 및 다운로드", expanded=not on_egr):
+                components.html(lat_html_doc, height=860, scrolling=True)
+                st.download_button(
+                    "🖨️ [번외 2: LATTICE-1365 단독] 공식 사정분석서 (.html) 다운로드",
+                    data=lat_html_doc.encode("utf-8"),
+                    file_name=f"BID_NEXUS_LATTICE1365_ONLY_{canon_seed}.html",
+                    mime="text/html",
+                    use_container_width=True,
+                    key="_dl_lat_only_html",
+                )
+
+        # 두 모델이 모두 켜져 있을 때는 3대 트랙 통합 A4 결재 양식서도 함께 제공!
+        if on_egr and on_lat:
+            both_html_doc = format_printable_html_report(
+                notice_obj, in_title, res, m1_m5, src_label, firm_cost_won=cost_won, standalone_doc=True, report_mode="both"
+            )
+            with st.expander("🖨️ [번외 1 + 번외 2 통합 출력물] 3대 트랙(M5 · EGR-BID · LATTICE-1365) 통합 A4 결재 양식서 보기", expanded=True):
+                components.html(both_html_doc, height=900, scrolling=True)
+                st.download_button(
+                    "🖨️ [번외 1 + 번외 2 통합본] 3대 트랙 공식 사정분석서 (.html) 다운로드",
+                    data=both_html_doc.encode("utf-8"),
+                    file_name=f"BID_NEXUS_DUAL_ADDON_{canon_seed}.html",
+                    mime="text/html",
+                    use_container_width=True,
+                    key="_dl_both_html",
+                )
+try:
+    _render_egr_bid_addon_panel()
+except Exception as _egr_e:
+    import streamlit as _st
+    _st.error(f"번외 모델 렌더링 오류: {_egr_e}")
