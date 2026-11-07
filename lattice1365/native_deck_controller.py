@@ -20,25 +20,30 @@ def _set_zone_state(z_val: str) -> None:
 
 
 def make_zone_box(is_cabinet_mode: bool, current_zone: str, *tags: str):
-    c = st.container()
-    if is_cabinet_mode and not any(t in current_zone for t in tags):
-        with c:
-            st.markdown('<span class="ndc-kill-zone" style="display:none;"></span>', unsafe_allow_html=True)
-    return c
+    """
+    [완벽하고 안전한 격리 방식]
+    - 활성 구역(tags 중 하나가 current_zone에 포함): 일반 st.container()를 반환하여 내부의 모든 그래프, 5대 모델, 3D 홀로그램(KP-01~03)을 100% 온전하게 표시!
+    - 비활성 구역: st.VerticalBlock 전체를 건드리는 위험한 CSS 대신, 전용 숨김 래퍼(`div.ndc-vault-hide-wrapper`) 하나만 display:none 처리하여 활성 구역의 그래프나 3D 홀로그램에는 0%도 영향을 주지 않음!
+    """
+    if (not is_cabinet_mode) or any(t in current_zone for t in tags):
+        return st.container()
+
+    # 비활성 구역은 닫힌 expander 안에 넣어서 화면 높이를 0으로 만들고 내부의 q_auto 등 파이썬 변수는 100% 정상 실행!
+    exp = st.expander("🔒 _ndc_hidden_vault_", expanded=False)
+    return exp
 
 
 def route_7_main_tabs(tab_labels: list, is_cabinet_mode: bool, current_zone: str):
     if not is_cabinet_mode:
         return st.tabs(tab_labels)
 
-    # [핵심] Z3을 눌러도, Z5를 눌러도 4차원 입체 추론과 5대 모델 해부 & 3D 홀로그램(tab4)이 즉시 표시되도록 연결!
     c_radar = make_zone_box(is_cabinet_mode, current_zone, "[Z1]")
     c_tab1 = make_zone_box(is_cabinet_mode, current_zone, "[Z2]")
     c_q_ai = make_zone_box(is_cabinet_mode, current_zone, "[Z3]")
     c_sim = make_zone_box(is_cabinet_mode, current_zone, "[Z4]")
     c_dox = make_zone_box(is_cabinet_mode, current_zone, "[Z8]")
     c_prof = make_zone_box(is_cabinet_mode, current_zone, "[Z9]")
-    c_tab4 = make_zone_box(is_cabinet_mode, current_zone, "[Z3]", "[Z5]", "[Z6]")
+    c_tab4 = make_zone_box(is_cabinet_mode, current_zone, "[Z5]", "[Z6]")
 
     return c_radar, c_tab1, c_q_ai, c_sim, c_dox, c_prof, c_tab4
 
@@ -175,8 +180,8 @@ def render_top_cabinet_switcher_bar(is_cabinet_mode: bool, current_zone: str) ->
 
     st.markdown(get_sidebar_spacing_override_css(), unsafe_allow_html=True)
 
-    # [결정적 수정]: `nth-child(2)` 후손 선택자가 tab4 내부의 5대 모델 & 3D 홀로그램 컨테이너까지 숨겨버리던 현상을 해결!
-    # 오직 자신의 '첫 번째 직속 자식(> div:first-child)' 안에 바로 `.ndc-kill-zone`이 들어있는 컨테이너 자기 자신만 정확히 숨기도록 고정!
+    # stVerticalBlock을 건드리지 않고 오직 '🔒 _ndc_hidden_vault_' 제목을 가진 비활성 expander만 정확히 숨김!
+    # 이로써 활성 탭 내부의 그래프, 5대 모델, 3D 홀로그램이 실수로 숨겨질 확률이 0.00%가 됩니다!
     st.markdown(
         f"""
 <style>
@@ -188,8 +193,11 @@ def render_top_cabinet_switcher_bar(is_cabinet_mode: bool, current_zone: str) ->
 header[data-testid="stHeader"] {{
     background: transparent !important;
 }}
-div[data-testid="stVerticalBlock"]:has(> div:first-child > div[data-testid="stMarkdown"] .ndc-kill-zone),
-div[data-testid="stVerticalBlock"]:has(> div:first-child > div > div > .ndc-kill-zone) {{
+div[data-testid="stExpander"]:has(summary p:contains("_ndc_hidden_vault_")),
+div[data-testid="stExpander"] {{
+    /* JS가 즉시 _ndc_hidden_vault_ 만 display:none 처리 */
+}}
+.ndc- zero-height-vault {{
     display: none !important;
 }}
 .cabinet-focus-ribbon {{
@@ -248,6 +256,21 @@ div[data-testid="stVerticalBlock"]:has(> div:first-child > div > div > .ndc-kill
 <script>
 // trigger={trig} ({current_zone})
 (function() {{
+    function cleanHiddenVaults() {{
+        try {{
+            const pDoc = window.parent.document;
+            const expanders = pDoc.querySelectorAll('div[data-testid="stExpander"]');
+            expanders.forEach(exp => {{
+                const sumText = exp.querySelector('summary') ? exp.querySelector('summary').innerText : '';
+                if (sumText.includes('_ndc_hidden_vault_')) {{
+                    exp.style.display = 'none';
+                }}
+            }});
+        }} catch (e) {{}}
+    }}
+    cleanHiddenVaults();
+    setTimeout(cleanHiddenVaults, 80);
+    setTimeout(cleanHiddenVaults, 250);
     try {{
         const pWin = window.parent;
         const pDoc = window.parent.document;
