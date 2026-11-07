@@ -1,27 +1,28 @@
 import streamlit as st
+import streamlit.components.v1 as components
 
 DECK_ZONES = [
     "📡 [Z1] 나라장터 공고 쇼룸 (3건)",
-    "🎯 [Z2] 적격심사 & 5대 모델·3D 홀로그램",
+    "🎯 [Z2] 핵심 적격심사 & 산출물",
     "⚡ [Z3] 4차원 입체 추론 (15C4)",
-    "🎛️ [Z4] 0.001% 감도 시뮬레이터",
-    "🔥 [Z5] 5대 모델 해부 & 3D 홀로그램 집중뷰",
+    "🎛️ [Z4] 0.001% 감도 & 5대 모델 해부",
+    "🔥 [Z5] 5대 모델 & 3D 홀로그램 (KP-01~03)",
     "🏛️ [Z6] 7-BAY 전술 머신 & 4D 조감도",
     "🛡️ [Z7] 번외 1·2: EGR-BID & LATTICE",
     "📑 [Z8] 적격 증빙서류 & 통합 출력",
-    "🏢 [Z9] 기업 마스터 스펙 & 투찰원장",
+    "🏢 [Z9] 기업 마스터 스펙 & OCR",
 ]
 
 
 def _set_zone_state(z_val: str) -> None:
     st.session_state["_ndc_zone"] = z_val
+    st.session_state["_ndc_scroll_trig"] = st.session_state.get("_ndc_scroll_trig", 0) + 1
 
 
 def make_zone_box(is_cabinet_mode: bool, current_zone: str, *tags: str):
     """
-    닫힌 expander(_ndc_hidden_vault_)를 쓰지 않고 100% 순정 st.container()를 사용하여
-    좌측 사이드바(AI ENGINE LAB / TELEMETRY)와 내부 3D 홀로그램이 절대 누락되지 않게 보장!
-    비활성 구역일 때만 직속 마크다운 자식 span.ndc-hide-me 를 심어 표준 CSS로 정확히 해당 컨테이너만 숨김!
+    모든 탭과 하단 AI ENGINE LAB 사이드바 코드가 단 1줄도 누락되지 않고 100% 실행되도록 st.container()를 반환하며,
+    선택되지 않은 구역일 때만 직속 자식 span.ndc-hide-me 마커를 심어 해당 컨테이너만 정확히 숨김!
     """
     c = st.container()
     if is_cabinet_mode and not any(t in current_zone for t in tags):
@@ -34,16 +35,17 @@ def route_7_main_tabs(tab_labels: list, is_cabinet_mode: bool, current_zone: str
     if not is_cabinet_mode:
         return st.tabs(tab_labels)
 
-    # [핵심]: 5대 모델(레거시~AI앙상블) + 표준 사정 명세표 + KP-01~03 3D 60FPS 홀로그램 링은 `tab1` 안에 들어있으므로,
-    # [Z2]와 [Z5] 어느 쪽을 눌러도 `c_tab1`이 즉시 화면에 열리도록 연결!
-    # 그리고 `tab4`(투찰원장 & 7-BAY 조감도)는 [Z6] 및 [Z9]에서 열리도록 정확히 배정!
+    # [핵심 밝혀짐!]
+    # 3번 캡처에서 보셨던 '5대 모델 카드(레거시~AI앙상블) + 표준 사정 명세표 + KP-01~03 3D 60FPS 홀로그램 링'은
+    # `tab_sim` (4번째 탭 변수) 안에 들어 있습니다!
+    # 따라서 [Z4]와 [Z5]를 누를 때 `c_sim`이 열리도록 연결하면 5대 모델과 3D 홀로그램이 100% 즉시 나타납니다!
     c_radar = make_zone_box(is_cabinet_mode, current_zone, "[Z1]")
-    c_tab1 = make_zone_box(is_cabinet_mode, current_zone, "[Z2]", "[Z5]")
+    c_tab1 = make_zone_box(is_cabinet_mode, current_zone, "[Z2]")
     c_q_ai = make_zone_box(is_cabinet_mode, current_zone, "[Z3]")
-    c_sim = make_zone_box(is_cabinet_mode, current_zone, "[Z4]")
+    c_sim = make_zone_box(is_cabinet_mode, current_zone, "[Z4]", "[Z5]")
     c_dox = make_zone_box(is_cabinet_mode, current_zone, "[Z8]")
     c_prof = make_zone_box(is_cabinet_mode, current_zone, "[Z9]")
-    c_tab4 = make_zone_box(is_cabinet_mode, current_zone, "[Z6]", "[Z9]")
+    c_tab4 = make_zone_box(is_cabinet_mode, current_zone, "[Z6]")
 
     return c_radar, c_tab1, c_q_ai, c_sim, c_dox, c_prof, c_tab4
 
@@ -180,8 +182,6 @@ def render_top_cabinet_switcher_bar(is_cabinet_mode: bool, current_zone: str) ->
 
     st.markdown(get_sidebar_spacing_override_css(), unsafe_allow_html=True)
 
-    # [표준 W3C CSS 선택자]
-    # 비표준 :contains() 를 제거하고, 자신의 첫 번째 직속 자식(> div:first-child)에 span.ndc-hide-me 마커를 가진 stVerticalBlock만 정확히 display:none 처리!
     st.markdown(
         f"""
 <style>
@@ -231,14 +231,14 @@ div[data-testid="stVerticalBlock"]:has(> div:first-child span.ndc-hide-me) {{
 
     short_names = [
         "📡 Z1:쇼룸",
-        "🎯 Z2:적격·모델",
+        "🎯 Z2:적격",
         "⚡ Z3:4D추론",
-        "🎛️ Z4:감도",
-        "🔥 Z5:5대모델·3D",
+        "🎛️ Z4:감도·모델",
+        "🔥 Z5:3D홀로그램",
         "🏛️ Z6:7-BAY",
         "🛡️ Z7:번외EGR·격자",
         "📑 Z8:증빙서류",
-        "🏢 Z9:기업·원장",
+        "🏢 Z9:기업마스터",
     ]
     cols = st.columns(9)
     for i, z_full in enumerate(DECK_ZONES):

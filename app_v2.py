@@ -7578,7 +7578,7 @@ def render_phase9_bidding_machine_workstation():
     cart_cnt = len(pool)
 
     # 3. 입찰 머신 상단 금속 하우징 헤더
-    if (not _is_cab_mode) or ('[Z6]' in _cur_cab_zone):
+    with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z6]'):
         machine_header_html = f"""
     <div style="
         background: linear-gradient(135deg, #090d16 0%, #111827 50%, #090d16 100%);
@@ -7697,7 +7697,7 @@ def render_phase9_bidding_machine_workstation():
     render_phase9_bidding_machine_workstation()
     # ==================== [PHASE 9: BIDDING MACHINE HOUSING ROUTER END] ====================
 
-if (not _is_cab_mode) or ('[Z7]' in _cur_cab_zone):
+with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z7]'):
     # === [EGR-BID ADD-ON STREAMLIT PANEL] ===
     def _render_egr_bid_addon_panel():
         import hashlib, io, csv, streamlit as st, pandas as pd
