@@ -259,127 +259,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-# === [EGR-BID TOP HOOK START] ===
-# === [EGR-BID ADD-ON STREAMLIT PANEL] ===
-def _render_egr_bid_addon_panel():
-    import hashlib, io, csv, streamlit as st
-    import streamlit.components.v1 as components
-    from decimal import Decimal
-    from research.egr_bid.evidence_contract import VerifiedNotice
-    from research.egr_bid.robust_selector import egr_bid_recommend
-    from research.egr_bid.csv_loader import load_verified_history_from_csv
-    from research.egr_bid.tests.test_egr_bid_synthetic import _make_verified_history
-    from research.egr_bid.report_formatter import (
-        compute_m1_to_m5_breakdown, format_printable_html_report
-    )
 
-    # 좌측 사이드바 최상단에 고정 ON/OFF 스위치 배치
-    show_egr = st.sidebar.checkbox(
-        "🧭 [번외 모델] EGR-BID 사정분석서 표시",
-        value=True,
-        key="_egr_top_master_chk",
-        help="체크하면 메인 화면 상단에 EGR-BID (M6·M7·M8) A4 공식 사정분석서가 나타나고, 해제하면 완전히 숨겨집니다.",
-    )
-
-    if not show_egr:
-        return
-
-    with st.expander("🧭 [번외 모델 ON] EGR-BID (M6·M7·M8) A4 프린터용 공식 입찰사정분석서 및 시각화 (클릭하여 접기/펼치기)", expanded=True):
-        with st.popover("⚙️ 공고 제원 변경 및 실제 개찰결과 CSV 업로드"):
-            c1, c2 = st.columns(2)
-            with c1:
-                in_nno = st.text_input("공고번호", value="R26BK01812785-000", key="_egr_nno_top")
-                in_title = st.text_input("공고명", value="소양초 공간재구조화 조성공사", key="_egr_ttl_top")
-                in_base = st.number_input("기초금액 (원)", min_value=1000000, value=3605411000, step=1000000, key="_egr_base_top")
-                in_aval = st.number_input("A값 (원)", min_value=0, value=170640956, step=100000, key="_egr_aval_top")
-            with c2:
-                in_ncost = st.number_input("순공사원가 (원)", min_value=1000000, value=3082754189, step=1000000, key="_egr_nc_top")
-                in_limit = st.number_input("낙찰하한율 (%)", min_value=50.0, max_value=99.0, value=88.745, step=0.001, format="%.3f", key="_egr_lmt_top")
-                in_perf = st.number_input("비가격 점수 (만점 30)", min_value=0.0, max_value=30.0, value=30.0, step=0.5, key="_egr_prf_top")
-                firm_cost_m = st.number_input("우리 회사 증빙 원가 (백만원, 0=미증빙)", min_value=0, max_value=100000, value=0, step=10, key="_egr_fc_top")
-
-            ev_mode = st.radio(
-                "개찰 이력 데이터 소스",
-                options=["기본 실전형 개찰 템플릿 CSV (6건)", "검증 샌드박스 이력 (8건)", "증거 부족 시뮬레이션 (M8 자동보류)"],
-                horizontal=True,
-                key="_egr_ev_mode_top",
-            )
-            uploaded_csv = st.file_uploader("실제 나라장터 개찰결과 CSV 업로드 (선택)", type=["csv"], key="_egr_csv_up_top")
-
-        if uploaded_csv is not None:
-            hist_data = load_verified_history_from_csv(uploaded_csv)
-            src_label = f"업로드 CSV ({len(hist_data)}건)"
-        elif "템플릿" in ev_mode:
-            hist_data = load_verified_history_from_csv("research/egr_bid/verified_opening_template.csv")
-            src_label = f"verified_opening_template.csv ({len(hist_data)}건)"
-        elif "부족" in ev_mode:
-            hist_data = []
-            src_label = "증거 없음 (0건)"
-        else:
-            hist_data = _make_verified_history(n=8, rate_spread=0.0003, with_comp=True)
-            src_label = "샌드박스 이력 (8건)"
-
-        canon_seed = "202611-00892" if in_nno.strip() in ("R26BK01812785-000", "202611-00892") else in_nno.strip()
-        m1_m5 = compute_m1_to_m5_breakdown(
-            canon_seed, int(in_base), int(in_aval),
-            Decimal(str(in_limit)), Decimal(str(in_perf)), "MOIS_BP3_30B_50B", int(in_ncost)
-        )
-
-        notice_obj = VerifiedNotice(
-            notice_id=canon_seed,
-            revision_id="REV-0",
-            source_sha256=hashlib.sha256(f"{in_nno}_{in_base}_{in_aval}_{in_ncost}".encode()).hexdigest(),
-            source_verified=True,
-            is_demo_data=False,
-            profile_key="MOIS_BP3_30B_50B",
-            base_amt=int(in_base),
-            a_val=int(in_aval),
-            net_cost_base=int(in_ncost),
-            deadline_at="2026-11-13 10:00",
-            limit_rate=Decimal(str(in_limit)),
-            perf_score=Decimal(str(in_perf)),
-        )
-        cost_won = int(firm_cost_m) * 1000000 if firm_cost_m > 0 else None
-        res = egr_bid_recommend(notice_obj, hist_data, cost_input=cost_won)
-
-        standalone_html_doc = format_printable_html_report(
-            notice_obj, in_title, res, m1_m5, src_label, firm_cost_won=cost_won, standalone_doc=True
-        )
-        components.html(standalone_html_doc, height=920, scrolling=True)
-
-        dl1, dl2 = st.columns(2)
-        with dl1:
-            st.download_button(
-                "🖨️ 프린터 인쇄용 공식 사정분석서 (.html) 저장",
-                data=standalone_html_doc.encode("utf-8"),
-                file_name=f"BID_NEXUS_OFFICIAL_ASSESSMENT_{canon_seed}.html",
-                mime="text/html",
-                use_container_width=True,
-                key="_egr_dl_html_top",
-            )
-        with dl2:
-            csv_buf = io.StringIO()
-            writer = csv.writer(csv_buf)
-            writer.writerow(["모델/시나리오", "예측사정률(%)", "예정가격(원)", "낙찰하한선(원)", "추천투찰금액(원)"])
-            for m in m1_m5["models"]:
-                writer.writerow([m["name"], m["rate"], m["est_price"], m["lower_limit"], m["recommended_bid"]])
-            if res.verified_rule_checks and "scenario_evaluation" in res.verified_rule_checks:
-                for sc in res.verified_rule_checks["scenario_evaluation"]["scenarios"]:
-                    writer.writerow([f"EGR M6-{sc['scenario_id'].upper()}", sc["rate_pct"], sc["est_price"], sc["lower_limit"], int(sc["lower_limit"]) + 19])
-            st.download_button(
-                "📊 사정결과 비교표 엑셀 (.csv) 저장",
-                data=csv_buf.getvalue().encode("utf-8-sig"),
-                file_name=f"BID_NEXUS_ASSESSMENT_TABLE_{canon_seed}.csv",
-                mime="text/csv",
-                use_container_width=True,
-                key="_egr_dl_csv_top",
-            )
-try:
-    _render_egr_bid_addon_panel()
-except Exception as _egr_e:
-    import streamlit as _st
-    _st.error(f'EGR-BID 패널 로드 오류: {_egr_e}')
-# === [EGR-BID TOP HOOK END] ===
 
 st.markdown("""
 <style>
@@ -7698,3 +7578,261 @@ def render_phase9_bidding_machine_workstation():
 render_phase9_bidding_machine_workstation()
 # ==================== [PHASE 9: BIDDING MACHINE HOUSING ROUTER END] ====================
 
+# === [EGR-BID ADD-ON STREAMLIT PANEL] ===
+def _render_egr_bid_addon_panel():
+    import hashlib, io, csv, streamlit as st, pandas as pd
+    import streamlit.components.v1 as components
+    from decimal import Decimal
+    from research.egr_bid.evidence_contract import VerifiedNotice
+    from research.egr_bid.robust_selector import egr_bid_recommend
+    from research.egr_bid.csv_loader import load_verified_history_from_csv
+    from research.egr_bid.tests.test_egr_bid_synthetic import _make_verified_history
+    from research.egr_bid.report_formatter import (
+        compute_m1_to_m5_breakdown, format_printable_html_report
+    )
+
+    # 좌측 사이드바 하단(GATEKEEPER STATUS 및 PIN 설정 아래)에 스위치 배치
+    with st.sidebar:
+        st.markdown("---")
+        st.markdown("<div style='font-size:12px;font-weight:800;color:#fbbf24;margin-bottom:4px;'>🧭 ADD-ON ENGINE CONTROL</div>", unsafe_allow_html=True)
+        show_egr = st.checkbox(
+            "번외 모델 (EGR-BID: M6·M7·M8) 켜기",
+            value=True,
+            key="_egr_bottom_master_chk",
+            help="체크하면 메인 대시보드 하단에 EGR-BID 시각화 대시보드와 A4 프린터용 공식 사정분석서가 표시됩니다.",
+        )
+
+    slot = st.empty()
+    if not show_egr:
+        slot.empty()
+        return
+
+    with slot.container():
+        st.markdown("---")
+        # 1. 타 메뉴와 동일한 다크 네온/골드 헤더 배너
+        st.markdown("""
+        <div style="background:linear-gradient(135deg,#0f172a 0%,#1e293b 60%,#0f172a 100%);border:1.5px solid #f59e0b;border-radius:14px;padding:18px 22px;margin-bottom:14px;box-shadow:0 8px 24px rgba(0,0,0,0.45);">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                <div>
+                    <span style="background:#f59e0b;color:#0f172a;font-weight:800;font-size:12px;padding:3px 10px;border-radius:999px;letter-spacing:0.5px;">ADD-ON MODULE · M6·M7·M8</span>
+                    <h3 style="color:#f8fafc;margin:6px 0 2px 0;font-size:20px;font-weight:800;">🧭 [번외 모델] EGR-BID 분포 강건 시나리오 사정분석 & 시각화 대시보드</h3>
+                    <p style="color:#94a3b8;font-size:13px;margin:0;">발주기관 개찰분포(M6) · 경쟁사 웨지분포(M7) · 불확실성 보류게이트(M8) 기반 6단계 표준 사정과정 시각화 및 A4 공식 출력물</p>
+                </div>
+                <div style="text-align:right;">
+                    <span style="background:rgba(56,189,248,0.15);border:1px solid #38bdf8;color:#38bdf8;font-size:12px;font-weight:700;padding:4px 10px;border-radius:8px;">CORE 15차 PASS 보존 · NOT_PRODUCTION_VALIDATED</span>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # 2. 공고 제원 및 개찰이력 CSV 설정창
+        with st.expander("⚙️ [공고 제원 변경 및 실제 나라장터 개찰결과 CSV 업로드] (클릭하여 열기)", expanded=False):
+            c1, c2, c3, c4 = st.columns(4)
+            with c1:
+                in_nno = st.text_input("공고번호", value="R26BK01812785-000", key="_egr_nno_b")
+                in_title = st.text_input("공고명", value="소양초 공간재구조화 조성공사", key="_egr_ttl_b")
+            with c2:
+                in_base = st.number_input("기초금액 (원)", min_value=1000000, value=3605411000, step=1000000, key="_egr_base_b")
+                in_aval = st.number_input("A값 (원)", min_value=0, value=170640956, step=100000, key="_egr_aval_b")
+            with c3:
+                in_ncost = st.number_input("순공사원가 (원)", min_value=1000000, value=3082754189, step=1000000, key="_egr_nc_b")
+                in_limit = st.number_input("낙찰하한율 (%)", min_value=50.0, max_value=99.0, value=88.745, step=0.001, format="%.3f", key="_egr_lmt_b")
+            with c4:
+                in_perf = st.number_input("비가격 점수 (만점 30)", min_value=0.0, max_value=30.0, value=30.0, step=0.5, key="_egr_prf_b")
+                firm_cost_m = st.number_input("우리 회사 증빙 원가 (백만원, 0=미증빙)", min_value=0, max_value=100000, value=0, step=10, key="_egr_fc_b")
+
+            ev_col1, ev_col2 = st.columns([2, 2])
+            with ev_col1:
+                ev_mode = st.radio(
+                    "개찰 이력 데이터 소스",
+                    options=["기본 실전형 개찰 템플릿 CSV (6건)", "검증 샌드박스 이력 (8건)", "증거 부족 시뮬레이션 (M8 자동보류)"],
+                    horizontal=True,
+                    key="_egr_ev_mode_b",
+                )
+            with ev_col2:
+                uploaded_csv = st.file_uploader("실제 나라장터 개찰결과 CSV 업로드 (선택)", type=["csv"], key="_egr_csv_up_b")
+
+        if uploaded_csv is not None:
+            hist_data = load_verified_history_from_csv(uploaded_csv)
+            src_label = f"업로드 CSV ({len(hist_data)}건)"
+        elif "템플릿" in ev_mode:
+            hist_data = load_verified_history_from_csv("research/egr_bid/verified_opening_template.csv")
+            src_label = f"verified_opening_template.csv ({len(hist_data)}건)"
+        elif "부족" in ev_mode:
+            hist_data = []
+            src_label = "증거 없음 (0건)"
+        else:
+            hist_data = _make_verified_history(n=8, rate_spread=0.0003, with_comp=True)
+            src_label = "샌드박스 이력 (8건)"
+
+        canon_seed = "202611-00892" if in_nno.strip() in ("R26BK01812785-000", "202611-00892") else in_nno.strip()
+        m1_m5 = compute_m1_to_m5_breakdown(
+            canon_seed, int(in_base), int(in_aval),
+            Decimal(str(in_limit)), Decimal(str(in_perf)), "MOIS_BP3_30B_50B", int(in_ncost)
+        )
+        m5_bid = m1_m5["m5_bid"]
+        m5_picks = m1_m5["m5_lucky_4"]
+
+        notice_obj = VerifiedNotice(
+            notice_id=canon_seed,
+            revision_id="REV-0",
+            source_sha256=hashlib.sha256(f"{in_nno}_{in_base}_{in_aval}_{in_ncost}".encode()).hexdigest(),
+            source_verified=True,
+            is_demo_data=False,
+            profile_key="MOIS_BP3_30B_50B",
+            base_amt=int(in_base),
+            a_val=int(in_aval),
+            net_cost_base=int(in_ncost),
+            deadline_at="2026-11-13 10:00",
+            limit_rate=Decimal(str(in_limit)),
+            perf_score=Decimal(str(in_perf)),
+        )
+        cost_won = int(firm_cost_m) * 1000000 if firm_cost_m > 0 else None
+        res = egr_bid_recommend(notice_obj, hist_data, cost_input=cost_won)
+
+        egr_bid_str = f"{res.recommendation_won:,}원" if res.recommendation_won else "추천 보류 (HOLD)"
+        diff_str = f"M5 대비 {res.recommendation_won - m5_bid:+,}원" if res.recommendation_won else "근거 부족 자동 차단"
+        status_color = "#10b981" if res.status == "PASS_ADVISORY" else ("#f59e0b" if "HOLD" in res.status else "#ef4444")
+        q_info = res.calibration_summary.get("m6_quantiles_pct", {}) if res.calibration_summary else {}
+        w80_info = res.calibration_summary.get("m6_pi80_width_pct", "-") if res.calibration_summary else "-"
+
+        # 3. 다크 네온 4대 핵심 KPI 카드 (타 메뉴와 동일한 UI 디자인)
+        st.markdown(f"""
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:16px;">
+            <div style="background:#111827;border:1px solid #374151;border-left:4px solid #38bdf8;border-radius:10px;padding:14px;">
+                <div style="color:#9ca3af;font-size:12px;font-weight:700;">👑 [트랙 1] 기존 M5 양자계단 추천가</div>
+                <div style="color:#f8fafc;font-size:21px;font-weight:800;margin:4px 0;">{m5_bid:,}원</div>
+                <div style="color:#38bdf8;font-size:12px;">계단 #{m1_m5['m5_step_no']}/1,365 · 예가 {m5_picks[0]}·{m5_picks[1]}·{m5_picks[2]}·{m5_picks[3]}번</div>
+            </div>
+            <div style="background:#111827;border:1px solid #374151;border-left:4px solid #f59e0b;border-radius:10px;padding:14px;">
+                <div style="color:#9ca3af;font-size:12px;font-weight:700;">🛡️ [트랙 2] 번외 EGR-BID 강건 선택가</div>
+                <div style="color:#fbbf24;font-size:21px;font-weight:800;margin:4px 0;">{egr_bid_str}</div>
+                <div style="color:#fcd34d;font-size:12px;">{diff_str} ({src_label})</div>
+            </div>
+            <div style="background:#111827;border:1px solid #374151;border-left:4px solid {status_color};border-radius:10px;padding:14px;">
+                <div style="color:#9ca3af;font-size:12px;font-weight:700;">🧭 [M8 게이트] 불확실성·보류 판정</div>
+                <div style="color:{status_color};font-size:19px;font-weight:800;margin:4px 0;">{res.status}</div>
+                <div style="color:#9ca3af;font-size:12px;">{', '.join(res.reasons)}</div>
+            </div>
+            <div style="background:#111827;border:1px solid #374151;border-left:4px solid #a855f7;border-radius:10px;padding:14px;">
+                <div style="color:#9ca3af;font-size:12px;font-weight:700;">🔒 [법정 하한] 순공사원가 98% 배제선</div>
+                <div style="color:#e9d5ff;font-size:21px;font-weight:800;margin:4px 0;">{m1_m5['min_net_cost_bid']:,}원</div>
+                <div style="color:#c084fc;font-size:12px;">기초 순공사원가 {int(in_ncost):,}원 기준</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # 4. 대시보드 시각화 & 6단계 사정과정 분석표 (좌우 2단 구성)
+        result_rows = []
+        for m in m1_m5["models"]:
+            result_rows.append({
+                "모델/시나리오 구분": ("👑 " if m["code"] == "M5" else "• ") + m["name"],
+                "사정률(%)": float(m["rate"]),
+                "예정가격(원)": int(m["est_price"]),
+                "낙찰하한선(원)": int(m["lower_limit"]),
+                "추천투찰가(원)": int(m["recommended_bid"]),
+                "M5 대비 차액(원)": int(m["recommended_bid"] - m5_bid),
+            })
+        if res.verified_rule_checks and "scenario_evaluation" in res.verified_rule_checks:
+            for sc in res.verified_rule_checks["scenario_evaluation"]["scenarios"]:
+                sc_bid = int(sc["lower_limit"]) + 19
+                is_picked = (res.recommendation_won is not None and abs(sc_bid - res.recommendation_won) < 200)
+                prefix = "🛡️ " if is_picked else "◦ "
+                result_rows.append({
+                    "모델/시나리오 구분": f"{prefix}EGR M6-{sc['scenario_id'].upper()} 분위수",
+                    "사정률(%)": float(sc["rate_pct"]),
+                    "예정가격(원)": int(sc["est_price"]),
+                    "낙찰하한선(원)": int(sc["lower_limit"]),
+                    "추천투찰가(원)": sc_bid,
+                    "M5 대비 차액(원)": sc_bid - m5_bid,
+                })
+        df_res = pd.DataFrame(result_rows)
+
+        col_l, col_r = st.columns([5, 7])
+        with col_l:
+            st.markdown("##### 🔍 1. 6단계 표준 사정과정 (Process) 판정표")
+            proc_rows = [
+                {"단계": "STEP 1", "검증 항목": "원문 해시·시점 검증", "산출 근거 및 수치": f"SHA256 무결성 확인 ({src_label})", "판정": "✅ PASS"},
+                {"단계": "STEP 2", "검증 항목": "M6 발주기관 사정률 분포", "산출 근거 및 수치": f"Q10={q_info.get('q10','-')}% / Q50={q_info.get('q50','-')}% / Q90={q_info.get('q90','-')}%", "판정": "✅ PASS" if q_info else "⏸️ HOLD"},
+                {"단계": "STEP 3", "검증 항목": "M7 경쟁사 웨지 분석", "산출 근거 및 수치": f"80% 예측구간 폭 {w80_info}%p 수렴", "판정": "✅ PASS" if q_info else "⏸️ HOLD"},
+                {"단계": "STEP 4", "검증 항목": "적격심사·98% 원가선", "산출 근거 및 수치": f"종합 {m1_m5['m5_total_score']:.2f}점 / {m1_m5['min_net_cost_bid']:,}원", "판정": "✅ PASS"},
+                {"단계": "STEP 5", "검증 항목": "M8 불확실성 보류 게이트", "산출 근거 및 수치": f"{res.status} ({', '.join(res.reasons)})", "판정": "✅ PASS" if res.status == "PASS_ADVISORY" else "🛑 HOLD"},
+                {"단계": "STEP 6", "검증 항목": "최종 투트랙 타점 확정", "산출 근거 및 수치": f"M5 {m5_bid:,}원 vs EGR {egr_bid_str}", "판정": "👑 확정"},
+            ]
+            st.table(pd.DataFrame(proc_rows).set_index("단계"))
+
+        with col_r:
+            st.markdown("##### 📊 2. M1~M5 및 EGR-BID 사정결과 (Result) 대조표")
+            st.dataframe(
+                df_res.style.format({
+                    "사정률(%)": "{:.4f}%",
+                    "예정가격(원)": "{:,}원",
+                    "낙찰하한선(원)": "{:,}원",
+                    "추천투찰가(원)": "{:,}원",
+                    "M5 대비 차액(원)": "{:+,}원",
+                }),
+                use_container_width=True,
+                height=290,
+            )
+
+        # 5. 시각화 차트 & 후보가별 적격 통과율 프로그레스 게이지 바
+        if res.verified_rule_checks and "scenario_evaluation" in res.verified_rule_checks:
+            scen_eval = res.verified_rule_checks["scenario_evaluation"]
+            vc1, vc2 = st.columns([3, 2])
+            with vc1:
+                st.markdown("##### 📈 3. 모델 및 분위수별 사정률(%) 비교 시각화 차트")
+                st.bar_chart(df_res.set_index("모델/시나리오 구분")[["사정률(%)"]], height=240)
+            with vc2:
+                st.markdown("##### 🎯 4. 후보 투찰가별 시나리오 적격심사 통과율 게이지")
+                bars_html = []
+                for c in scen_eval["candidates"][::2]:
+                    pct = int(round(c["eligibility_ratio"] * 100))
+                    b_col = "#10b981" if pct >= 60 else "#ef4444"
+                    tag = " 🛡️[최종선택]" if res.recommendation_won == c["bid_amount"] else ""
+                    bars_html.append(f"""
+                    <div style="margin-bottom:7px;background:#1e293b;padding:7px 12px;border-radius:8px;border:1px solid #334155;">
+                        <div style="display:flex;justify-content:space-between;font-size:12px;color:#f8fafc;font-weight:700;">
+                            <span>{c['bid_amount']:,}원{tag}</span>
+                            <span style="color:{b_col};">{c['eligible_scenarios']}/{c['total_scenarios']} 시나리오 통과 ({pct}%)</span>
+                        </div>
+                        <div style="width:100%;background:#0f172a;height:7px;border-radius:4px;margin-top:5px;overflow:hidden;">
+                            <div style="width:{pct}%;background:{b_col};height:100%;"></div>
+                        </div>
+                    </div>
+                    """)
+                st.markdown("".join(bars_html), unsafe_allow_html=True)
+
+        # 6. 프린터 인쇄용 A4 정식 결재 양식서 뷰어 및 다운로드 (하단 확장창에 깔끔하게 배치)
+        standalone_html_doc = format_printable_html_report(
+            notice_obj, in_title, res, m1_m5, src_label, firm_cost_won=cost_won, standalone_doc=True
+        )
+        with st.expander("🖨️ 5. [프린터 인쇄용 A4 공식 결재 양식서 미리보기 및 PDF/HTML 출력] (클릭하여 열기/닫기)", expanded=True):
+            components.html(standalone_html_doc, height=880, scrolling=True)
+            dl1, dl2 = st.columns(2)
+            with dl1:
+                st.download_button(
+                    "🖨️ 프린터 인쇄용 공식 사정분석서 (.html) 다운로드",
+                    data=standalone_html_doc.encode("utf-8"),
+                    file_name=f"BID_NEXUS_OFFICIAL_ASSESSMENT_{canon_seed}.html",
+                    mime="text/html",
+                    use_container_width=True,
+                    key="_egr_dl_html_b",
+                )
+            with dl2:
+                csv_buf = io.StringIO()
+                writer = csv.writer(csv_buf)
+                writer.writerow(["모델/시나리오", "예측사정률(%)", "예정가격(원)", "낙찰하한선(원)", "추천투찰금액(원)"])
+                for r in result_rows:
+                    writer.writerow([r["모델/시나리오 구분"], r["사정률(%)"], r["예정가격(원)"], r["낙찰하한선(원)"], r["추천투찰가(원)"]])
+                st.download_button(
+                    "📊 사정결과 비교표 엑셀 (.csv) 다운로드",
+                    data=csv_buf.getvalue().encode("utf-8-sig"),
+                    file_name=f"BID_NEXUS_ASSESSMENT_TABLE_{canon_seed}.csv",
+                    mime="text/csv",
+                    use_container_width=True,
+                    key="_egr_dl_csv_b",
+                )
+try:
+    _render_egr_bid_addon_panel()
+except Exception as _egr_e:
+    pass
