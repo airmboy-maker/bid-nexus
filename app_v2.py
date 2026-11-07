@@ -7689,6 +7689,101 @@ def _render_egr_bid_addon_panel():
         w80_info = res.calibration_summary.get("m6_pi80_width_pct", "-") if res.calibration_summary else "-"
 
         # =====================================================================
+                # =====================================================================
+        # [SECTION 0] 🎯 AI 복수예가 추첨 번호(1~15번) & 1,365 조합 자동화 센터
+        # =====================================================================
+        from lattice1365.selector_ai import compute_ai_slot_selection_Automation
+        with st.expander("🎯 [AI 복수예가 추첨 번호 & 1,365 조합 자동 추천기] 나라장터 응찰 시 체크할 최적 2개 번호 & TOP 10 조합 (클릭하여 열기/닫기)", expanded=True):
+            sel_c1, sel_c2 = st.columns([2, 2])
+            with sel_c1:
+                target_model_choice = st.radio(
+                    "추첨 번호 역산 기준 모델 선택",
+                    options=["👑 기준선: M5 양자계단", "🛡️ 번외 1: 제미나이 EGR-BID (Q50)", "⚡ 번외 2: 젠스파크 LATTICE-1365"],
+                    horizontal=True,
+                    key="_ai_slot_target_model",
+                )
+            with sel_c2:
+                bias_w = st.slider(
+                    "입찰자 중앙 번호 선호 편향(Behavioral Bias) 반영 강도",
+                    min_value=0.0, max_value=1.0, value=0.65, step=0.05,
+                    key="_ai_slot_bias_slider",
+                    help="0.0이면 1~15번 완전 균등 난수, 0.65 이상이면 실제 입찰자들의 중앙 번호(5~11번) 및 3·7번 집중 선택 편향을 반영합니다.",
+                )
+
+            if "EGR-BID" in target_model_choice and res.verified_rule_checks and "scenario_evaluation" in res.verified_rule_checks:
+                t_ep = int(res.verified_rule_checks["scenario_evaluation"]["scenarios"][2]["est_price"])
+            elif "LATTICE" in target_model_choice and lat.feasible:
+                t_ep = int(lat.ladder["est_prices"][lat.optimal_step - 1])
+            else:
+                t_ep = int(m1_m5["m5_est_price"])
+
+            ai_sel = compute_ai_slot_selection_Automation(
+                notice_no=canon_seed,
+                base_amt=int(in_base),
+                a_val=int(in_aval),
+                limit_rate_pct=float(in_limit),
+                target_est_price=t_ep,
+                bias_strength=float(bias_w),
+            )
+            p2 = ai_sel["primary_2_pick"]
+            b2 = ai_sel["backup_2_pick"]
+            c4 = ai_sel["exact_combo_4"]
+
+            st.markdown(f"""
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:14px;">
+                <div style="background:#0f172a;border:1.5px solid #38bdf8;border-radius:10px;padding:14px;">
+                    <div style="color:#7dd3fc;font-size:12px;font-weight:800;">👑 나라장터 투찰창 1순위 추천 (Best 2-Pick)</div>
+                    <div style="color:#f8fafc;font-size:23px;font-weight:900;margin:4px 0;">{p2[0]}번 · {p2[1]}번</div>
+                    <div style="color:#94a3b8;font-size:12px;">실제 입찰서 제출 시 체크할 최우선 2개 번호</div>
+                </div>
+                <div style="background:#0f172a;border:1.5px solid #f59e0b;border-radius:10px;padding:14px;">
+                    <div style="color:#fcd34d;font-size:12px;font-weight:800;">🛡️ 2순위 예비 추천 번호 (Backup 2-Pick)</div>
+                    <div style="color:#fbbf24;font-size:23px;font-weight:900;margin:4px 0;">{b2[0]}번 · {b2[1]}번</div>
+                    <div style="color:#94a3b8;font-size:12px;">공동도급/분산 응찰 시 교차 선택 번호</div>
+                </div>
+                <div style="background:#0f172a;border:1.5px solid #10b981;border-radius:10px;padding:14px;">
+                    <div style="color:#6ee7b7;font-size:12px;font-weight:800;">🍀 목표 타점 4개 추첨 조합 (15C4)</div>
+                    <div style="color:#34d399;font-size:21px;font-weight:900;margin:4px 0;">{c4[0]}번 · {c4[1]}번 · {c4[2]}번 · {c4[3]}번</div>
+                    <div style="color:#94a3b8;font-size:12px;">양자계단 #{ai_sel['exact_step_no']}/1,365 (목표예가 {t_ep:,}원)</div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            df_slots = pd.DataFrame(ai_sel["slot_table"])
+            df_top10 = pd.DataFrame([
+                {
+                    "순위": f"TOP {r['rank']}",
+                    "계단번호": f"#{r['step_no']}/1,365",
+                    "4개 추첨번호 조합": r["combo_str"],
+                    "핵심 2개 번호(2-Pick)": r["best_2_str"],
+                    "조합 예정가격(원)": r["est_price"],
+                    "사정률(%)": r["sajeong_rate"],
+                    "대응 추천투찰가(원)": r["recommended_bid"],
+                    "AI 시너지 점수": r["synergy_score"],
+                }
+                for r in ai_sel["top_10_combos"]
+            ])
+
+            sc_left, sc_right = st.columns([5, 7])
+            with sc_left:
+                st.markdown("###### 📊 1~15번 번호별 AI 다수결 선택확률(%) 분포")
+                st.bar_chart(df_slots.set_index("번호")[["AI 다수결 선택확률(%)"]], height=250)
+                st.dataframe(
+                    df_slots[["번호", "예비가격(원)", "사정률(%)", "AI 다수결 선택확률(%)", "추천등급"]].style.format({
+                        "예비가격(원)": "{:,}원", "사정률(%)": "{:.4f}%", "AI 다수결 선택확률(%)": "{:.2f}%",
+                    }),
+                    use_container_width=True, height=240,
+                )
+            with sc_right:
+                st.markdown("###### 🏆 1,365개 조합 중 목표 타점 × 다수결 시너지 TOP 10 조합표")
+                st.dataframe(
+                    df_top10.set_index("순위").style.format({
+                        "조합 예정가격(원)": "{:,}원", "사정률(%)": "{:.4f}%",
+                        "대응 추천투찰가(원)": "{:,}원", "AI 시너지 점수": "{:.2f}점",
+                    }),
+                    use_container_width=True, height=505,
+                )
+
         # [SECTION A] 기존 번외 1: 제미나이 EGR-BID (M6·M7·M8) 전용 대시보드 (그대로 복원!)
         # =====================================================================
         if on_egr:

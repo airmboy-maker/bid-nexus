@@ -9,6 +9,7 @@ from bid_math_fixed import (
     inverse_bid_for_deficit
 )
 from lattice1365.engine import BidContext, compute_optimal_bid
+from lattice1365.selector_ai import compute_ai_slot_selection_Automation
 from .evidence_contract import VerifiedNotice, RecommendationResult
 
 
@@ -120,6 +121,10 @@ def compute_m1_to_m5_breakdown(notice_id: str, base_amt: int, a_val: int, limit_
         "m5_total_score": inv_info["official_total_score"],
         "min_net_cost_bid": nc_res["min_net_cost_bid"],
         "lattice_res": lat_res,
+        "ai_selector": compute_ai_slot_selection_Automation(
+            notice_no=canon_seed, base_amt=base_amt, a_val=a_val,
+            limit_rate_pct=float(limit_rate), target_est_price=m5_ep, slot_prices_15=slots_w
+        ),
     }
 
 
@@ -423,6 +428,10 @@ def format_printable_html_report(
         <div style="font-size:13.5px;font-weight:800;color:#0f172a;margin-bottom:5px;">■ 4. 최종 투찰 의사결정 요약 (Executive Decision Summary)</div>
         <div style="display:grid;grid-template-columns:{grid_cols};gap:10px;background:#f8fafc;border:2px solid #0f172a;border-radius:6px;padding:12px 14px;">
             {cards_html}
+        </div>
+        <div style="margin-top:10px;background:#eff6ff;border:1.5px solid #1d4ed8;border-radius:6px;padding:8px 14px;font-size:12px;color:#0f172a;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;">
+            <div>🎯 <b>[AI 복수예가 추첨번호 자동화 추천]</b> 나라장터 투찰 시 체크할 최적 2개 번호(Best 2-Pick): <b style="color:#1d4ed8;font-size:14px;">【 {m1_m5['ai_selector']['primary_2_pick'][0]}번 · {m1_m5['ai_selector']['primary_2_pick'][1]}번 】</b> &nbsp;(예비 2픽: <b>{m1_m5['ai_selector']['backup_2_pick'][0]}번 · {m1_m5['ai_selector']['backup_2_pick'][1]}번</b>)</div>
+            <div style="color:#475569;">※ 1,365조합 타점 근접도(75%) × 다수결 중앙 번호 선호 편향(25%) 결합 산출</div>
         </div>
     </div>
     """
