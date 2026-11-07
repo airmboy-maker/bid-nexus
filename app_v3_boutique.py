@@ -1540,259 +1540,260 @@ import lattice1365.native_deck_controller as _ndc_mod
 _is_cab_mode, _cur_cab_zone = _ndc_mod.render_master_mode_and_zone_selector()
 _ndc_mod.render_top_cabinet_switcher_bar(_is_cab_mode, _cur_cab_zone)
 with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
-    with st.expander("🏢 [1단계] 기업 적격심사 마스터 스펙 등록 및 수정 (클릭하여 열기/닫기)", expanded=False):
-        # 🔒 1단계: 기업 적격심사 마스터 등록
-        if not is_profile_ready:
-            st.title("🔒 1단계: 기업 적격심사 마스터 항목 등록")
-            st.info("💡 **기업명, 대표자명 또는 초성을 입력하면** 5개년 연도별 실적과 특수면허/기술자 스펙이 자동 매핑됩니다.")
+    with st.expander('📊 [타겟 공고 요약 & 마감 브리핑 서랍] — 기업 마스터 스펙 · 적격심사 판정(29.5점) · AI 최적 투찰가 요약 (클릭하여 열기/닫기)', expanded=not _is_cab_mode):
+        with st.expander("🏢 [1단계] 기업 적격심사 마스터 스펙 등록 및 수정 (클릭하여 열기/닫기)", expanded=False):
+            # 🔒 1단계: 기업 적격심사 마스터 등록
+            if not is_profile_ready:
+                st.title("🔒 1단계: 기업 적격심사 마스터 항목 등록")
+                st.info("💡 **기업명, 대표자명 또는 초성을 입력하면** 5개년 연도별 실적과 특수면허/기술자 스펙이 자동 매핑됩니다.")
 
-            st.markdown("### 🔍 1-Click 인크리멘탈 동종 기업명 자동 검색")
-            q_col1, q_col2 = st.columns([3, 1])
-            search_input = q_col1.text_input("기업명, 대표자명 또는 초성 입력", value="", placeholder="예: '선', '태양', '김태양', 'ㅌㅇ', '강원'", key="inc_search_box")
+                st.markdown("### 🔍 1-Click 인크리멘탈 동종 기업명 자동 검색")
+                q_col1, q_col2 = st.columns([3, 1])
+                search_input = q_col1.text_input("기업명, 대표자명 또는 초성 입력", value="", placeholder="예: '선', '태양', '김태양', 'ㅌㅇ', '강원'", key="inc_search_box")
     
-            clean_val = normalize_text(search_input)
-            if clean_val:
-                matches = search_companies_incremental(clean_val)
-                if matches:
-                    st.markdown(f"**🎯 '{clean_val}' 일치 기업 후보 ({len(matches)}개사):**")
-                    grid_cols = st.columns(4)
-                    for m_idx, comp_cand in enumerate(matches[:12]):
-                        col_target = grid_cols[m_idx % 4]
-                        if col_target.button(f"🏢 {comp_cand.get('name', '기업')}\n(대표: {comp_cand.get('ceo', '대표')})", key=f"cand_btn_{m_idx}", use_container_width=True):
-                            comp = comp_cand
-                            c_perf = comp.get('perf_5yr', {})
-                            if '전기공사업' not in c_perf:
-                                c_perf['전기공사업'] = [500000000, 650000000, 800000000, 950000000, 1100000000]
-                            if '건축공사업' not in c_perf and '토목건축공사업' not in c_perf:
-                                c_perf['건축공사업'] = [800000000, 1000000000, 1200000000, 1400000000, 1600000000]
-                            comp['perf_5yr'] = c_perf
-                            c_lics = list(comp.get('license', []))
-                            if '전기공사업' not in c_lics:
-                                c_lics.append('전기공사업')
-                            comp['license'] = c_lics
-                            st.session_state['scraped_data'] = comp
-                            st.session_state['selected_licenses'] = c_lics
-                            st.toast("✅ " + str(comp.get("name", "")) + " 스펙이 즉시 주입되었습니다!", icon="🏢")
-                            st.rerun()
-                else:
-                    st.warning(f"'{clean_val}'과 일치하는 등록 기업이 없습니다. 직접 공공망 조회를 실행하거나 폼에 입력하세요.")
+                clean_val = normalize_text(search_input)
+                if clean_val:
+                    matches = search_companies_incremental(clean_val)
+                    if matches:
+                        st.markdown(f"**🎯 '{clean_val}' 일치 기업 후보 ({len(matches)}개사):**")
+                        grid_cols = st.columns(4)
+                        for m_idx, comp_cand in enumerate(matches[:12]):
+                            col_target = grid_cols[m_idx % 4]
+                            if col_target.button(f"🏢 {comp_cand.get('name', '기업')}\n(대표: {comp_cand.get('ceo', '대표')})", key=f"cand_btn_{m_idx}", use_container_width=True):
+                                comp = comp_cand
+                                c_perf = comp.get('perf_5yr', {})
+                                if '전기공사업' not in c_perf:
+                                    c_perf['전기공사업'] = [500000000, 650000000, 800000000, 950000000, 1100000000]
+                                if '건축공사업' not in c_perf and '토목건축공사업' not in c_perf:
+                                    c_perf['건축공사업'] = [800000000, 1000000000, 1200000000, 1400000000, 1600000000]
+                                comp['perf_5yr'] = c_perf
+                                c_lics = list(comp.get('license', []))
+                                if '전기공사업' not in c_lics:
+                                    c_lics.append('전기공사업')
+                                comp['license'] = c_lics
+                                st.session_state['scraped_data'] = comp
+                                st.session_state['selected_licenses'] = c_lics
+                                st.toast("✅ " + str(comp.get("name", "")) + " 스펙이 즉시 주입되었습니다!", icon="🏢")
+                                st.rerun()
+                    else:
+                        st.warning(f"'{clean_val}'과 일치하는 등록 기업이 없습니다. 직접 공공망 조회를 실행하거나 폼에 입력하세요.")
 
-            if q_col2.button("🔍 공공망 강제 재조회", type="primary", use_container_width=True):
-                if search_input.strip():
-                    with st.spinner("국토부 KISCON 및 협회 전산망에서 데이터를 실시간 조회 중..."):
-                        scraped = fetch_association_company_data(search_input, DATA_API_KEY)
-                        st.session_state["scraped_data"] = scraped
-                        st.toast(f"✅ {scraped['source']} 연동 완료!", icon="🎉")
-                else:
-                    st.warning("조회할 법인명이나 사업자등록번호를 입력하세요.")
+                if q_col2.button("🔍 공공망 강제 재조회", type="primary", use_container_width=True):
+                    if search_input.strip():
+                        with st.spinner("국토부 KISCON 및 협회 전산망에서 데이터를 실시간 조회 중..."):
+                            scraped = fetch_association_company_data(search_input, DATA_API_KEY)
+                            st.session_state["scraped_data"] = scraped
+                            st.toast(f"✅ {scraped['source']} 연동 완료!", icon="🎉")
+                    else:
+                        st.warning("조회할 법인명이나 사업자등록번호를 입력하세요.")
 
-            s_data = st.session_state["scraped_data"] or {
-                "name": "(주)태양전기건설", "ceo": "김태양", "biz_no": "221-81-12345", "region": "강원특별자치도 춘천시 공지로 312",
-                "lics": ["건축공사업", "전기공사업"],
-                "license_specs": {
-                    "건축공사업": {"cap": 6800000000, "yearly_perf": {"2021": 820000000, "2022": 950000000, "2023": 780000000, "2024": 1010000000, "2025": 940000000}, "perf": 4500000000, "rank": "강원 12위"},
-                    "전기공사업": {"cap": 4200000000, "yearly_perf": {"2021": 550000000, "2022": 600000000, "2023": 580000000, "2024": 650000000, "2025": 720000000}, "perf": 3100000000, "rank": "강원 8위"}
-                },
-                "special_certs": ["무정전공사 시공자격", "활선공사 시공자격", "신재생에너지설비 전문기업"],
-                "engineers": {"특급": 0, "고급": 0, "중급": 0, "초급": 0, "_ocr_status": "ERROR_UNVERIFIED"},
-                "credit_grade": "A-", "debt_ratio": 92.5, "cur_ratio": 145.0, "sanction_days": 0
-            }
-
-            st.markdown("---")
-            col_m1, col_m2 = st.columns([1.2, 1])
-            with col_m1:
-                st.markdown("#### 🏢 기업 기본 정보 및 대표자 검토/승인")
-                with st.form("gatekeeper_profile_form"):
-                    c_f_top1, c_f_top2 = st.columns(2)
-                    f_name = c_f_top1.text_input("상호(기업명)", value=s_data.get("name", ""))
-                    f_ceo = c_f_top2.text_input("대표자명 (대표이사)", value=s_data.get("ceo", "대표이사"))
-            
-                    c_f_mid1, c_f_mid2 = st.columns(2)
-                    f_biz = c_f_mid1.text_input("사업자등록번호", value=s_data.get("biz_no", ""))
-                    f_reg = c_f_mid2.text_input("본점 소재지", value=s_data.get("region", ""))
-            
-                    c_f1, c_f2 = st.columns(2)
-                    f_credit = c_f1.selectbox("신용평가등급 (공공입찰용)", ["AAA", "AA", "A+", "A0", "A-", "BBB+", "BBB0", "BBB-", "BB+", "BB0", "BB-", "B 이하"], index=4)
-                    all_lics = ["건축공사업", "토목공사업", "토목건축공사업", "전기공사업", "정보통신공사업", "소방시설공사업"]
-                    default_lics = [lic for lic in s_data.get("lics", []) if lic in all_lics] or ["건축공사업"]
-                    # --- 면허 동기화 로직 강제 적용 ---
-                    _raw_lics = st.session_state.get("selected_licenses", ["건축공사업", "전기공사업"])
-                    if not _raw_lics: _raw_lics = ["건축공사업", "전기공사업"]
-                    if "전기공사업" not in _raw_lics: _raw_lics = list(_raw_lics) + ["전기공사업"]
-                    _all_opts = list(set(["건축공사업", "토목공사업", "토목건축공사업", "전기공사업", "정보통신공사업", "소방시설공사업", "지반조성ㆍ포장공사업"] + _raw_lics))
-                    selected_licenses = st.multiselect("보유 법정 면허", options=_all_opts, default=_raw_lics, key="lic_ms_v3")
-                    st.session_state["selected_licenses"] = selected_licenses
-
-                    st.markdown("##### ⚡ 특수 시공자격 (선택)")
-                    f_special = st.multiselect("보유 특수자격 선택", ALL_SPECIAL_CERTS, default=s_data.get("special_certs", ["무정전공사 시공자격", "활선공사 시공자격"]))
-
-                    st.markdown("##### 👷 상주 기술인력 보유 현황")
-                    eng_cols = st.columns(4)
-                    cur_eng = s_data.get("engineers", {"특급": 0, "고급": 0, "중급": 0, "초급": 0, "_ocr_status": "ERROR_UNVERIFIED"})
-                    f_eng_exp = eng_cols[0].number_input("특급 기술자(명)", min_value=0, value=int(cur_eng.get("특급", 2)))
-                    f_eng_adv = eng_cols[1].number_input("고급 기술자(명)", min_value=0, value=int(cur_eng.get("고급", 3)))
-                    f_eng_mid = eng_cols[2].number_input("중급 기술자(명)", min_value=0, value=int(cur_eng.get("중급", 4)))
-                    f_eng_beg = eng_cols[3].number_input("초급 기술자(명)", min_value=0, value=int(cur_eng.get("초급", 5)))
-
-                    c_f3, c_f4 = st.columns(2)
-                    f_debt = c_f3.number_input("부채비율 (%)", value=float(s_data.get("debt_ratio", 92.5)), step=0.1)
-                    f_cur = c_f4.number_input("유동비율 (%)", value=float(s_data.get("cur_ratio", 145.0)), step=0.1)
-
-                    st.markdown("##### 🎖️ 신인도 가점")
-                    c_f7, c_f8 = st.columns(2)
-                    f_job = c_f7.checkbox("일자리창출 우수기업 (+0.5점)", value=True)
-                    f_women = c_f8.checkbox("여성 / 장애인 기업 (+1.0점)", value=False)
-                    f_sanction = st.number_input("최근 1년 영업정지 누적일수", min_value=0, value=int(s_data.get("sanction_days", 0)), step=15)
-
-                    st.markdown("---")
-                    submit_btn = st.form_submit_button("💾 적격 마스터 스펙 승인 및 결과 화면 활성화", type="primary", use_container_width=True)
-
-                    if submit_btn:
-                        lic_specs_dict = s_data.get("license_specs", {})
-                        f_lics = locals().get("f_lics") or locals().get("selected_licenses") or ["건축공사업", "토목건축공사업"]
-                        for lic_nm in f_lics:
-                            if lic_nm not in lic_specs_dict:
-                                lic_specs_dict[lic_nm] = {
-                                    "cap": 5000000000,
-                                    "yearly_perf": {"2021": 700000000, "2022": 700000000, "2023": 700000000, "2024": 700000000, "2025": 700000000},
-                                    "perf": 3500000000, "rank": "적격"
-                                }
-                
-                        new_profile = {
-                            "is_verified": True, "biz_no": f_biz, "name": f_name, "ceo": f_ceo, "region": f_reg, "lics": f_lics,
-                            "special_certs": f_special,
-                            "engineers": {"특급": f_eng_exp, "고급": f_eng_adv, "중급": f_eng_mid, "초급": f_eng_beg},
-                            "license_specs": lic_specs_dict, "credit_grade": f_credit, "debt_ratio": f_debt, "cur_ratio": f_cur,
-                            "cap_amount": list(lic_specs_dict.values())[0]["cap"] if lic_specs_dict else 6800000000,
-                            "perf_record": list(lic_specs_dict.values())[0]["perf"] if lic_specs_dict else 4500000000,
-                            "is_women": f_women, "is_job_creator": f_job, "sanction_days": f_sanction
-                        }
-                        save_company_profile(new_profile)
-                        st.session_state["comp_profile"] = new_profile
-                        st.session_state.pop("auto_state", None)
-                        st.rerun()
-
-            with col_m2:
-                st.markdown("#### 📄 기술자 보유증명서(PDF) 업로드로 3초 자동인식")
-                eng_file = st.file_uploader("건설기술인 보유증명서 업로드 (PDF)", type=["pdf"], key="gatekeeper_eng_pdf")
-                if eng_file is not None:
-                    if st.button("🤖 AI 기술자 등급별 인원 자동 추출", use_container_width=True, type="primary"):
-                        with st.spinner("Gemini 비전 AI가 보유증명서 표를 분석하는 중..."):
-                            parsed_eng = parse_engineer_certificate_pdf(eng_file.read())
-                            if "scraped_data" in st.session_state and st.session_state["scraped_data"]:
-                                st.session_state["scraped_data"]["engineers"] = parsed_eng
-                            st.success(f"🎯 **추출 성공**: 특급 {parsed_eng['특급']}명, 고급 {parsed_eng['고급']}명, 중급 {parsed_eng['중급']}명, 초급 {parsed_eng['초급']}명")
-                            st.rerun()
+                s_data = st.session_state["scraped_data"] or {
+                    "name": "(주)태양전기건설", "ceo": "김태양", "biz_no": "221-81-12345", "region": "강원특별자치도 춘천시 공지로 312",
+                    "lics": ["건축공사업", "전기공사업"],
+                    "license_specs": {
+                        "건축공사업": {"cap": 6800000000, "yearly_perf": {"2021": 820000000, "2022": 950000000, "2023": 780000000, "2024": 1010000000, "2025": 940000000}, "perf": 4500000000, "rank": "강원 12위"},
+                        "전기공사업": {"cap": 4200000000, "yearly_perf": {"2021": 550000000, "2022": 600000000, "2023": 580000000, "2024": 650000000, "2025": 720000000}, "perf": 3100000000, "rank": "강원 8위"}
+                    },
+                    "special_certs": ["무정전공사 시공자격", "활선공사 시공자격", "신재생에너지설비 전문기업"],
+                    "engineers": {"특급": 0, "고급": 0, "중급": 0, "초급": 0, "_ocr_status": "ERROR_UNVERIFIED"},
+                    "credit_grade": "A-", "debt_ratio": 92.5, "cur_ratio": 145.0, "sanction_days": 0
+                }
 
                 st.markdown("---")
-                st.markdown("#### 📊 최근 5개년 연도별 실적 총괄표")
-                import pandas as pd
-                _sdata = st.session_state.get("scraped_data", {})
-                if isinstance(_sdata, list) and len(_sdata) > 0:
-                    _sdata = _sdata[0]
-                if not isinstance(_sdata, dict):
-                    _sdata = {}
-                _pdict = _sdata.get("perf_5yr", {})
-                if not _pdict:
-                    _pdict = {
-                        "건축공사업": [800000000, 1000000000, 1200000000, 1400000000, 1600000000],
-                        "전기공사업": [500000000, 650000000, 800000000, 950000000, 1100000000]
-                    }
-                _rows = []
-                _years = ["2020년", "2021년", "2022년", "2023년", "2024년"]
-                for _lname, _amts in _pdict.items():
-                    _r = {"면허/업종": _lname}
-                    for _yidx, _yr in enumerate(_years):
-                        _val = _amts[_yidx] if _yidx < len(_amts) else _amts[-1]
-                        _r[_yr] = f"{_val:,.0f}원"
-                    _rows.append(_r)
-                st.dataframe(pd.DataFrame(_rows), use_container_width=True, hide_index=True)
-        # 🔓 2단계: 승인 완료 후에만 열리는 분석 결과 화면
-        comp = st.session_state["comp_profile"]
+                col_m1, col_m2 = st.columns([1.2, 1])
+                with col_m1:
+                    st.markdown("#### 🏢 기업 기본 정보 및 대표자 검토/승인")
+                    with st.form("gatekeeper_profile_form"):
+                        c_f_top1, c_f_top2 = st.columns(2)
+                        f_name = c_f_top1.text_input("상호(기업명)", value=s_data.get("name", ""))
+                        f_ceo = c_f_top2.text_input("대표자명 (대표이사)", value=s_data.get("ceo", "대표이사"))
+            
+                        c_f_mid1, c_f_mid2 = st.columns(2)
+                        f_biz = c_f_mid1.text_input("사업자등록번호", value=s_data.get("biz_no", ""))
+                        f_reg = c_f_mid2.text_input("본점 소재지", value=s_data.get("region", ""))
+            
+                        c_f1, c_f2 = st.columns(2)
+                        f_credit = c_f1.selectbox("신용평가등급 (공공입찰용)", ["AAA", "AA", "A+", "A0", "A-", "BBB+", "BBB0", "BBB-", "BB+", "BB0", "BB-", "B 이하"], index=4)
+                        all_lics = ["건축공사업", "토목공사업", "토목건축공사업", "전기공사업", "정보통신공사업", "소방시설공사업"]
+                        default_lics = [lic for lic in s_data.get("lics", []) if lic in all_lics] or ["건축공사업"]
+                        # --- 면허 동기화 로직 강제 적용 ---
+                        _raw_lics = st.session_state.get("selected_licenses", ["건축공사업", "전기공사업"])
+                        if not _raw_lics: _raw_lics = ["건축공사업", "전기공사업"]
+                        if "전기공사업" not in _raw_lics: _raw_lics = list(_raw_lics) + ["전기공사업"]
+                        _all_opts = list(set(["건축공사업", "토목공사업", "토목건축공사업", "전기공사업", "정보통신공사업", "소방시설공사업", "지반조성ㆍ포장공사업"] + _raw_lics))
+                        selected_licenses = st.multiselect("보유 법정 면허", options=_all_opts, default=_raw_lics, key="lic_ms_v3")
+                        st.session_state["selected_licenses"] = selected_licenses
 
-        if "auto_state" not in st.session_state or st.session_state["auto_state"] is None or "skewness" not in st.session_state["auto_state"]:
-            st.session_state["auto_state"] = execute_full_autonomous_pipeline(comp, auto_save=True)
+                        st.markdown("##### ⚡ 특수 시공자격 (선택)")
+                        f_special = st.multiselect("보유 특수자격 선택", ALL_SPECIAL_CERTS, default=s_data.get("special_certs", ["무정전공사 시공자격", "활선공사 시공자격"]))
 
-        st_pack = st.session_state.get("auto_state", {})
-        if isinstance(st_pack, tuple):
-            st_pack = st_pack[0] if len(st_pack) > 0 and isinstance(st_pack[0], dict) else {}
-        elif not isinstance(st_pack, dict):
-            st_pack = {}
+                        st.markdown("##### 👷 상주 기술인력 보유 현황")
+                        eng_cols = st.columns(4)
+                        cur_eng = s_data.get("engineers", {"특급": 0, "고급": 0, "중급": 0, "초급": 0, "_ocr_status": "ERROR_UNVERIFIED"})
+                        f_eng_exp = eng_cols[0].number_input("특급 기술자(명)", min_value=0, value=int(cur_eng.get("특급", 2)))
+                        f_eng_adv = eng_cols[1].number_input("고급 기술자(명)", min_value=0, value=int(cur_eng.get("고급", 3)))
+                        f_eng_mid = eng_cols[2].number_input("중급 기술자(명)", min_value=0, value=int(cur_eng.get("중급", 4)))
+                        f_eng_beg = eng_cols[3].number_input("초급 기술자(명)", min_value=0, value=int(cur_eng.get("초급", 5)))
 
-        data = st_pack.get("data", {})
-        q_auto = st_pack.get("q_auto", {})
+                        c_f3, c_f4 = st.columns(2)
+                        f_debt = c_f3.number_input("부채비율 (%)", value=float(s_data.get("debt_ratio", 92.5)), step=0.1)
+                        f_cur = c_f4.number_input("유동비율 (%)", value=float(s_data.get("cur_ratio", 145.0)), step=0.1)
 
-        deadline_str = data.get("입찰마감일시", "2026-11-13 10:00")
+                        st.markdown("##### 🎖️ 신인도 가점")
+                        c_f7, c_f8 = st.columns(2)
+                        f_job = c_f7.checkbox("일자리창출 우수기업 (+0.5점)", value=True)
+                        f_women = c_f8.checkbox("여성 / 장애인 기업 (+1.0점)", value=False)
+                        f_sanction = st.number_input("최근 1년 영업정지 누적일수", min_value=0, value=int(s_data.get("sanction_days", 0)), step=15)
+
+                        st.markdown("---")
+                        submit_btn = st.form_submit_button("💾 적격 마스터 스펙 승인 및 결과 화면 활성화", type="primary", use_container_width=True)
+
+                        if submit_btn:
+                            lic_specs_dict = s_data.get("license_specs", {})
+                            f_lics = locals().get("f_lics") or locals().get("selected_licenses") or ["건축공사업", "토목건축공사업"]
+                            for lic_nm in f_lics:
+                                if lic_nm not in lic_specs_dict:
+                                    lic_specs_dict[lic_nm] = {
+                                        "cap": 5000000000,
+                                        "yearly_perf": {"2021": 700000000, "2022": 700000000, "2023": 700000000, "2024": 700000000, "2025": 700000000},
+                                        "perf": 3500000000, "rank": "적격"
+                                    }
+                
+                            new_profile = {
+                                "is_verified": True, "biz_no": f_biz, "name": f_name, "ceo": f_ceo, "region": f_reg, "lics": f_lics,
+                                "special_certs": f_special,
+                                "engineers": {"특급": f_eng_exp, "고급": f_eng_adv, "중급": f_eng_mid, "초급": f_eng_beg},
+                                "license_specs": lic_specs_dict, "credit_grade": f_credit, "debt_ratio": f_debt, "cur_ratio": f_cur,
+                                "cap_amount": list(lic_specs_dict.values())[0]["cap"] if lic_specs_dict else 6800000000,
+                                "perf_record": list(lic_specs_dict.values())[0]["perf"] if lic_specs_dict else 4500000000,
+                                "is_women": f_women, "is_job_creator": f_job, "sanction_days": f_sanction
+                            }
+                            save_company_profile(new_profile)
+                            st.session_state["comp_profile"] = new_profile
+                            st.session_state.pop("auto_state", None)
+                            st.rerun()
+
+                with col_m2:
+                    st.markdown("#### 📄 기술자 보유증명서(PDF) 업로드로 3초 자동인식")
+                    eng_file = st.file_uploader("건설기술인 보유증명서 업로드 (PDF)", type=["pdf"], key="gatekeeper_eng_pdf")
+                    if eng_file is not None:
+                        if st.button("🤖 AI 기술자 등급별 인원 자동 추출", use_container_width=True, type="primary"):
+                            with st.spinner("Gemini 비전 AI가 보유증명서 표를 분석하는 중..."):
+                                parsed_eng = parse_engineer_certificate_pdf(eng_file.read())
+                                if "scraped_data" in st.session_state and st.session_state["scraped_data"]:
+                                    st.session_state["scraped_data"]["engineers"] = parsed_eng
+                                st.success(f"🎯 **추출 성공**: 특급 {parsed_eng['특급']}명, 고급 {parsed_eng['고급']}명, 중급 {parsed_eng['중급']}명, 초급 {parsed_eng['초급']}명")
+                                st.rerun()
+
+                    st.markdown("---")
+                    st.markdown("#### 📊 최근 5개년 연도별 실적 총괄표")
+                    import pandas as pd
+                    _sdata = st.session_state.get("scraped_data", {})
+                    if isinstance(_sdata, list) and len(_sdata) > 0:
+                        _sdata = _sdata[0]
+                    if not isinstance(_sdata, dict):
+                        _sdata = {}
+                    _pdict = _sdata.get("perf_5yr", {})
+                    if not _pdict:
+                        _pdict = {
+                            "건축공사업": [800000000, 1000000000, 1200000000, 1400000000, 1600000000],
+                            "전기공사업": [500000000, 650000000, 800000000, 950000000, 1100000000]
+                        }
+                    _rows = []
+                    _years = ["2020년", "2021년", "2022년", "2023년", "2024년"]
+                    for _lname, _amts in _pdict.items():
+                        _r = {"면허/업종": _lname}
+                        for _yidx, _yr in enumerate(_years):
+                            _val = _amts[_yidx] if _yidx < len(_amts) else _amts[-1]
+                            _r[_yr] = f"{_val:,.0f}원"
+                        _rows.append(_r)
+                    st.dataframe(pd.DataFrame(_rows), use_container_width=True, hide_index=True)
+            # 🔓 2단계: 승인 완료 후에만 열리는 분석 결과 화면
+            comp = st.session_state["comp_profile"]
+
+            if "auto_state" not in st.session_state or st.session_state["auto_state"] is None or "skewness" not in st.session_state["auto_state"]:
+                st.session_state["auto_state"] = execute_full_autonomous_pipeline(comp, auto_save=True)
+
+            st_pack = st.session_state.get("auto_state", {})
+            if isinstance(st_pack, tuple):
+                st_pack = st_pack[0] if len(st_pack) > 0 and isinstance(st_pack[0], dict) else {}
+            elif not isinstance(st_pack, dict):
+                st_pack = {}
+
+            data = st_pack.get("data", {})
+            q_auto = st_pack.get("q_auto", {})
+
+            deadline_str = data.get("입찰마감일시", "2026-11-13 10:00")
+            try:
+                deadline_dt = datetime.strptime(deadline_str, "%Y-%m-%d %H:%M")
+                diff = deadline_dt - datetime.now()
+                if diff.total_seconds() > 0:
+                    d_days = diff.days
+                    d_hours = diff.seconds // 3600
+                    d_mins = (diff.seconds % 3600) // 60
+                    timer_display = f"⏳ 마감 D-{d_days} ({d_hours}시간 {d_mins}분 남음)"
+                else:
+                    timer_display = "⌛ 입찰 마감 완료"
+            except Exception:
+                timer_display = "⏳ 입찰 진행 중"
+
+        # [상단 이동됨] st.title("⚡ BID-NEXUS: 완전 자율형 공공입찰 전자동화 터미널")
+        col_header1, col_header2 = st.columns([3, 1])
+        if isinstance(comp, (list, tuple)) and len(comp) > 0:
+            comp = comp[0]
+        if not isinstance(comp, dict):
+            comp = {}
+
+        comp = comp[0] if isinstance(comp, (list, tuple)) and len(comp) > 0 else (comp if isinstance(comp, dict) else {}); eng_val = comp.get('engineers', comp.get('tech_headcount', {}))
+        total_eng = sum(v for v in eng_val.values() if isinstance(v, (int, float)) and not isinstance(v, bool)) if isinstance(eng_val, dict) else (len(eng_val) if isinstance(eng_val, list) else 14)
+        c_nm = comp.get('name', '기업')
+        c_ceo = comp.get('ceo', '대표이사')
+        c_crd = comp.get('credit_grade', 'A-')
+        col_header1.caption(f'기준 기업: **{c_nm}** (대표: {c_ceo}) | 신용 {c_crd} → 기술자 총 {total_eng}명 매칭')
+        col_header2.markdown(f'<div class="timer-badge">{timer_display}</div>', unsafe_allow_html=True)
+
+        b1, b2, b3, b4 = st.columns(4)
+        b1.metric("타겟 공고", data.get("공고명", "공고"), st_pack.get("inst_name", "-"))
+        if not isinstance(q_auto, dict):
+            q_auto = {}
+
+        tot_ab = q_auto.get("total_ability", q_auto.get("score", 29.5))
         try:
-            deadline_dt = datetime.strptime(deadline_str, "%Y-%m-%d %H:%M")
-            diff = deadline_dt - datetime.now()
-            if diff.total_seconds() > 0:
-                d_days = diff.days
-                d_hours = diff.seconds // 3600
-                d_mins = (diff.seconds % 3600) // 60
-                timer_display = f"⏳ 마감 D-{d_days} ({d_hours}시간 {d_mins}분 남음)"
-            else:
-                timer_display = "⌛ 입찰 마감 완료"
+            tot_ab_val = float(tot_ab)
         except Exception:
-            timer_display = "⏳ 입찰 진행 중"
+            tot_ab_val = 29.5
 
-    # [상단 이동됨] st.title("⚡ BID-NEXUS: 완전 자율형 공공입찰 전자동화 터미널")
-    col_header1, col_header2 = st.columns([3, 1])
-    if isinstance(comp, (list, tuple)) and len(comp) > 0:
-        comp = comp[0]
-    if not isinstance(comp, dict):
-        comp = {}
+        verdict_val = str(q_auto.get("verdict", q_auto.get("result", "적격 통과 (A등급)")))[ :12]
+        b2.metric("적격심사 판정", f"{min(30.0, float(locals().get('tot_ab_val', 30.0))):.1f} / 30.0 점", verdict_val)
+        t_bid = st_pack.get("target_bid", st_pack.get("bid_price", 185000000))
+        try:
+            t_bid_val, _sync_rate, _sync_prof, _sync_mpct = _v204_Sync_Top_KPI(locals().get('t_base', locals().get('base_val', locals().get('b_val', 3605411000))), locals().get('t_a', locals().get('a_val', 170640956)), locals().get('t_limit', locals().get('limit_val', 88.745)), str(locals().get('t_id', st.session_state.get('selected_bid_id', '202611-00892'))), st.session_state.get('_user_locked_rate', None))
+        except Exception:
+            t_bid_val, _sync_rate, _sync_prof, _sync_mpct = _v204_Sync_Top_KPI(locals().get('t_base', locals().get('base_val', locals().get('b_val', 3605411000))), locals().get('t_a', locals().get('a_val', 170640956)), locals().get('t_limit', locals().get('limit_val', 88.745)), str(locals().get('t_id', st.session_state.get('selected_bid_id', '202611-00892'))), st.session_state.get('_user_locked_rate', None))
 
-    comp = comp[0] if isinstance(comp, (list, tuple)) and len(comp) > 0 else (comp if isinstance(comp, dict) else {}); eng_val = comp.get('engineers', comp.get('tech_headcount', {}))
-    total_eng = sum(v for v in eng_val.values() if isinstance(v, (int, float)) and not isinstance(v, bool)) if isinstance(eng_val, dict) else (len(eng_val) if isinstance(eng_val, list) else 14)
-    c_nm = comp.get('name', '기업')
-    c_ceo = comp.get('ceo', '대표이사')
-    c_crd = comp.get('credit_grade', 'A-')
-    col_header1.caption(f'기준 기업: **{c_nm}** (대표: {c_ceo}) | 신용 {c_crd} → 기술자 총 {total_eng}명 매칭')
-    col_header2.markdown(f'<div class="timer-badge">{timer_display}</div>', unsafe_allow_html=True)
+        a_rate = st_pack.get("act_rate", st_pack.get("bid_rate", 88.745))
+        try:
+            a_rate_val = _sync_rate if '_sync_rate' in locals() else 88.405
+        except Exception:
+            a_rate_val = _sync_rate if '_sync_rate' in locals() else 88.405
 
-    b1, b2, b3, b4 = st.columns(4)
-    b1.metric("타겟 공고", data.get("공고명", "공고"), st_pack.get("inst_name", "-"))
-    if not isinstance(q_auto, dict):
-        q_auto = {}
+        b3.metric("AI 최적 투찰가", f"{t_bid_val:,}원", f"투찰률 {a_rate_val:.3f}%")
+        e_profit = st_pack.get("est_profit", st_pack.get("profit", 15200000))
+        try:
+            e_profit_val = _sync_prof if '_sync_prof' in locals() else 248939227
+        except Exception:
+            e_profit_val = _sync_prof if '_sync_prof' in locals() else 248939227
 
-    tot_ab = q_auto.get("total_ability", q_auto.get("score", 29.5))
-    try:
-        tot_ab_val = float(tot_ab)
-    except Exception:
-        tot_ab_val = 29.5
+        m_pct = st_pack.get("margin_pct", st_pack.get("margin", 8.21))
+        try:
+            m_pct_val = _sync_mpct if '_sync_mpct' in locals() else 7.81
+            t_bid_val, a_rate_val, e_profit_val, m_pct_val = _v204_Sync_Top_KPI(locals().get('t_base', locals().get('base_val', locals().get('b_val', 3605411000))), locals().get('t_a', locals().get('a_val', 170640956)), locals().get('t_limit', locals().get('limit_val', 88.745)), str(locals().get('t_id', st.session_state.get('selected_bid_id', '202611-00892'))), st.session_state.get('_user_locked_rate', None))
+        except Exception:
+            m_pct_val = _sync_mpct if '_sync_mpct' in locals() else 7.81
 
-    verdict_val = str(q_auto.get("verdict", q_auto.get("result", "적격 통과 (A등급)")))[ :12]
-    b2.metric("적격심사 판정", f"{min(30.0, float(locals().get('tot_ab_val', 30.0))):.1f} / 30.0 점", verdict_val)
-    t_bid = st_pack.get("target_bid", st_pack.get("bid_price", 185000000))
-    try:
-        t_bid_val, _sync_rate, _sync_prof, _sync_mpct = _v204_Sync_Top_KPI(locals().get('t_base', locals().get('base_val', locals().get('b_val', 3605411000))), locals().get('t_a', locals().get('a_val', 170640956)), locals().get('t_limit', locals().get('limit_val', 88.745)), str(locals().get('t_id', st.session_state.get('selected_bid_id', '202611-00892'))), st.session_state.get('_user_locked_rate', None))
-    except Exception:
-        t_bid_val, _sync_rate, _sync_prof, _sync_mpct = _v204_Sync_Top_KPI(locals().get('t_base', locals().get('base_val', locals().get('b_val', 3605411000))), locals().get('t_a', locals().get('a_val', 170640956)), locals().get('t_limit', locals().get('limit_val', 88.745)), str(locals().get('t_id', st.session_state.get('selected_bid_id', '202611-00892'))), st.session_state.get('_user_locked_rate', None))
+        b4.metric("예상 영업이익 (실행원가 81.5%)", f"{e_profit_val:,}원", f"마진율 {m_pct_val:.2f}%")
 
-    a_rate = st_pack.get("act_rate", st_pack.get("bid_rate", 88.745))
-    try:
-        a_rate_val = _sync_rate if '_sync_rate' in locals() else 88.405
-    except Exception:
-        a_rate_val = _sync_rate if '_sync_rate' in locals() else 88.405
-
-    b3.metric("AI 최적 투찰가", f"{t_bid_val:,}원", f"투찰률 {a_rate_val:.3f}%")
-    e_profit = st_pack.get("est_profit", st_pack.get("profit", 15200000))
-    try:
-        e_profit_val = _sync_prof if '_sync_prof' in locals() else 248939227
-    except Exception:
-        e_profit_val = _sync_prof if '_sync_prof' in locals() else 248939227
-
-    m_pct = st_pack.get("margin_pct", st_pack.get("margin", 8.21))
-    try:
-        m_pct_val = _sync_mpct if '_sync_mpct' in locals() else 7.81
-        t_bid_val, a_rate_val, e_profit_val, m_pct_val = _v204_Sync_Top_KPI(locals().get('t_base', locals().get('base_val', locals().get('b_val', 3605411000))), locals().get('t_a', locals().get('a_val', 170640956)), locals().get('t_limit', locals().get('limit_val', 88.745)), str(locals().get('t_id', st.session_state.get('selected_bid_id', '202611-00892'))), st.session_state.get('_user_locked_rate', None))
-    except Exception:
-        m_pct_val = _sync_mpct if '_sync_mpct' in locals() else 7.81
-
-    b4.metric("예상 영업이익 (실행원가 81.5%)", f"{e_profit_val:,}원", f"마진율 {m_pct_val:.2f}%")
-
-    st.markdown("---")
+        st.markdown("---")
 
 tab_radar, tab1, tab_quantum_ai, tab_sim, tab_dox, tab_profile, tab4 = _ndc_mod.route_7_main_tabs([
     "📡 [레이더] 나라장터 실시간 다차원 필터 수집기",

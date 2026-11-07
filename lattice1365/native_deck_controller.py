@@ -191,9 +191,12 @@ def render_top_cabinet_switcher_bar(is_cabinet_mode: bool, current_zone: str) ->
         f"""
 <style>
 .block-container {{
-    padding-top: 0.8rem !important;
-    padding-bottom: 0.4rem !important;
+    padding-top: 2.3rem !important;
+    padding-bottom: 0.6rem !important;
     max-width: 1580px !important;
+}}
+header[data-testid="stHeader"] {{
+    background: transparent !important;
 }}
 div[data-testid="stVerticalBlock"]:has(.ndc-kill-zone):not(:has(div[data-testid="stVerticalBlock"] .ndc-kill-zone)) {{
     display: none !important;
