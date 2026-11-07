@@ -1885,7 +1885,7 @@ with tab_radar:
         st.markdown(get_prism_deck_css(), unsafe_allow_html=True)
         for idx, bid_item in enumerate(live_bids):
                 st.markdown(build_prism_notice_card_html(bid_item, idx), unsafe_allow_html=True)
-                from lattice1365.notice_dossier_vault import analyze_construction_profile, build_notice_dossier_html, generate_notice_attachments, generate_master_zip_bundle
+                from lattice1365.notice_dossier_vault import analyze_construction_profile, build_notice_dossier_html, generate_notice_attachments, generate_master_zip_bundle, build_boq_preview_table_html, build_spec_sheet_html, build_manifest_table_html
                 _prof = analyze_construction_profile(bid_item, idx)
                 with st.expander(f"🔍 [AI 현장도감 & 스마트 문서볼트] {_prof['title']} — 원클릭 통합 패키지(.ZIP) · 내역서 X-Ray 열람", expanded=False):
                     st.markdown(build_notice_dossier_html(_prof), unsafe_allow_html=True)
@@ -1907,12 +1907,11 @@ with tab_radar:
                     _dl_c4.download_button("📐 공사시방서·특기사항 (.txt)", data=_spec_txt, file_name=f"공사시방서_{_prof['nid']}.txt", mime="text/plain", key=f"dl_spec_{_prof['nid']}_{idx}", use_container_width=True)
                     _pv_t1, _pv_t2, _pv_t3 = st.tabs(["📊 [인앱 열람 1] 공내역서(CSV) 실시간 프리뷰", "📐 [인앱 열람 2] 공사시방서 & AI 투찰전략서", "🔐 [인앱 열람 3] G2B JSON & SHA-256 무결성 매니페스트"])
                     with _pv_t1:
-                        st.code(_boq_csv.lstrip('\ufeff'), language="csv")
+                        st.markdown(build_boq_preview_table_html(_prof), unsafe_allow_html=True)
                     with _pv_t2:
-                        st.markdown(_zip_meta['ai_strategy_md'])
-                        st.code(_spec_txt, language="text")
+                        st.markdown(build_spec_sheet_html(_prof), unsafe_allow_html=True)
                     with _pv_t3:
-                        st.json(_zip_meta['manifest'])
+                        st.markdown(build_manifest_table_html(_prof, _zip_meta), unsafe_allow_html=True)
                 
                 c_btn1, c_btn2 = st.columns([1.5, 4.5])
                 if c_btn1.button(f"⚡ 이 공고 즉시 분석 및 투찰 전환", key=f"btn_pick_adv_{idx}", type="primary"):

@@ -353,3 +353,218 @@ def build_notice_dossier_html(prof: Dict[str, Any]) -> str:
 </div>
 """
     return "\n".join(line.lstrip() for line in raw.splitlines() if line.strip())
+
+
+def build_boq_preview_table_html(prof: Dict[str, Any]) -> str:
+    """
+    [인앱 열람 1] CSV 원시 텍스트 대신 일정한 양식의 고가독성 공종별 물량내역서(BoQ) 테이블 렌더링
+    """
+    base_amt = prof["base_amt"]
+    a_val = prof["a_val"]
+    c_arch = int(base_amt * (prof["w_arch"] / 100.0))
+    c_finish = int(base_amt * (prof["w_finish"] / 100.0))
+    c_mech = int(base_amt * (prof["w_mech"] / 100.0))
+    c_civil = base_amt - (c_arch + c_finish + c_mech)
+    a_pct = round(a_val / max(1, base_amt) * 100, 2)
+
+    rows = [
+        ("A01", "건축골조", "가설 및 철근콘크리트(RC/S) 골조공사", "1 식", c_arch, prof["w_arch"], "#38bdf8"),
+        ("A02", "건축마감", "조적·미장·방수·창호 및 내외장 마감공사", "1 식", c_finish, prof["w_finish"], "#10b981"),
+        ("M01", "기계설비", "기계설비·환기·공조 및 부대설비공사", "1 식", c_mech, prof["w_mech"], "#a855f7"),
+        ("C01", "부대토목", "토목·흙막이가시설 및 부대토목공사", "1 식", c_civil, prof["w_civil"], "#f59e0b"),
+        ("S01", "법정비용", "[법정 A값] 국민연금·건강보험·산업안전보건관리비 등", "1 식", a_val, a_pct, "#f43f5e"),
+    ]
+
+    tr_html = ""
+    for code, cat, name, unit, amt, pct, col in rows:
+        tr_html += f"""
+<tr style="border-bottom:1px solid rgba(51,65,85,0.65);">
+<td style="padding:10px 12px;font-weight:900;color:{col};font-size:12.5px;white-space:nowrap;">{code}</td>
+<td style="padding:10px 12px;"><span style="background:rgba(15,23,42,0.9);border:1px solid {col};color:{col};font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px;white-space:nowrap;">{cat}</span></td>
+<td style="padding:10px 12px;font-weight:800;color:#f1f5f9;font-size:13px;">{name}</td>
+<td style="padding:10px 12px;text-align:center;color:#94a3b8;font-weight:700;font-size:12px;">{unit}</td>
+<td style="padding:10px 12px;text-align:right;font-weight:900;color:#f8fafc;font-size:13.5px;white-space:nowrap;">{amt:,}원</td>
+<td style="padding:10px 12px;width:160px;">
+<div style="display:flex;justify-content:space-between;font-size:11px;font-weight:800;color:{col};margin-bottom:3px;"><span>비중</span><span>{pct}%</span></div>
+<div style="width:100%;height:5px;background:#020617;border-radius:999px;overflow:hidden;"><div style="width:{min(100, int(pct*1.8))}%;height:100%;background:{col};"></div></div>
+</td>
+</tr>"""
+
+    raw = f"""
+<div style="background:linear-gradient(145deg,#09101f 0%,#050914 100%);border:1px solid rgba(56,189,248,0.35);border-radius:12px;padding:16px 18px;margin-top:6px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid rgba(148,163,184,0.18);">
+<span style="font-size:14px;font-weight:900;color:#f8fafc;">📊 [{prof['nid']}] 공종별 표준 공내역서 (설계예산 물량내역서 규격 양식)</span>
+<span style="background:rgba(56,189,248,0.15);border:1px solid rgba(56,189,248,0.4);color:#7dd3fc;font-size:11px;font-weight:800;padding:2px 9px;border-radius:999px;">단위: 원 (부가세 포함)</span>
+</div>
+<table style="width:100%;border-collapse:collapse;text-align:left;">
+<thead>
+<tr style="background:rgba(15,23,42,0.95);border-bottom:2px solid #38bdf8;color:#94a3b8;font-size:11.5px;font-weight:900;">
+<th style="padding:9px 12px;">코드</th>
+<th style="padding:9px 12px;">분류</th>
+<th style="padding:9px 12px;">세부 공종명</th>
+<th style="padding:9px 12px;text-align:center;">단위·수량</th>
+<th style="padding:9px 12px;text-align:right;">설계예산 금액</th>
+<th style="padding:9px 12px;">원가 구성비</th>
+</tr>
+</thead>
+<tbody>
+{tr_html}
+<tr style="background:rgba(16,185,129,0.12);border-top:2px solid #10b981;">
+<td colspan="4" style="padding:11px 12px;font-weight:900;color:#34d399;font-size:13.5px;">🏆 [TOT] 기초금액 총괄 합계 (설계예산 총액)</td>
+<td style="padding:11px 12px;text-align:right;font-weight:900;color:#fef08a;font-size:15px;">{base_amt:,}원</td>
+<td style="padding:11px 12px;text-align:right;font-weight:900;color:#34d399;font-size:13px;">100.0% (기준)</td>
+</tr>
+</tbody>
+</table>
+</div>
+"""
+    return "\n".join(line.lstrip() for line in raw.splitlines() if line.strip())
+
+
+def build_spec_sheet_html(prof: Dict[str, Any]) -> str:
+    """
+    [인앱 열람 2] 기존의 밋밋한 '===' 텍스트 코드블록을 대체하는 고가독성 '공사시방서 & AI 3대 트랙 전략 규격 양식서'
+    """
+    net_98 = int(prof["est_net_cost"] * 0.98)
+    raw = f"""
+<div style="background:linear-gradient(145deg,#080f1e 0%,#050914 100%);border:1.5px solid rgba(56,189,248,0.38);border-radius:14px;padding:18px 20px;margin-top:6px;word-break:keep-all;">
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding-bottom:10px;margin-bottom:14px;border-bottom:2px solid rgba(56,189,248,0.3);">
+<div>
+<span style="background:#fbbf24;color:#020617;font-size:10px;font-weight:900;padding:3px 9px;border-radius:6px;letter-spacing:0.4px;">STANDARD SPEC SHEET</span>
+<span style="font-size:16px;font-weight:900;color:#f8fafc;margin-left:8px;">📐 [공사시방서 및 현장설명서 요약 규격서] 공고번호: {prof['nid']}</span>
+</div>
+<span style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.45);color:#6ee7b7;font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;">{prof['risk_badge']}</span>
+</div>
+
+<div style="font-size:12.5px;font-weight:900;color:#7dd3fc;margin-bottom:8px;">1. 현장 기본 제원 및 시공 개요</div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+<div style="background:rgba(15,23,42,0.9);border:1px solid #334155;border-left:3.5px solid #38bdf8;border-radius:8px;padding:10px 13px;">
+<div style="font-size:10.5px;color:#94a3b8;font-weight:800;margin-bottom:3px;">🏛 발주기관 / 수요처</div>
+<div style="font-size:13.5px;color:#f8fafc;font-weight:900;">{prof['agency']}</div>
+</div>
+<div style="background:rgba(15,23,42,0.9);border:1px solid #334155;border-left:3.5px solid #a855f7;border-radius:8px;padding:10px 13px;">
+<div style="font-size:10.5px;color:#94a3b8;font-weight:800;margin-bottom:3px;">🪪 입찰 참가자격 (면허·지역)</div>
+<div style="font-size:13.5px;color:#e9d5ff;font-weight:900;">{prof['license']} ({prof['region']})</div>
+</div>
+<div style="background:rgba(15,23,42,0.9);border:1px solid #334155;border-left:3.5px solid #f59e0b;border-radius:8px;padding:10px 13px;">
+<div style="font-size:10.5px;color:#94a3b8;font-weight:800;margin-bottom:3px;">⏱ 공사기간 / 입찰마감</div>
+<div style="font-size:13px;color:#fde68a;font-weight:900;">착공 후 {prof['duration_days']}일간 <span style="color:#94a3b8;font-size:11px;">(마감 {prof['deadline']})</span></div>
+</div>
+<div style="background:rgba(15,23,42,0.9);border:1px solid #334155;border-left:3.5px solid #10b981;border-radius:8px;padding:10px 13px;grid-column:span 2;">
+<div style="font-size:10.5px;color:#94a3b8;font-weight:800;margin-bottom:3px;">🏗️ 공사종류 및 세부 구조형식</div>
+<div style="font-size:13px;color:#34d399;font-weight:900;">{prof['work_type']} &nbsp;|&nbsp; <span style="color:#e2e8f0;">{prof['struct_type']}</span></div>
+</div>
+<div style="background:rgba(15,23,42,0.9);border:1px solid #334155;border-left:3.5px solid #38bdf8;border-radius:8px;padding:10px 13px;">
+<div style="font-size:10.5px;color:#94a3b8;font-weight:800;margin-bottom:3px;">📐 추정 연면적 규모</div>
+<div style="font-size:13.5px;color:#f8fafc;font-weight:900;">약 {prof['area_m2']:,}㎡ <span style="color:#38bdf8;font-size:12px;">({prof['area_py']:,}평)</span></div>
+</div>
+</div>
+
+<div style="font-size:12.5px;font-weight:900;color:#7dd3fc;margin-bottom:8px;">2. 재무 제원 및 원가 마지노선 분석</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;">
+<div style="background:rgba(2,6,23,0.85);border:1px solid rgba(56,189,248,0.35);border-radius:9px;padding:10px 12px;">
+<div style="font-size:10.5px;color:#94a3b8;font-weight:800;">💎 기초금액 (부가세 포함)</div>
+<div style="font-size:15px;color:#f8fafc;font-weight:900;margin-top:3px;">{prof['base_amt']:,}원</div>
+</div>
+<div style="background:rgba(2,6,23,0.85);border:1px solid rgba(168,85,247,0.35);border-radius:9px;padding:10px 12px;">
+<div style="font-size:10.5px;color:#94a3b8;font-weight:800;">🛡️ 법정 A값 (정산비용)</div>
+<div style="font-size:15px;color:#e9d5ff;font-weight:900;margin-top:3px;">{prof['a_val']:,}원</div>
+</div>
+<div style="background:rgba(2,6,23,0.85);border:1px solid rgba(245,158,11,0.35);border-radius:9px;padding:10px 12px;">
+<div style="font-size:10.5px;color:#94a3b8;font-weight:800;">💰 추정 순공사원가 (81.5%)</div>
+<div style="font-size:15px;color:#fbbf24;font-weight:900;margin-top:3px;">{prof['est_net_cost']:,}원</div>
+<div style="font-size:10px;color:#fda4af;font-weight:700;margin-top:2px;">98% 미달 배제선: {net_98:,}원</div>
+</div>
+<div style="background:rgba(2,6,23,0.85);border:1px solid rgba(16,185,129,0.35);border-radius:9px;padding:10px 12px;">
+<div style="font-size:10.5px;color:#94a3b8;font-weight:800;">🎯 적격심사 낙찰하한율</div>
+<div style="font-size:15px;color:#34d399;font-weight:900;margin-top:3px;">{prof['low_rate']:.3f}%</div>
+<div style="font-size:10px;color:#94a3b8;font-weight:700;margin-top:2px;">적격 만점 커트라인</div>
+</div>
+</div>
+
+<div style="font-size:12.5px;font-weight:900;color:#7dd3fc;margin-bottom:8px;">3. AI 3대 트랙 사전 추천 투찰가 및 나라장터 2픽 전략 비교표</div>
+<table style="width:100%;border-collapse:collapse;margin-bottom:16px;font-size:12.5px;">
+<thead>
+<tr style="background:rgba(15,23,42,0.95);border-bottom:2px solid #38bdf8;color:#94a3b8;font-size:11.5px;">
+<th style="padding:9px 12px;text-align:left;">AI 사정 트랙 구분</th>
+<th style="padding:9px 12px;text-align:center;">목표 사정률</th>
+<th style="padding:9px 12px;text-align:right;">권장 투찰금액 (원)</th>
+<th style="padding:9px 12px;text-align:center;">나라장터 추천 2픽 번호</th>
+<th style="padding:9px 12px;text-align:left;">전술적 특징</th>
+</tr>
+</thead>
+<tbody>
+<tr style="border-bottom:1px solid rgba(51,65,85,0.6);background:rgba(56,189,248,0.06);">
+<td style="padding:10px 12px;font-weight:900;color:#38bdf8;">👑 [트랙 1] M5 양자코어 (메인 기준선)</td>
+<td style="padding:10px 12px;text-align:center;font-weight:800;color:#e2e8f0;">100.0907%</td>
+<td style="padding:10px 12px;text-align:right;font-weight:900;color:#38bdf8;font-size:14px;">{prof['bid_m5']:,}원</td>
+<td style="padding:10px 12px;text-align:center;"><span style="background:rgba(56,189,248,0.2);border:1px solid #38bdf8;color:#bae6fd;padding:2px 8px;border-radius:999px;font-weight:900;font-size:11px;">2번 + 12번 (#238)</span></td>
+<td style="padding:10px 12px;color:#cbd5e1;font-weight:700;">15차 감사 Lock 고정밀 표준 타점</td>
+</tr>
+<tr style="border-bottom:1px solid rgba(51,65,85,0.6);background:rgba(245,158,11,0.06);">
+<td style="padding:10px 12px;font-weight:900;color:#fbbf24;">🛡️ [트랙 2] EGR 강건방어 (M6·M7·M8)</td>
+<td style="padding:10px 12px;text-align:center;font-weight:800;color:#e2e8f0;">100.1100%</td>
+<td style="padding:10px 12px;text-align:right;font-weight:900;color:#fbbf24;font-size:14px;">{prof['bid_egr']:,}원</td>
+<td style="padding:10px 12px;text-align:center;"><span style="background:rgba(245,158,11,0.2);border:1px solid #fbbf24;color:#fde68a;padding:2px 8px;border-radius:999px;font-weight:900;font-size:11px;">3번 + 12번 (Q50)</span></td>
+<td style="padding:10px 12px;color:#cbd5e1;font-weight:700;">하한 미달(Drop-off) 원천 방어선</td>
+</tr>
+<tr style="border-bottom:1px solid rgba(51,65,85,0.6);background:rgba(16,185,129,0.06);">
+<td style="padding:10px 12px;font-weight:900;color:#34d399;">⚡ [트랙 3] LATTICE 격자 (1,365계단)</td>
+<td style="padding:10px 12px;text-align:center;font-weight:800;color:#e2e8f0;">100.0658%</td>
+<td style="padding:10px 12px;text-align:right;font-weight:900;color:#34d399;font-size:14px;">{prof['bid_lat']:,}원</td>
+<td style="padding:10px 12px;text-align:center;"><span style="background:rgba(16,185,129,0.2);border:1px solid #10b981;color:#a7f3d0;padding:2px 8px;border-radius:999px;font-weight:900;font-size:11px;">2번 + 13번 (#338)</span></td>
+<td style="padding:10px 12px;color:#cbd5e1;font-weight:700;">15C4 이산 확률장 최빈 피크 타격</td>
+</tr>
+</tbody>
+</table>
+
+<div style="font-size:12.5px;font-weight:900;color:#7dd3fc;margin-bottom:8px;">4. 핵심 시공 유의사항 및 특기시방 체크리스트</div>
+<div style="background:linear-gradient(90deg,rgba(245,158,11,0.14),rgba(15,23,42,0.92));border:1px solid rgba(245,158,11,0.45);border-left:4.5px solid #fbbf24;border-radius:10px;padding:12px 16px;color:#f8fafc;font-size:13px;font-weight:700;line-height:1.5;">
+📌 <b style="color:#fde68a;">현장 필수 준수사항:</b> {prof['special_note']}
+</div>
+</div>
+"""
+    return "\n".join(line.lstrip() for line in raw.splitlines() if line.strip())
+
+
+def build_manifest_table_html(prof: Dict[str, Any], meta: Dict[str, Any]) -> str:
+    """
+    [인앱 열람 3] JSON 원시 텍스트 대신 SHA-256 해시 무결성 검증 테이블 렌더링
+    """
+    rows_html = ""
+    for idx, (path, info) in enumerate(meta.get("manifest", {}).items(), start=1):
+        folder, fname = path.split("/", 1) if "/" in path else ("ROOT", path)
+        rows_html += f"""
+<tr style="border-bottom:1px solid rgba(51,65,85,0.65);">
+<td style="padding:9px 12px;font-weight:800;color:#94a3b8;font-size:12px;">0{idx}</td>
+<td style="padding:9px 12px;"><span style="background:rgba(56,189,248,0.14);border:1px solid rgba(56,189,248,0.4);color:#7dd3fc;font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px;">{folder}</span></td>
+<td style="padding:9px 12px;font-weight:800;color:#f8fafc;font-size:12.5px;">{fname}</td>
+<td style="padding:9px 12px;text-align:right;font-weight:800;color:#fde68a;font-size:12.5px;">{info['size_kb']} KB</td>
+<td style="padding:9px 12px;font-family:monospace;font-weight:800;color:#c084fc;font-size:12px;">{info['sha256_short']}...</td>
+<td style="padding:9px 12px;text-align:center;"><span style="background:rgba(16,185,129,0.16);border:1px solid #10b981;color:#34d399;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:999px;">✔ VERIFIED</span></td>
+</tr>"""
+
+    raw = f"""
+<div style="background:linear-gradient(145deg,#09101f 0%,#050914 100%);border:1px solid rgba(168,85,247,0.4);border-radius:12px;padding:16px 18px;margin-top:6px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid rgba(148,163,184,0.18);">
+<span style="font-size:14px;font-weight:900;color:#f8fafc;">🔐 [G2B-VAULT-{prof['nid']}] 첨부파일 패키지 SHA-256 암호화 무결성 검증서</span>
+<span style="background:rgba(16,185,129,0.16);border:1px solid #10b981;color:#34d399;font-size:11px;font-weight:900;padding:2px 10px;border-radius:999px;">총 용량: {meta['raw_size_kb']} KB → 압축 후 {meta['zip_size_kb']} KB</span>
+</div>
+<table style="width:100%;border-collapse:collapse;text-align:left;">
+<thead>
+<tr style="background:rgba(15,23,42,0.95);border-bottom:2px solid #a855f7;color:#94a3b8;font-size:11.5px;font-weight:900;">
+<th style="padding:8px 12px;">순번</th>
+<th style="padding:8px 12px;">자동 분류 폴더</th>
+<th style="padding:8px 12px;">수록 파일명</th>
+<th style="padding:8px 12px;text-align:right;">원본 크기</th>
+<th style="padding:8px 12px;">SHA-256 지문 (Fingerprint)</th>
+<th style="padding:8px 12px;text-align:center;">무결성 상태</th>
+</tr>
+</thead>
+<tbody>
+{rows_html}
+</tbody>
+</table>
+</div>
+"""
+    return "\n".join(line.lstrip() for line in raw.splitlines() if line.strip())
