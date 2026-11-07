@@ -1907,9 +1907,13 @@ with tab_radar:
         _cart_list = [_ndv_mod.analyze_construction_profile(_x, _i) for _i, _x in enumerate(_b_notices) if _ndv_mod.analyze_construction_profile(_x, _i)['nid'] in st.session_state['_boutique_cart_ids']]
         _hdr_c1, _hdr_c2 = st.columns([1.6, 1.9])
         with _hdr_c2:
-            _view_mode = st.radio('✨ 쇼룸 진열 방식', ['💎 3×3 부티크 캐비닛 쇼룸 (무스크롤 집중형)', '🌌 와이드 프리즘 덱 (v20.4 최종버전 뷰)'], horizontal=True, key='_boutique_view_mode_radio', label_visibility='collapsed')
+            _view_mode = st.radio('✨ 화면 작동 모드 선택', ['💎 1-Page 1-Task 제로스크롤 데스크 (단일 모델·단일 캐비닛)', '🛍️ 3×3 부티크 쇼룸', '🌌 기존 통합 스크롤 방식 (v20.4 와이드 프리즘)'], horizontal=True, key='_boutique_view_mode_radio', label_visibility='collapsed')
         st.markdown(_bv_mod.build_boutique_cart_bar_html(len(_b_notices), _cart_list, _active_prof, _view_mode), unsafe_allow_html=True)
-        if '3×3' in _view_mode:
+        import lattice1365.zero_scroll_stage as _zss_mod
+        importlib.reload(_zss_mod)
+        if '1-Page' in _view_mode:
+            _zss_mod.render_zero_scroll_boutique_workspace(_b_notices)
+        elif '3×3' in _view_mode:
             for _row_start in range(0, len(_b_notices), 3):
                 _g_cols = st.columns(3)
                 for _c_offset in range(3):
