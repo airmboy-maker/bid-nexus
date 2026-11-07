@@ -7591,10 +7591,22 @@ def _render_egr_bid_addon_panel():
         compute_m1_to_m5_breakdown, format_printable_html_report
     )
 
-    # 좌측 사이드바 하단에 (1) 복수예가 번호 추천기, (2) 번외 1, (3) 번외 2를 각각 독립 체크박스로 분리!
+    # 좌측 사이드바 전체에 4D 아이소메트릭 홀로그램 CSS 주입 + 60FPS 4D 테서랙트(초입방체) 지휘 콘솔 탑재!
+    from lattice1365.sidebar_4d_ui import get_sidebar_4d_global_css, build_sidebar_4d_tesseract_html
+    st.markdown(get_sidebar_4d_global_css(), unsafe_allow_html=True)
+
     with st.sidebar:
         st.markdown("---")
-        st.markdown("<div style='font-size:12px;font-weight:800;color:#fbbf24;margin-bottom:6px;'>🧭 모듈 개별 선택 (독립 ON/OFF)</div>", unsafe_allow_html=True)
+        st.markdown("""
+        <div style="background:linear-gradient(135deg,#0f172a,#1e1b4b);border:1.5px solid #38bdf8;border-radius:12px;padding:10px 12px;margin-bottom:8px;box-shadow:0 0 20px rgba(56,189,248,0.25);">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="background:#fbbf24;color:#020617;font-size:10px;font-weight:900;padding:2px 7px;border-radius:999px;">4D COMMAND DECK</span>
+                <span style="color:#38bdf8;font-size:10.5px;font-weight:800;">60FPS HOLOGRAM</span>
+            </div>
+            <div style="color:#f8fafc;font-size:14px;font-weight:900;margin-top:4px;">🧭 4D 입찰 엔진 매트릭스 제어</div>
+        </div>
+        """, unsafe_allow_html=True)
+
         on_picker = st.checkbox(
             "🎯 [공통 1] AI 복수예가 3D 로또 추첨 & 2픽",
             value=True,
@@ -7619,6 +7631,9 @@ def _render_egr_bid_addon_panel():
             key="_addon_chk_lat_v2",
             help="신규 번외 모델: 1,365계단 확률장(L1)·극값 역산(L2)·기대이익장(L3)·내생 실효하한(L4) 분석기",
         )
+
+        _active_cnt = sum([bool(on_picker), bool(on_arena), bool(on_egr), bool(on_lat)])
+        components.html(build_sidebar_4d_tesseract_html(active_count=_active_cnt), height=255, scrolling=False)
 
     slot = st.empty()
     if not on_picker and not on_arena and not on_egr and not on_lat:
