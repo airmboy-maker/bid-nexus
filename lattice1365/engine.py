@@ -198,7 +198,7 @@ def compute_optimal_bid(ctx: BidContext, opening_hist: list = None, org_profile:
             "pmf": step_pmf.tolist(),
             "expected_profits": exp_profits.tolist(),
             "win_probs": win_probs.tolist(),
-            "lucky_4_slots": [i + 1 for i in ALL_COMBOS[j_star]],
+            "lucky_4_slots": [i + 1 for i in ALL_COMBOS[int(can_lad["sort_idx"][j_star])]],
             "l0_params": {"mu": mu, "delta": delta, "rho": rho},
             "l2_n_bidders": round(n_bid, 1),
             "l3_cost_won": c_won,

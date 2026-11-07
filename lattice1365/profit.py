@@ -51,9 +51,9 @@ def profit_field(
     win_probs = np.power(1.0 - f_vals, max(float(n_bidders), 1.0))
 
     margins = step_bid_prices.astype(np.float64) - float(cost_won)
-    # 하한선 통과 확률(계단 누적 타격 성공률)과 경쟁자 돌파 확률 결합
+    # 하한선 통과 확률 P(EP <= P_j) = cumsum(step_pmf) 와 경쟁자 전원 초과 확률 win_probs의 곱
     cum_valid_prob = np.cumsum(step_pmf)
-    effective_win_probs = np.clip(win_probs * (0.35 + 0.65 * cum_valid_prob), 1e-6, 0.999)
+    effective_win_probs = np.clip((cum_valid_prob ** 1.8) * win_probs, 1e-6, 0.999)
 
     risk_penalty = float(lam) * np.maximum(0.0, -margins)
     expected_profits = effective_win_probs * margins - risk_penalty

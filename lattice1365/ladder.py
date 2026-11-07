@@ -20,12 +20,15 @@ def canonical_1365_ladder(base_amt: int, notice_no: str, mu: float, delta: float
 
     slot_won = np.array([floor_won(Decimal(base_amt) * Decimal(str(round(r, 6))) / Decimal("100")) for r in slot_rates], dtype=np.int64)
     comb_sums = slot_won[COMBS_ARRAY].sum(axis=1)
-    step_est_prices = (comb_sums // 4).astype(np.int64)  # (1365,) 원단위 절사 예정가격
+    raw_est = (comb_sums // 4).astype(np.int64)
+    sort_idx = np.argsort(raw_est, kind="mergesort")
+    step_est_prices = raw_est[sort_idx]
 
     return {
         "slot_rates": slot_rates,
         "slot_won": slot_won,
         "step_est_prices": step_est_prices,
+        "sort_idx": sort_idx,
         "seed_int": seed_int,
     }
 
