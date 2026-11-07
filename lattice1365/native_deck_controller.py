@@ -1,7 +1,7 @@
 import streamlit as st
+import streamlit.components.v1 as components
 
-
- DECK_ZONES = [
+DECK_ZONES = [
     "🌟 [전체 보기] 모든 구역 한눈에 펼치기",
     "📡 [ZONE 1] 나라장터 공고 쇼룸 & 스마트 필터",
     "🎯 [ZONE 2] 핵심 적격심사 & 통합 산출물",
@@ -13,11 +13,6 @@ import streamlit as st
 
 
 def render_master_mode_and_zone_selector() -> tuple:
-    """
-    좌측 메인 메뉴(사이드바) 최상단에 장착되어:
-    1) 💎 1-Page 캐비닛 전환 모드 vs 🌌 기존 통합 스크롤 모드 선택
-    2) 원래 앱의 모든 메뉴·번외·애니메이션을 유지한 채 원하는 구역(Zone)으로 즉시 포커싱
-    """
     if "_ndc_mode" not in st.session_state:
         st.session_state["_ndc_mode"] = "💎 1-Page 캐비닛 집중 모드 (무스크롤)"
     if "_ndc_zone" not in st.session_state:
@@ -53,7 +48,7 @@ def render_master_mode_and_zone_selector() -> tuple:
                 """
 <div style="background:rgba(56,189,248,0.14);border:1px solid rgba(56,189,248,0.45);border-left:3.5px solid #38bdf8;border-radius:8px;padding:6px 10px;margin-top:4px;margin-bottom:4px;">
 <div style="font-size:10.5px;font-weight:900;color:#7dd3fc;">🗄️ 캐비닛 구역(Zone) 선택</div>
-<div style="font-size:9.5px;color:#94a3b8;font-weight:700;">선택한 구역으로 화면이 즉시 포커스됩니다</div>
+<div style="font-size:9.5px;color:#94a3b8;font-weight:700;">선택한 구역으로 화면이 즉시 전환됩니다</div>
 </div>
 """,
                 unsafe_allow_html=True,
@@ -71,14 +66,9 @@ def render_master_mode_and_zone_selector() -> tuple:
 
 
 def render_top_cabinet_switcher_bar(is_cabinet_mode: bool, current_zone: str) -> None:
-    """
-    1-Page 캐비닛 집중 모드 활성화 시 화면 상단에 뜨는 원클릭 구역 전환 도킹 바 & JS 자동 탭 전환기
-    (원래의 6대 탭과 번외 AI ENGINE LAB 애니메이션을 절대 삭제하지 않고 JS로 해당 탭을 자동 클릭·포커스함)
-    """
     if not is_cabinet_mode:
         return
 
-    # Zone 선택에 따라 원본 6대 메인 탭(0~5번 인덱스)을 자동으로 클릭해주는 브릿지 스크립트
     tab_idx_map = {
         "ZONE 1": 0,
         "ZONE 2": 1,
@@ -93,7 +83,6 @@ def render_top_cabinet_switcher_bar(is_cabinet_mode: bool, current_zone: str) ->
             target_tab_idx = v
             break
 
-    # 1-Page 캐비닛 집중 모드일 때는 상단 여백을 줄이고 불필요한 스크롤 요소를 접이식으로 정돈하는 CSS
     st.markdown(
         f"""
 <style>
@@ -130,8 +119,6 @@ def render_top_cabinet_switcher_bar(is_cabinet_mode: bool, current_zone: str) ->
         unsafe_allow_html=True,
     )
 
-    # 원본 Streamlit 탭(button[data-baseweb="tab"])을 자동 전환하는 무해한 경량 스크립트
-    import streamlit.components.v1 as components
     components.html(
         f"""
 <script>

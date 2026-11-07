@@ -1535,10 +1535,10 @@ def _check_security_pin_gate():
 
 _check_security_pin_gate()
 
+st.title("⚡ BID-NEXUS: 완전 자율형 공공입찰 전자동화 터미널")
 import lattice1365.native_deck_controller as _ndc_mod
 _is_cab_mode, _cur_cab_zone = _ndc_mod.render_master_mode_and_zone_selector()
 _ndc_mod.render_top_cabinet_switcher_bar(_is_cab_mode, _cur_cab_zone)
-st.title("⚡ BID-NEXUS: 완전 자율형 공공입찰 전자동화 터미널")
 with st.expander("🏢 [1단계] 기업 적격심사 마스터 스펙 등록 및 수정 (클릭하여 열기/닫기)", expanded=False):
     # 🔒 1단계: 기업 적격심사 마스터 등록
     if not is_profile_ready:
