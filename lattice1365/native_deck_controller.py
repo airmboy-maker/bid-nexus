@@ -1,49 +1,49 @@
 import streamlit as st
-import streamlit.components.v1 as components
 
 DECK_ZONES = [
     "📡 [Z1] 나라장터 공고 쇼룸 (3건)",
-    "🎯 [Z2] 핵심 적격심사 & 산출물",
+    "🎯 [Z2] 적격심사 & 5대 모델·3D 홀로그램",
     "⚡ [Z3] 4차원 입체 추론 (15C4)",
     "🎛️ [Z4] 0.001% 감도 시뮬레이터",
-    "🔥 [Z5] 5대 모델 해부 & 3D 홀로그램",
+    "🔥 [Z5] 5대 모델 해부 & 3D 홀로그램 집중뷰",
     "🏛️ [Z6] 7-BAY 전술 머신 & 4D 조감도",
     "🛡️ [Z7] 번외 1·2: EGR-BID & LATTICE",
     "📑 [Z8] 적격 증빙서류 & 통합 출력",
-    "🏢 [Z9] 기업 마스터 스펙 & OCR",
+    "🏢 [Z9] 기업 마스터 스펙 & 투찰원장",
 ]
 
 
 def _set_zone_state(z_val: str) -> None:
     st.session_state["_ndc_zone"] = z_val
-    st.session_state["_ndc_scroll_trig"] = st.session_state.get("_ndc_scroll_trig", 0) + 1
 
 
 def make_zone_box(is_cabinet_mode: bool, current_zone: str, *tags: str):
     """
-    [완벽하고 안전한 격리 방식]
-    - 활성 구역(tags 중 하나가 current_zone에 포함): 일반 st.container()를 반환하여 내부의 모든 그래프, 5대 모델, 3D 홀로그램(KP-01~03)을 100% 온전하게 표시!
-    - 비활성 구역: st.VerticalBlock 전체를 건드리는 위험한 CSS 대신, 전용 숨김 래퍼(`div.ndc-vault-hide-wrapper`) 하나만 display:none 처리하여 활성 구역의 그래프나 3D 홀로그램에는 0%도 영향을 주지 않음!
+    닫힌 expander(_ndc_hidden_vault_)를 쓰지 않고 100% 순정 st.container()를 사용하여
+    좌측 사이드바(AI ENGINE LAB / TELEMETRY)와 내부 3D 홀로그램이 절대 누락되지 않게 보장!
+    비활성 구역일 때만 직속 마크다운 자식 span.ndc-hide-me 를 심어 표준 CSS로 정확히 해당 컨테이너만 숨김!
     """
-    if (not is_cabinet_mode) or any(t in current_zone for t in tags):
-        return st.container()
-
-    # 비활성 구역은 닫힌 expander 안에 넣어서 화면 높이를 0으로 만들고 내부의 q_auto 등 파이썬 변수는 100% 정상 실행!
-    exp = st.expander("🔒 _ndc_hidden_vault_", expanded=False)
-    return exp
+    c = st.container()
+    if is_cabinet_mode and not any(t in current_zone for t in tags):
+        with c:
+            st.markdown('<span class="ndc-hide-me" style="display:none;"></span>', unsafe_allow_html=True)
+    return c
 
 
 def route_7_main_tabs(tab_labels: list, is_cabinet_mode: bool, current_zone: str):
     if not is_cabinet_mode:
         return st.tabs(tab_labels)
 
+    # [핵심]: 5대 모델(레거시~AI앙상블) + 표준 사정 명세표 + KP-01~03 3D 60FPS 홀로그램 링은 `tab1` 안에 들어있으므로,
+    # [Z2]와 [Z5] 어느 쪽을 눌러도 `c_tab1`이 즉시 화면에 열리도록 연결!
+    # 그리고 `tab4`(투찰원장 & 7-BAY 조감도)는 [Z6] 및 [Z9]에서 열리도록 정확히 배정!
     c_radar = make_zone_box(is_cabinet_mode, current_zone, "[Z1]")
-    c_tab1 = make_zone_box(is_cabinet_mode, current_zone, "[Z2]")
+    c_tab1 = make_zone_box(is_cabinet_mode, current_zone, "[Z2]", "[Z5]")
     c_q_ai = make_zone_box(is_cabinet_mode, current_zone, "[Z3]")
     c_sim = make_zone_box(is_cabinet_mode, current_zone, "[Z4]")
     c_dox = make_zone_box(is_cabinet_mode, current_zone, "[Z8]")
     c_prof = make_zone_box(is_cabinet_mode, current_zone, "[Z9]")
-    c_tab4 = make_zone_box(is_cabinet_mode, current_zone, "[Z5]", "[Z6]")
+    c_tab4 = make_zone_box(is_cabinet_mode, current_zone, "[Z6]", "[Z9]")
 
     return c_radar, c_tab1, c_q_ai, c_sim, c_dox, c_prof, c_tab4
 
@@ -180,8 +180,8 @@ def render_top_cabinet_switcher_bar(is_cabinet_mode: bool, current_zone: str) ->
 
     st.markdown(get_sidebar_spacing_override_css(), unsafe_allow_html=True)
 
-    # stVerticalBlock을 건드리지 않고 오직 '🔒 _ndc_hidden_vault_' 제목을 가진 비활성 expander만 정확히 숨김!
-    # 이로써 활성 탭 내부의 그래프, 5대 모델, 3D 홀로그램이 실수로 숨겨질 확률이 0.00%가 됩니다!
+    # [표준 W3C CSS 선택자]
+    # 비표준 :contains() 를 제거하고, 자신의 첫 번째 직속 자식(> div:first-child)에 span.ndc-hide-me 마커를 가진 stVerticalBlock만 정확히 display:none 처리!
     st.markdown(
         f"""
 <style>
@@ -193,12 +193,13 @@ def render_top_cabinet_switcher_bar(is_cabinet_mode: bool, current_zone: str) ->
 header[data-testid="stHeader"] {{
     background: transparent !important;
 }}
-div[data-testid="stExpander"]:has(summary p:contains("_ndc_hidden_vault_")),
-div[data-testid="stExpander"] {{
-    /* JS가 즉시 _ndc_hidden_vault_ 만 display:none 처리 */
-}}
-.ndc- zero-height-vault {{
+div[data-testid="stVerticalBlock"]:has(> div:first-child span.ndc-hide-me) {{
     display: none !important;
+    height: 0px !important;
+    max-height: 0px !important;
+    overflow: hidden !important;
+    margin: 0px !important;
+    padding: 0px !important;
 }}
 .cabinet-focus-ribbon {{
     display: flex;
@@ -221,7 +222,7 @@ div[data-testid="stExpander"] {{
 <span style="font-size:14px;font-weight:900;color:#f8fafc;">현재 열린 단독 캐비닛: <span style="color:#38bdf8;">{current_zone}</span></span>
 </div>
 <div style="font-size:11.5px;color:#6ee7b7;font-weight:800;">
-✨ 5대 모델 해부 · 3D 60FPS 홀로그램 링(KP-01~03) · 차트 100% 활성 상태
+✨ 5대 모델 해부 · 3D 60FPS 홀로그램 링(KP-01~03) · 좌측 AI ENGINE LAB 100% 활성 상태
 </div>
 </div>
 """,
@@ -230,14 +231,14 @@ div[data-testid="stExpander"] {{
 
     short_names = [
         "📡 Z1:쇼룸",
-        "🎯 Z2:적격",
+        "🎯 Z2:적격·모델",
         "⚡ Z3:4D추론",
         "🎛️ Z4:감도",
         "🔥 Z5:5대모델·3D",
         "🏛️ Z6:7-BAY",
         "🛡️ Z7:번외EGR·격자",
         "📑 Z8:증빙서류",
-        "🏢 Z9:기업마스터",
+        "🏢 Z9:기업·원장",
     ]
     cols = st.columns(9)
     for i, z_full in enumerate(DECK_ZONES):
@@ -249,40 +250,3 @@ div[data-testid="stExpander"] {{
             on_click=_set_zone_state,
             args=(z_full,),
         )
-
-    trig = st.session_state.get("_ndc_scroll_trig", 0)
-    components.html(
-        f"""
-<script>
-// trigger={trig} ({current_zone})
-(function() {{
-    function cleanHiddenVaults() {{
-        try {{
-            const pDoc = window.parent.document;
-            const expanders = pDoc.querySelectorAll('div[data-testid="stExpander"]');
-            expanders.forEach(exp => {{
-                const sumText = exp.querySelector('summary') ? exp.querySelector('summary').innerText : '';
-                if (sumText.includes('_ndc_hidden_vault_')) {{
-                    exp.style.display = 'none';
-                }}
-            }});
-        }} catch (e) {{}}
-    }}
-    cleanHiddenVaults();
-    setTimeout(cleanHiddenVaults, 80);
-    setTimeout(cleanHiddenVaults, 250);
-    try {{
-        const pWin = window.parent;
-        const pDoc = window.parent.document;
-        pWin.scrollTo({{ top: 0, behavior: 'instant' }});
-        const mainSec = pDoc.querySelector('section.main');
-        if (mainSec) mainSec.scrollTo({{ top: 0, behavior: 'instant' }});
-        const appView = pDoc.querySelector('[data-testid="stAppViewContainer"]');
-        if (appView) appView.scrollTo({{ top: 0, behavior: 'instant' }});
-    }} catch (e) {{}}
-}})();
-</script>
-""",
-        height=0,
-        scrolling=False,
-    )
