@@ -1,12 +1,11 @@
 import streamlit as st
-import streamlit.components.v1 as components
 
 DECK_ZONES = [
     "📡 [Z1] 나라장터 공고 쇼룸 (3건)",
     "🎯 [Z2] 핵심 적격심사 & 산출물",
     "⚡ [Z3] 4차원 입체 추론 (15C4)",
-    "🎛️ [Z4] 0.001% 감도 & 5대 모델 해부",
-    "🔥 [Z5] 5대 모델 & 3D 홀로그램 (KP-01~03)",
+    "🎛️ [Z4] 0.001% 감도 시뮬레이터",
+    "🔥 [Z5] 5대 모델 해부 & 3D 홀로그램",
     "🏛️ [Z6] 7-BAY 전술 머신 & 4D 조감도",
     "🛡️ [Z7] 번외 1·2: EGR-BID & LATTICE",
     "📑 [Z8] 적격 증빙서류 & 통합 출력",
@@ -16,14 +15,9 @@ DECK_ZONES = [
 
 def _set_zone_state(z_val: str) -> None:
     st.session_state["_ndc_zone"] = z_val
-    st.session_state["_ndc_scroll_trig"] = st.session_state.get("_ndc_scroll_trig", 0) + 1
 
 
 def make_zone_box(is_cabinet_mode: bool, current_zone: str, *tags: str):
-    """
-    모든 탭과 하단 AI ENGINE LAB 사이드바 코드가 단 1줄도 누락되지 않고 100% 실행되도록 st.container()를 반환하며,
-    선택되지 않은 구역일 때만 직속 자식 span.ndc-hide-me 마커를 심어 해당 컨테이너만 정확히 숨김!
-    """
     c = st.container()
     if is_cabinet_mode and not any(t in current_zone for t in tags):
         with c:
@@ -35,17 +29,15 @@ def route_7_main_tabs(tab_labels: list, is_cabinet_mode: bool, current_zone: str
     if not is_cabinet_mode:
         return st.tabs(tab_labels)
 
-    # [핵심 밝혀짐!]
-    # 3번 캡처에서 보셨던 '5대 모델 카드(레거시~AI앙상블) + 표준 사정 명세표 + KP-01~03 3D 60FPS 홀로그램 링'은
-    # `tab_sim` (4번째 탭 변수) 안에 들어 있습니다!
-    # 따라서 [Z4]와 [Z5]를 누를 때 `c_sim`이 열리도록 연결하면 5대 모델과 3D 홀로그램이 100% 즉시 나타납니다!
     c_radar = make_zone_box(is_cabinet_mode, current_zone, "[Z1]")
     c_tab1 = make_zone_box(is_cabinet_mode, current_zone, "[Z2]")
     c_q_ai = make_zone_box(is_cabinet_mode, current_zone, "[Z3]")
-    c_sim = make_zone_box(is_cabinet_mode, current_zone, "[Z4]", "[Z5]")
+    c_sim = make_zone_box(is_cabinet_mode, current_zone, "[Z4]")
     c_dox = make_zone_box(is_cabinet_mode, current_zone, "[Z8]")
     c_prof = make_zone_box(is_cabinet_mode, current_zone, "[Z9]")
-    c_tab4 = make_zone_box(is_cabinet_mode, current_zone, "[Z6]")
+    # [핵심]: c_tab4 자체에는 숨김 마커를 넣지 않고 순수 st.container()를 반환!
+    # 왜냐하면 c_tab4 내부에서 이미 [Z9](SQLite 원장), [Z5](5대 모델 & 3D 홀로그램), [Z6](7-BAY 조감도) 3개의 평행 박스로 각각 나뉘어 있기 때문!
+    c_tab4 = st.container()
 
     return c_radar, c_tab1, c_q_ai, c_sim, c_dox, c_prof, c_tab4
 
@@ -222,7 +214,7 @@ div[data-testid="stVerticalBlock"]:has(> div:first-child span.ndc-hide-me) {{
 <span style="font-size:14px;font-weight:900;color:#f8fafc;">현재 열린 단독 캐비닛: <span style="color:#38bdf8;">{current_zone}</span></span>
 </div>
 <div style="font-size:11.5px;color:#6ee7b7;font-weight:800;">
-✨ 5대 모델 해부 · 3D 60FPS 홀로그램 링(KP-01~03) · 좌측 AI ENGINE LAB 100% 활성 상태
+✨ 5대 모델 해부(5823행) · 3D 60FPS 홀로그램(6009행) · 좌측 AI ENGINE LAB 100% 활성 상태
 </div>
 </div>
 """,
@@ -233,8 +225,8 @@ div[data-testid="stVerticalBlock"]:has(> div:first-child span.ndc-hide-me) {{
         "📡 Z1:쇼룸",
         "🎯 Z2:적격",
         "⚡ Z3:4D추론",
-        "🎛️ Z4:감도·모델",
-        "🔥 Z5:3D홀로그램",
+        "🎛️ Z4:감도",
+        "🔥 Z5:5대모델·3D",
         "🏛️ Z6:7-BAY",
         "🛡️ Z7:번외EGR·격자",
         "📑 Z8:증빙서류",
