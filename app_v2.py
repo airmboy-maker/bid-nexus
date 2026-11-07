@@ -1535,21 +1535,6 @@ def _check_security_pin_gate():
 
 _check_security_pin_gate()
 
-# =============================================================================
-# 💎 [FULL-PAGE SWAP OS INTERCEPTOR] try-except 없이 st.rerun() / st.stop() 100% 보장
-# =============================================================================
-import importlib
-import lattice1365.global_zero_scroll_os as _gzs_top
-import lattice1365.sidebar_4d_ui as _s4d_top
-import streamlit.components.v1 as _comp_top
-importlib.reload(_gzs_top)
-st.markdown(_s4d_top.get_sidebar_4d_global_css(), unsafe_allow_html=True)
-_top_ui_mode = _gzs_top.render_sidebar_master_controller()
-if '1-Page' in _top_ui_mode:
-    with st.sidebar:
-        _comp_top.html(_s4d_top.build_sidebar_4d_tesseract_html(4), height=230, scrolling=False)
-    _gzs_top.render_full_page_swap_os(globals().get('live_bids', None))
-    st.stop()
 st.title("⚡ BID-NEXUS: 완전 자율형 공공입찰 전자동화 터미널")
 with st.expander("🏢 [1단계] 기업 적격심사 마스터 스펙 등록 및 수정 (클릭하여 열기/닫기)", expanded=False):
     # 🔒 1단계: 기업 적격심사 마스터 등록
@@ -1829,9 +1814,6 @@ except Exception as _e_cert:
 # =================================================================================
 with tab_radar:
     import importlib
-    import lattice1365.global_zero_scroll_os as _gzs_mod
-    importlib.reload(_gzs_mod)
-    import importlib
     import lattice1365.prism_radar_cards as _prc_mod
     importlib.reload(_prc_mod)
     from lattice1365.prism_radar_cards import get_prism_deck_css, build_orbital_radar_header_html, build_cockpit_sub_header_html
@@ -1896,13 +1878,9 @@ with tab_radar:
     if not live_bids:
         st.warning("선택하신 조건에 일치하는 실시간 공고가 없습니다. 지역이나 규모 필터를 넓혀보세요.")
     else:
-        import importlib
         import lattice1365.prism_radar_cards as _prc_mod
         import lattice1365.boutique_vault_ui as _bv_mod
         import lattice1365.notice_dossier_vault as _ndv_mod
-        importlib.reload(_prc_mod)
-        importlib.reload(_bv_mod)
-        importlib.reload(_ndv_mod)
         get_prism_deck_css = _prc_mod.get_prism_deck_css
         build_prism_notice_card_html = _prc_mod.build_prism_notice_card_html
         analyze_construction_profile = _ndv_mod.analyze_construction_profile
@@ -1912,33 +1890,47 @@ with tab_radar:
         build_boq_preview_table_html = _ndv_mod.build_boq_preview_table_html
         build_spec_sheet_html = _ndv_mod.build_spec_sheet_html
         build_manifest_table_html = _ndv_mod.build_manifest_table_html
-        st.markdown(_prc_mod.get_prism_deck_css(), unsafe_allow_html=True)
+        st.markdown(get_prism_deck_css(), unsafe_allow_html=True)
         st.markdown(_bv_mod.get_boutique_vault_css(), unsafe_allow_html=True)
         _b_notices = list(live_bids)
         if '_boutique_selected_idx' not in st.session_state:
             st.session_state['_boutique_selected_idx'] = 0
         if '_boutique_cart_ids' not in st.session_state:
-            st.session_state['_boutique_cart_ids'] = [_ndv_mod.analyze_construction_profile(_b_notices[0], 0)['nid']] if _b_notices else []
+            st.session_state['_boutique_cart_ids'] = [analyze_construction_profile(_b_notices[0], 0)['nid']] if _b_notices else []
         _sel_idx = min(st.session_state['_boutique_selected_idx'], max(0, len(_b_notices) - 1))
         _active_n = _b_notices[_sel_idx]
-        _active_prof = _ndv_mod.analyze_construction_profile(_active_n, _sel_idx)
-        _cart_list = [_ndv_mod.analyze_construction_profile(_x, _i) for _i, _x in enumerate(_b_notices) if _ndv_mod.analyze_construction_profile(_x, _i)['nid'] in st.session_state['_boutique_cart_ids']]
-        _hdr_c1, _hdr_c2 = st.columns([1.6, 1.9])
+        _active_prof = analyze_construction_profile(_active_n, _sel_idx)
+        _cart_list = [analyze_construction_profile(_x, _i) for _i, _x in enumerate(_b_notices) if analyze_construction_profile(_x, _i)['nid'] in st.session_state['_boutique_cart_ids']]
+        _hdr_c1, _hdr_c2 = st.columns([1.5, 2.0])
         with _hdr_c2:
-            _view_mode = st.radio('✨ 화면 작동 모드 선택', ['💎 1-Page 1-Task 제로스크롤 데스크 (단일 모델·단일 캐비닛)', '🛍️ 3×3 부티크 쇼룸', '🌌 기존 통합 스크롤 방식 (v20.4 와이드 프리즘)'], horizontal=True, key='_boutique_view_mode_radio', label_visibility='collapsed')
+            _view_mode = st.radio('✨ 공고 진열 모드', ['💎 1페이지 3건 캐비닛 쇼룸 (무스크롤)', '🛍️ 3×3 전체 부티크 쇼룸', '🌌 와이드 프리즘 덱 (기존 전체 펼침)'], horizontal=True, key='_boutique_view_mode_radio', label_visibility='collapsed')
         st.markdown(_bv_mod.build_boutique_cart_bar_html(len(_b_notices), _cart_list, _active_prof, _view_mode), unsafe_allow_html=True)
-        import lattice1365.zero_scroll_stage as _zss_mod
-        importlib.reload(_zss_mod)
-        if '1-Page' in _view_mode or '1-Page' in locals().get('_global_ui_mode', ''):
-            _gzs_mod.render_full_page_swap_os(_b_notices)
-        elif '3×3' in _view_mode:
-            for _row_start in range(0, len(_b_notices), 3):
+        if '1페이지 3건' in _view_mode or '3×3' in _view_mode:
+            if '_zs_page' not in st.session_state:
+                st.session_state['_zs_page'] = 0
+            if '1페이지 3건' in _view_mode:
+                _p_size = 3
+                _tot_p = max(1, (len(_b_notices) + _p_size - 1) // _p_size)
+                _cur_p = min(st.session_state['_zs_page'], _tot_p - 1)
+                _s_i, _e_i = _cur_p * _p_size, min(len(_b_notices), (_cur_p + 1) * _p_size)
+                _pc1, _pc2, _pc3 = st.columns([1.1, 2.8, 1.1])
+                if _pc1.button('◀ 이전 3건 캐비닛', key='prev_3_cab', disabled=(_cur_p <= 0), use_container_width=True):
+                    st.session_state['_zs_page'] = max(0, _cur_p - 1)
+                    st.rerun()
+                _pc2.markdown(f"<div style='text-align:center;padding:6px;background:rgba(15,23,42,0.9);border:1px solid rgba(251,191,36,0.4);border-radius:10px;font-size:13px;font-weight:900;color:#fde68a;'>💎 보물섬 쇼케이스 — PAGE {_cur_p+1} / {_tot_p} (공고 #{_s_i+1}~#{_e_i} / 총 {len(_b_notices)}건)</div>", unsafe_allow_html=True)
+                if _pc3.button('다음 3건 캐비닛 ▶', key='next_3_cab', disabled=(_cur_p >= _tot_p - 1), use_container_width=True):
+                    st.session_state['_zs_page'] = min(_tot_p - 1, _cur_p + 1)
+                    st.rerun()
+                _iter_range = range(_s_i, _e_i, 3)
+            else:
+                _iter_range = range(0, len(_b_notices), 3)
+            for _row_start in _iter_range:
                 _g_cols = st.columns(3)
                 for _c_offset in range(3):
                     _g_idx = _row_start + _c_offset
                     if _g_idx < len(_b_notices):
                         _gn = _b_notices[_g_idx]
-                        _gprof = _ndv_mod.analyze_construction_profile(_gn, _g_idx)
+                        _gprof = analyze_construction_profile(_gn, _g_idx)
                         _is_act = (_g_idx == _sel_idx)
                         _in_cart = (_gprof['nid'] in st.session_state['_boutique_cart_ids'])
                         with _g_cols[_c_offset]:
@@ -1957,23 +1949,24 @@ with tab_radar:
             idx = _sel_idx
             bid_item = _active_n
             _prof = _active_prof
-            st.markdown(_prc_mod.build_prism_notice_card_html(bid_item, idx), unsafe_allow_html=True)
-            st.markdown(_ndv_mod.build_notice_dossier_html(_prof), unsafe_allow_html=True)
-            _doc_html, _boq_csv, _bid_json, _spec_txt = _ndv_mod.generate_notice_attachments(_prof)
-            _zip_bytes, _zip_meta = _ndv_mod.generate_master_zip_bundle(_prof)
-            st.download_button(label=f"📦 [1-Click 마스터 번들 다운로드] 공고문+내역서+시방서+AI전략서 (G2B_마스터패키지_{_prof['nid']}.zip · {_zip_meta['zip_size_kb']} KB)", data=_zip_bytes, file_name=f"G2B_마스터패키지_{_prof['nid']}.zip", mime='application/zip', key=f"dl_active_zip_{_prof['nid']}_{_sel_idx}", type='primary', use_container_width=True)
-            _dl_c1, _dl_c2, _dl_c3, _dl_c4 = st.columns(4)
-            _dl_c1.download_button('📄 입찰공고문 전문 (.html)', data=_doc_html, file_name=f"입찰공고문_{_prof['nid']}.html", mime='text/html', key=f"dl_a_doc_{_sel_idx}", use_container_width=True)
-            _dl_c2.download_button('📊 공내역서·물량내역 (.csv)', data=_boq_csv, file_name=f"공내역서_{_prof['nid']}.csv", mime='text/csv', key=f"dl_a_boq_{_sel_idx}", use_container_width=True)
-            _dl_c3.download_button('📦 G2B 전자입찰 제원 (.json)', data=_bid_json, file_name=f"G2B제원_{_prof['nid']}.json", mime='application/json', key=f"dl_a_json_{_sel_idx}", use_container_width=True)
-            _dl_c4.download_button('📐 공사시방서·특기사항 (.txt)', data=_spec_txt, file_name=f"공사시방서_{_prof['nid']}.txt", mime='text/plain', key=f"dl_a_spec_{_sel_idx}", use_container_width=True)
-            _pv_t1, _pv_t2, _pv_t3 = st.tabs(['📊 [인앱 열람 1] 공내역서(CSV) 규격 양식표', '📐 [인앱 열람 2] 공사시방서 & AI 3대 트랙 전략 규격서', '🔐 [인앱 열람 3] SHA-256 무결성 검증서'])
-            with _pv_t1:
-                st.markdown(_ndv_mod.build_boq_preview_table_html(_prof), unsafe_allow_html=True)
-            with _pv_t2:
-                st.markdown(_ndv_mod.build_spec_sheet_html(_prof), unsafe_allow_html=True)
-            with _pv_t3:
-                st.markdown(_ndv_mod.build_manifest_table_html(_prof, _zip_meta), unsafe_allow_html=True)
+            st.markdown(build_prism_notice_card_html(bid_item, idx), unsafe_allow_html=True)
+            with st.expander(f"🔍 [AI 현장도감 & 스마트 문서볼트 열기] {_prof['title']} — 원클릭 통합 패키지(.ZIP) · 공내역서 · 시방서 규격서", expanded=False):
+                st.markdown(build_notice_dossier_html(_prof), unsafe_allow_html=True)
+                _doc_html, _boq_csv, _bid_json, _spec_txt = generate_notice_attachments(_prof)
+                _zip_bytes, _zip_meta = generate_master_zip_bundle(_prof)
+                st.download_button(label=f"📦 [1-Click 마스터 번들 다운로드] 공고문+내역서+시방서+AI전략서 (G2B_마스터패키지_{_prof['nid']}.zip · {_zip_meta['zip_size_kb']} KB)", data=_zip_bytes, file_name=f"G2B_마스터패키지_{_prof['nid']}.zip", mime='application/zip', key=f"dl_active_zip_{_prof['nid']}_{_sel_idx}", type='primary', use_container_width=True)
+                _dl_c1, _dl_c2, _dl_c3, _dl_c4 = st.columns(4)
+                _dl_c1.download_button('📄 입찰공고문 전문 (.html)', data=_doc_html, file_name=f"입찰공고문_{_prof['nid']}.html", mime='text/html', key=f"dl_a_doc_{_sel_idx}", use_container_width=True)
+                _dl_c2.download_button('📊 공내역서·물량내역 (.csv)', data=_boq_csv, file_name=f"공내역서_{_prof['nid']}.csv", mime='text/csv', key=f"dl_a_boq_{_sel_idx}", use_container_width=True)
+                _dl_c3.download_button('📦 G2B 전자입찰 제원 (.json)', data=_bid_json, file_name=f"G2B제원_{_prof['nid']}.json", mime='application/json', key=f"dl_a_json_{_sel_idx}", use_container_width=True)
+                _dl_c4.download_button('📐 공사시방서·특기사항 (.txt)', data=_spec_txt, file_name=f"공사시방서_{_prof['nid']}.txt", mime='text/plain', key=f"dl_a_spec_{_sel_idx}", use_container_width=True)
+                _pv_t1, _pv_t2, _pv_t3 = st.tabs(['📊 [인앱 열람 1] 공내역서(CSV) 규격 양식표', '📐 [인앱 열람 2] 공사시방서 & AI 3대 트랙 전략 규격서', '🔐 [인앱 열람 3] SHA-256 무결성 검증서'])
+                with _pv_t1:
+                    st.markdown(build_boq_preview_table_html(_prof), unsafe_allow_html=True)
+                with _pv_t2:
+                    st.markdown(build_spec_sheet_html(_prof), unsafe_allow_html=True)
+                with _pv_t3:
+                    st.markdown(build_manifest_table_html(_prof, _zip_meta), unsafe_allow_html=True)
                 c_btn1, c_btn2 = st.columns([1.5, 4.5])
                 if c_btn1.button(f"⚡ 이 공고 즉시 분석 및 투찰 전환", key=f"btn_pick_adv_{idx}", type="primary"):
                     preset = {
