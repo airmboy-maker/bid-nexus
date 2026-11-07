@@ -1535,6 +1535,27 @@ def _check_security_pin_gate():
 
 _check_security_pin_gate()
 
+# =============================================================================
+# 💎 [FULL-PAGE SWAP OS INTERCEPTOR] 1-Page 화면교체 모드일 때 기존 스크롤 UI 완전 생략
+# =============================================================================
+try:
+    import importlib
+    import lattice1365.global_zero_scroll_os as _gzs_top
+    import lattice1365.sidebar_4d_ui as _s4d_top
+    import streamlit.components.v1 as _comp_top
+    importlib.reload(_gzs_top)
+    st.markdown(_s4d_top.get_sidebar_4d_global_css(), unsafe_allow_html=True)
+    _top_ui_mode = _gzs_top.render_sidebar_master_controller()
+    if '1-Page' in _top_ui_mode:
+        with st.sidebar:
+            _comp_top.html(_s4d_top.build_sidebar_4d_tesseract_html(4), height=230, scrolling=False)
+        _gzs_top.render_full_page_swap_os(globals().get('live_bids', None))
+        st.stop()
+except st.runtime.scriptrunner.StopException:
+    raise
+except Exception as _e_swap:
+    if type(_e_swap).__name__ == 'StopException':
+        raise
 st.title("⚡ BID-NEXUS: 완전 자율형 공공입찰 전자동화 터미널")
 with st.expander("🏢 [1단계] 기업 적격심사 마스터 스펙 등록 및 수정 (클릭하여 열기/닫기)", expanded=False):
     # 🔒 1단계: 기업 적격심사 마스터 등록
@@ -1816,7 +1837,6 @@ with tab_radar:
     import importlib
     import lattice1365.global_zero_scroll_os as _gzs_mod
     importlib.reload(_gzs_mod)
-    _global_ui_mode = _gzs_mod.render_sidebar_ui_mode_selector()
     import importlib
     import lattice1365.prism_radar_cards as _prc_mod
     importlib.reload(_prc_mod)
