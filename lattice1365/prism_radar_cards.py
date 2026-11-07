@@ -1,11 +1,10 @@
-import math
 from typing import Dict, Any
 
 
 def get_prism_deck_css() -> str:
     """
     필터 매칭 공고 리스트를 초감각적인 '양자 전술 프리즘 덱(Quantum Tactical Prism Deck)'과
-    일체형 도킹 런처 버튼으로 탈바꿈시키는 스타일시트
+    하단 일체형 도킹 워프 버튼(Full-Width Cyber Warp Trigger)으로 변환하는 스타일시트
     """
     return """
     <style>
@@ -27,28 +26,29 @@ def get_prism_deck_css() -> str:
     .q-prism-card {
         position: relative;
         background:
-            radial-gradient(circle at 12% 20%, rgba(56, 189, 248, 0.13) 0%, transparent 45%),
-            radial-gradient(circle at 88% 80%, rgba(168, 85, 247, 0.13) 0%, transparent 48%),
+            radial-gradient(circle at 12% 20%, rgba(56, 189, 248, 0.14) 0%, transparent 45%),
+            radial-gradient(circle at 88% 80%, rgba(168, 85, 247, 0.14) 0%, transparent 48%),
             linear-gradient(135deg, rgba(11, 17, 32, 0.96) 0%, rgba(6, 10, 21, 0.99) 100%);
-        border: 1px solid rgba(56, 189, 248, 0.32);
-        border-left: 4px solid #38bdf8;
-        border-radius: 16px 16px 6px 6px;
+        border: 1px solid rgba(56, 189, 248, 0.38);
+        border-left: 4.5px solid #38bdf8;
+        border-radius: 16px;
         padding: 18px 22px 16px 22px;
         margin-top: 14px;
-        margin-bottom: -6px;
+        margin-bottom: 4px;
         box-shadow:
             0 12px 32px rgba(0, 0, 0, 0.65),
             inset 0 1px 0 rgba(255, 255, 255, 0.12);
         transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1);
         overflow: hidden;
+        word-break: keep-all;
     }
     .q-prism-card:hover {
-        border-color: rgba(251, 191, 36, 0.75);
-        border-left: 5px solid #fbbf24;
-        transform: translateY(-3px) scale(1.004);
+        border-color: rgba(251, 191, 36, 0.8);
+        border-left: 5.5px solid #fbbf24;
+        transform: translateY(-3px) scale(1.003);
         box-shadow:
             0 18px 40px rgba(0, 0, 0, 0.8),
-            0 0 28px rgba(56, 189, 248, 0.25),
+            0 0 28px rgba(56, 189, 248, 0.28),
             inset 0 0 25px rgba(251, 191, 36, 0.06);
     }
 
@@ -56,11 +56,11 @@ def get_prism_deck_css() -> str:
     .q-prism-card::before {
         content: "";
         position: absolute;
-        top: 0; left: 0; right: 0; height: 2px;
-        background: linear-gradient(90deg, transparent, #38bdf8, #a855f7, #10b981, transparent);
+        top: 0; left: 0; right: 0; height: 2.5px;
+        background: linear-gradient(90deg, transparent, #38bdf8, #a855f7, #10b981, #fbbf24, transparent);
         background-size: 200% 200%;
         animation: prismScan 5s ease infinite;
-        opacity: 0.85;
+        opacity: 0.9;
     }
 
     /* 상단 메타 & 태그 줄 */
@@ -71,19 +71,21 @@ def get_prism_deck_css() -> str:
         flex-wrap: wrap;
         gap: 8px;
         margin-bottom: 10px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.14);
     }
     .q-serial-pill {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        background: rgba(15, 23, 42, 0.9);
-        border: 1px solid rgba(56, 189, 248, 0.35);
-        padding: 3px 10px;
+        background: rgba(15, 23, 42, 0.92);
+        border: 1px solid rgba(56, 189, 248, 0.4);
+        padding: 3px 11px;
         border-radius: 999px;
         font-size: 11px;
         font-weight: 800;
         color: #7dd3fc;
-        letter-spacing: 0.4px;
+        letter-spacing: 0.3px;
     }
     .q-beacon-dot {
         width: 7px; height: 7px; border-radius: 50%;
@@ -92,7 +94,7 @@ def get_prism_deck_css() -> str:
         animation: pulseBeacon 1.6s infinite;
     }
     .q-tag-row {
-        display: flex; align-items: center; gap: 6px;
+        display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
     }
     .q-holo-tag {
         background: linear-gradient(135deg, rgba(56, 189, 248, 0.16), rgba(168, 85, 247, 0.16));
@@ -117,7 +119,7 @@ def get_prism_deck_css() -> str:
     /* 메인 그리드: 좌측(타이틀+발주처+3대 데이터포드) + 우측(AI 공명 리액터 게이지) */
     .q-main-body {
         display: grid;
-        grid-template-columns: 1fr 145px;
+        grid-template-columns: 1fr 148px;
         gap: 18px;
         align-items: center;
     }
@@ -132,7 +134,7 @@ def get_prism_deck_css() -> str:
         letter-spacing: -0.3px;
         line-height: 1.35;
         margin-bottom: 6px;
-        text-shadow: 0 2px 10px rgba(56, 189, 248, 0.2);
+        text-shadow: 0 2px 12px rgba(56, 189, 248, 0.22);
     }
     .q-sub-meta {
         font-size: 12px;
@@ -143,7 +145,7 @@ def get_prism_deck_css() -> str:
         flex-wrap: wrap;
         gap: 14px;
     }
-    .q-sub-meta b { color: #cbd5e1; }
+    .q-sub-meta b { color: #e2e8f0; }
 
     /* 3-Column 홀로그램 데이터 포드 */
     .q-pods-grid {
@@ -152,8 +154,8 @@ def get_prism_deck_css() -> str:
         gap: 10px;
     }
     .q-pod {
-        background: rgba(15, 23, 42, 0.82);
-        border: 1px solid rgba(51, 65, 85, 0.8);
+        background: rgba(15, 23, 42, 0.85);
+        border: 1px solid rgba(51, 65, 85, 0.85);
         border-radius: 10px;
         padding: 9px 12px;
         position: relative;
@@ -182,15 +184,15 @@ def get_prism_deck_css() -> str:
     /* 우측 AI 양자 공명 리액터 코어 */
     .q-reactor-box {
         background: radial-gradient(circle, rgba(15, 23, 42, 0.95) 0%, rgba(2, 6, 23, 0.98) 100%);
-        border: 1px solid rgba(56, 189, 248, 0.3);
+        border: 1px solid rgba(56, 189, 248, 0.35);
         border-radius: 14px;
         padding: 10px 8px;
         text-align: center;
         position: relative;
-        box-shadow: inset 0 0 20px rgba(56, 189, 248, 0.1);
+        box-shadow: inset 0 0 20px rgba(56, 189, 248, 0.12);
     }
     .q-reactor-svg {
-        width: 68px; height: 68px; margin: 0 auto 4px auto; display: block;
+        width: 70px; height: 70px; margin: 0 auto 4px auto; display: block;
     }
     .q-reactor-ring-spin {
         transform-origin: 50% 50%;
@@ -211,7 +213,7 @@ def build_prism_notice_card_html(n: Dict[str, Any], idx: int = 0) -> str:
     """
     단일 공고 데이터를 받아 AI 초감각 '양자 전술 프리즘 카드(Quantum Tactical Prism Card)' HTML을 생성
     """
-    nid = str(n.get("id", "202611-00000"))
+    nid = str(n.get("id", n.get("notice_no", "202611-00000")))
     title = str(n.get("title", "관급 건축공사"))
     agency = str(n.get("agency", "조달청"))
     deadline = str(n.get("deadline", "2026-11-13 10:00"))
@@ -222,18 +224,15 @@ def build_prism_notice_card_html(n: Dict[str, Any], idx: int = 0) -> str:
     a_val = int(n.get("a_value", 0))
     low_rate = float(n.get("lower_limit_rate", 88.745))
 
-    # 스케일 및 AI 타겟 공명 지수 계산 (시각적 직관성 극대화)
     eok_val = base_amt / 100_000_000.0
     scale_pct = min(98, max(22, int((eok_val / 100.0) * 100)))
     a_ratio_pct = round((a_val / float(base_amt)) * 100.0, 2) if base_amt > 0 else 0.0
     a_bar_w = min(95, max(18, int(a_ratio_pct * 12)))
 
-    # 공고 고유 특성 기반 양자 공명 스코어 (96.2% ~ 99.4%)
     seed_val = sum(ord(c) for c in nid) + idx * 7
     resonance_score = round(96.4 + (seed_val % 31) * 0.1, 1)
     dash_offset = round(163.36 * (1.0 - resonance_score / 100.0), 1)
 
-    # 금액대별 전략 티어 배지
     if base_amt >= 5_000_000_000:
         tier_label = "TIER-A · 중대형 코어"
         accent_color = "#38bdf8"
