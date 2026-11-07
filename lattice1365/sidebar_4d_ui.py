@@ -1,16 +1,16 @@
 def get_sidebar_4d_global_css() -> str:
     """
-    상단(ZONE 1: 보안/자격 게이트키퍼)과 하단(ZONE 2: AI 사정 엔진 랩)을 시각적으로 완전히 이원화하고,
-    겹치는 가로줄 제거 및 한 줄 가독성을 극대화하는 스마트 UI 스타일시트
+    Streamlit의 margin 무시 버그를 물리적 padding/min-height로 완전히 우회하여
+    타이틀 겹침 0%, 글자 말줄임(...) 0%, 상하단 ZONE 1/2 완전 이원화를 구현하는 CSS
     """
     return """
     <style>
-    /* 1. 사이드바 베이스: 차분하고 깊이감 있는 프리미엄 다크 슬레이트 */
+    /* 1. 사이드바 베이스 */
     section[data-testid="stSidebar"],
     section[data-testid="stSidebar"] > div:first-child,
     section[data-testid="stSidebarContent"] {
-        background: linear-gradient(180deg, #07090e 0%, #0b111e 45%, #050a14 100%) !important;
-        border-right: 1px solid rgba(56, 189, 248, 0.22) !important;
+        background: linear-gradient(180deg, #090a10 0%, #0a101d 48%, #040811 100%) !important;
+        border-right: 1px solid rgba(56, 189, 248, 0.25) !important;
         word-break: keep-all !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
@@ -22,30 +22,40 @@ def get_sidebar_4d_global_css() -> str:
 
     section[data-testid="stSidebar"] .block-container,
     section[data-testid="stSidebarUserContent"] {
-        padding: 0.6rem 0.75rem 0.5rem 0.75rem !important;
+        padding: 0.65rem 0.75rem 0.5rem 0.75rem !important;
     }
     section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] {
-        gap: 6px !important;
+        gap: 8px !important;
     }
 
     /* =========================================================================
-       [ZONE 1 : 상단 보안 게이트키퍼 영역] — 골드/크림슨 시큐리티 테마 (겹침 줄 완전 제거)
+       [ZONE 1 : 상단 보안 게이트키퍼] — 물리적 padding-bottom(12px)으로 아래 배지와 겹침 완전 차단!
        ========================================================================= */
+    section[data-testid="stSidebar"] div[data-testid="stHeadingWithActionElements"],
     section[data-testid="stSidebar"] h2,
     section[data-testid="stSidebar"] h3 {
         background: transparent !important;
         border: none !important;
-        border-bottom: none !important;
-        padding: 0 2px !important;
-        margin: 0 0 2px 0 !important;
-        color: #f8fafc !important;
+        padding: 2px 2px 12px 2px !important;
+        margin: 0 !important;
+        min-height: 36px !important;
+        color: #fef3c7 !important;
         font-size: 13px !important;
         font-weight: 900 !important;
-        letter-spacing: 0.4px !important;
+        letter-spacing: 0.3px !important;
+        line-height: 1.4 !important;
         box-shadow: none !important;
         display: flex !important;
         align-items: center !important;
         justify-content: space-between !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    /* 액션 링크 아이콘 숨김 (레이아웃 깨짐 방지) */
+    section[data-testid="stSidebar"] h2 a,
+    section[data-testid="stSidebar"] h3 a,
+    section[data-testid="stSidebar"] [data-testid="stHeaderActionElements"] {
+        display: none !important;
     }
     section[data-testid="stSidebar"] h2::after,
     section[data-testid="stSidebar"] h3::after {
@@ -53,19 +63,20 @@ def get_sidebar_4d_global_css() -> str:
         font-size: 8.5px;
         font-weight: 900;
         color: #fbbf24;
-        background: rgba(245, 158, 11, 0.14);
-        border: 1px solid rgba(245, 158, 11, 0.4);
+        background: rgba(245, 158, 11, 0.16);
+        border: 1px solid rgba(245, 158, 11, 0.45);
         padding: 2px 7px;
         border-radius: 999px;
-        letter-spacing: 0.4px;
+        letter-spacing: 0.3px;
+        flex-shrink: 0;
     }
 
-    /* ZONE 1 알림창: 정돈된 소프트 크림슨 카드 */
+    /* ZONE 1 알림창: 앰버/크림슨 보안 경고 카드 */
     section[data-testid="stSidebar"] div[data-testid="stAlert"] {
         width: 100% !important;
         box-sizing: border-box !important;
-        background: linear-gradient(135deg, rgba(69, 10, 10, 0.55) 0%, rgba(15, 23, 42, 0.85) 100%) !important;
-        border: 1px solid rgba(244, 63, 94, 0.35) !important;
+        background: linear-gradient(135deg, rgba(80, 12, 20, 0.5) 0%, rgba(20, 14, 24, 0.9) 100%) !important;
+        border: 1px solid rgba(244, 63, 94, 0.38) !important;
         border-left: 3.5px solid #f43f5e !important;
         border-radius: 9px !important;
         padding: 8px 11px !important;
@@ -89,19 +100,19 @@ def get_sidebar_4d_global_css() -> str:
         word-break: keep-all !important;
     }
 
-    /* ZONE 1 보안 PIN Expander: 다크 골드/슬레이트 톤으로 ZONE 1에 귀속 */
+    /* ZONE 1 보안 PIN Expander */
     section[data-testid="stSidebar"] div[data-testid="stExpander"] {
         width: 100% !important;
         box-sizing: border-box !important;
-        background: rgba(15, 23, 42, 0.75) !important;
-        border: 1px solid rgba(245, 158, 11, 0.3) !important;
+        background: linear-gradient(135deg, rgba(35, 22, 12, 0.65) 0%, rgba(15, 23, 42, 0.85) 100%) !important;
+        border: 1px solid rgba(245, 158, 11, 0.38) !important;
         border-left: 3.5px solid #f59e0b !important;
         border-radius: 9px !important;
         margin: 0 !important;
     }
     section[data-testid="stSidebar"] div[data-testid="stExpander"] summary {
         padding: 6px 10px !important;
-        min-height: 32px !important;
+        min-height: 33px !important;
     }
     section[data-testid="stSidebar"] div[data-testid="stExpander"] summary p {
         font-size: 11.5px !important;
@@ -110,7 +121,7 @@ def get_sidebar_4d_global_css() -> str:
     }
 
     /* =========================================================================
-       [ZONE 2 : 하단 AI 사정 엔진 랩] — 시안/에메랄드 스마트 iOS 스타일 스위치 타일
+       [ZONE 2 : 하단 AI 사정 엔진 랩] — 시안/에메랄드 2x2 택티컬 타일 (말줄임 ... 완전 제거!)
        ========================================================================= */
     section[data-testid="stSidebar"] div[data-testid="stHorizontalBlock"] {
         gap: 6px !important;
@@ -121,32 +132,34 @@ def get_sidebar_4d_global_css() -> str:
     section[data-testid="stSidebar"] div[data-testid="stCheckbox"] {
         width: 100% !important;
         box-sizing: border-box !important;
-        background: linear-gradient(145deg, rgba(15, 23, 42, 0.9) 0%, rgba(9, 14, 26, 0.95) 100%) !important;
-        border: 1px solid rgba(56, 189, 248, 0.28) !important;
-        border-radius: 9px !important;
-        padding: 7px 9px !important;
+        background: linear-gradient(145deg, rgba(8, 28, 48, 0.85) 0%, rgba(6, 15, 30, 0.95) 100%) !important;
+        border: 1px solid rgba(56, 189, 248, 0.32) !important;
+        border-left: 3px solid #38bdf8 !important;
+        border-radius: 8px !important;
+        padding: 6px 7px !important;
         margin: 0 !important;
-        min-height: 38px !important;
+        min-height: 36px !important;
         display: flex !important;
         align-items: center !important;
         box-shadow: 0 3px 10px rgba(0,0,0,0.3) !important;
         transition: all 0.18s ease !important;
     }
     section[data-testid="stSidebar"] div[data-testid="stCheckbox"]:hover {
-        border-color: #38bdf8 !important;
-        background: rgba(30, 41, 59, 0.92) !important;
-        transform: translateY(-1px);
+        border-color: #34d399 !important;
+        border-left-color: #10b981 !important;
+        background: rgba(14, 38, 64, 0.95) !important;
     }
     section[data-testid="stSidebar"] div[data-testid="stCheckbox"] label p {
-        font-size: 11px !important;
+        font-size: 10.8px !important;
         font-weight: 800 !important;
         line-height: 1.2 !important;
-        color: #e2e8f0 !important;
+        color: #ecfeff !important;
         white-space: nowrap !important;
-        letter-spacing: -0.3px !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        letter-spacing: -0.35px !important;
     }
 
-    /* 기본 hr 구분선 숨김 (커스텀 ZONE 디바이더 사용) */
     section[data-testid="stSidebar"] hr {
         display: none !important;
     }
@@ -156,9 +169,9 @@ def get_sidebar_4d_global_css() -> str:
 
 def build_sidebar_4d_tesseract_html(active_count: int = 4) -> str:
     """
-    글자가 두 줄로 꺾이거나 밑단이 절대 깨지지 않도록:
-    - 상단: 100% 와이드 파노라마 4D 홀로그램 코어 (높이 66px)
-    - 하단: 100% 전체 폭을 쓰는 3줄 와이드 텔레메트리 바 (글자 줄바꿈 원천 차단!)
+    하단 텔레메트리 카드:
+    - 라벨과 퍼센트 수치가 절대 붙지 않도록 justify-content: space-between + 간결한 트랙명 적용
+    - 상단 잠금 배지도 GATEKEEPER STATUS 타이틀과 겹치지 않도록 상단 여백 보장
     """
     return f"""<!DOCTYPE html>
 <html lang="ko">
@@ -172,10 +185,10 @@ def build_sidebar_4d_tesseract_html(active_count: int = 4) -> str:
   body {{ background: transparent; color: #f8fafc; overflow: hidden; padding: 1px; }}
   .lab-card {{
     width: 100%;
-    background: linear-gradient(180deg, rgba(12, 19, 34, 0.95) 0%, rgba(6, 10, 19, 0.98) 100%);
-    border: 1px solid rgba(56, 189, 248, 0.35);
+    background: linear-gradient(180deg, rgba(8, 24, 44, 0.92) 0%, rgba(5, 12, 24, 0.98) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.38);
     border-radius: 11px;
-    padding: 10px 12px 11px 12px;
+    padding: 10px 11px 11px 11px;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
   }}
   .hdr-line {{
@@ -183,39 +196,38 @@ def build_sidebar_4d_tesseract_html(active_count: int = 4) -> str:
     margin-bottom: 7px;
   }}
   .hdr-title {{
-    font-size: 11px; font-weight: 900; color: #7dd3fc; letter-spacing: 0.4px;
+    font-size: 11px; font-weight: 900; color: #7dd3fc; letter-spacing: 0.3px;
     white-space: nowrap;
   }}
   .hdr-status {{
-    font-size: 9.5px; font-weight: 800; color: #34d399;
-    background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4);
-    padding: 2px 8px; border-radius: 999px; white-space: nowrap;
+    font-size: 9px; font-weight: 800; color: #34d399;
+    background: rgba(16, 185, 129, 0.16); border: 1px solid rgba(16, 185, 129, 0.45);
+    padding: 2px 7px; border-radius: 999px; white-space: nowrap;
   }}
-  /* 상단 파노라마 4D 홀로그램 뷰어 (전체 폭 사용) */
   #tesseractCanvas {{
-    width: 100%; height: 64px; display: block;
-    background: radial-gradient(ellipse at 50% 50%, rgba(14, 165, 233, 0.16) 0%, rgba(2, 6, 23, 0.85) 80%);
-    border: 1px solid rgba(56, 189, 248, 0.22);
+    width: 100%; height: 60px; display: block;
+    background: radial-gradient(ellipse at 50% 50%, rgba(14, 165, 233, 0.18) 0%, rgba(2, 6, 23, 0.88) 80%);
+    border: 1px solid rgba(56, 189, 248, 0.24);
     border-radius: 8px;
     margin-bottom: 8px;
   }}
-  /* 하단 3대 트랙 와이드 바: 전체 가로폭을 다 써서 한 줄에 시원하게 배치 (줄바꿈 0%) */
   .wide-bars {{
     display: flex; flex-direction: column; gap: 6px;
   }}
   .w-row {{
-    background: rgba(15, 23, 42, 0.85);
+    background: rgba(15, 23, 42, 0.88);
     border: 1px solid rgba(51, 65, 85, 0.65);
     border-radius: 7px;
     padding: 5px 9px;
   }}
   .w-top {{
     display: flex; justify-content: space-between; align-items: center;
-    font-size: 11px; font-weight: 800; margin-bottom: 4px;
+    gap: 8px;
+    font-size: 10.5px; font-weight: 800; margin-bottom: 4px;
     white-space: nowrap;
   }}
-  .w-name {{ color: #f1f5f9; white-space: nowrap; }}
-  .w-val {{ font-weight: 900; white-space: nowrap; }}
+  .w-name {{ color: #f1f5f9; white-space: nowrap; flex-shrink: 0; }}
+  .w-val {{ font-weight: 900; white-space: nowrap; text-align: right; }}
   .track-bg {{
     width: 100%; height: 4px; background: #020617; border-radius: 999px; overflow: hidden;
   }}
@@ -232,21 +244,21 @@ def build_sidebar_4d_tesseract_html(active_count: int = 4) -> str:
   <div class="wide-bars">
     <div class="w-row" style="border-left:3px solid #38bdf8;">
       <div class="w-top">
-        <span class="w-name">👑 트랙 1 · M5 양자코어</span>
+        <span class="w-name">👑 M5 양자코어</span>
         <span class="w-val" style="color:#38bdf8;">100.0907% (#238)</span>
       </div>
       <div class="track-bg"><div class="track-fill" style="width:76%;background:linear-gradient(90deg,#0284c7,#38bdf8);"></div></div>
     </div>
     <div class="w-row" style="border-left:3px solid #fbbf24;">
       <div class="w-top">
-        <span class="w-name">🛡️ 트랙 2 · EGR 강건방어</span>
+        <span class="w-name">🛡️ EGR 강건방어</span>
         <span class="w-val" style="color:#fbbf24;">100.1100% (Q50)</span>
       </div>
       <div class="track-bg"><div class="track-fill" style="width:88%;background:linear-gradient(90deg,#d97706,#fbbf24);"></div></div>
     </div>
     <div class="w-row" style="border-left:3px solid #10b981;">
       <div class="w-top">
-        <span class="w-name">⚡ 트랙 3 · LATTICE 확률장</span>
+        <span class="w-name">⚡ LATTICE 격자</span>
         <span class="w-val" style="color:#34d399;">100.0658% (#338)</span>
       </div>
       <div class="track-bg"><div class="track-fill" style="width:66%;background:linear-gradient(90deg,#059669,#34d399);"></div></div>
@@ -255,7 +267,7 @@ def build_sidebar_4d_tesseract_html(active_count: int = 4) -> str:
 </div>
 
 <script>
-// ZONE 1 상단 잠금 배지 정돈 (위아래 겹침 선 완전 제거)
+// 상단 잠금 배지가 위쪽 GATEKEEPER STATUS 글자와 절대 겹치지 않도록 부모/자식 여백 정돈
 function styleZone1Badge() {{
   try {{
     const parentDoc = window.parent.document;
@@ -271,14 +283,14 @@ function styleZone1Badge() {{
           el.style.border = 'none';
           el.style.background = 'transparent';
           el.style.boxShadow = 'none';
-          el.style.padding = '0';
+          el.style.padding = '4px 0 0 0';
           el.style.margin = '0';
         }} else {{
           el.style.display = 'block';
           el.style.width = '100%';
           el.style.boxSizing = 'border-box';
           el.style.padding = '6px 10px';
-          el.style.marginTop = '2px';
+          el.style.marginTop = '4px';
           el.style.marginBottom = '2px';
           el.style.borderRadius = '8px';
           el.style.fontWeight = '800';
@@ -298,12 +310,12 @@ setInterval(styleZone1Badge, 700);
 
 const canvas = document.getElementById('tesseractCanvas');
 const ctx = canvas.getContext('2d');
-let cw = 240, ch = 64;
+let cw = 240, ch = 60;
 function resize() {{
   const r = canvas.getBoundingClientRect();
   const dpr = window.devicePixelRatio || 1;
   cw = r.width || 240;
-  ch = 64;
+  ch = 60;
   canvas.width = cw * dpr;
   canvas.height = ch * dpr;
   ctx.scale(dpr, dpr);
@@ -328,18 +340,16 @@ function renderPanorama() {{
   angle += 0.025;
   ctx.clearRect(0, 0, cw, ch);
 
-  // 배경 사정률 파동 사인파 (파노라마 효과)
   ctx.beginPath();
   for (let x = 0; x <= cw; x += 4) {{
-    const y = ch / 2 + Math.sin(x * 0.04 - angle * 2) * 10 * Math.sin(x / cw * Math.PI);
+    const y = ch / 2 + Math.sin(x * 0.04 - angle * 2) * 9 * Math.sin(x / cw * Math.PI);
     if (x === 0) ctx.moveTo(x, y);
     else ctx.lineTo(x, y);
   }}
-  ctx.strokeStyle = 'rgba(16, 185, 129, 0.28)';
+  ctx.strokeStyle = 'rgba(16, 185, 129, 0.3)';
   ctx.lineWidth = 1.5;
   ctx.stroke();
 
-  // 중심 4D 테서랙트 코어
   const cx = cw / 2, cy = ch / 2;
   const cosA = Math.cos(angle), sinA = Math.sin(angle);
   const cosB = Math.cos(angle * 0.7), sinB = Math.sin(angle * 0.7);
@@ -351,7 +361,7 @@ function renderPanorama() {{
     let fx = nx * cosB - ny * sinB, fy = nx * sinB + ny * cosB;
     const wf = 1 / (2.6 - nw * 0.65);
     const zf = 1 / (2.4 - nz * wf);
-    return {{ x: cx + fx * wf * zf * 26, y: cy + fy * wf * zf * 24, w4: nw }};
+    return {{ x: cx + fx * wf * zf * 24, y: cy + fy * wf * zf * 22, w4: nw }};
   }});
 
   edges.forEach(e => {{

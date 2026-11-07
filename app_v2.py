@@ -7596,12 +7596,12 @@ def _render_egr_bid_addon_panel():
     st.markdown(get_sidebar_4d_global_css(), unsafe_allow_html=True)
 
     with st.sidebar:
-        # 상단(ZONE 1: 보안/자격 게이트키퍼)과 하단(ZONE 2: AI 사정 엔진 랩)을 시각적으로 완전히 이원화하는 브릿지 헤더
+        # ZONE 1(상단 보안)과 ZONE 2(하단 AI 엔진 랩)를 분리하는 시각적 디바이더 + 하단 물리 스페이서(height:10px)로 겹침 원천 차단
         st.markdown("""
-        <div style="margin-top:10px;margin-bottom:4px;padding-top:10px;border-top:1.5px dashed rgba(56,189,248,0.3);">
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-                <span style="color:#f8fafc;font-size:13px;font-weight:900;letter-spacing:0.3px;">🧭 AI ENGINE LAB</span>
-                <span style="background:rgba(56,189,248,0.14);border:1px solid rgba(56,189,248,0.4);color:#38bdf8;font-size:8.5px;font-weight:900;padding:2px 7px;border-radius:999px;">ZONE 2 · ADD-ON</span>
+        <div style="padding-top:10px;padding-bottom:10px;display:block;">
+            <div style="border-top:1.5px dashed rgba(56,189,248,0.35);padding-top:10px;display:flex;justify-content:space-between;align-items:center;">
+                <span style="color:#7dd3fc;font-size:13px;font-weight:900;letter-spacing:0.3px;">🧭 AI ENGINE LAB</span>
+                <span style="background:rgba(56,189,248,0.16);border:1px solid rgba(56,189,248,0.45);color:#38bdf8;font-size:8.5px;font-weight:900;padding:2px 7px;border-radius:999px;">ZONE 2 · ADD-ON</span>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -7609,12 +7609,12 @@ def _render_egr_bid_addon_panel():
         g_col1, g_col2 = st.columns(2)
         with g_col1:
             on_picker = st.checkbox(
-                "🎯 3D 로또·2픽",
+                "🎯 3D 로또추첨",
                 value=True,
                 key="_addon_chk_picker_v2",
             )
             on_egr = st.checkbox(
-                "🛡️ 번외1 EGR",
+                "🛡️ EGR 방어선",
                 value=True,
                 key="_addon_chk_egr_v2",
             )
@@ -7625,13 +7625,13 @@ def _render_egr_bid_addon_panel():
                 key="_addon_chk_arena_v2",
             )
             on_lat = st.checkbox(
-                "⚡ 번외2 LATTICE",
+                "⚡ LATTICE 격자",
                 value=True,
                 key="_addon_chk_lat_v2",
             )
 
         _active_cnt = sum([bool(on_picker), bool(on_arena), bool(on_egr), bool(on_lat)])
-        components.html(build_sidebar_4d_tesseract_html(active_count=_active_cnt), height=238, scrolling=False)
+        components.html(build_sidebar_4d_tesseract_html(active_count=_active_cnt), height=232, scrolling=False)
 
     slot = st.empty()
     if not on_picker and not on_arena and not on_egr and not on_lat:
