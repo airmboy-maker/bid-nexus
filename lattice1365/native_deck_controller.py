@@ -37,7 +37,7 @@ def route_7_main_tabs(tab_labels: list, is_cabinet_mode: bool, current_zone: str
     c_prof = make_zone_box(is_cabinet_mode, current_zone, "[Z9]")
     # [핵심]: c_tab4 자체에는 숨김 마커를 넣지 않고 순수 st.container()를 반환!
     # 왜냐하면 c_tab4 내부에서 이미 [Z9](SQLite 원장), [Z5](5대 모델 & 3D 홀로그램), [Z6](7-BAY 조감도) 3개의 평행 박스로 각각 나뉘어 있기 때문!
-    c_tab4 = st.container()
+    c_tab4 = make_zone_box(is_cabinet_mode, current_zone, "[Z9]")
 
     return c_radar, c_tab1, c_q_ai, c_sim, c_dox, c_prof, c_tab4
 
