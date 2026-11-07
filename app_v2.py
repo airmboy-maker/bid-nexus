@@ -1885,6 +1885,16 @@ with tab_radar:
         st.markdown(get_prism_deck_css(), unsafe_allow_html=True)
         for idx, bid_item in enumerate(live_bids):
                 st.markdown(build_prism_notice_card_html(bid_item, idx), unsafe_allow_html=True)
+                from lattice1365.notice_dossier_vault import analyze_construction_profile, build_notice_dossier_html, generate_notice_attachments
+                _prof = analyze_construction_profile(bid_item, idx)
+                with st.expander(f"🔍 [공고문 상세 열람 & 첨부파일 다운로드] {_prof['title']} — 공사종류 · 물량내역서(.csv) · 공고문(.html) · 시방서 패키지", expanded=False):
+                    st.markdown(build_notice_dossier_html(_prof), unsafe_allow_html=True)
+                    _doc_html, _boq_csv, _bid_json, _spec_txt = generate_notice_attachments(_prof)
+                    _dl_c1, _dl_c2, _dl_c3, _dl_c4 = st.columns(4)
+                    _dl_c1.download_button("📄 입찰공고문 전문 (.html)", data=_doc_html, file_name=f"입찰공고문_{_prof['nid']}.html", mime="text/html", key=f"dl_doc_{_prof['nid']}_{idx}", use_container_width=True)
+                    _dl_c2.download_button("📊 공내역서·물량내역 (.csv)", data=_boq_csv, file_name=f"공내역서_{_prof['nid']}.csv", mime="text/csv", key=f"dl_boq_{_prof['nid']}_{idx}", use_container_width=True)
+                    _dl_c3.download_button("📦 G2B 전자입찰 제원 (.json)", data=_bid_json, file_name=f"G2B제원_{_prof['nid']}.json", mime="application/json", key=f"dl_json_{_prof['nid']}_{idx}", use_container_width=True)
+                    _dl_c4.download_button("📐 공사시방서·특기사항 (.txt)", data=_spec_txt, file_name=f"공사시방서_{_prof['nid']}.txt", mime="text/plain", key=f"dl_spec_{_prof['nid']}_{idx}", use_container_width=True)
                 
                 c_btn1, c_btn2 = st.columns([1.5, 4.5])
                 if c_btn1.button(f"⚡ 이 공고 즉시 분석 및 투찰 전환", key=f"btn_pick_adv_{idx}", type="primary"):
