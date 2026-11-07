@@ -7598,44 +7598,38 @@ def _render_egr_bid_addon_panel():
     with st.sidebar:
         st.markdown("---")
         st.markdown("""
-        <div style="padding-bottom:10px;display:block;">
-            <div style="display:block;position:relative;box-sizing:border-box;width:100%;background:linear-gradient(135deg,#0f172a,#1e1b4b);border:1.2px solid #38bdf8;border-left:4px solid #38bdf8;border-radius:11px;padding:11px 13px;box-shadow:0 4px 14px rgba(0,0,0,0.5);word-break:keep-all;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(56,189,248,0.18);">
-                    <span style="background:#fbbf24;color:#020617;font-size:9px;font-weight:900;padding:3px 8px;border-radius:999px;white-space:nowrap;">4D COMMAND DECK</span>
-                    <span style="color:#38bdf8;font-size:9.5px;font-weight:800;white-space:nowrap;">60FPS 홀로그램</span>
-                </div>
-                <div style="color:#f8fafc;font-size:13px;font-weight:900;line-height:1.35;letter-spacing:0.1px;">🧭 4D 입찰 엔진 매트릭스 제어</div>
-            </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1.5px solid rgba(56,189,248,0.3);padding:2px 2px 6px 2px;margin-bottom:4px;">
+            <span style="color:#f8fafc;font-size:13px;font-weight:900;letter-spacing:0.3px;">🧭 ENGINE MATRIX</span>
+            <span style="background:rgba(16,185,129,0.14);border:1px solid rgba(16,185,129,0.35);color:#34d399;font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;">2×2 TACTICAL GRID</span>
         </div>
         """, unsafe_allow_html=True)
 
-        on_picker = st.checkbox(
-            "🎯 [공통 1] AI 복수예가 3D 로또 추첨 & 2픽",
-            value=True,
-            key="_addon_chk_picker_v2",
-            help="번외 모델을 모두 꺼도 기본 M5 기준선 타점으로 나라장터 최적 2개 추첨번호(Best 2-Pick)와 3D 양자 로또 추첨기를 실행합니다.",
-        )
-        on_arena = st.checkbox(
-            "🔥 [공통 2] 3대 엔진 vs 경쟁사 스나이퍼 배틀",
-            value=True,
-            key="_addon_chk_arena_v2",
-            help="48개 경쟁사 투찰 탄착군 속에서 M5 · EGR-BID · LATTICE-1365 3대 스나이퍼가 하한선 직상단을 타격하는 60FPS 배틀 아레나를 표시합니다.",
-        )
-        on_egr = st.checkbox(
-            "🛡️ [번외 1] 제미나이 EGR-BID (M6~8)",
-            value=True,
-            key="_addon_chk_egr_v2",
-            help="기존 번외 모델: 발주기관 사정률 분위수(M6)·경쟁사 웨지(M7)·보류게이트(M8) 기반 강건 시나리오 분석기",
-        )
-        on_lat = st.checkbox(
-            "⚡ [번외 2] 젠스파크 LATTICE-1365",
-            value=True,
-            key="_addon_chk_lat_v2",
-            help="신규 번외 모델: 1,365계단 확률장(L1)·극값 역산(L2)·기대이익장(L3)·내생 실효하한(L4) 분석기",
-        )
+        g_col1, g_col2 = st.columns(2)
+        with g_col1:
+            on_picker = st.checkbox(
+                "🎯 3D 로또·2픽",
+                value=True,
+                key="_addon_chk_picker_v2",
+            )
+            on_egr = st.checkbox(
+                "🛡️ 번외1 EGR",
+                value=True,
+                key="_addon_chk_egr_v2",
+            )
+        with g_col2:
+            on_arena = st.checkbox(
+                "🔥 스나이퍼배틀",
+                value=True,
+                key="_addon_chk_arena_v2",
+            )
+            on_lat = st.checkbox(
+                "⚡ 번외2 LATTICE",
+                value=True,
+                key="_addon_chk_lat_v2",
+            )
 
         _active_cnt = sum([bool(on_picker), bool(on_arena), bool(on_egr), bool(on_lat)])
-        components.html(build_sidebar_4d_tesseract_html(active_count=_active_cnt), height=198, scrolling=False)
+        components.html(build_sidebar_4d_tesseract_html(active_count=_active_cnt), height=152, scrolling=False)
 
     slot = st.empty()
     if not on_picker and not on_arena and not on_egr and not on_lat:
