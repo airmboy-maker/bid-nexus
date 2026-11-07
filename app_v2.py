@@ -7596,11 +7596,13 @@ def _render_egr_bid_addon_panel():
     st.markdown(get_sidebar_4d_global_css(), unsafe_allow_html=True)
 
     with st.sidebar:
-        st.markdown("---")
+        # 상단(ZONE 1: 보안/자격 게이트키퍼)과 하단(ZONE 2: AI 사정 엔진 랩)을 시각적으로 완전히 이원화하는 브릿지 헤더
         st.markdown("""
-        <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1.5px solid rgba(56,189,248,0.3);padding:2px 2px 6px 2px;margin-bottom:4px;">
-            <span style="color:#f8fafc;font-size:13px;font-weight:900;letter-spacing:0.3px;">🧭 ENGINE MATRIX</span>
-            <span style="background:rgba(16,185,129,0.14);border:1px solid rgba(16,185,129,0.35);color:#34d399;font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;">2×2 TACTICAL GRID</span>
+        <div style="margin-top:10px;margin-bottom:4px;padding-top:10px;border-top:1.5px dashed rgba(56,189,248,0.3);">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="color:#f8fafc;font-size:13px;font-weight:900;letter-spacing:0.3px;">🧭 AI ENGINE LAB</span>
+                <span style="background:rgba(56,189,248,0.14);border:1px solid rgba(56,189,248,0.4);color:#38bdf8;font-size:8.5px;font-weight:900;padding:2px 7px;border-radius:999px;">ZONE 2 · ADD-ON</span>
+            </div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -7629,7 +7631,7 @@ def _render_egr_bid_addon_panel():
             )
 
         _active_cnt = sum([bool(on_picker), bool(on_arena), bool(on_egr), bool(on_lat)])
-        components.html(build_sidebar_4d_tesseract_html(active_count=_active_cnt), height=152, scrolling=False)
+        components.html(build_sidebar_4d_tesseract_html(active_count=_active_cnt), height=238, scrolling=False)
 
     slot = st.empty()
     if not on_picker and not on_arena and not on_egr and not on_lat:
