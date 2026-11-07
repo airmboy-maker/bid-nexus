@@ -1551,10 +1551,8 @@ try:
             _comp_top.html(_s4d_top.build_sidebar_4d_tesseract_html(4), height=230, scrolling=False)
         _gzs_top.render_full_page_swap_os(globals().get('live_bids', None))
         st.stop()
-except st.runtime.scriptrunner.StopException:
-    raise
 except Exception as _e_swap:
-    if type(_e_swap).__name__ == 'StopException':
+    if 'StopException' in type(_e_swap).__name__ or 'RerunException' in type(_e_swap).__name__:
         raise
 st.title("⚡ BID-NEXUS: 완전 자율형 공공입찰 전자동화 터미널")
 with st.expander("🏢 [1단계] 기업 적격심사 마스터 스펙 등록 및 수정 (클릭하여 열기/닫기)", expanded=False):
@@ -1936,7 +1934,7 @@ with tab_radar:
         import lattice1365.zero_scroll_stage as _zss_mod
         importlib.reload(_zss_mod)
         if '1-Page' in _view_mode or '1-Page' in locals().get('_global_ui_mode', ''):
-            _gzs_mod.render_global_zero_scroll_app(_b_notices)
+            _gzs_mod.render_full_page_swap_os(_b_notices)
         elif '3×3' in _view_mode:
             for _row_start in range(0, len(_b_notices), 3):
                 _g_cols = st.columns(3)

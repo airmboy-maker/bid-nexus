@@ -461,3 +461,12 @@ def render_full_page_swap_os(notices: List[Dict[str, Any]] = None) -> None:
 """
         st.markdown("\n".join(l.lstrip() for l in cart_html.splitlines() if l.strip()), unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
+
+
+# 하위 호환 별칭 (AttributeError 원천 차단)
+def render_global_zero_scroll_app(live_bids=None):
+    return render_full_page_swap_os(live_bids)
+
+
+def render_sidebar_ui_mode_selector():
+    return render_sidebar_master_controller()
