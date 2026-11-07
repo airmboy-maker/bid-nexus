@@ -4,9 +4,9 @@ import streamlit.components.v1 as components
 DECK_ZONES = [
     "📡 [Z1] 나라장터 공고 쇼룸 (3건)",
     "🎯 [Z2] 핵심 적격심사 & 산출물",
-    "⚡ [Z3] 5대 모델 해부 & 3D 홀로그램",
+    "⚡ [Z3] 4차원 입체 추론 (15C4)",
     "🎛️ [Z4] 0.001% 감도 시뮬레이터",
-    "🔥 [Z5] 4D 입체 추론 & 투찰 원장",
+    "🔥 [Z5] 5대 모델 해부 & 3D 홀로그램",
     "🏛️ [Z6] 7-BAY 전술 머신 & 4D 조감도",
     "🛡️ [Z7] 번외 1·2: EGR-BID & LATTICE",
     "📑 [Z8] 적격 증빙서류 & 통합 출력",
@@ -20,10 +20,6 @@ def _set_zone_state(z_val: str) -> None:
 
 
 def make_zone_box(is_cabinet_mode: bool, current_zone: str, *tags: str):
-    """
-    선택되지 않은 구역 컨테이너에만 정확히 '.ndc-kill-zone' 마커를 주입하되,
-    부모 컨테이너(tab4 등)가 자식의 마커 때문에 통째로 숨겨지는 연쇄 소거 버그를 원천 차단!
-    """
     c = st.container()
     if is_cabinet_mode and not any(t in current_zone for t in tags):
         with c:
@@ -35,16 +31,14 @@ def route_7_main_tabs(tab_labels: list, is_cabinet_mode: bool, current_zone: str
     if not is_cabinet_mode:
         return st.tabs(tab_labels)
 
-    # [핵심 복원]
-    # - tab_quantum_ai 에 들어있는 '5대 모델 해부 & KP-01~03 3D 60FPS 홀로그램 애니메이션'이 [Z3] 및 [Z5]에서 100% 표시되도록 연결!
-    # - tab4 에 들어있는 '투찰 원장 + 심층 모델 + 7-BAY 조감도'가 [Z5] 및 [Z6]에서 부모 컨테이너 소거 없이 정상 표시되도록 연결!
+    # [핵심] Z3을 눌러도, Z5를 눌러도 4차원 입체 추론과 5대 모델 해부 & 3D 홀로그램(tab4)이 즉시 표시되도록 연결!
     c_radar = make_zone_box(is_cabinet_mode, current_zone, "[Z1]")
     c_tab1 = make_zone_box(is_cabinet_mode, current_zone, "[Z2]")
-    c_q_ai = make_zone_box(is_cabinet_mode, current_zone, "[Z3]", "[Z5]")
+    c_q_ai = make_zone_box(is_cabinet_mode, current_zone, "[Z3]")
     c_sim = make_zone_box(is_cabinet_mode, current_zone, "[Z4]")
     c_dox = make_zone_box(is_cabinet_mode, current_zone, "[Z8]")
     c_prof = make_zone_box(is_cabinet_mode, current_zone, "[Z9]")
-    c_tab4 = make_zone_box(is_cabinet_mode, current_zone, "[Z5]", "[Z6]")
+    c_tab4 = make_zone_box(is_cabinet_mode, current_zone, "[Z3]", "[Z5]", "[Z6]")
 
     return c_radar, c_tab1, c_q_ai, c_sim, c_dox, c_prof, c_tab4
 
@@ -181,10 +175,8 @@ def render_top_cabinet_switcher_bar(is_cabinet_mode: bool, current_zone: str) ->
 
     st.markdown(get_sidebar_spacing_override_css(), unsafe_allow_html=True)
 
-    # [핵심 수정]
-    # 기존 `:has(.ndc-kill-zone)` 는 부모 stVerticalBlock(예: tab4 전체)까지 숨겨버려서 내부의 그래프와 3D 홀로그램이 사라졌음!
-    # 이제 `> div[data-testid="stElementContainer"]:has(.ndc-kill-zone)` 또는 `> div:has(> div > div > .ndc-kill-zone)` 처럼
-    # 마커를 '직접 자식(Direct Child)'으로 가진 컨테이너만 정확히 숨겨서, 부모 탭(tab4, tab_quantum_ai)의 그래프·모델·3D 홀로그램이 100% 살아나도록 수정!
+    # [결정적 수정]: `nth-child(2)` 후손 선택자가 tab4 내부의 5대 모델 & 3D 홀로그램 컨테이너까지 숨겨버리던 현상을 해결!
+    # 오직 자신의 '첫 번째 직속 자식(> div:first-child)' 안에 바로 `.ndc-kill-zone`이 들어있는 컨테이너 자기 자신만 정확히 숨기도록 고정!
     st.markdown(
         f"""
 <style>
@@ -196,9 +188,8 @@ def render_top_cabinet_switcher_bar(is_cabinet_mode: bool, current_zone: str) ->
 header[data-testid="stHeader"] {{
     background: transparent !important;
 }}
-/* 마커(.ndc-kill-zone)를 자신의 첫 번째 직속 엘리먼트로 가진 stVerticalBlock만 정확히 숨김 (부모 블록 연쇄 소거 방지!) */
-div[data-testid="stVerticalBlock"]:has(> div:first-child .ndc-kill-zone),
-div[data-testid="stVerticalBlock"]:has(> div:nth-child(2) .ndc-kill-zone) {{
+div[data-testid="stVerticalBlock"]:has(> div:first-child > div[data-testid="stMarkdown"] .ndc-kill-zone),
+div[data-testid="stVerticalBlock"]:has(> div:first-child > div > div > .ndc-kill-zone) {{
     display: none !important;
 }}
 .cabinet-focus-ribbon {{
@@ -222,7 +213,7 @@ div[data-testid="stVerticalBlock"]:has(> div:nth-child(2) .ndc-kill-zone) {{
 <span style="font-size:14px;font-weight:900;color:#f8fafc;">현재 열린 단독 캐비닛: <span style="color:#38bdf8;">{current_zone}</span></span>
 </div>
 <div style="font-size:11.5px;color:#6ee7b7;font-weight:800;">
-✨ 5대 모델 · 3D 60FPS 홀로그램 · 그래프 렌더링 100% 활성 상태
+✨ 5대 모델 해부 · 3D 60FPS 홀로그램 링(KP-01~03) · 차트 100% 활성 상태
 </div>
 </div>
 """,
@@ -232,9 +223,9 @@ div[data-testid="stVerticalBlock"]:has(> div:nth-child(2) .ndc-kill-zone) {{
     short_names = [
         "📡 Z1:쇼룸",
         "🎯 Z2:적격",
-        "⚡ Z3:5대모델·3D",
+        "⚡ Z3:4D추론",
         "🎛️ Z4:감도",
-        "🔥 Z5:4D추론·원장",
+        "🔥 Z5:5대모델·3D",
         "🏛️ Z6:7-BAY",
         "🛡️ Z7:번외EGR·격자",
         "📑 Z8:증빙서류",
