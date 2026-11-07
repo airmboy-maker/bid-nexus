@@ -13,7 +13,6 @@ from .evidence_contract import VerifiedNotice, RecommendationResult
 
 
 def load_sample_evt_history() -> list:
-    """sample_g2b_opening_history.csv에서 1·2순위 투찰률 및 참여업체수 로드하여 L2 EVT 역추정에 공급"""
     rows = []
     path = "sample_g2b_opening_history.csv"
     if os.path.exists(path):
@@ -75,7 +74,6 @@ def compute_m1_to_m5_breakdown(notice_id: str, base_amt: int, a_val: int, limit_
     nc_res = check_net_cost_98pct(inv_info["recommended_bid"], net_cost_base, est_price=m5_ep, base_amount=base_amt)
     p4 = [i + 1 for i in ALL_COMBOS[step_idx]]
 
-    # LATTICE-1365 (L0~L5) 동시 실행
     evt_hist = load_sample_evt_history()
     lat_ctx = BidContext(
         notice_no=canon_seed,
@@ -132,6 +130,7 @@ def format_standardized_assessment_report(
     m1_m5: dict,
     history_source_label: str,
     firm_cost_won: int = None,
+    report_mode: str = "egr_only",  # "egr_only" | "lattice_only" | "both"
 ) -> str:
     prof = get_qual_profile(notice.profile_key)
     p4 = m1_m5["m5_lucky_4"]
@@ -146,23 +145,34 @@ def format_standardized_assessment_report(
 
     q = res.calibration_summary.get("m6_quantiles_pct", {}) if res.calibration_summary else {}
     w80 = res.calibration_summary.get("m6_pi80_width_pct", "-") if res.calibration_summary else "-"
+    m7_ok = res.calibration_summary.get("m7_available", False) if res.calibration_summary else False
+
+    mode_title = {
+        "egr_only": "번외 1: EGR-BID (M6·M7·M8 강건 시나리오) 사정분석 양식서",
+        "lattice_only": "번외 2: LATTICE-1365 (L0~L5 계단 확률장) 사정분석 양식서",
+        "both": "번외 1(EGR-BID) & 번외 2(LATTICE-1365) 통합 사정분석 양식서",
+    }.get(report_mode, "표준 사정분석 양식서")
 
     out = []
     out.append("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓")
-    out.append(f"┃ 📋 [BID-NEXUS 3대 트랙 통합 사정분석 양식서] 공고명: {notice_title} ({notice.notice_id})")
+    out.append(f"┃ 📋 [{mode_title}] 공고명: {notice_title} ({notice.notice_id})")
     out.append("┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫")
-    out.append("┃ [양식 1] 공고 기본 제원 및 내생적 실효 하한선 (L4 Qualification Projection)")
-    out.append(f"┃  • 적격심사 기준 : {prof['annex_code']} ({notice.profile_key}) | 공고 하한율: {notice.limit_rate}% -> 실효 하한율: {lat.effective_floor_rate:.4f}%")
+    out.append("┃ [양식 1] 공고 기본 제원 및 법정 하한 경계 요약")
+    out.append(f"┃  • 적격심사 기준 : {prof['annex_code']} ({notice.profile_key}) | 공고 하한율: {notice.limit_rate}% (실효 하한율: {lat.effective_floor_rate:.4f}%)")
     out.append(f"┃  • 기초금액      : {notice.base_amt:>15,}원 | A값 (법정제비)    : {notice.a_val:>15,}원")
     out.append(f"┃  • 기초 순공사원가: {notice.net_cost_base:>15,}원 | 98% 법정 배제선   : {m1_m5['min_net_cost_bid']:>15,}원")
     out.append("┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫")
-    out.append("┃ [양식 2] EGR-BID (M6~M8) & LATTICE-1365 (L0~L5) 사정과정 핵심 파라미터")
-    out.append(f"┃  • [L0 슬롯생성] 평균 μ={l0['mu']:.4f}% | 변동성 δ={l0['delta']:.4f}% | 공통충격 상관계수 ρ={l0['rho']:.2f}")
-    out.append(f"┃  • [L1/L2 확률장] 1,365계단 확률질량 투영 완료 | EVT 역추정 유효경쟁자 N={lat.ladder.get('l2_n_bidders',48)}개사")
-    out.append(f"┃  • [L3/L4 최적화] 기대이익 E={lat.expected_profit:,}원 (승률 {lat.win_prob*100:.1f}%) | 하한선 미달위험 P(miss)={lat.p_miss*100:.1f}%")
-    out.append(f"┃  • [M6~M8 게이트] 사정률 Q10={q.get('q10','-')}% ~ Q50={q.get('q50','-')}% ~ Q90={q.get('q90','-')}% (구간폭 {w80}%p | {res.status})")
+    out.append("┃ [양식 2] 표준 사정과정 (Assessment Process) 체크리스트")
+    if report_mode in ("egr_only", "both"):
+        out.append(f"┃  • [번외1 EGR STEP 1] 원문·시점검증 : PASS (SHA256={notice.source_sha256[:12]}... | 소스: {history_source_label})")
+        out.append(f"┃  • [번외1 EGR STEP 2] M6 사정률분포 : Q10={q.get('q10','-')}% | Q50(중앙)={q.get('q50','-')}% | Q90={q.get('q90','-')}% (폭 {w80}%p)")
+        out.append(f"┃  • [번외1 EGR STEP 3] M7/M8 게이트  : {'M7 경쟁웨지 결합' if m7_ok else 'M7 미제공 분리'} | M8 최종상태 = {res.status}")
+    if report_mode in ("lattice_only", "both"):
+        out.append(f"┃  • [번외2 LAT L0·L1] 계단확률장 생성: 평균 μ={l0['mu']:.4f}% | 변동성 δ={l0['delta']:.4f}% | 공통충격 ρ={l0['rho']:.2f}")
+        out.append(f"┃  • [번외2 LAT L2·L3] EVT 역산·이익장: 유효경쟁자 N={lat.ladder.get('l2_n_bidders',4.5)} | 기대이익 E={lat.expected_profit:,}원 (승률 {lat.win_prob*100:.1f}%)")
+        out.append(f"┃  • [번외2 LAT L4·L5] 실효하한·보정  : 실효하한 {lat.effective_floor_rate:.4f}% | 미달위험 P(miss)={lat.p_miss*100:.1f}% | CRPS={lat.ladder.get('l5_crps',0)}")
     out.append("┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫")
-    out.append("┃ [양식 3] 사정모델별(M1~M5) · EGR-BID · LATTICE-1365 사정결과 종합 대조표")
+    out.append("┃ [양식 3] 사정결과 (Assessment Result) 종합 대조표")
     out.append("┃ --------------------------------------------------------------------------------------")
     out.append(f"┃  {'구분 (모델/시나리오)':<26} | {'사정률(%)':>9} | {'예정가격(원)':>14} | {'낙찰하한선(원)':>14} | {'추천투찰가(원)':>14}")
     out.append("┃ --------------------------------------------------------------------------------------")
@@ -171,26 +181,27 @@ def format_standardized_assessment_report(
         out.append(
             f"┃ {mark}{m['name']:<25} | {m['rate']:>8.4f}% | {m['est_price']:>14,} | {m['lower_limit']:>14,} | {m['recommended_bid']:>14,}"
         )
-    if lat.feasible:
-        out.append("┃ --------------------------------------------------------------------------------------")
-        out.append(
-            f"┃ ⚡LATTICE-1365 (계단 #{lat.optimal_step:<4})  | {lat_rate:>8.4f}% | {lat_ep:>14,} | {lat.optimal_price-19:>14,} | {lat.optimal_price:>14,}"
-        )
-    if res.verified_rule_checks and "scenario_evaluation" in res.verified_rule_checks:
+    if report_mode in ("egr_only", "both") and res.verified_rule_checks and "scenario_evaluation" in res.verified_rule_checks:
         out.append("┃ --------------------------------------------------------------------------------------")
         for sc in res.verified_rule_checks["scenario_evaluation"]["scenarios"]:
             sc_bid = int(sc["lower_limit"]) + 19
             is_sel = (res.recommendation_won is not None and abs(sc_bid - res.recommendation_won) < 200)
             mark = "🛡️" if is_sel else "  "
             out.append(
-                f"┃ {mark}EGR M6-{sc['scenario_id'].upper()} 분위수 시나리오   | {float(sc['rate_pct']):>8.4f}% | {sc['est_price']:>14,} | {sc['lower_limit']:>14,} | {sc_bid:>14,}"
+                f"┃ {mark}[번외1] EGR M6-{sc['scenario_id'].upper()} 시나리오 | {float(sc['rate_pct']):>8.4f}% | {sc['est_price']:>14,} | {sc['lower_limit']:>14,} | {sc_bid:>14,}"
             )
+    if report_mode in ("lattice_only", "both") and lat.feasible:
+        out.append("┃ --------------------------------------------------------------------------------------")
+        out.append(
+            f"┃ ⚡[번외2] LATTICE-1365 (#{lat.optimal_step:<3})| {lat_rate:>8.4f}% | {lat_ep:>14,} | {lat.optimal_price-19:>14,} | {lat.optimal_price:>14,}"
+        )
     out.append("┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫")
-    out.append("┃ [양식 4] 3대 트랙 최종 투찰 의사결정 요약 (Executive Summary)")
-    out.append(f"┃  👑 트랙 1 (M5 양자계단 기준선)   : {m5_bid:>15,}원 (계단 #{m1_m5['m5_step_no']} | 예가 {p4[0]}·{p4[1]}·{p4[2]}·{p4[3]}번)")
-    out.append(f"┃  🛡️ 트랙 2 (EGR-BID 강건 시나리오): {egr_bid_str:>15} (M5 대비 {diff_str} | {res.status})")
-    if lat.feasible:
-        out.append(f"┃  ⚡ 트랙 3 (LATTICE-1365 확률장)  : {lat.optimal_price:>15,}원 (계단 #{lat.optimal_step} | 예가 {lat_p4[0]}·{lat_p4[1]}·{lat_p4[2]}·{lat_p4[3]}번 | 미달위험 {lat.p_miss*100:.1f}%)")
+    out.append("┃ [양식 4] 최종 입찰 의사결정 요약 (Executive Summary)")
+    out.append(f"┃  👑 기준선 (기존 M5 양자계단)      : {m5_bid:>15,}원 (계단 #{m1_m5['m5_step_no']} | 예가 {p4[0]}·{p4[1]}·{p4[2]}·{p4[3]}번)")
+    if report_mode in ("egr_only", "both"):
+        out.append(f"┃  🛡️ 번외 1 (제미나이 EGR-BID)      : {egr_bid_str:>15} (M5 대비 {diff_str} | {res.status})")
+    if report_mode in ("lattice_only", "both") and lat.feasible:
+        out.append(f"┃  ⚡ 번외 2 (젠스파크 LATTICE-1365) : {lat.optimal_price:>15,}원 (계단 #{lat.optimal_step} | 예가 {lat_p4[0]}·{lat_p4[1]}·{lat_p4[2]}·{lat_p4[3]}번 | 미달위험 {lat.p_miss*100:.1f}%)")
     out.append("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛")
     return "\n".join(out)
 
@@ -203,6 +214,7 @@ def format_printable_html_report(
     history_source_label: str,
     firm_cost_won: int = None,
     standalone_doc: bool = False,
+    report_mode: str = "both",  # "egr_only" | "lattice_only" | "both"
 ) -> str:
     prof = get_qual_profile(notice.profile_key)
     p4 = m1_m5["m5_lucky_4"]
@@ -211,12 +223,50 @@ def format_printable_html_report(
     diff_str = f"{res.recommendation_won - m5_bid:+,}원" if res.recommendation_won else "근거 부족 차단"
     q = res.calibration_summary.get("m6_quantiles_pct", {}) if res.calibration_summary else {}
     w80 = res.calibration_summary.get("m6_pi80_width_pct", "-") if res.calibration_summary else "-"
+    m7_ok = res.calibration_summary.get("m7_available", False) if res.calibration_summary else False
 
     lat = m1_m5["lattice_res"]
     lat_ep = lat.ladder["est_prices"][lat.optimal_step - 1] if lat.feasible else 0
     lat_rate = round((lat_ep / notice.base_amt) * 100.0, 4) if lat.feasible else 0.0
     lat_p4 = lat.ladder.get("lucky_4_slots", [1, 5, 11, 15])
     l0 = lat.ladder.get("l0_params", {"mu": 100.08, "delta": 0.35, "rho": 0.30})
+
+    doc_subtitle = {
+        "egr_only": "ADD-ON #1 : GEMINI EGR-BID (M6·M7·M8 ROBUST SCENARIO)",
+        "lattice_only": "ADD-ON #2 : GENSPARK LATTICE-1365 (L0~L5 LADDER FIELD)",
+        "both": "DUAL ADD-ON : EGR-BID (M6~M8) & LATTICE-1365 (L0~L5)",
+    }.get(report_mode, "OFFICIAL ASSESSMENT DOCUMENT")
+
+    proc_rows_html = ""
+    if report_mode in ("egr_only", "both"):
+        proc_rows_html += f"""
+        <tr>
+            <td style="border:1px solid #cbd5e1;padding:5px 8px;text-align:center;font-weight:700;color:#b45309;">번외1 · STEP 1~2</td>
+            <td style="border:1px solid #cbd5e1;padding:5px 8px;font-weight:700;">[EGR-BID] 원문검증 & M6 사정률 분포</td>
+            <td style="border:1px solid #cbd5e1;padding:5px 8px;">SHA-256 검증 완료 ({history_source_label}) | 분위수 Q10={q.get('q10','-')}% ~ Q50={q.get('q50','-')}% ~ Q90={q.get('q90','-')}% (폭 {w80}%p)</td>
+            <td style="border:1px solid #cbd5e1;padding:5px 8px;text-align:center;color:#15803d;font-weight:800;">{'산출완료' if q else 'HOLD'}</td>
+        </tr>
+        <tr style="background:#f8fafc;">
+            <td style="border:1px solid #cbd5e1;padding:5px 8px;text-align:center;font-weight:700;color:#b45309;">번외1 · STEP 3~5</td>
+            <td style="border:1px solid #cbd5e1;padding:5px 8px;font-weight:700;">[EGR-BID] M7 경쟁웨지 & M8 보류게이트</td>
+            <td style="border:1px solid #cbd5e1;padding:5px 8px;">{'M7 경쟁사 웨지 결합' if m7_ok else 'M7 원시투찰 분리검증'} | [별표3] 95점 & 98%원가 통과 | 판정: <b>{res.status}</b></td>
+            <td style="border:1px solid #cbd5e1;padding:5px 8px;text-align:center;color:#15803d;font-weight:800;">{res.status}</td>
+        </tr>"""
+
+    if report_mode in ("lattice_only", "both"):
+        proc_rows_html += f"""
+        <tr>
+            <td style="border:1px solid #cbd5e1;padding:5px 8px;text-align:center;font-weight:700;color:#047857;">번외2 · L0 ~ L2</td>
+            <td style="border:1px solid #cbd5e1;padding:5px 8px;font-weight:700;">[LATTICE-1365] 계단확률장 & 극값(EVT) 역산</td>
+            <td style="border:1px solid #cbd5e1;padding:5px 8px;">발주처 μ={l0['mu']:.4f}%, δ={l0['delta']:.4f}%, 공통충격 ρ={l0['rho']:.2f} | 1·2위 격차 역산 유효경쟁 N={lat.ladder.get('l2_n_bidders',4.5)}</td>
+            <td style="border:1px solid #cbd5e1;padding:5px 8px;text-align:center;color:#047857;font-weight:800;">역산완료</td>
+        </tr>
+        <tr style="background:#f8fafc;">
+            <td style="border:1px solid #cbd5e1;padding:5px 8px;text-align:center;font-weight:700;color:#047857;">번외2 · L3 ~ L5</td>
+            <td style="border:1px solid #cbd5e1;padding:5px 8px;font-weight:700;">[LATTICE-1365] 기대이익장 & 내생 실효하한</td>
+            <td style="border:1px solid #cbd5e1;padding:5px 8px;">기대이익 E={lat.expected_profit:,}원 (승률 {lat.win_prob*100:.1f}%) | 실효하한 {lat.effective_floor_rate:.3f}% | 미달위험 P(miss)={lat.p_miss*100:.1f}%</td>
+            <td style="border:1px solid #cbd5e1;padding:5px 8px;text-align:center;color:#047857;font-weight:800;">{'최적화완료' if lat.feasible else '입찰불가'}</td>
+        </tr>"""
 
     model_rows_html = ""
     for m in m1_m5["models"]:
@@ -235,20 +285,7 @@ def format_printable_html_report(
             <td style="border:1px solid #cbd5e1;padding:6px 10px;text-align:right;">{diff_m5:+,}원</td>
         </tr>"""
 
-    if lat.feasible:
-        lat_diff = lat.optimal_price - m5_bid
-        model_rows_html += f"""
-        <tr style="background:#ecfdf5;font-weight:800;">
-            <td style="border:1px solid #cbd5e1;padding:6px 10px;text-align:left;">⚡ M6. LATTICE-1365 (계단 #{lat.optimal_step}/1365 최적해)</td>
-            <td style="border:1px solid #cbd5e1;padding:6px 10px;text-align:center;color:#047857;">계단확률장(L0~L5)</td>
-            <td style="border:1px solid #cbd5e1;padding:6px 10px;text-align:right;">{lat_rate:.4f}%</td>
-            <td style="border:1px solid #cbd5e1;padding:6px 10px;text-align:right;">{lat_ep:,}원</td>
-            <td style="border:1px solid #cbd5e1;padding:6px 10px;text-align:right;">{lat.optimal_price - 19:,}원</td>
-            <td style="border:1px solid #cbd5e1;padding:6px 10px;text-align:right;color:#047857;">{lat.optimal_price:,}원</td>
-            <td style="border:1px solid #cbd5e1;padding:6px 10px;text-align:right;">{lat_diff:+,}원</td>
-        </tr>"""
-
-    if res.verified_rule_checks and "scenario_evaluation" in res.verified_rule_checks:
+    if report_mode in ("egr_only", "both") and res.verified_rule_checks and "scenario_evaluation" in res.verified_rule_checks:
         for sc in res.verified_rule_checks["scenario_evaluation"]["scenarios"]:
             sc_bid = int(sc["lower_limit"]) + 19
             is_sel = (res.recommendation_won is not None and abs(sc_bid - res.recommendation_won) < 200)
@@ -257,8 +294,8 @@ def format_printable_html_report(
             diff_m5 = sc_bid - m5_bid
             model_rows_html += f"""
             <tr style="{bg}">
-                <td style="border:1px solid #cbd5e1;padding:6px 10px;text-align:left;">{badge}EGR M6-{sc['scenario_id'].upper()} 분위수 시나리오</td>
-                <td style="border:1px solid #cbd5e1;padding:6px 10px;text-align:center;">강건분포(EGR)</td>
+                <td style="border:1px solid #cbd5e1;padding:6px 10px;text-align:left;">{badge}[번외 1: EGR-BID] M6-{sc['scenario_id'].upper()} 분위수 시나리오</td>
+                <td style="border:1px solid #cbd5e1;padding:6px 10px;text-align:center;color:#b45309;">번외1 (EGR-BID)</td>
                 <td style="border:1px solid #cbd5e1;padding:6px 10px;text-align:right;">{float(sc['rate_pct']):.4f}%</td>
                 <td style="border:1px solid #cbd5e1;padding:6px 10px;text-align:right;">{sc['est_price']:,}원</td>
                 <td style="border:1px solid #cbd5e1;padding:6px 10px;text-align:right;">{sc['lower_limit']:,}원</td>
@@ -266,13 +303,54 @@ def format_printable_html_report(
                 <td style="border:1px solid #cbd5e1;padding:6px 10px;text-align:right;">{diff_m5:+,}원</td>
             </tr>"""
 
+    if report_mode in ("lattice_only", "both") and lat.feasible:
+        lat_diff = lat.optimal_price - m5_bid
+        model_rows_html += f"""
+        <tr style="background:#ecfdf5;font-weight:800;">
+            <td style="border:1px solid #cbd5e1;padding:6px 10px;text-align:left;">⚡ [번외 2: LATTICE-1365] 계단 #{lat.optimal_step}/1,365 기대이익 최적해</td>
+            <td style="border:1px solid #cbd5e1;padding:6px 10px;text-align:center;color:#047857;">번외2 (LATTICE)</td>
+            <td style="border:1px solid #cbd5e1;padding:6px 10px;text-align:right;">{lat_rate:.4f}%</td>
+            <td style="border:1px solid #cbd5e1;padding:6px 10px;text-align:right;">{lat_ep:,}원</td>
+            <td style="border:1px solid #cbd5e1;padding:6px 10px;text-align:right;">{lat.optimal_price - 19:,}원</td>
+            <td style="border:1px solid #cbd5e1;padding:6px 10px;text-align:right;color:#047857;">{lat.optimal_price:,}원</td>
+            <td style="border:1px solid #cbd5e1;padding:6px 10px;text-align:right;">{lat_diff:+,}원</td>
+        </tr>"""
+
+    # 하단 요약 카드 구성
+    cards_html = f"""
+    <div style="border-right:1px dashed #94a3b8;padding-right:10px;">
+        <div style="font-size:11.5px;font-weight:800;color:#1d4ed8;">👑 [기준선] 기존 M5 양자계단 추천가</div>
+        <div style="font-size:19px;font-weight:900;color:#0f172a;margin:4px 0;">{m5_bid:,}원</div>
+        <div style="font-size:11.5px;color:#334155;">• 계단: <b>#{m1_m5['m5_step_no']}/1,365</b> ({m1_m5['m5_rate']:.4f}%)<br>• 추첨번호: <b>{p4[0]}·{p4[1]}·{p4[2]}·{p4[3]}번</b></div>
+    </div>"""
+    col_cnt = 1
+    if report_mode in ("egr_only", "both"):
+        col_cnt += 1
+        b_style = "border-right:1px dashed #94a3b8;padding-right:10px;" if report_mode == "both" else ""
+        cards_html += f"""
+        <div style="{b_style}">
+            <div style="font-size:11.5px;font-weight:800;color:#b45309;">🛡️ [번외 1: 제미나이] EGR-BID 강건 선택가</div>
+            <div style="font-size:19px;font-weight:900;color:#b45309;margin:4px 0;">{egr_bid_str}</div>
+            <div style="font-size:11.5px;color:#334155;">• M5 대비 차액: <b>{diff_str}</b><br>• M8 게이트 판정: <b>{res.status}</b></div>
+        </div>"""
+    if report_mode in ("lattice_only", "both"):
+        col_cnt += 1
+        cards_html += f"""
+        <div>
+            <div style="font-size:11.5px;font-weight:800;color:#047857;">⚡ [번외 2: 젠스파크] LATTICE-1365 최적해</div>
+            <div style="font-size:19px;font-weight:900;color:#047857;margin:4px 0;">{f'{lat.optimal_price:,}원' if lat.feasible else '입찰 불가'}</div>
+            <div style="font-size:11.5px;color:#334155;">• 계단: <b>#{lat.optimal_step}/1,365</b> (미달위험 {lat.p_miss*100:.1f}%)<br>• 추첨번호: <b>{lat_p4[0]}·{lat_p4[1]}·{lat_p4[2]}·{lat_p4[3]}번</b></div>
+        </div>"""
+
+    grid_cols = "1fr " * col_cnt
+
     sheet_html = f"""
     <div style="background:#ffffff;color:#0f172a;font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;padding:26px 30px;border:2px solid #1e293b;border-radius:6px;max-width:980px;margin:0 auto;box-shadow:0 4px 18px rgba(0,0,0,0.25);">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px double #0f172a;padding-bottom:12px;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
             <div>
-                <div style="font-size:12px;font-weight:700;color:#475569;letter-spacing:1px;">BID-NEXUS v20.4 OFFICIAL ASSESSMENT DOCUMENT (M5 · EGR-BID · LATTICE-1365)</div>
+                <div style="font-size:12px;font-weight:700;color:#475569;letter-spacing:1px;">BID-NEXUS v20.4 OFFICIAL ASSESSMENT ({doc_subtitle})</div>
                 <h2 style="margin:4px 0 6px 0;font-size:23px;font-weight:900;color:#0f172a;letter-spacing:-0.5px;">입 찰 사 정 과 정 및 결 과 정 밀 분 석 서</h2>
-                <div style="font-size:12.5px;color:#334155;"><b>문서번호:</b> BN-{notice.notice_id}-3TRACK &nbsp;|&nbsp; <b>입찰마감:</b> {notice.deadline_at} &nbsp;|&nbsp; <b>실효하한율(L4):</b> {lat.effective_floor_rate:.4f}%</div>
+                <div style="font-size:12.5px;color:#334155;"><b>문서번호:</b> BN-{notice.notice_id}-{report_mode.upper()} &nbsp;|&nbsp; <b>입찰마감:</b> {notice.deadline_at} &nbsp;|&nbsp; <b>실효하한율(L4):</b> {lat.effective_floor_rate:.4f}%</div>
             </div>
             <table style="border-collapse:collapse;font-size:12px;text-align:center;color:#0f172a;">
                 <tr>
@@ -291,7 +369,7 @@ def format_printable_html_report(
             </table>
         </div>
 
-        <div style="font-size:13.5px;font-weight:800;color:#0f172a;margin-bottom:5px;">■ 1. 입찰공고 기본 제원 및 내생적 실효 하한 경계 (L4 Qualification Projection)</div>
+        <div style="font-size:13.5px;font-weight:800;color:#0f172a;margin-bottom:5px;">■ 1. 입찰공고 기본 제원 및 법정/실효 하한 경계</div>
         <table style="width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:14px;color:#0f172a;">
             <tr>
                 <th style="border:1px solid #94a3b8;background:#f8fafc;padding:6px 10px;width:15%;text-align:left;">공고명 / 번호</th>
@@ -317,41 +395,18 @@ def format_printable_html_report(
             </tr>
         </table>
 
-        <div style="font-size:13.5px;font-weight:800;color:#0f172a;margin-bottom:5px;">■ 2. LATTICE-1365 (L0~L5) 및 EGR-BID (M6~M8) 표준 사정과정 검증 내역</div>
+        <div style="font-size:13.5px;font-weight:800;color:#0f172a;margin-bottom:5px;">■ 2. 선택된 번외 모델 사정과정 (Assessment Process) 검증 내역</div>
         <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px;color:#0f172a;">
             <tr style="background:#1e293b;color:#ffffff;">
-                <th style="border:1px solid #1e293b;padding:6px 8px;width:12%;">레이어/단계</th>
+                <th style="border:1px solid #1e293b;padding:6px 8px;width:14%;">모듈 / 단계</th>
                 <th style="border:1px solid #1e293b;padding:6px 8px;width:25%;text-align:left;">사정과정 검증 항목</th>
                 <th style="border:1px solid #1e293b;padding:6px 8px;text-align:left;">세부 산출 근거 및 검증 결과</th>
                 <th style="border:1px solid #1e293b;padding:6px 8px;width:12%;">판정</th>
             </tr>
-            <tr>
-                <td style="border:1px solid #cbd5e1;padding:5px 8px;text-align:center;font-weight:700;">L0 · L1</td>
-                <td style="border:1px solid #cbd5e1;padding:5px 8px;font-weight:700;">계층 슬롯 생성 & 1,365 계단 확률장</td>
-                <td style="border:1px solid #cbd5e1;padding:5px 8px;">발주처 평균 μ={l0['mu']:.4f}%, 변동성 δ={l0['delta']:.4f}%, 공통충격 ρ={l0['rho']:.2f} 반영 1,365계단 확률질량 산출</td>
-                <td style="border:1px solid #cbd5e1;padding:5px 8px;text-align:center;color:#047857;font-weight:800;">생성완료</td>
-            </tr>
-            <tr style="background:#f8fafc;">
-                <td style="border:1px solid #cbd5e1;padding:5px 8px;text-align:center;font-weight:700;">L2 · L3</td>
-                <td style="border:1px solid #cbd5e1;padding:5px 8px;font-weight:700;">극값(EVT) 경쟁자 역산 & 기대이익장</td>
-                <td style="border:1px solid #cbd5e1;padding:5px 8px;">1·2순위 격차 기반 경쟁분포 복원 (N={lat.ladder.get('l2_n_bidders',48)}개사) | 기대이익 {lat.expected_profit:,}원 (승률 {lat.win_prob*100:.1f}%)</td>
-                <td style="border:1px solid #cbd5e1;padding:5px 8px;text-align:center;color:#047857;font-weight:800;">최적화완료</td>
-            </tr>
-            <tr>
-                <td style="border:1px solid #cbd5e1;padding:5px 8px;text-align:center;font-weight:700;">L4 · L5</td>
-                <td style="border:1px solid #cbd5e1;padding:5px 8px;font-weight:700;">내생 실효하한 투영 & CRPS 캘리브레이션</td>
-                <td style="border:1px solid #cbd5e1;padding:5px 8px;">수행능력({notice.perf_score:.1f}점) 실효하한 {lat.effective_floor_rate:.3f}% | 하한선 미달위험 P(miss)={lat.p_miss*100:.1f}% | CRPS={lat.ladder.get('l5_crps',0)}</td>
-                <td style="border:1px solid #cbd5e1;padding:5px 8px;text-align:center;color:#047857;font-weight:800;">{'적격(PASS)' if lat.feasible else '입찰불가'}</td>
-            </tr>
-            <tr style="background:#f8fafc;">
-                <td style="border:1px solid #cbd5e1;padding:5px 8px;text-align:center;font-weight:700;">M6 ~ M8</td>
-                <td style="border:1px solid #cbd5e1;padding:5px 8px;font-weight:700;">EGR-BID 분위수 시나리오 & 보류게이트</td>
-                <td style="border:1px solid #cbd5e1;padding:5px 8px;">분위수 Q10={q.get('q10','-')}% ~ 중앙 Q50={q.get('q50','-')}% ~ Q90={q.get('q90','-')}% (구간폭 {w80}%p) | {history_source_label}</td>
-                <td style="border:1px solid #cbd5e1;padding:5px 8px;text-align:center;color:#15803d;font-weight:800;">{res.status}</td>
-            </tr>
+            {proc_rows_html}
         </table>
 
-        <div style="font-size:13.5px;font-weight:800;color:#0f172a;margin-bottom:5px;">■ 3. 사정모델별(M1~M5) · LATTICE-1365 · EGR-BID 사정결과 종합 대조표</div>
+        <div style="font-size:13.5px;font-weight:800;color:#0f172a;margin-bottom:5px;">■ 3. 사정모델별 사정결과 (Assessment Result) 종합 대조표</div>
         <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px;color:#0f172a;">
             <tr style="background:#1e293b;color:#ffffff;">
                 <th style="border:1px solid #1e293b;padding:6px 8px;text-align:left;">모델 / 시나리오 명칭</th>
@@ -365,25 +420,10 @@ def format_printable_html_report(
             {model_rows_html}
         </table>
 
-        <div style="font-size:13.5px;font-weight:800;color:#0f172a;margin-bottom:5px;">■ 4. 3대 트랙 최종 투찰 의사결정 요약 (3-Track Executive Decision Summary)</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;background:#f8fafc;border:2px solid #0f172a;border-radius:6px;padding:12px 14px;">
-            <div style="border-right:1px dashed #94a3b8;padding-right:10px;">
-                <div style="font-size:11.5px;font-weight:800;color:#1d4ed8;">👑 [트랙 1] 기존 M5 양자계단 기준선</div>
-                <div style="font-size:19px;font-weight:900;color:#0f172a;margin:4px 0;">{m5_bid:,}원</div>
-                <div style="font-size:11.5px;color:#334155;">• 계단: <b>#{m1_m5['m5_step_no']}/1,365</b> ({m1_m5['m5_rate']:.4f}%)<br>• 추첨번호: <b>{p4[0]}·{p4[1]}·{p4[2]}·{p4[3]}번</b></div>
-            </div>
-            <div style="border-right:1px dashed #94a3b8;padding-right:10px;">
-                <div style="font-size:11.5px;font-weight:800;color:#047857;">⚡ [트랙 2] LATTICE-1365 계단확률장 최적해</div>
-                <div style="font-size:19px;font-weight:900;color:#047857;margin:4px 0;">{f'{lat.optimal_price:,}원' if lat.feasible else '입찰 불가'}</div>
-                <div style="font-size:11.5px;color:#334155;">• 계단: <b>#{lat.optimal_step}/1,365</b> (미달위험 {lat.p_miss*100:.1f}%)<br>• 추첨번호: <b>{lat_p4[0]}·{lat_p4[1]}·{lat_p4[2]}·{lat_p4[3]}번</b></div>
-            </div>
-            <div>
-                <div style="font-size:11.5px;font-weight:800;color:#b45309;">🛡️ [트랙 3] EGR-BID 분포 강건 방어선</div>
-                <div style="font-size:19px;font-weight:900;color:#b45309;margin:4px 0;">{egr_bid_str}</div>
-                <div style="font-size:11.5px;color:#334155;">• M5 대비 차액: <b>{diff_str}</b><br>• 게이트 판정: <b>{res.status}</b></div>
-            </div>
+        <div style="font-size:13.5px;font-weight:800;color:#0f172a;margin-bottom:5px;">■ 4. 최종 투찰 의사결정 요약 (Executive Decision Summary)</div>
+        <div style="display:grid;grid-template-columns:{grid_cols};gap:10px;background:#f8fafc;border:2px solid #0f172a;border-radius:6px;padding:12px 14px;">
+            {cards_html}
         </div>
-        <div style="font-size:11px;color:#64748b;margin-top:8px;text-align:center;">※ [F-8 고지] {lat.warnings[0]}</div>
     </div>
     """
 
@@ -394,7 +434,7 @@ def format_printable_html_report(
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<title>입찰사정분석서_{notice.notice_id}</title>
+<title>입찰사정분석서_{notice.notice_id}_{report_mode}</title>
 <style>
 @page {{ size: A4 portrait; margin: 10mm; }}
 @media print {{

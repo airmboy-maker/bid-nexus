@@ -1,69 +1,37 @@
 #!/usr/bin/env python3
-import os
-import sys
-import webbrowser
+import os, sys, webbrowser
 from decimal import Decimal
 from bid_math_fixed import resolve_notice_record
 from research.egr_bid.evidence_contract import VerifiedNotice
 from research.egr_bid.robust_selector import egr_bid_recommend
 from research.egr_bid.csv_loader import load_verified_history_from_csv
 from research.egr_bid.report_formatter import (
-    compute_m1_to_m5_breakdown,
-    format_standardized_assessment_report,
-    format_printable_html_report,
+    compute_m1_to_m5_breakdown, format_standardized_assessment_report, format_printable_html_report
 )
 
-arg1 = sys.argv[1].strip() if len(sys.argv) > 1 else "R26BK01812785-000"
-mode = sys.argv[2].strip() if len(sys.argv) > 2 else "verified-csv"
+arg1 = sys.argv[1].strip() if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else "R26BK01812785-000"
+mode = sys.argv[2].strip() if len(sys.argv) > 2 and not sys.argv[2].startswith("--") else "verified-csv"
+rmode = "both" if "--both" in sys.argv else "egr_only"
 
 rec = resolve_notice_record(arg1, strict=True, allow_demo=False)
 notice = VerifiedNotice(
-    notice_id=rec["internal_id"],
-    revision_id="REV-0",
+    notice_id=rec["internal_id"], revision_id="REV-0",
     source_sha256="41a5bfd7790732771f9430b13fb74c0ef7476f18",
-    source_verified=rec["source_verified"],
-    is_demo_data=rec["is_demo_data"],
-    profile_key=rec["profile_key"],
-    base_amt=rec["base_amt"],
-    a_val=rec["a_val"],
-    net_cost_base=rec["net_cost_base"],
-    deadline_at=rec["deadline_date"],
-    limit_rate=rec["limit_rate"],
+    source_verified=rec["source_verified"], is_demo_data=rec["is_demo_data"],
+    profile_key=rec["profile_key"], base_amt=rec["base_amt"], a_val=rec["a_val"],
+    net_cost_base=rec["net_cost_base"], deadline_at=rec["deadline_date"], limit_rate=rec["limit_rate"],
 )
-
-if mode == "no-evidence":
-    hist = []
-    src_label = "증거 없음 (0건)"
-else:
-    hist = load_verified_history_from_csv("research/egr_bid/verified_opening_template.csv")
-    src_label = f"verified_opening_template.csv ({len(hist)}건)"
+hist = [] if mode == "no-evidence" else load_verified_history_from_csv("research/egr_bid/verified_opening_template.csv")
+src_label = "증거 없음 (0건)" if mode == "no-evidence" else f"verified_opening_template.csv ({len(hist)}건)"
 
 res = egr_bid_recommend(notice, hist, cost_input=None)
-m1_m5 = compute_m1_to_m5_breakdown(
-    rec["internal_id"], rec["base_amt"], rec["a_val"],
-    rec["limit_rate"], Decimal("30.00"), rec["profile_key"], rec["net_cost_base"]
-)
+m1_m5 = compute_m1_to_m5_breakdown(rec["internal_id"], rec["base_amt"], rec["a_val"], rec["limit_rate"], Decimal("30.00"), rec["profile_key"], rec["net_cost_base"])
 
-# 1. 터미널 화면에 4단 박스형 표준 사정분석서 전체 출력
-report_txt = format_standardized_assessment_report(notice, rec["title"], res, m1_m5, src_label)
-print(report_txt)
-
-# 2. A4 프린터 인쇄용 HTML 파일을 바탕화면 및 프로젝트 폴더에 자동 생성
-html_doc = format_printable_html_report(notice, rec["title"], res, m1_m5, src_label, standalone_doc=True)
-out_html_path = os.path.abspath(f"EGR_BID_ASSESSMENT_{rec['internal_id']}.html")
-desktop_html_path = os.path.expanduser(f"~/Desktop/EGR_BID_ASSESSMENT_{rec['internal_id']}.html")
-
-with open(out_html_path, "w", encoding="utf-8") as f:
+print(format_standardized_assessment_report(notice, rec["title"], res, m1_m5, src_label, report_mode=rmode))
+html_doc = format_printable_html_report(notice, rec["title"], res, m1_m5, src_label, standalone_doc=True, report_mode=rmode)
+out_html = os.path.abspath(f"EGR_BID_ASSESSMENT_{rec['internal_id']}.html")
+with open(out_html, "w", encoding="utf-8") as f:
     f.write(html_doc)
-try:
-    with open(desktop_html_path, "w", encoding="utf-8") as f:
-        f.write(html_doc)
-except Exception:
-    pass
-
-print(f"\n🖨️ [A4 프린터 인쇄용 공식 사정분석서 HTML 생성 완료] -> {desktop_html_path}")
 if "--no-open" not in sys.argv and os.environ.get("CI") != "true":
-    try:
-        webbrowser.open(f"file://{out_html_path}")
-    except Exception:
-        pass
+    try: webbrowser.open(f"file://{out_html}")
+    except Exception: pass
