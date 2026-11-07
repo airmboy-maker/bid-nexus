@@ -7576,3 +7576,89 @@ def render_phase9_bidding_machine_workstation():
 
 render_phase9_bidding_machine_workstation()
 # ==================== [PHASE 9: BIDDING MACHINE HOUSING ROUTER END] ====================
+
+
+# === [EGR-BID ADD-ON STREAMLIT PANEL] ===
+def _render_egr_bid_addon_panel():
+    import streamlit as st
+    from decimal import Decimal
+    from bid_math_fixed import NOTICE_MASTER_DB, resolve_notice_record
+    from research.egr_bid.evidence_contract import VerifiedNotice
+    from research.egr_bid.robust_selector import egr_bid_recommend
+    from research.egr_bid.tests.test_egr_bid_synthetic import _make_verified_history
+
+    st.markdown("---")
+    with st.expander("🧭 [번외 모듈] EGR-BID (M6·M7·M8) 분포 강건 시나리오 비교 분석기 (클릭하여 열기)", expanded=False):
+        st.caption("※ 기존 M1~M5 코어 엔진과 독립된 상위 시나리오 평가 계층입니다. [NOT_PRODUCTION_VALIDATED]")
+        c1, c2, c3 = st.columns([2, 2, 2])
+        with c1:
+            sel_id = st.selectbox(
+                "검증 대상 공고 (source_verified=True)",
+                options=["202611-00892 (R26BK01812785-000 | 소양초 공간재구조화 조성공사)"],
+                key="_egr_sel_notice",
+            )
+        with c2:
+            ev_mode = st.radio(
+                "개찰 이력 증거 모드 (M6/M7)",
+                options=["검증 샌드박스 이력 (8건)", "증거 부족 시뮬레이션 (M8 자동보류)"],
+                horizontal=True,
+                key="_egr_ev_mode",
+            )
+        with c3:
+            firm_cost_m = st.number_input(
+                "우리 회사 증빙 원가 (백만원, 0=미증빙)",
+                min_value=0,
+                max_value=3600,
+                value=0,
+                step=10,
+                key="_egr_firm_cost",
+            )
+
+        rec = resolve_notice_record("202611-00892", strict=True, allow_demo=False)
+        notice_obj = VerifiedNotice(
+            notice_id=rec["internal_id"],
+            revision_id="REV-0",
+            source_sha256="41a5bfd7790732771f9430b13fb74c0ef7476f18",
+            source_verified=rec["source_verified"],
+            is_demo_data=rec["is_demo_data"],
+            profile_key=rec["profile_key"],
+            base_amt=rec["base_amt"],
+            a_val=rec["a_val"],
+            net_cost_base=rec["net_cost_base"],
+            deadline_at=rec["deadline_date"],
+            limit_rate=rec["limit_rate"],
+        )
+        hist_data = [] if "부족" in ev_mode else _make_verified_history(n=8, rate_spread=0.0003, with_comp=True)
+        cost_won = int(firm_cost_m) * 1000000 if firm_cost_m > 0 else None
+
+        res = egr_bid_recommend(notice_obj, hist_data, cost_input=cost_won)
+
+        k1, k2, k3 = st.columns(3)
+        k1.metric("M8 게이트 최종 판정", res.status, res.validation_tag)
+        k2.metric(
+            "🛡️ EGR-BID 강건 시나리오 선택가",
+            f"{res.recommendation_won:,}원" if res.recommendation_won else "추천 보류 (HOLD)",
+            "시나리오 60% 이상 적격 통과 기준" if res.recommendation_won else "근거 부족 자동 차단",
+        )
+        k3.metric("👑 기존 M5 기준선(Baseline) 추천가", "3,221,729,592원", "양자계단 #238 (예가 1·5·11·15번)")
+
+        st.info(f"**판단 근거 및 상태 사유:** `{', '.join(res.reasons)}`")
+
+        if res.calibration_summary and "m6_quantiles_pct" in res.calibration_summary:
+            scen_list = res.verified_rule_checks["scenario_evaluation"]["scenarios"]
+            rows = []
+            for sc in scen_list:
+                rows.append({
+                    "M6 분위수 시나리오": sc["scenario_id"].upper(),
+                    "예측 사정률(%)": f"{sc['rate_pct']}%",
+                    "시나리오 예정가격(원)": f"{sc['est_price']:,}원",
+                    "낙찰하한선(88.745%)": f"{sc['lower_limit']:,}원",
+                    "순공사원가 98% 배제선": f"{sc['min_net_cost_98']:,}원",
+                })
+            st.markdown("#### 📊 M6 발주기관 사정률 분위수별 시나리오 경계표")
+            st.table(rows)
+
+try:
+    _render_egr_bid_addon_panel()
+except Exception:
+    pass
