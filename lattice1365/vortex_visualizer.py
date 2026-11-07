@@ -4,10 +4,7 @@ from typing import Dict
 
 def build_quantum_lotto_vortex_html(ai_sel: Dict, target_model_label: str, target_ep: int, base_amt: int) -> str:
     """
-    창의적 애니메이션이 적용된 15C4 복수예가 추첨 시뮬레이터:
-    - 3D Orbital Vortex Chamber (15개 예비가격 에너지 구체 실시간 3D 회전)
-    - Sequential Lock-On Chamber (4개 추첨 번호 순차 도킹 + 쇼크웨이브 파동)
-    - Best 2-Pick Neon Spotlight (나라장터 투찰창 체크용 1순위 2개 번호 홀로그램 강조)
+    창의적 애니메이션 + Web Audio API 사이버틱 신디사이저 사운드 엔진이 적용된 15C4 복수예가 추첨 시뮬레이터
     """
     p2 = ai_sel["primary_2_pick"]
     b2 = ai_sel["backup_2_pick"]
@@ -44,7 +41,20 @@ def build_quantum_lotto_vortex_html(ai_sel: Dict, target_model_label: str, targe
     color: #020617; font-weight: 900; font-size: 11px;
     padding: 3px 10px; border-radius: 999px; letter-spacing: 0.8px;
   }}
-  .vortex-title {{ font-size: 17px; font-weight: 900; color: #f8fafc; margin-left: 8px; }}
+  .vortex-title {{ font-size: 16.5px; font-weight: 900; color: #f8fafc; margin-left: 8px; }}
+  .ctrl-group {{ display: flex; align-items: center; gap: 8px; }}
+  .btn-sound {{
+    background: rgba(15, 23, 42, 0.9);
+    color: #38bdf8; border: 1.5px solid #38bdf8;
+    padding: 6px 13px; border-radius: 999px;
+    font-size: 12px; font-weight: 800; cursor: pointer;
+    transition: all 0.15s ease;
+  }}
+  .btn-sound.active {{
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399; border-color: #10b981;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.45);
+  }}
   .btn-replay {{
     background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
     color: #090d16; border: none; padding: 7px 16px; border-radius: 999px;
@@ -148,20 +158,22 @@ def build_quantum_lotto_vortex_html(ai_sel: Dict, target_model_label: str, targe
 <div class="vortex-wrap">
   <div class="vortex-header">
     <div>
-      <span class="vortex-badge">QUANTUM 15C4 VORTEX SIMULATOR</span>
+      <span class="vortex-badge">QUANTUM 15C4 VORTEX + WEB AUDIO SYNTH</span>
       <span class="vortex-title">🎯 복수예가 15개 슬롯 양자 궤도 추첨 & 최적 2픽(Best 2-Pick) 락온 엔진</span>
     </div>
-    <button class="btn-replay" onclick="startQuantumDraw()">⚡ 실시간 양자 추첨 재가동 (LIVE DRAW)</button>
+    <div class="ctrl-group">
+      <button id="soundToggleBtn" class="btn-sound active" onclick="toggleSound()">🔊 사운드 ON</button>
+      <button class="btn-replay" onclick="startQuantumDraw(true)">⚡ 실시간 양자 추첨 재가동 (LIVE DRAW)</button>
+    </div>
   </div>
 
   <div class="main-grid">
-    <!-- 좌측: 60FPS 3D 궤도 와류 & 양자 락온 캔버스 -->
-    <div class="canvas-box">
+    <div class="canvas-box" onclick="unlockAudioOnly()">
       <canvas id="lottoCanvas"></canvas>
       <div class="hud-overlay">
         <div>• <b>타점 기준:</b> <span style="color:#38bdf8;">{target_model_label}</span></div>
         <div>• <b>양자 계단:</b> <span style="color:#34d399;">#{step_no} / 1,365 조합</span></div>
-        <div>• <b>물리 모드:</b> 3D Orbital Gravity + Crowd Bias</div>
+        <div>• <b>오디오 엔진:</b> <span id="audioEngineState" style="color:#fbbf24;">클릭 또는 재가동 시 신디사이저 사운드 출력</span></div>
       </div>
       <div class="hud-status">
         <span id="simPhaseText" style="color:#fbbf24;font-weight:800;">⚡ 양자 와류 추첨 가동 중...</span>
@@ -169,7 +181,6 @@ def build_quantum_lotto_vortex_html(ai_sel: Dict, target_model_label: str, targe
       </div>
     </div>
 
-    <!-- 우측: 4개 추첨 챔버 도킹 슬롯 & 나라장터 실전 2픽 지시판 -->
     <div class="right-panel">
       <div class="chamber-card">
         <div class="chamber-label">
@@ -210,6 +221,147 @@ const primary2 = {p2_json};
 const backup2 = {b2_json};
 const targetEp = {target_ep};
 
+// ============================================================================
+// 🔊 Web Audio API Cybernetic Sound Synthesizer (외부 오디오 파일 불필요)
+// ============================================================================
+let audioCtx = null;
+let soundEnabled = true;
+
+function ensureAudioCtx() {{
+  if (!soundEnabled) return null;
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) return null;
+  if (!audioCtx) {{
+    audioCtx = new AudioContextClass();
+  }}
+  if (audioCtx.state === 'suspended') {{
+    audioCtx.resume();
+  }}
+  const stEl = document.getElementById('audioEngineState');
+  if (stEl) {{
+    stEl.innerText = soundEnabled ? 'ACTIVE (60FPS Cyber Synth)' : 'MUTED (사운드 꺼짐)';
+    stEl.style.color = soundEnabled ? '#34d399' : '#64748b';
+  }}
+  return audioCtx;
+}}
+
+function unlockAudioOnly() {{
+  ensureAudioCtx();
+}}
+
+function toggleSound() {{
+  soundEnabled = !soundEnabled;
+  const btn = document.getElementById('soundToggleBtn');
+  if (soundEnabled) {{
+    btn.className = 'btn-sound active';
+    btn.innerText = '🔊 사운드 ON';
+    ensureAudioCtx();
+    playCyberLockSound(0, false);
+  }} else {{
+    btn.className = 'btn-sound';
+    btn.innerText = '🔇 사운드 OFF';
+    const stEl = document.getElementById('audioEngineState');
+    if (stEl) {{ stEl.innerText = 'MUTED (사운드 꺼짐)'; stEl.style.color = '#64748b'; }}
+  }}
+}}
+
+// 1) 와류 챔버 가동 시 미래지향적 터빈 스윕 사운드
+function playVortexStartSound() {{
+  const ctxA = ensureAudioCtx();
+  if (!ctxA || !soundEnabled) return;
+  try {{
+    const now = ctxA.currentTime;
+    const osc = ctxA.createOscillator();
+    const gain = ctxA.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(110, now);
+    osc.frequency.exponentialRampToValueAtTime(420, now + 0.45);
+    gain.gain.setValueAtTime(0.001, now);
+    gain.gain.linearRampToValueAtTime(0.11, now + 0.08);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.48);
+    osc.connect(gain);
+    gain.connect(ctxA.destination);
+    osc.start(now);
+    osc.stop(now + 0.5);
+  }} catch (e) {{}}
+}}
+
+// 2) 슬롯 번호 락온 시 크리스탈/플라즈마 타격음 (1순위 골드 번호는 듀얼 화음)
+function playCyberLockSound(stepIdx, isGoldPick) {{
+  const ctxA = ensureAudioCtx();
+  if (!ctxA || !soundEnabled) return;
+  try {{
+    const now = ctxA.currentTime;
+    const baseFreqs = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+    const f1 = baseFreqs[stepIdx % 4] || 659.25;
+
+    // 메인 핑 사운드
+    const osc1 = ctxA.createOscillator();
+    const gain1 = ctxA.createGain();
+    osc1.type = isGoldPick ? 'triangle' : 'sine';
+    osc1.frequency.setValueAtTime(f1 * 1.4, now);
+    osc1.frequency.exponentialRampToValueAtTime(f1, now + 0.09);
+    gain1.gain.setValueAtTime(0.001, now);
+    gain1.gain.linearRampToValueAtTime(isGoldPick ? 0.22 : 0.15, now + 0.015);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    osc1.connect(gain1);
+    gain1.connect(ctxA.destination);
+    osc1.start(now);
+    osc1.stop(now + 0.36);
+
+    // 서브 베이스 펀치 (쇼크웨이브 임팩트)
+    const sub = ctxA.createOscillator();
+    const subGain = ctxA.createGain();
+    sub.type = 'sine';
+    sub.frequency.setValueAtTime(160, now);
+    sub.frequency.exponentialRampToValueAtTime(42, now + 0.22);
+    subGain.gain.setValueAtTime(0.18, now);
+    subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+    sub.connect(subGain);
+    subGain.connect(ctxA.destination);
+    sub.start(now);
+    sub.stop(now + 0.25);
+
+    // 1순위 골드 번호(Best 2-Pick)일 때 하모닉 배음 추가
+    if (isGoldPick) {{
+      const osc2 = ctxA.createOscillator();
+      const gain2 = ctxA.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(f1 * 1.5, now + 0.03); // 5도 화음
+      gain2.gain.setValueAtTime(0.001, now + 0.03);
+      gain2.gain.linearRampToValueAtTime(0.16, now + 0.05);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+      osc2.connect(gain2);
+      gain2.connect(ctxA.destination);
+      osc2.start(now + 0.03);
+      osc2.stop(now + 0.44);
+    }}
+  }} catch (e) {{}}
+}}
+
+// 3) 4개 전체 도킹 완료 시 사이버 팡파르 아르페지오
+function playCompleteArpeggio() {{
+  const ctxA = ensureAudioCtx();
+  if (!ctxA || !soundEnabled) return;
+  try {{
+    const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+    notes.forEach((freq, i) => {{
+      const now = ctxA.currentTime + i * 0.055;
+      const osc = ctxA.createOscillator();
+      const g = ctxA.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, now);
+      g.gain.setValueAtTime(0.001, now);
+      g.gain.linearRampToValueAtTime(0.13, now + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+      osc.connect(g);
+      g.connect(ctxA.destination);
+      osc.start(now);
+      osc.stop(now + 0.3);
+    }});
+  }} catch (e) {{}}
+}}
+
 const canvas = document.getElementById('lottoCanvas');
 const ctx = canvas.getContext('2d');
 let width, height;
@@ -222,13 +374,16 @@ function resizeCanvas() {{
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-// 15개 에너지 볼 초기화
 let balls = [];
 let shockwaves = [];
 let lockedCount = 0;
 let startTime = performance.now();
 
-function initSimulation() {{
+function initSimulation(fromUserClick) {{
+  if (fromUserClick) {{
+    ensureAudioCtx();
+    playVortexStartSound();
+  }}
   const w = canvas.width / window.devicePixelRatio;
   const h = canvas.height / window.devicePixelRatio;
   balls = slotTable.map((s, idx) => {{
@@ -298,8 +453,8 @@ function renderMiniGrid(lockedStep) {{
   }}
 }}
 
-function startQuantumDraw() {{
-  initSimulation();
+function startQuantumDraw(fromUserClick) {{
+  initSimulation(fromUserClick);
 }}
 
 function animate(now) {{
@@ -309,7 +464,6 @@ function animate(now) {{
 
   ctx.clearRect(0, 0, w, h);
 
-  // 배경 양자 중력장 링 그리기
   const cx = w * 0.5;
   const cy = h * 0.48;
   for (let r = 35; r <= 135; r += 32) {{
@@ -320,7 +474,6 @@ function animate(now) {{
     ctx.stroke();
   }}
 
-  // 단계별 락온 진행 (0.6초 간격으로 4개 번호 순차 락온)
   let newLockedCount = 0;
   if (elapsed > 0.7) newLockedCount = 1;
   if (elapsed > 1.25) newLockedCount = 2;
@@ -331,11 +484,14 @@ function animate(now) {{
     lockedCount = newLockedCount;
     renderTubes(lockedCount);
     renderMiniGrid(lockedCount);
-    // 락온 순간 쇼크웨이브 발생
     const lockedNum = target4[lockedCount - 1];
     const bObj = balls.find(b => b.num === lockedNum);
     if (bObj) {{
       shockwaves.push({{ x: cx, y: cy, r: 10, alpha: 1.0, color: bObj.isPrimary2 ? '#f59e0b' : '#10b981' }});
+      playCyberLockSound(lockedCount - 1, bObj.isPrimary2);
+      if (lockedCount === 4) {{
+        setTimeout(playCompleteArpeggio, 180);
+      }}
     }}
   }}
 
@@ -346,7 +502,6 @@ function animate(now) {{
     phaseEl.innerHTML = `✅ [LOCK-ON 완료] 최적 2픽 【 ${{primary2[0]}}번 · ${{primary2[1]}}번 】 & 4개 조합 도킹 확정!`;
   }}
 
-  // 락온된 공들의 목표 좌표 (캔버스 상단 아치형 배치)
   const archPositions = [
     {{ x: cx - 105, y: cy - 18 }},
     {{ x: cx - 35,  y: cy - 38 }},
@@ -354,7 +509,6 @@ function animate(now) {{
     {{ x: cx + 105, y: cy - 18 }}
   ];
 
-  // 공 위치 업데이트
   balls.forEach(b => {{
     const isNowLocked = b.isTarget4 && b.targetOrder < lockedCount;
     b.locked = isNowLocked;
@@ -372,7 +526,6 @@ function animate(now) {{
     }}
   }});
 
-  // 락온된 공들 사이에 시너지 레이저 네트워크 선 그리기
   const lockedBalls = balls.filter(b => b.locked).sort((a, b) => a.targetOrder - b.targetOrder);
   if (lockedBalls.length >= 2) {{
     ctx.beginPath();
@@ -387,7 +540,6 @@ function animate(now) {{
     ctx.stroke();
   }}
 
-  // 쇼크웨이브 애니메이션
   shockwaves.forEach(sw => {{
     ctx.beginPath();
     ctx.arc(sw.x, sw.y, sw.r, 0, Math.PI * 2);
@@ -401,7 +553,6 @@ function animate(now) {{
   }});
   shockwaves = shockwaves.filter(sw => sw.alpha > 0);
 
-  // Z-축 깊이순 정렬 후 15개 구체 렌더링
   const sortedBalls = [...balls].sort((a, b) => a.z - b.z);
   sortedBalls.forEach(b => {{
     const radius = b.locked ? (b.isPrimary2 ? 22 : 19) : (12 + (b.z + 1) * 2.2);
@@ -433,7 +584,6 @@ function animate(now) {{
     ctx.fill();
     ctx.restore();
 
-    // 번호 텍스트
     ctx.fillStyle = b.locked ? '#020617' : '#cbd5e1';
     ctx.font = `900 ${{b.locked ? 13 : 10}}px Pretendard, sans-serif`;
     ctx.textAlign = 'center';
@@ -444,7 +594,7 @@ function animate(now) {{
   requestAnimationFrame(animate);
 }}
 
-initSimulation();
+initSimulation(false);
 requestAnimationFrame(animate);
 </script>
 </body>

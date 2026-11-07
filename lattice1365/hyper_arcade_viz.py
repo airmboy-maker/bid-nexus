@@ -1,4 +1,3 @@
-import json
 from typing import Dict
 
 
@@ -11,7 +10,7 @@ def build_tactical_sniper_arena_html(
     n_rivals: int = 48,
 ) -> str:
     """
-    [1] 3대 트랙(M5 · EGR-BID · LATTICE-1365) vs N개 경쟁사 실시간 스나이퍼 탄착 배틀 시뮬레이터
+    [1] 3대 트랙(M5 · EGR-BID · LATTICE-1365) vs N개 경쟁사 실시간 스나이퍼 탄착 배틀 시뮬레이터 + Web Audio API 레이저/탄착 사운드
     """
     egr_val = egr_bid if egr_bid and egr_bid > 0 else m5_bid + 617624
     lat_val = lat_bid if lat_bid and lat_bid > 0 else m5_bid - 796054
@@ -31,11 +30,18 @@ def build_tactical_sniper_arena_html(
   .arena-hdr {{
     display: flex; justify-content: space-between; align-items: center;
     border-bottom: 1px solid rgba(244, 63, 94, 0.25); padding-bottom: 8px; margin-bottom: 10px;
+    flex-wrap: wrap; gap: 8px;
   }}
   .badge-red {{
     background: linear-gradient(90deg, #f43f5e, #fb923c); color: #020617;
     font-size: 11px; font-weight: 900; padding: 3px 10px; border-radius: 999px;
   }}
+  .ctrl-row {{ display: flex; align-items: center; gap: 8px; }}
+  .btn-snd {{
+    background: rgba(15, 23, 42, 0.9); color: #34d399; border: 1.5px solid #10b981;
+    padding: 5px 12px; border-radius: 999px; font-size: 11.5px; font-weight: 800; cursor: pointer;
+  }}
+  .btn-snd.off {{ color: #94a3b8; border-color: #475569; }}
   .btn-fire {{
     background: linear-gradient(135deg, #f43f5e, #e11d48); color: #fff;
     border: none; padding: 6px 14px; border-radius: 999px; font-size: 12px;
@@ -59,19 +65,22 @@ def build_tactical_sniper_arena_html(
 <div class="arena-box">
   <div class="arena-hdr">
     <div>
-      <span class="badge-red">TACTICAL SNIPER BATTLE ARENA</span>
-      <span style="font-size:16px;font-weight:900;margin-left:8px;">🎯 3대 엔진 vs 경쟁사({n_rivals}개사) 실시간 개찰 탄착 시뮬레이터</span>
+      <span class="badge-red">TACTICAL SNIPER BATTLE + SYNTH AUDIO</span>
+      <span style="font-size:15.5px;font-weight:900;margin-left:8px;">🎯 3대 엔진 vs 경쟁사({n_rivals}개사) 실시간 개찰 탄착 시뮬레이터</span>
     </div>
-    <button class="btn-fire" onclick="resetBattle()">🔥 경쟁사 탄착 & 스나이퍼 재발사 (FIRE)</button>
+    <div class="ctrl-row">
+      <button id="arenaSndBtn" class="btn-snd" onclick="toggleArenaSound()">🔊 사운드 ON</button>
+      <button class="btn-fire" onclick="resetBattle(true)">🔥 경쟁사 탄착 & 스나이퍼 재발사 (FIRE)</button>
+    </div>
   </div>
-  <canvas id="sniperCanvas"></canvas>
+  <canvas id="sniperCanvas" onclick="initArenaAudio()"></canvas>
   <div class="hud-bar">
     <div class="hud-item" style="border-left:4px solid #38bdf8;">
       <div>
         <div style="font-size:11px;color:#7dd3fc;font-weight:800;">👑 트랙 1: M5 양자스나이퍼</div>
         <div style="font-size:15px;font-weight:900;">{m5_bid:,}원</div>
       </div>
-      <span id="m5RankBadge" style="background:rgba(56,189,248,0.2);color:#38bdf8;font-size:11px;font-weight:900;padding:4px 8px;border-radius:6px;">정밀 조준</span>
+      <span style="background:rgba(56,189,248,0.2);color:#38bdf8;font-size:11px;font-weight:900;padding:4px 8px;border-radius:6px;">정밀 조준</span>
     </div>
     <div class="hud-item" style="border-left:4px solid #fbbf24;">
       <div>
@@ -90,6 +99,84 @@ def build_tactical_sniper_arena_html(
   </div>
 </div>
 <script>
+let arenaAudioCtx = null;
+let arenaSndOn = true;
+
+function initArenaAudio() {{
+  if (!arenaSndOn) return null;
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return null;
+  if (!arenaAudioCtx) arenaAudioCtx = new AC();
+  if (arenaAudioCtx.state === 'suspended') arenaAudioCtx.resume();
+  return arenaAudioCtx;
+}}
+
+function toggleArenaSound() {{
+  arenaSndOn = !arenaSndOn;
+  const b = document.getElementById('arenaSndBtn');
+  if (arenaSndOn) {{
+    b.className = 'btn-snd';
+    b.innerText = '🔊 사운드 ON';
+    initArenaAudio();
+    playSniperLockLaser(880);
+  }} else {{
+    b.className = 'btn-snd off';
+    b.innerText = '🔇 사운드 OFF';
+  }}
+}}
+
+// 경쟁사 탄착 시 짧은 디지털 레이더 핍 사운드
+function playRivalPip(isDead) {{
+  const ac = initArenaAudio();
+  if (!ac || !arenaSndOn) return;
+  try {{
+    const now = ac.currentTime;
+    const osc = ac.createOscillator();
+    const g = ac.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(isDead ? 240 : 620 + Math.random() * 280, now);
+    g.gain.setValueAtTime(0.035, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+    osc.connect(g);
+    g.connect(ac.destination);
+    osc.start(now);
+    osc.stop(now + 0.05);
+  }} catch (e) {{}}
+}}
+
+// 3대 AI 스나이퍼 조준경 탄착 시 강력한 사이버 레이저 캐논 + 서브 임팩트 사운드
+function playSniperLockLaser(pitchFreq) {{
+  const ac = initArenaAudio();
+  if (!ac || !arenaSndOn) return;
+  try {{
+    const now = ac.currentTime;
+    // 레이저 다운스윕
+    const osc = ac.createOscillator();
+    const g = ac.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(1850, now);
+    osc.frequency.exponentialRampToValueAtTime(130, now + 0.19);
+    g.gain.setValueAtTime(0.16, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.21);
+    osc.connect(g);
+    g.connect(ac.destination);
+    osc.start(now);
+    osc.stop(now + 0.22);
+
+    // 락온 타겟 비프음
+    const beep = ac.createOscillator();
+    const bg = ac.createGain();
+    beep.type = 'triangle';
+    beep.frequency.setValueAtTime(pitchFreq, now + 0.06);
+    bg.gain.setValueAtTime(0.18, now + 0.06);
+    bg.gain.exponentialRampToValueAtTime(0.001, now + 0.34);
+    beep.connect(bg);
+    bg.connect(ac.destination);
+    beep.start(now + 0.06);
+    beep.stop(now + 0.35);
+  }} catch (e) {{}}
+}}
+
 const canvas = document.getElementById('sniperCanvas');
 const ctx = canvas.getContext('2d');
 let w, h;
@@ -106,14 +193,15 @@ let rivals = [];
 let ripples = [];
 let scanAngle = 0;
 let startT = performance.now();
+let modelLockedFlags = [false, false, false];
 
-function resetBattle() {{
+function resetBattle(fromUserClick) {{
+  if (fromUserClick) initArenaAudio();
   const cw = canvas.width / window.devicePixelRatio;
   const ch = canvas.height / window.devicePixelRatio;
-  const cutX = cw * 0.28; // 낙찰하한선 위치
+  const cutX = cw * 0.28;
   rivals = [];
   for (let i = 0; i < {n_rivals}; i++) {{
-    // 경쟁사 탄착 분포 (일부는 하한선 미달 적색 데드존에 추락, 다수는 우측 상방에 분포)
     const isDead = Math.random() < 0.28;
     const targetX = isDead
       ? cutX * (0.25 + Math.random() * 0.72)
@@ -125,6 +213,7 @@ function resetBattle() {{
     }});
   }}
   ripples = [];
+  modelLockedFlags = [false, false, false];
   startT = performance.now();
 }}
 
@@ -135,20 +224,17 @@ function draw(now) {{
   ctx.clearRect(0, 0, cw, ch);
 
   const cutX = cw * 0.28;
-  // 1. 좌측 하한선 미달 데드존(적색 심연) 표시
   const deadGrad = ctx.createLinearGradient(0, 0, cutX, 0);
   deadGrad.addColorStop(0, 'rgba(225, 29, 72, 0.32)');
   deadGrad.addColorStop(1, 'rgba(225, 29, 72, 0.08)');
   ctx.fillStyle = deadGrad;
   ctx.fillRect(0, 0, cutX, ch);
 
-  // 격자선
   ctx.strokeStyle = 'rgba(51, 65, 85, 0.35)';
   ctx.lineWidth = 1;
   for (let x = 40; x < cw; x += 60) {{ ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, ch); ctx.stroke(); }}
   for (let y = 30; y < ch; y += 45) {{ ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(cw, y); ctx.stroke(); }}
 
-  // 낙찰하한선 레이저 펜스
   ctx.beginPath();
   ctx.moveTo(cutX, 0); ctx.lineTo(cutX, ch);
   ctx.strokeStyle = '#f43f5e'; ctx.lineWidth = 2.5; ctx.stroke();
@@ -157,13 +243,13 @@ function draw(now) {{
   ctx.fillStyle = '#6ee7b7';
   ctx.fillText('✅ 적격 유효 투찰 구간 (하한선 직상단 최저가 승리) ➔', cutX + 12, 20);
 
-  // 2. 경쟁사 탄착 애니메이션
-  rivals.forEach(rv => {{
+  rivals.forEach((rv, rIdx) => {{
     if (elapsed > rv.delay) {{
       rv.y += (rv.ty - rv.y) * 0.18;
       if (!rv.landed && Math.abs(rv.ty - rv.y) < 3) {{
         rv.landed = true;
         ripples.push({{ x: rv.tx, y: rv.ty, r: 2, a: 0.75, c: rv.isDead ? '#f43f5e' : '#64748b' }});
+        if (rIdx % 4 === 0) playRivalPip(rv.isDead);
       }}
       ctx.beginPath();
       ctx.arc(rv.tx, rv.y, 4, 0, Math.PI * 2);
@@ -172,17 +258,20 @@ function draw(now) {{
     }}
   }});
 
-  // 3. 3대 AI 모델 스나이퍼 조준선 락온 (LATTICE / M5 / EGR-BID)
   const models = [
-    {{ name: '⚡ LATTICE-1365', x: cutX + 16, y: ch * 0.35, color: '#10b981', delay: 1.5 }},
-    {{ name: '👑 M5 기준선(+19원)', x: cutX + 42, y: ch * 0.55, color: '#38bdf8', delay: 1.8 }},
-    {{ name: '🛡️ EGR-BID 방어선', x: cutX + 78, y: ch * 0.74, color: '#fbbf24', delay: 2.1 }}
+    {{ name: '⚡ LATTICE-1365', x: cutX + 16, y: ch * 0.35, color: '#10b981', delay: 1.5, freq: 784 }},
+    {{ name: '👑 M5 기준선(+19원)', x: cutX + 42, y: ch * 0.55, color: '#38bdf8', delay: 1.85, freq: 987.77 }},
+    {{ name: '🛡️ EGR-BID 방어선', x: cutX + 78, y: ch * 0.74, color: '#fbbf24', delay: 2.2, freq: 1174.66 }}
   ];
 
   scanAngle += 0.06;
-  models.forEach(m => {{
+  models.forEach((m, mIdx) => {{
     if (elapsed > m.delay) {{
-      // 스나이퍼 조준경 회전 링
+      if (!modelLockedFlags[mIdx]) {{
+        modelLockedFlags[mIdx] = true;
+        ripples.push({{ x: m.x, y: m.y, r: 5, a: 1.0, c: m.color }});
+        playSniperLockLaser(m.freq);
+      }}
       ctx.save();
       ctx.translate(m.x, m.y);
       ctx.rotate(scanAngle);
@@ -193,7 +282,6 @@ function draw(now) {{
       ctx.stroke();
       ctx.restore();
 
-      // 십자선 및 중심 코어
       ctx.beginPath();
       ctx.moveTo(m.x - 20, m.y); ctx.lineTo(m.x + 20, m.y);
       ctx.moveTo(m.x, m.y - 20); ctx.lineTo(m.x, m.y + 20);
@@ -203,7 +291,6 @@ function draw(now) {{
       ctx.arc(m.x, m.y, 5, 0, Math.PI * 2);
       ctx.fillStyle = m.color; ctx.fill();
 
-      // 라벨 태그
       ctx.fillStyle = '#0f172a';
       ctx.fillRect(m.x + 16, m.y - 11, 128, 22);
       ctx.strokeStyle = m.color;
@@ -214,7 +301,6 @@ function draw(now) {{
     }}
   }});
 
-  // 충격파 링 업데이트
   ripples.forEach(rp => {{
     ctx.beginPath(); ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI * 2);
     ctx.strokeStyle = rp.c; ctx.globalAlpha = Math.max(0, rp.a);
@@ -225,7 +311,7 @@ function draw(now) {{
 
   requestAnimationFrame(draw);
 }}
-resetBattle();
+resetBattle(false);
 requestAnimationFrame(draw);
 </script>
 </body>
@@ -234,7 +320,7 @@ requestAnimationFrame(draw);
 
 def build_egr_shield_matrix_html(q_map: Dict, status_str: str, egr_bid: int, min_nc_98: int) -> str:
     """
-    [2] 번외 1 (EGR-BID) 전용: 발주기관 사정률 변동 파동(Q10~Q90) vs M8 5중 에너지 방어 쉴드 애니메이션
+    [2] 번외 1 (EGR-BID) 전용: 발주기관 사정률 변동 파동(Q10~Q90) vs M8 5중 에너지 방어 쉴드 + 플라즈마 디플렉트 사운드
     """
     q10 = q_map.get("q10", "100.0500")
     q50 = q_map.get("q50", "100.1100")
@@ -253,6 +339,11 @@ def build_egr_shield_matrix_html(q_map: Dict, status_str: str, egr_bid: int, min
     border: 1.5px solid #f59e0b; border-radius: 14px; padding: 14px 18px;
     box-shadow: 0 0 28px rgba(245, 158, 11, 0.2);
   }}
+  .sh-btn {{
+    background: rgba(15, 23, 42, 0.9); color: #94a3b8; border: 1px solid #475569;
+    padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; cursor: pointer;
+  }}
+  .sh-btn.on {{ color: #fbbf24; border-color: #f59e0b; }}
   #shieldCanvas {{
     width: 100%; height: 210px; display: block;
     background: rgba(2, 6, 23, 0.85); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 10px;
@@ -262,16 +353,55 @@ def build_egr_shield_matrix_html(q_map: Dict, status_str: str, egr_bid: int, min
 </head>
 <body>
 <div class="shield-wrap">
-  <div style="display:flex;justify-content:space-between;align-items:center;">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
     <div>
       <span style="background:#f59e0b;color:#020617;font-size:11px;font-weight:900;padding:3px 9px;border-radius:999px;">M6·M7·M8 ROBUST SHIELD DYNAMICS</span>
       <span style="font-size:15.5px;font-weight:900;margin-left:8px;">🛡️ EGR-BID 발주처 사정률 충격파(Q10~Q90) 5중 방어 배리어 시뮬레이터</span>
     </div>
-    <span style="font-size:12px;color:#fcd34d;font-weight:800;">방어 타점: {bid_disp} ({status_str})</span>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:12px;color:#fcd34d;font-weight:800;">방어 타점: {bid_disp} ({status_str})</span>
+      <button id="shSndBtn" class="sh-btn" onclick="toggleShieldSnd()">🔇 쉴드 사운드 OFF (클릭 시 ON)</button>
+    </div>
   </div>
   <canvas id="shieldCanvas"></canvas>
 </div>
 <script>
+let shCtx = null;
+let shSnd = false;
+function toggleShieldSnd() {{
+  shSnd = !shSnd;
+  const b = document.getElementById('shSndBtn');
+  if (shSnd) {{
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (AC && !shCtx) shCtx = new AC();
+    if (shCtx && shCtx.state === 'suspended') shCtx.resume();
+    b.className = 'sh-btn on';
+    b.innerText = '🔊 쉴드 사운드 ON';
+    playDeflectSound();
+  }} else {{
+    b.className = 'sh-btn';
+    b.innerText = '🔇 쉴드 사운드 OFF';
+  }}
+}}
+
+function playDeflectSound() {{
+  if (!shSnd || !shCtx) return;
+  try {{
+    const now = shCtx.currentTime;
+    const osc = shCtx.createOscillator();
+    const g = shCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(440, now);
+    osc.frequency.exponentialRampToValueAtTime(880, now + 0.11);
+    g.gain.setValueAtTime(0.09, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
+    osc.connect(g);
+    g.connect(shCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.14);
+  }} catch (e) {{}}
+}}
+
 const canvas = document.getElementById('shieldCanvas');
 const ctx = canvas.getContext('2d');
 let w, h;
@@ -300,7 +430,6 @@ function animateShield() {{
 
   const shieldX = cw * 0.68;
 
-  // 우측 M8 헥사곤 골드 에너지 배리어
   for (let i = 0; i < 3; i++) {{
     ctx.beginPath();
     ctx.arc(shieldX + 90, ch / 2, 110 + i * 14, Math.PI * 0.72, Math.PI * 1.28);
@@ -320,7 +449,6 @@ function animateShield() {{
   ctx.fillText('• 시나리오 적격 통과율: 60% 이상 보장', shieldX + 8, ch / 2 - 8);
   ctx.fillText('• 98% 원가 배제선: {min_nc_98:,}원 방어', shieldX + 8, ch / 2 + 14);
 
-  // 좌측에서 밀려오는 발주처 사정률 변동 파동
   waves.forEach(wv => {{
     wv.x += wv.speed;
     ctx.beginPath();
@@ -332,8 +460,8 @@ function animateShield() {{
     ctx.font = '800 10px Pretendard, sans-serif';
     ctx.fillText('🌊 ' + wv.label, wv.x - 25, ch / 2 - 38);
 
-    // 방어막 충돌 시 스파크 생성
     if (Math.abs(wv.x - (shieldX - 20)) < 4) {{
+      playDeflectSound();
       for (let s = 0; s < 14; s++) {{
         sparks.push({{
           x: shieldX - 18,
@@ -371,7 +499,7 @@ def build_lattice_wave_rider_html(
     eff_floor_pct: float,
 ) -> str:
     """
-    [3] 번외 2 (LATTICE-1365) 전용: 1,365 계단 확률장 오로라 파도 & 기대이익 골든 피크(Golden Peak) 락온 애니메이션
+    [3] 번외 2 (LATTICE-1365) 전용: 1,365 계단 확률장 오로라 파도 & 기대이익 골든 피크(Golden Peak) 락온 + 소나 펄스 사운드
     """
     return f"""<!DOCTYPE html>
 <html lang="ko">
@@ -385,6 +513,11 @@ def build_lattice_wave_rider_html(
     border: 1.5px solid #10b981; border-radius: 14px; padding: 14px 18px;
     box-shadow: 0 0 28px rgba(16, 185, 129, 0.22);
   }}
+  .wv-btn {{
+    background: rgba(15, 23, 42, 0.9); color: #94a3b8; border: 1px solid #475569;
+    padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; cursor: pointer;
+  }}
+  .wv-btn.on {{ color: #34d399; border-color: #10b981; }}
   #waveCanvas {{
     width: 100%; height: 215px; display: block;
     background: rgba(2, 6, 23, 0.85); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 10px;
@@ -394,16 +527,54 @@ def build_lattice_wave_rider_html(
 </head>
 <body>
 <div class="wave-wrap">
-  <div style="display:flex;justify-content:space-between;align-items:center;">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
     <div>
       <span style="background:#10b981;color:#020617;font-size:11px;font-weight:900;padding:3px 9px;border-radius:999px;">L0~L5 LADDER PROBABILITY WAVE</span>
       <span style="font-size:15.5px;font-weight:900;margin-left:8px;">🌊 LATTICE-1365 계단 확률장 파동 & 기대이익 골든 피크(#{opt_step}) 서핑 엔진</span>
     </div>
-    <span style="font-size:12px;color:#34d399;font-weight:800;">최적해: {opt_price:,}원 (실효하한 {eff_floor_pct:.3f}%)</span>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:12px;color:#34d399;font-weight:800;">최적해: {opt_price:,}원 (실효하한 {eff_floor_pct:.3f}%)</span>
+      <button id="wvSndBtn" class="wv-btn" onclick="toggleWaveSnd()">🔇 골든피크 소나 OFF (클릭 시 ON)</button>
+    </div>
   </div>
   <canvas id="waveCanvas"></canvas>
 </div>
 <script>
+let wvCtx = null;
+let wvSnd = false;
+function toggleWaveSnd() {{
+  wvSnd = !wvSnd;
+  const b = document.getElementById('wvSndBtn');
+  if (wvSnd) {{
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (AC && !wvCtx) wvCtx = new AC();
+    if (wvCtx && wvCtx.state === 'suspended') wvCtx.resume();
+    b.className = 'wv-btn on';
+    b.innerText = '🔊 골든피크 소나 ON';
+    playSonarPing();
+  }} else {{
+    b.className = 'wv-btn';
+    b.innerText = '🔇 골든피크 소나 OFF';
+  }}
+}}
+
+function playSonarPing() {{
+  if (!wvSnd || !wvCtx) return;
+  try {{
+    const now = wvCtx.currentTime;
+    const osc = wvCtx.createOscillator();
+    const g = wvCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(932.33, now); // Bb5 소나 핑
+    g.gain.setValueAtTime(0.08, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    osc.connect(g);
+    g.connect(wvCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.36);
+  }} catch (e) {{}}
+}}
+
 const canvas = document.getElementById('waveCanvas');
 const ctx = canvas.getContext('2d');
 let w, h;
@@ -417,16 +588,18 @@ window.addEventListener('resize', resize);
 resize();
 
 let phase = 0;
+let sonarTick = 0;
 function animateWave() {{
   const cw = canvas.width / window.devicePixelRatio;
   const ch = canvas.height / window.devicePixelRatio;
   phase += 0.045;
+  sonarTick++;
+  if (sonarTick % 90 === 0) playSonarPing();
   ctx.clearRect(0, 0, cw, ch);
 
   const peakRatio = Math.min(0.82, Math.max(0.22, {opt_step} / 1365.0 + 0.18));
   const peakX = cw * peakRatio;
 
-  // 68개의 양자 계단 바를 실시간 사인파 + 가우시안 기대이익 봉우리로 렌더링
   const nBars = 68;
   const barW = (cw - 40) / nBars;
   let peakY = ch * 0.3;
@@ -443,16 +616,15 @@ function animateWave() {{
     if (Math.abs(norm - peakRatio) < 0.015) peakY = y;
 
     if (norm < 0.18) {{
-      ctx.fillStyle = 'rgba(244, 63, 94, 0.55)'; // 좌측 적격 탈락 구간
+      ctx.fillStyle = 'rgba(244, 63, 94, 0.55)';
     }} else if (Math.abs(norm - peakRatio) < 0.04) {{
-      ctx.fillStyle = '#fbbf24'; // 골든 피크 최적 계단
+      ctx.fillStyle = '#fbbf24';
     }} else {{
       ctx.fillStyle = `rgba(16, 185, 129, ${{0.25 + profitEnv * 0.65}})`;
     }}
     ctx.fillRect(x, y, barW - 2, barH);
   }}
 
-  // 골든 피크 락온 비콘 및 레이저 마커
   ctx.beginPath();
   ctx.arc(peakX, peakY - 12, 8 + Math.sin(phase * 2) * 3, 0, Math.PI * 2);
   ctx.strokeStyle = '#fbbf24';
