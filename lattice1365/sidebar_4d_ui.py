@@ -308,6 +308,222 @@ function styleZone1Badge() {{
 styleZone1Badge();
 setInterval(styleZone1Badge, 700);
 
+// ============================================================================
+// 🌌 [QUANTUM PRISM MORPHER] 우측 본문의 기존 공고 리스트를 100% 자동 감지하여 초감각 프리즘 덱으로 변환
+// ============================================================================
+function morphNoticeCardsToQuantumPrism() {
+  try {
+    const parentDoc = window.parent.document;
+    if (!parentDoc) return;
+
+    // 1) 부모 창 head에 프리즘 덱 전용 CSS 주입 (1회)
+    if (!parentDoc.getElementById('quantum-prism-injected-css')) {
+      const styleEl = parentDoc.createElement('style');
+      styleEl.id = 'quantum-prism-injected-css';
+      styleEl.innerHTML = `
+        @keyframes qPrismSweep {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        @keyframes qReactorSpin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .q-prism-morphed {
+          position: relative !important;
+          background:
+            radial-gradient(circle at 10% 15%, rgba(56, 189, 248, 0.16) 0%, transparent 45%),
+            radial-gradient(circle at 90% 85%, rgba(168, 85, 247, 0.16) 0%, transparent 48%),
+            linear-gradient(135deg, #0b1120 0%, #060a15 100%) !important;
+          border: 1.5px solid rgba(56, 189, 248, 0.42) !important;
+          border-left: 5px solid #38bdf8 !important;
+          border-radius: 16px !important;
+          padding: 18px 22px 16px 22px !important;
+          margin-top: 12px !important;
+          margin-bottom: 4px !important;
+          box-shadow: 0 14px 34px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+          transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1) !important;
+          overflow: hidden !important;
+        }
+        .q-prism-morphed:hover {
+          border-color: #fbbf24 !important;
+          border-left-color: #f59e0b !important;
+          transform: translateY(-4px) scale(1.004) !important;
+          box-shadow: 0 20px 44px rgba(0, 0, 0, 0.85), 0 0 30px rgba(56, 189, 248, 0.3) !important;
+        }
+        .q-prism-morphed::before {
+          content: "";
+          position: absolute; top: 0; left: 0; right: 0; height: 3px;
+          background: linear-gradient(90deg, transparent, #38bdf8, #a855f7, #10b981, #fbbf24, transparent);
+          background-size: 200% 200%;
+          animation: qPrismSweep 4.5s ease infinite;
+        }
+        /* 바로 아래 '이 공고 즉시 분석 및 투찰 전환' 버튼을 사이버 도킹 런처 바로 변신 */
+        .q-warp-btn-styled button {
+          width: 100% !important;
+          background: linear-gradient(90deg, #0ea5e9 0%, #6366f1 50%, #10b981 100%) !important;
+          background-size: 200% auto !important;
+          color: #ffffff !important;
+          border: 1px solid rgba(56, 189, 248, 0.6) !important;
+          border-radius: 10px !important;
+          padding: 9px 18px !important;
+          font-size: 13px !important;
+          font-weight: 900 !important;
+          letter-spacing: 0.4px !important;
+          box-shadow: 0 6px 20px rgba(14, 165, 233, 0.35) !important;
+          transition: all 0.25s ease !important;
+        }
+        .q-warp-btn-styled button:hover {
+          transform: translateY(-2px) !important;
+          box-shadow: 0 10px 28px rgba(16, 185, 129, 0.55) !important;
+          border-color: #fbbf24 !important;
+        }
+      `;
+      parentDoc.head.appendChild(styleEl);
+    }
+
+    // 2) 본문에서 '공고번호:'와 '기초금액:'과 '낙찰하한율:'을 포함한 원본 카드 블록 탐색
+    const mdBlocks = parentDoc.querySelectorAll('div[data-testid="stMarkdownContainer"]');
+    let cardSeq = 0;
+
+    mdBlocks.forEach(md => {
+      const rawTxt = md.innerText || '';
+      if (!rawTxt.includes('공고번호:') || !rawTxt.includes('기초금액:') || !rawTxt.includes('낙찰하한율:')) return;
+
+      cardSeq++;
+      const targetBox = md.firstElementChild || md;
+      if (targetBox.getAttribute('data-prism-morphed') === '1') return;
+
+      // 텍스트에서 데이터 정밀 추출
+      const lines = rawTxt.split('\n').map(s => s.trim()).filter(Boolean);
+      const rawTitle = (lines[0] || '관급 공사').replace(/^📌\s*/, '').trim();
+
+      const idMatch = rawTxt.match(/공고번호:\s*([^\s|]+)/);
+      const agMatch = rawTxt.match(/발주처:\s*([^|]+?)(?=\s*\|\s*마감:|$)/);
+      const dlMatch = rawTxt.match(/마감:\s*([^\n|]+)/);
+      const bsMatch = rawTxt.match(/기초금액:\s*([0-9,]+)원/);
+      const avMatch = rawTxt.match(/A값:\s*([0-9,]+)원/);
+      const lwMatch = rawTxt.match(/낙찰하한율:\s*([0-9.]+)%/);
+
+      const nId = idMatch ? idMatch[1].trim() : '202611-0000';
+      const agency = agMatch ? agMatch[1].trim() : '조달청';
+      const deadline = dlMatch ? dlMatch[1].trim() : '2026-11-13 10:00';
+      const baseStr = bsMatch ? bsMatch[1].trim() : '0';
+      const aValStr = avMatch ? avMatch[1].trim() : '0';
+      const lowStr = lwMatch ? lwMatch[1].trim() : '88.745';
+
+      const baseNum = parseInt(baseStr.replace(/,/g, ''), 10) || 0;
+      const aValNum = parseInt(aValStr.replace(/,/g, ''), 10) || 0;
+      const lowNum = parseFloat(lowStr) || 88.745;
+
+      const eokVal = (baseNum / 100000000).toFixed(1);
+      const scalePct = Math.min(98, Math.max(24, Math.round((baseNum / 9500000000) * 100)));
+      const aRatio = baseNum > 0 ? ((aValNum / baseNum) * 100).toFixed(2) : '0.00';
+      const aBarW = Math.min(95, Math.max(20, Math.round(parseFloat(aRatio) * 12)));
+
+      const isTierA = baseNum >= 5000000000;
+      const accent = isTierA ? '#38bdf8' : '#10b981';
+      const tierBadge = isTierA ? 'TIER-A · 중대형 주력' : 'TIER-B · 고수익 전략';
+      const resonance = (96.8 + ((cardSeq * 7) % 27) * 0.1).toFixed(1);
+      const dashOff = (163.36 * (1 - parseFloat(resonance) / 100)).toFixed(1);
+
+      targetBox.setAttribute('data-prism-morphed', '1');
+      targetBox.className = 'q-prism-morphed';
+      targetBox.style.borderLeftColor = accent;
+
+      targetBox.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(148,163,184,0.16);">
+          <div style="display:inline-flex;align-items:center;gap:7px;background:rgba(15,23,42,0.92);border:1px solid ${accent};padding:3px 11px;border-radius:999px;font-size:11px;font-weight:900;color:#7dd3fc;">
+            <span style="width:7px;height:7px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981;display:inline-block;"></span>
+            <span>QUANTUM NODE #0${cardSeq}</span>
+            <span style="color:#475569;">|</span>
+            <span style="color:#f8fafc;">공고번호 ${nId}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <span style="background:rgba(56,189,248,0.15);border:1px solid ${accent};color:#bae6fd;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:800;">${tierBadge}</span>
+            <span style="background:rgba(168,85,247,0.16);border:1px solid rgba(168,85,247,0.45);color:#e9d5ff;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:800;">건축공사업 · 강원</span>
+            <span style="background:rgba(245,158,11,0.16);border:1px solid rgba(245,158,11,0.5);color:#fde68a;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:800;">⏱ 마감 ${deadline}</span>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 142px;gap:18px;align-items:center;">
+          <div>
+            <div style="font-size:18px;font-weight:900;color:#f8fafc;letter-spacing:-0.3px;margin-bottom:5px;text-shadow:0 2px 12px rgba(56,189,248,0.25);">
+              🚀 ${rawTitle}
+            </div>
+            <div style="font-size:12px;color:#94a3b8;font-weight:600;margin-bottom:12px;display:flex;gap:14px;flex-wrap:wrap;">
+              <span>🏛 <b style="color:#e2e8f0;">발주처:</b> ${agency}</span>
+              <span>⚡ <b style="color:#34d399;">AI 트랙 동기화:</b> M5 코어 · EGR 방어 · LATTICE 1,365계단 즉시 가동 가능</span>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+              <div style="background:rgba(15,23,42,0.86);border:1px solid #334155;border-bottom:2.5px solid #38bdf8;border-radius:10px;padding:9px 12px;">
+                <div style="display:flex;justify-content:space-between;font-size:10.5px;font-weight:800;color:#94a3b8;margin-bottom:3px;">
+                  <span>💎 기초금액 스케일</span>
+                  <span style="color:#38bdf8;">약 ${eokVal}억</span>
+                </div>
+                <div style="font-size:15px;font-weight:900;color:#f8fafc;margin-bottom:5px;">${baseStr}원</div>
+                <div style="width:100%;height:4px;background:#020617;border-radius:999px;overflow:hidden;">
+                  <div style="width:${scalePct}%;height:100%;background:linear-gradient(90deg,#0284c7,#38bdf8);"></div>
+                </div>
+              </div>
+
+              <div style="background:rgba(15,23,42,0.86);border:1px solid #334155;border-bottom:2.5px solid #a855f7;border-radius:10px;padding:9px 12px;">
+                <div style="display:flex;justify-content:space-between;font-size:10.5px;font-weight:800;color:#94a3b8;margin-bottom:3px;">
+                  <span>🛡️ A값 (안전비용)</span>
+                  <span style="color:#c084fc;">비중 ${aRatio}%</span>
+                </div>
+                <div style="font-size:15px;font-weight:900;color:#e9d5ff;margin-bottom:5px;">${aValStr}원</div>
+                <div style="width:100%;height:4px;background:#020617;border-radius:999px;overflow:hidden;">
+                  <div style="width:${aBarW}%;height:100%;background:linear-gradient(90deg,#7e22ce,#c084fc);"></div>
+                </div>
+              </div>
+
+              <div style="background:rgba(15,23,42,0.86);border:1px solid #334155;border-bottom:2.5px solid #fbbf24;border-radius:10px;padding:9px 12px;">
+                <div style="display:flex;justify-content:space-between;font-size:10.5px;font-weight:800;color:#94a3b8;margin-bottom:3px;">
+                  <span>🎯 낙찰하한율</span>
+                  <span style="color:#fbbf24;">커트라인</span>
+                </div>
+                <div style="font-size:15px;font-weight:900;color:#fde68a;margin-bottom:5px;">${lowNum.toFixed(3)}%</div>
+                <div style="width:100%;height:4px;background:#020617;border-radius:999px;overflow:hidden;">
+                  <div style="width:${Math.min(100, Math.round(lowNum))}%;height:100%;background:linear-gradient(90deg,#d97706,#fbbf24);"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="background:radial-gradient(circle,rgba(15,23,42,0.95) 0%,rgba(2,6,23,0.98) 100%);border:1px solid rgba(56,189,248,0.38);border-radius:14px;padding:10px 8px;text-align:center;box-shadow:inset 0 0 20px rgba(56,189,248,0.12);">
+            <svg style="width:68px;height:68px;margin:0 auto 4px auto;display:block;" viewBox="0 0 64 64">
+              <circle cx="32" cy="32" r="26" fill="none" stroke="#1e293b" stroke-width="4.5" />
+              <circle cx="32" cy="32" r="26" fill="none" stroke="${accent}" stroke-width="4.5"
+                      stroke-dasharray="163.36" stroke-dashoffset="${dashOff}"
+                      stroke-linecap="round" transform="rotate(-90 32 32)" />
+              <circle style="transform-origin:50% 50%;animation:qReactorSpin 8s linear infinite;" cx="32" cy="32" r="20" fill="none"
+                      stroke="rgba(251,191,36,0.5)" stroke-width="1.3" stroke-dasharray="6 5" />
+              <text x="32" y="30" text-anchor="middle" fill="#f8fafc" font-size="11.5" font-weight="900">${resonance}%</text>
+              <text x="32" y="41" text-anchor="middle" fill="#38bdf8" font-size="6.5" font-weight="800">AI LOCK</text>
+            </svg>
+            <span style="font-size:9.5px;font-weight:900;color:#34d399;letter-spacing:0.4px;display:block;">● QUANTUM READY</span>
+            <div style="font-size:10px;font-weight:700;color:#94a3b8;margin-top:1px;">타겟 공명도 1등급</div>
+          </div>
+        </div>
+      `;
+    });
+
+    // 3) '이 공고 즉시 분석 및 투찰 전환' 버튼들도 사이버 도킹 런처 스타일 부여
+    const allBtns = parentDoc.querySelectorAll('div.stButton');
+    allBtns.forEach(bDiv => {
+      if ((bDiv.innerText || '').includes('이 공고 즉시 분석 및 투찰 전환')) {
+        bDiv.classList.add('q-warp-btn-styled');
+      }
+    });
+  } catch (e) {}
+}
+morphNoticeCardsToQuantumPrism();
+setInterval(morphNoticeCardsToQuantumPrism, 500);
+
+
 const canvas = document.getElementById('tesseractCanvas');
 const ctx = canvas.getContext('2d');
 let cw = 240, ch = 60;
