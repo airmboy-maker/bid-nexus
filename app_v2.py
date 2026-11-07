@@ -1112,7 +1112,7 @@ def generate_company_spec_certificate_html(comp=None):
         lic_specs = comp.get("license_specs", {})
         special_certs = comp.get("special_certs", ["무정전공사 시공자격", "활선공사 시공자격"])
         engineers = comp.get("engineers", {"특급": 0, "고급": 0, "중급": 0, "초급": 0, "_ocr_status": "ERROR_UNVERIFIED"})
-        total_engineers = sum(engineers.values())
+        total_engineers = sum(v for v in engineers.values() if isinstance(v, (int, float)) and not isinstance(v, bool))
     
         rows = ""
         for idx, (lic_nm, spec) in enumerate(lic_specs.items(), 1):
@@ -1739,7 +1739,7 @@ if not isinstance(comp, dict):
     comp = {}
 
 comp = comp[0] if isinstance(comp, (list, tuple)) and len(comp) > 0 else (comp if isinstance(comp, dict) else {}); eng_val = comp.get('engineers', comp.get('tech_headcount', {}))
-total_eng = sum(eng_val.values()) if isinstance(eng_val, dict) else (len(eng_val) if isinstance(eng_val, list) else 14)
+total_eng = sum(v for v in eng_val.values() if isinstance(v, (int, float)) and not isinstance(v, bool)) if isinstance(eng_val, dict) else (len(eng_val) if isinstance(eng_val, list) else 14)
 c_nm = comp.get('name', '기업')
 c_ceo = comp.get('ceo', '대표이사')
 c_crd = comp.get('credit_grade', 'A-')
@@ -2046,7 +2046,7 @@ with tab_profile:
                 save_company_profile(updated)
                 st.session_state["comp_profile"] = updated
                 st.session_state["auto_state"] = execute_full_autonomous_pipeline(updated, auto_save=True)
-                st.toast(f"✅ 기술자 자동 추출 완료! (총 {sum(parsed_eng.values())}명)", icon="🎉")
+                st.toast(f"✅ 기술자 자동 추출 완료! (총 {sum(v for v in parsed_eng.values() if isinstance(v, (int, float)) and not isinstance(v, bool))}명)", icon="🎉")
                 st.rerun()
         else:
             st.warning("증명서 PDF 파일을 업로드하세요.")
@@ -2082,7 +2082,7 @@ with tab_profile:
     with c_box2:
         st.markdown("##### 👷 상주 기술인력 보유 현황 (OCR 추출값)")
         engs = comp.get("engineers", {"특급": 0, "고급": 0, "중급": 0, "초급": 0, "_ocr_status": "ERROR_UNVERIFIED"})
-        eng_df = pd.DataFrame([{"특급 기술자": f"{engs.get('특급',0)}명", "고급 기술자": f"{engs.get('고급',0)}명", "중급 기술자": f"{engs.get('중급',0)}명", "초급 기술자": f"{engs.get('초급',0)}명", "총원": f"{sum(engs.values())}명"}])
+        eng_df = pd.DataFrame([{"특급 기술자": f"{engs.get('특급',0)}명", "고급 기술자": f"{engs.get('고급',0)}명", "중급 기술자": f"{engs.get('중급',0)}명", "초급 기술자": f"{engs.get('초급',0)}명", "총원": f"{sum(v for v in engs.values() if isinstance(v, (int, float)) and not isinstance(v, bool))}명"}])
         st.dataframe(eng_df, use_container_width=True, hide_index=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
@@ -2142,7 +2142,7 @@ with tab_profile:
                 def_amt = int(cur_y_perf.get(y_str, 700000000))
                 y_inputs[y_str] = y_cols[idx].number_input(f"{y_str}년", value=def_amt, step=50000000, key=f"perf_{lic_nm}_{y_str}", format="%d")
             
-            calc_total_perf = sum(y_inputs.values())
+            calc_total_perf = sum(v for v in y_inputs.values() if isinstance(v, (int, float)) and not isinstance(v, bool))
             st.info(f"💡 **[{lic_nm}] 5개년 누적 합산 총액**: `{calc_total_perf:,}` 원 (전자동 합산)")
             
             updated_specs[lic_nm] = {
@@ -3884,7 +3884,7 @@ def render_phase6_backtesting_terminal():
             current_mvp_counts[mvp_info["best_model"]] = current_mvp_counts.get(mvp_info["best_model"], 0) + 1
 
         trust_summary_list = []
-        total_cum_rounds = sum(cum_hits.values()) + len(ledger)
+        total_cum_rounds = sum(v for v in cum_hits.values() if isinstance(v, (int, float)) and not isinstance(v, bool)) + len(ledger)
 
         for m_label, r_col, b_col, m_color in model_defs:
             errs = [abs(r_it[r_col] - r_it["실제개찰_사정률"]) for r_it in ledger]
@@ -7577,9 +7577,8 @@ def render_phase9_bidding_machine_workstation():
 render_phase9_bidding_machine_workstation()
 # ==================== [PHASE 9: BIDDING MACHINE HOUSING ROUTER END] ====================
 
-
 # === [EGR-BID ADD-ON STREAMLIT PANEL] ===
-def _render_egr_bid_addon_panel():
+def _render_egr_bid_addon_panel(pos_key="top"):
     import streamlit as st
     from decimal import Decimal
     from bid_math_fixed import NOTICE_MASTER_DB, resolve_notice_record
@@ -7587,7 +7586,6 @@ def _render_egr_bid_addon_panel():
     from research.egr_bid.robust_selector import egr_bid_recommend
     from research.egr_bid.tests.test_egr_bid_synthetic import _make_verified_history
 
-    st.markdown("---")
     with st.expander("🧭 [번외 모듈] EGR-BID (M6·M7·M8) 분포 강건 시나리오 비교 분석기 (클릭하여 열기)", expanded=False):
         st.caption("※ 기존 M1~M5 코어 엔진과 독립된 상위 시나리오 평가 계층입니다. [NOT_PRODUCTION_VALIDATED]")
         c1, c2, c3 = st.columns([2, 2, 2])
@@ -7595,14 +7593,14 @@ def _render_egr_bid_addon_panel():
             sel_id = st.selectbox(
                 "검증 대상 공고 (source_verified=True)",
                 options=["202611-00892 (R26BK01812785-000 | 소양초 공간재구조화 조성공사)"],
-                key="_egr_sel_notice",
+                key=f"_egr_sel_notice_{pos_key}",
             )
         with c2:
             ev_mode = st.radio(
                 "개찰 이력 증거 모드 (M6/M7)",
                 options=["검증 샌드박스 이력 (8건)", "증거 부족 시뮬레이션 (M8 자동보류)"],
                 horizontal=True,
-                key="_egr_ev_mode",
+                key=f"_egr_ev_mode_{pos_key}",
             )
         with c3:
             firm_cost_m = st.number_input(
@@ -7611,7 +7609,7 @@ def _render_egr_bid_addon_panel():
                 max_value=3600,
                 value=0,
                 step=10,
-                key="_egr_firm_cost",
+                key=f"_egr_firm_cost_{pos_key}",
             )
 
         rec = resolve_notice_record("202611-00892", strict=True, allow_demo=False)
@@ -7659,6 +7657,6 @@ def _render_egr_bid_addon_panel():
             st.table(rows)
 
 try:
-    _render_egr_bid_addon_panel()
+    _render_egr_bid_addon_panel('bottom')
 except Exception:
     pass
