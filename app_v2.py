@@ -1885,16 +1885,34 @@ with tab_radar:
         st.markdown(get_prism_deck_css(), unsafe_allow_html=True)
         for idx, bid_item in enumerate(live_bids):
                 st.markdown(build_prism_notice_card_html(bid_item, idx), unsafe_allow_html=True)
-                from lattice1365.notice_dossier_vault import analyze_construction_profile, build_notice_dossier_html, generate_notice_attachments
+                from lattice1365.notice_dossier_vault import analyze_construction_profile, build_notice_dossier_html, generate_notice_attachments, generate_master_zip_bundle
                 _prof = analyze_construction_profile(bid_item, idx)
-                with st.expander(f"🔍 [공고문 상세 열람 & 첨부파일 다운로드] {_prof['title']} — 공사종류 · 물량내역서(.csv) · 공고문(.html) · 시방서 패키지", expanded=False):
+                with st.expander(f"🔍 [AI 현장도감 & 스마트 문서볼트] {_prof['title']} — 원클릭 통합 패키지(.ZIP) · 내역서 X-Ray 열람", expanded=False):
                     st.markdown(build_notice_dossier_html(_prof), unsafe_allow_html=True)
                     _doc_html, _boq_csv, _bid_json, _spec_txt = generate_notice_attachments(_prof)
+                    _zip_bytes, _zip_meta = generate_master_zip_bundle(_prof)
+                    st.download_button(
+                        label=f"📦 [1-Click 마스터 번들] 입찰공고문 + 공내역서 + G2B제원 + 시방서 + AI전략서 일괄 다운로드 (G2B_마스터패키지_{_prof['nid']}.zip · {_zip_meta['zip_size_kb']} KB · SHA256 검증완료)",
+                        data=_zip_bytes,
+                        file_name=f"G2B_마스터패키지_{_prof['nid']}.zip",
+                        mime="application/zip",
+                        key=f"dl_master_zip_{_prof['nid']}_{idx}",
+                        type="primary",
+                        use_container_width=True,
+                    )
                     _dl_c1, _dl_c2, _dl_c3, _dl_c4 = st.columns(4)
                     _dl_c1.download_button("📄 입찰공고문 전문 (.html)", data=_doc_html, file_name=f"입찰공고문_{_prof['nid']}.html", mime="text/html", key=f"dl_doc_{_prof['nid']}_{idx}", use_container_width=True)
                     _dl_c2.download_button("📊 공내역서·물량내역 (.csv)", data=_boq_csv, file_name=f"공내역서_{_prof['nid']}.csv", mime="text/csv", key=f"dl_boq_{_prof['nid']}_{idx}", use_container_width=True)
                     _dl_c3.download_button("📦 G2B 전자입찰 제원 (.json)", data=_bid_json, file_name=f"G2B제원_{_prof['nid']}.json", mime="application/json", key=f"dl_json_{_prof['nid']}_{idx}", use_container_width=True)
                     _dl_c4.download_button("📐 공사시방서·특기사항 (.txt)", data=_spec_txt, file_name=f"공사시방서_{_prof['nid']}.txt", mime="text/plain", key=f"dl_spec_{_prof['nid']}_{idx}", use_container_width=True)
+                    _pv_t1, _pv_t2, _pv_t3 = st.tabs(["📊 [인앱 열람 1] 공내역서(CSV) 실시간 프리뷰", "📐 [인앱 열람 2] 공사시방서 & AI 투찰전략서", "🔐 [인앱 열람 3] G2B JSON & SHA-256 무결성 매니페스트"])
+                    with _pv_t1:
+                        st.code(_boq_csv.lstrip('\ufeff'), language="csv")
+                    with _pv_t2:
+                        st.markdown(_zip_meta['ai_strategy_md'])
+                        st.code(_spec_txt, language="text")
+                    with _pv_t3:
+                        st.json(_zip_meta['manifest'])
                 
                 c_btn1, c_btn2 = st.columns([1.5, 4.5])
                 if c_btn1.button(f"⚡ 이 공고 즉시 분석 및 투찰 전환", key=f"btn_pick_adv_{idx}", type="primary"):
