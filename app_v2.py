@@ -1874,25 +1874,10 @@ with tab_radar:
     if not live_bids:
         st.warning("선택하신 조건에 일치하는 실시간 공고가 없습니다. 지역이나 규모 필터를 넓혀보세요.")
     else:
+        from lattice1365.prism_radar_cards import get_prism_deck_css, build_prism_notice_card_html
+        st.markdown(get_prism_deck_css(), unsafe_allow_html=True)
         for idx, bid_item in enumerate(live_bids):
-            with st.container():
-                st.markdown(f"""
-                <div class="radar-card">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:1.15rem; font-weight:700; color:#F8FAFC;">📌 {bid_item.get('공고명', '공고')}</span>
-                        <div>
-                            <span class="quant-tag">{bid_item.get("필요면허", bid_item.get("면허", "건축공사업"))}</span>
-                            <span class="quant-tag">{bid_item.get("지역제한", bid_item.get("제한지역", bid_item.get("지역", "강원특별자치도")))}</span>
-                        </div>
-                    </div>
-                    <div style="font-size:0.9rem; color:#94A3B8; margin-top:6px;">
-                        공고번호: <b>{bid_item.get('공고번호', '202611-00000')}</b> | 발주처: <b>{bid_item.get('발주처', '조달청')}</b> | 마감: <b style="color:#F59E0B;">{bid_item.get('마감일시', '2026-11-13 10:00')}</b>
-                    </div>
-                    <div style="font-size:0.95rem; color:#E2E8F0; margin-top:8px;">
-                        기초금액: <b>{(bid_item.get('기초금액', 1000000000) or 1000000000):,}원</b> | A값: <b>{(bid_item.get('A값', 50000000) or 50000000):,}원</b> | 낙찰하한율: <b>{bid_item['하한율']}%</b>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
+                st.markdown(build_prism_notice_card_html(bid_item, idx), unsafe_allow_html=True)
                 
                 c_btn1, c_btn2 = st.columns([1.5, 4.5])
                 if c_btn1.button(f"⚡ 이 공고 즉시 분석 및 투찰 전환", key=f"btn_pick_adv_{idx}", type="primary"):
