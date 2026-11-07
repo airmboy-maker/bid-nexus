@@ -1814,6 +1814,10 @@ except Exception as _e_cert:
 # =================================================================================
 with tab_radar:
     import importlib
+    import lattice1365.global_zero_scroll_os as _gzs_mod
+    importlib.reload(_gzs_mod)
+    _global_ui_mode = _gzs_mod.render_sidebar_ui_mode_selector()
+    import importlib
     import lattice1365.prism_radar_cards as _prc_mod
     importlib.reload(_prc_mod)
     from lattice1365.prism_radar_cards import get_prism_deck_css, build_orbital_radar_header_html, build_cockpit_sub_header_html
@@ -1911,8 +1915,8 @@ with tab_radar:
         st.markdown(_bv_mod.build_boutique_cart_bar_html(len(_b_notices), _cart_list, _active_prof, _view_mode), unsafe_allow_html=True)
         import lattice1365.zero_scroll_stage as _zss_mod
         importlib.reload(_zss_mod)
-        if '1-Page' in _view_mode:
-            _zss_mod.render_zero_scroll_boutique_workspace(_b_notices)
+        if '1-Page' in _view_mode or '1-Page' in locals().get('_global_ui_mode', ''):
+            _gzs_mod.render_global_zero_scroll_app(_b_notices)
         elif '3×3' in _view_mode:
             for _row_start in range(0, len(_b_notices), 3):
                 _g_cols = st.columns(3)
