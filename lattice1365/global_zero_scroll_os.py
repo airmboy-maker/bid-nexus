@@ -535,6 +535,36 @@ def render_full_page_swap_os(notices: List[Dict[str, Any]] = None) -> None:
             st.rerun()
 
     # =========================================================================
+    # ⚡ [14개 전체 세부 모델(M1~M8 · L0~L5) 1-Click 직통 페이지 교체 런처 바]
+    # =========================================================================
+    if "_direct_sub_model" not in st.session_state:
+        st.session_state["_direct_sub_model"] = "ALL"
+
+    all_14_models = ["ALL(통합)", "M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "L0", "L1", "L2", "L3", "L4", "L5"]
+    m_bar_cols = st.columns(15)
+    for m_i, m_code in enumerate(all_14_models):
+        is_sel_m = (st.session_state.get("_direct_sub_model", "ALL(통합)") == m_code) and (cur_p_idx in (0, 1, 2, 3))
+        if m_bar_cols[m_i].button(
+            m_code,
+            key=f"direct_14m_btn_{m_code}",
+            type="primary" if is_sel_m else "secondary",
+            use_container_width=True,
+        ):
+            st.session_state["_direct_sub_model"] = m_code
+            if m_code == "ALL(통합)":
+                st.session_state["_os_page_idx"] = 0
+            elif m_code in ("M1", "M2", "M3", "M4", "M5"):
+                st.session_state["_os_page_idx"] = 1
+                st.session_state["_sub_m1_m5"] = m_code
+            elif m_code in ("M6", "M7", "M8"):
+                st.session_state["_os_page_idx"] = 2
+                st.session_state["_sub_m6_m8"] = m_code
+            else:
+                st.session_state["_os_page_idx"] = 3
+                st.session_state["_sub_l0_l5"] = m_code
+            st.rerun()
+
+    # =========================================================================
     # [P1] 🔥 3대 트랙(총 14개 세부 모델) 통합 지휘소
     # =========================================================================
     if cur_p_idx == 0:
