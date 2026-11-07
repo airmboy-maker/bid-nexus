@@ -409,9 +409,24 @@ def build_all_models_command_deck_html(prof: Dict[str, Any]) -> str:
     return "\n".join(line.lstrip() for line in raw.splitlines() if line.strip())
 
 
+def _set_page_and_model(p_idx: int, sub_m: str = None) -> None:
+    """버튼 클릭 시 st.rerun() 충돌 없이 세션 상태를 가장 먼저 즉시 변경하는 콜백"""
+    st.session_state["_os_page_idx"] = p_idx
+    if sub_m:
+        st.session_state["_direct_sub_model"] = sub_m
+        if sub_m in ("M1", "M2", "M3", "M4", "M5"):
+            st.session_state["_sub_m1_m5"] = sub_m
+        elif sub_m in ("M6", "M7", "M8"):
+            st.session_state["_sub_m6_m8"] = sub_m
+        elif sub_m in ("L0", "L1", "L2", "L3", "L4", "L5"):
+            st.session_state["_sub_l0_l5"] = sub_m
+
+
 def render_sidebar_master_controller() -> str:
     if "_os_page_idx" not in st.session_state:
         st.session_state["_os_page_idx"] = 0
+    if "_direct_sub_model" not in st.session_state:
+        st.session_state["_direct_sub_model"] = "ALL(통합)"
 
     with st.sidebar:
         st.markdown(
@@ -440,22 +455,23 @@ def render_sidebar_master_controller() -> str:
             st.markdown(
                 """
 <div style="background:rgba(14,165,233,0.14);border:1px solid rgba(56,189,248,0.45);border-left:3.5px solid #38bdf8;border-radius:8px;padding:6px 10px;margin-top:4px;margin-bottom:4px;">
-<div style="font-size:10.5px;font-weight:900;color:#7dd3fc;">🗂️ 14개 AI 모델 페이지 교체</div>
-<div style="font-size:9.5px;color:#94a3b8;font-weight:700;">클릭 시 스크롤 없이 페이지가 교체됩니다</div>
+<div style="font-size:10.5px;font-weight:900;color:#7dd3fc;">🗂️ 6대 페이지 즉시 교체</div>
+<div style="font-size:9.5px;color:#94a3b8;font-weight:700;">클릭 즉시 화면이 바뀝니다</div>
 </div>
 """,
                 unsafe_allow_html=True,
             )
+            default_sub = {0: "ALL(통합)", 1: "M5", 2: "M7", 3: "L5", 4: None, 5: None}
             for p_i, p_label in enumerate(PAGE_MENUS):
                 is_cur = (st.session_state["_os_page_idx"] == p_i)
-                if st.button(
+                st.button(
                     p_label,
                     key=f"sb_jump_p_{p_i}",
                     type="primary" if is_cur else "secondary",
                     use_container_width=True,
-                ):
-                    st.session_state["_os_page_idx"] = p_i
-                    st.rerun()
+                    on_click=_set_page_and_model,
+                    args=(p_i, default_sub.get(p_i)),
+                )
 
     return ui_mode
 
@@ -468,6 +484,8 @@ def render_full_page_swap_os(notices: List[Dict[str, Any]] = None) -> None:
 
     if "_os_page_idx" not in st.session_state:
         st.session_state["_os_page_idx"] = 0
+    if "_direct_sub_model" not in st.session_state:
+        st.session_state["_direct_sub_model"] = "ALL(통합)"
     if "_zs_page" not in st.session_state:
         st.session_state["_zs_page"] = 0
     if "_boutique_selected_idx" not in st.session_state:
@@ -489,6 +507,7 @@ def render_full_page_swap_os(notices: List[Dict[str, Any]] = None) -> None:
     profit_eok = round(total_cart_profit / 100_000_000.0, 2)
 
     cur_p_idx = st.session_state["_os_page_idx"]
+    cur_sub_m = st.session_state["_direct_sub_model"]
 
     top_h1, top_h2 = st.columns([2.3, 1.2])
     with top_h1:
@@ -497,7 +516,7 @@ def render_full_page_swap_os(notices: List[Dict[str, Any]] = None) -> None:
 <div class="swap-top-hud" style="margin-bottom:4px;">
 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
 <span style="background:linear-gradient(90deg,#fbbf24,#f59e0b);color:#020617;font-size:10px;font-weight:900;padding:2px 9px;border-radius:999px;">⚡ ZERO-SCROLL PAGE SWAP</span>
-<span style="font-size:14px;font-weight:900;color:#fde68a;">{PAGE_MENUS[cur_p_idx]}</span>
+<span style="font-size:14px;font-weight:900;color:#fde68a;">{PAGE_MENUS[cur_p_idx]} ({cur_sub_m})</span>
 <span style="color:#475569;">|</span>
 <span style="font-size:13px;font-weight:800;color:#38bdf8;">[{active_prof['nid']}] {active_prof['title'][:20]}</span>
 </div>
@@ -523,46 +542,44 @@ def render_full_page_swap_os(notices: List[Dict[str, Any]] = None) -> None:
             st.session_state["_boutique_selected_idx"] = new_sel
             st.rerun()
 
+    # 1. 상단 6대 대분류 페이지 버튼 (on_click 콜백 적용으로 100% 즉시 작동)
+    default_sub = {0: "ALL(통합)", 1: "M5", 2: "M7", 3: "L5", 4: None, 5: None}
     nav_cols = st.columns(6)
     for p_i, p_label in enumerate(PAGE_MENUS):
-        if nav_cols[p_i].button(
+        nav_cols[p_i].button(
             p_label,
             key=f"top_swap_btn_{p_i}",
             type="primary" if cur_p_idx == p_i else "secondary",
             use_container_width=True,
-        ):
-            st.session_state["_os_page_idx"] = p_i
-            st.rerun()
+            on_click=_set_page_and_model,
+            args=(p_i, default_sub.get(p_i)),
+        )
 
-    # =========================================================================
-    # ⚡ [14개 전체 세부 모델(M1~M8 · L0~L5) 1-Click 직통 페이지 교체 런처 바]
-    # =========================================================================
-    if "_direct_sub_model" not in st.session_state:
-        st.session_state["_direct_sub_model"] = "ALL"
-
+    # 2. 상단 14개 전체 세부 모델(ALL, M1~M8, L0~L5) 1-Click 직통 버튼 바 (on_click 콜백 적용)
     all_14_models = ["ALL(통합)", "M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "L0", "L1", "L2", "L3", "L4", "L5"]
     m_bar_cols = st.columns(15)
     for m_i, m_code in enumerate(all_14_models):
-        is_sel_m = (st.session_state.get("_direct_sub_model", "ALL(통합)") == m_code) and (cur_p_idx in (0, 1, 2, 3))
-        if m_bar_cols[m_i].button(
+        if m_code == "ALL(통합)":
+            target_p = 0
+            is_sel_m = (cur_p_idx == 0)
+        elif m_code in ("M1", "M2", "M3", "M4", "M5"):
+            target_p = 1
+            is_sel_m = (cur_p_idx == 1 and st.session_state.get("_sub_m1_m5", "M5") == m_code)
+        elif m_code in ("M6", "M7", "M8"):
+            target_p = 2
+            is_sel_m = (cur_p_idx == 2 and st.session_state.get("_sub_m6_m8", "M7") == m_code)
+        else:
+            target_p = 3
+            is_sel_m = (cur_p_idx == 3 and st.session_state.get("_sub_l0_l5", "L5") == m_code)
+
+        m_bar_cols[m_i].button(
             m_code,
             key=f"direct_14m_btn_{m_code}",
             type="primary" if is_sel_m else "secondary",
             use_container_width=True,
-        ):
-            st.session_state["_direct_sub_model"] = m_code
-            if m_code == "ALL(통합)":
-                st.session_state["_os_page_idx"] = 0
-            elif m_code in ("M1", "M2", "M3", "M4", "M5"):
-                st.session_state["_os_page_idx"] = 1
-                st.session_state["_sub_m1_m5"] = m_code
-            elif m_code in ("M6", "M7", "M8"):
-                st.session_state["_os_page_idx"] = 2
-                st.session_state["_sub_m6_m8"] = m_code
-            else:
-                st.session_state["_os_page_idx"] = 3
-                st.session_state["_sub_l0_l5"] = m_code
-            st.rerun()
+            on_click=_set_page_and_model,
+            args=(target_p, m_code),
+        )
 
     # =========================================================================
     # [P1] 🔥 3대 트랙(총 14개 세부 모델) 통합 지휘소
@@ -571,18 +588,10 @@ def render_full_page_swap_os(notices: List[Dict[str, Any]] = None) -> None:
         st.markdown('<div class="page-swap-canvas">', unsafe_allow_html=True)
         st.markdown(build_all_models_command_deck_html(active_prof), unsafe_allow_html=True)
         b_c1, b_c2, b_c3, b_c4 = st.columns(4)
-        if b_c1.button("👑 [P2] M1~M5 (5개 코어 모델) 페이지로 교체 ▶", key="p1_to_m5", type="primary", use_container_width=True):
-            st.session_state["_os_page_idx"] = 1
-            st.rerun()
-        if b_c2.button("🛡️ [P3] M6~M8 (3개 방어 모델) 페이지로 교체 ▶", key="p1_to_egr", use_container_width=True):
-            st.session_state["_os_page_idx"] = 2
-            st.rerun()
-        if b_c3.button("⚡ [P4] L0~L5 (6개 격자 모델) 페이지로 교체 ▶", key="p1_to_lat", use_container_width=True):
-            st.session_state["_os_page_idx"] = 3
-            st.rerun()
-        if b_c4.button("🎛️ [P5] 0.001% 감도 시뮬레이터 페이지로 교체 ▶", key="p1_to_sim", use_container_width=True):
-            st.session_state["_os_page_idx"] = 4
-            st.rerun()
+        b_c1.button("👑 [P2] M1~M5 (5개 코어 모델) 페이지로 교체 ▶", key="p1_to_m5", type="primary", use_container_width=True, on_click=_set_page_and_model, args=(1, "M5"))
+        b_c2.button("🛡️ [P3] M6~M8 (3개 방어 모델) 페이지로 교체 ▶", key="p1_to_egr", use_container_width=True, on_click=_set_page_and_model, args=(2, "M7"))
+        b_c3.button("⚡ [P4] L0~L5 (6개 격자 모델) 페이지로 교체 ▶", key="p1_to_lat", use_container_width=True, on_click=_set_page_and_model, args=(3, "L5"))
+        b_c4.button("🎛️ [P5] 0.001% 감도 시뮬레이터 페이지로 교체 ▶", key="p1_to_sim", use_container_width=True, on_click=_set_page_and_model, args=(4, None))
         st.markdown("</div>", unsafe_allow_html=True)
 
     # =========================================================================
@@ -590,8 +599,7 @@ def render_full_page_swap_os(notices: List[Dict[str, Any]] = None) -> None:
     # =========================================================================
     elif cur_p_idx == 1:
         st.markdown('<div class="page-swap-canvas">', unsafe_allow_html=True)
-        if "_sub_m1_m5" not in st.session_state:
-            st.session_state["_sub_m1_m5"] = "M5"
+        cur_sub = st.session_state.get("_sub_m1_m5", "M5")
         m_list = [
             ("M1", "📐 [M1] 기본 중심극한(CLT)"),
             ("M2", "📊 [M2] 15C4 비대칭 왜도보정"),
@@ -600,12 +608,16 @@ def render_full_page_swap_os(notices: List[Dict[str, Any]] = None) -> None:
             ("M5", "👑 [M5] 최종 양자코어(#238)"),
         ]
         scols = st.columns(5)
-        cur_sub = st.session_state["_sub_m1_m5"]
         for idx_s, (k_s, lbl_s) in enumerate(m_list):
-            if scols[idx_s].button(lbl_s, key=f"btn_sub_{k_s}", type="primary" if cur_sub == k_s else "secondary", use_container_width=True):
-                st.session_state["_sub_m1_m5"] = k_s
-                st.rerun()
-        st.markdown(build_submodel_deep_dive_html(active_prof, st.session_state["_sub_m1_m5"]), unsafe_allow_html=True)
+            scols[idx_s].button(
+                lbl_s,
+                key=f"btn_sub_{k_s}",
+                type="primary" if cur_sub == k_s else "secondary",
+                use_container_width=True,
+                on_click=_set_page_and_model,
+                args=(1, k_s),
+            )
+        st.markdown(build_submodel_deep_dive_html(active_prof, cur_sub), unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
     # =========================================================================
@@ -613,20 +625,23 @@ def render_full_page_swap_os(notices: List[Dict[str, Any]] = None) -> None:
     # =========================================================================
     elif cur_p_idx == 2:
         st.markdown('<div class="page-swap-canvas">', unsafe_allow_html=True)
-        if "_sub_m6_m8" not in st.session_state:
-            st.session_state["_sub_m6_m8"] = "M7"
+        cur_sub = st.session_state.get("_sub_m6_m8", "M7")
         m_list = [
             ("M6", "🌡️ [M6] 발주처 레짐 스위칭 엔진"),
             ("M7", "🛡️ [M7] Q50 비대칭 중위 분위수 방어선"),
             ("M8", "🚨 [M8] CVaR 꼬리위험 & 원가 98% 하드플로어"),
         ]
         scols = st.columns(3)
-        cur_sub = st.session_state["_sub_m6_m8"]
         for idx_s, (k_s, lbl_s) in enumerate(m_list):
-            if scols[idx_s].button(lbl_s, key=f"btn_sub_{k_s}", type="primary" if cur_sub == k_s else "secondary", use_container_width=True):
-                st.session_state["_sub_m6_m8"] = k_s
-                st.rerun()
-        st.markdown(build_submodel_deep_dive_html(active_prof, st.session_state["_sub_m6_m8"]), unsafe_allow_html=True)
+            scols[idx_s].button(
+                lbl_s,
+                key=f"btn_sub_{k_s}",
+                type="primary" if cur_sub == k_s else "secondary",
+                use_container_width=True,
+                on_click=_set_page_and_model,
+                args=(2, k_s),
+            )
+        st.markdown(build_submodel_deep_dive_html(active_prof, cur_sub), unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
     # =========================================================================
@@ -634,8 +649,7 @@ def render_full_page_swap_os(notices: List[Dict[str, Any]] = None) -> None:
     # =========================================================================
     elif cur_p_idx == 3:
         st.markdown('<div class="page-swap-canvas">', unsafe_allow_html=True)
-        if "_sub_l0_l5" not in st.session_state:
-            st.session_state["_sub_l0_l5"] = "L5"
+        cur_sub = st.session_state.get("_sub_l0_l5", "L5")
         l_list = [
             ("L0", "🧱 [L0] 제원 정규화"),
             ("L1", "🎱 [L1] 15볼 생성기"),
@@ -645,12 +659,16 @@ def render_full_page_swap_os(notices: List[Dict[str, Any]] = None) -> None:
             ("L5", "⚡ [L5] 최빈피크 #338"),
         ]
         scols = st.columns(6)
-        cur_sub = st.session_state["_sub_l0_l5"]
         for idx_s, (k_s, lbl_s) in enumerate(l_list):
-            if scols[idx_s].button(lbl_s, key=f"btn_sub_{k_s}", type="primary" if cur_sub == k_s else "secondary", use_container_width=True):
-                st.session_state["_sub_l0_l5"] = k_s
-                st.rerun()
-        st.markdown(build_submodel_deep_dive_html(active_prof, st.session_state["_sub_l0_l5"]), unsafe_allow_html=True)
+            scols[idx_s].button(
+                lbl_s,
+                key=f"btn_sub_{k_s}",
+                type="primary" if cur_sub == k_s else "secondary",
+                use_container_width=True,
+                on_click=_set_page_and_model,
+                args=(3, k_s),
+            )
+        st.markdown(build_submodel_deep_dive_html(active_prof, cur_sub), unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
     # =========================================================================
@@ -707,21 +725,6 @@ def render_full_page_swap_os(notices: List[Dict[str, Any]] = None) -> None:
             start_i = cur_page * page_size
             end_i = min(len(live_bids), start_i + page_size)
 
-            p_c1, p_c2, p_c3 = st.columns([1.1, 2.8, 1.1])
-            with p_c1:
-                if st.button("◀ 이전 3건 쇼윈도", key="ps_prev_p", disabled=(cur_page <= 0), use_container_width=True):
-                    st.session_state["_zs_page"] = max(0, cur_page - 1)
-                    st.rerun()
-            with p_c2:
-                st.markdown(
-                    f"<div style='text-align:center;padding:6px;background:rgba(15,23,42,0.9);border:1px solid rgba(251,191,36,0.4);border-radius:10px;font-size:13px;font-weight:900;color:#fde68a;'>💎 TREASURE SHOWCASE — PAGE {cur_page+1} / {total_pages} &nbsp;(공고 #{start_i+1} ~ #{end_i} / 전체 {len(live_bids)}건)</div>",
-                    unsafe_allow_html=True,
-                )
-            with p_c3:
-                if st.button("다음 3건 쇼윈도 ▶", key="ps_next_p", disabled=(cur_page >= total_pages - 1), use_container_width=True):
-                    st.session_state["_zs_page"] = min(total_pages - 1, cur_page + 1)
-                    st.rerun()
-
             cols = st.columns(3)
             for offset in range(page_size):
                 g_idx = start_i + offset
@@ -732,17 +735,14 @@ def render_full_page_swap_os(notices: List[Dict[str, Any]] = None) -> None:
                     in_cart = (gprof["nid"] in st.session_state["_boutique_cart_ids"])
                     with cols[offset]:
                         st.markdown(build_jewel_showcase_tile_html(gprof, g_idx, is_act, in_cart), unsafe_allow_html=True)
-                        b1, b2 = st.columns([1.8, 1.0])
-                        if b1.button("🔥 이 공고로 14개 모델 분석", key=f"ps_all_{g_idx}", type="primary", use_container_width=True):
-                            st.session_state["_boutique_selected_idx"] = g_idx
-                            st.session_state["_os_page_idx"] = 0
-                            st.rerun()
-                        if b2.button("💖 찜" if not in_cart else "🗑️ 해제", key=f"ps_cart_{g_idx}", use_container_width=True):
-                            if in_cart:
-                                st.session_state["_boutique_cart_ids"].remove(gprof["nid"])
-                            else:
-                                st.session_state["_boutique_cart_ids"].append(gprof["nid"])
-                            st.rerun()
+                        st.button(
+                            "🔥 이 공고로 14개 모델 분석",
+                            key=f"ps_all_{g_idx}",
+                            type="primary",
+                            use_container_width=True,
+                            on_click=_set_page_and_model,
+                            args=(0, "ALL(통합)"),
+                        )
         else:
             doc_html, boq_csv, bid_json, spec_txt = generate_notice_attachments(active_prof)
             zip_bytes, zip_meta = generate_master_zip_bundle(active_prof)
