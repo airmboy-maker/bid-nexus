@@ -154,7 +154,72 @@ def get_sidebar_4d_global_css() -> str:
     section[data-testid="stSidebar"] hr {
         display: none !important;
     }
-    </style>
+    
+
+/* 라디오 그룹 전체 상하 여백 및 항목 간 간격(gap) 확대 */
+html body section[data-testid="stSidebar"] div[role="radiogroup"] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 7px !important;
+    margin-top: 6px !important;
+    margin-bottom: 10px !important;
+    padding: 2px 2px !important;
+}
+
+/* 개별 라디오 메뉴 항목을 고급 캡슐 카드로 변환 및 줄간격 확보 */
+html body section[data-testid="stSidebar"] div[role="radiogroup"] > label,
+html body section[data-testid="stSidebar"] div[data-testid="stRadio"] label[data-baseweb="radio"] {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(9, 14, 28, 0.95) 100%) !important;
+    border: 1px solid rgba(71, 85, 105, 0.55) !important;
+    border-radius: 10px !important;
+    padding: 8px 12px !important;
+    margin: 0px !important;
+    min-height: 38px !important;
+    display: flex !important;
+    align-items: center !important;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.38) !important;
+    transition: all 0.18s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+/* 마우스 호버 시 부드러운 입체 부상 효과 */
+html body section[data-testid="stSidebar"] div[role="radiogroup"] > label:hover,
+html body section[data-testid="stSidebar"] div[data-testid="stRadio"] label[data-baseweb="radio"]:hover {
+    border-color: rgba(56, 189, 248, 0.75) !important;
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
+    transform: translateX(3px) !important;
+}
+
+/* 현재 선택된(checked) 라디오 항목은 골드·시안 네온 테두리와 밝은 배경으로 강조 */
+html body section[data-testid="stSidebar"] div[role="radiogroup"] > label:has(input:checked),
+html body section[data-testid="stSidebar"] div[data-testid="stRadio"] label[data-baseweb="radio"]:has(input:checked) {
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.22) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
+    border: 1.5px solid #38bdf8 !important;
+    box-shadow: 0 4px 14px rgba(56, 189, 248, 0.28), inset 0 0 8px rgba(56, 189, 248, 0.12) !important;
+}
+
+/* 라디오 동그라미 아이콘과 텍스트 사이 간격 및 폰트 가독성 조정 */
+html body section[data-testid="stSidebar"] div[role="radiogroup"] > label > div:first-child {
+    margin-right: 8px !important;
+}
+
+html body section[data-testid="stSidebar"] div[role="radiogroup"] > label p,
+html body section[data-testid="stSidebar"] div[data-testid="stRadio"] label[data-baseweb="radio"] p {
+    font-size: 12.2px !important;
+    font-weight: 800 !important;
+    line-height: 1.45 !important;
+    letter-spacing: -0.15px !important;
+    color: #e2e8f0 !important;
+    margin: 0px !important;
+    white-space: nowrap !important;
+}
+
+html body section[data-testid="stSidebar"] div[role="radiogroup"] > label:has(input:checked) p {
+    color: #fef08a !important;
+    font-weight: 900 !important;
+}
+
+
+</style>
     """
 
 
@@ -218,6 +283,71 @@ def build_sidebar_4d_tesseract_html(active_count: int = 4) -> str:
     width: 100%; height: 4px; background: #020617; border-radius: 999px; overflow: hidden;
   }
   .track-fill { height: 100%; border-radius: 999px; }
+
+
+/* 라디오 그룹 전체 상하 여백 및 항목 간 간격(gap) 확대 */
+html body section[data-testid="stSidebar"] div[role="radiogroup"] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 7px !important;
+    margin-top: 6px !important;
+    margin-bottom: 10px !important;
+    padding: 2px 2px !important;
+}
+
+/* 개별 라디오 메뉴 항목을 고급 캡슐 카드로 변환 및 줄간격 확보 */
+html body section[data-testid="stSidebar"] div[role="radiogroup"] > label,
+html body section[data-testid="stSidebar"] div[data-testid="stRadio"] label[data-baseweb="radio"] {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(9, 14, 28, 0.95) 100%) !important;
+    border: 1px solid rgba(71, 85, 105, 0.55) !important;
+    border-radius: 10px !important;
+    padding: 8px 12px !important;
+    margin: 0px !important;
+    min-height: 38px !important;
+    display: flex !important;
+    align-items: center !important;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.38) !important;
+    transition: all 0.18s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+/* 마우스 호버 시 부드러운 입체 부상 효과 */
+html body section[data-testid="stSidebar"] div[role="radiogroup"] > label:hover,
+html body section[data-testid="stSidebar"] div[data-testid="stRadio"] label[data-baseweb="radio"]:hover {
+    border-color: rgba(56, 189, 248, 0.75) !important;
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
+    transform: translateX(3px) !important;
+}
+
+/* 현재 선택된(checked) 라디오 항목은 골드·시안 네온 테두리와 밝은 배경으로 강조 */
+html body section[data-testid="stSidebar"] div[role="radiogroup"] > label:has(input:checked),
+html body section[data-testid="stSidebar"] div[data-testid="stRadio"] label[data-baseweb="radio"]:has(input:checked) {
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.22) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
+    border: 1.5px solid #38bdf8 !important;
+    box-shadow: 0 4px 14px rgba(56, 189, 248, 0.28), inset 0 0 8px rgba(56, 189, 248, 0.12) !important;
+}
+
+/* 라디오 동그라미 아이콘과 텍스트 사이 간격 및 폰트 가독성 조정 */
+html body section[data-testid="stSidebar"] div[role="radiogroup"] > label > div:first-child {
+    margin-right: 8px !important;
+}
+
+html body section[data-testid="stSidebar"] div[role="radiogroup"] > label p,
+html body section[data-testid="stSidebar"] div[data-testid="stRadio"] label[data-baseweb="radio"] p {
+    font-size: 12.2px !important;
+    font-weight: 800 !important;
+    line-height: 1.45 !important;
+    letter-spacing: -0.15px !important;
+    color: #e2e8f0 !important;
+    margin: 0px !important;
+    white-space: nowrap !important;
+}
+
+html body section[data-testid="stSidebar"] div[role="radiogroup"] > label:has(input:checked) p {
+    color: #fef08a !important;
+    font-weight: 900 !important;
+}
+
+
 </style>
 </head>
 <body>

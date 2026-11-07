@@ -1,7 +1,6 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-# 영문 변수명 꼬리표를 제거하여 좌측 사이드바에서 2줄 줄바꿈 없이 딱 1줄로 깔끔하게 떨어지도록 정돈
 DECK_ZONES = [
     "📡 [Z1] 나라장터 공고 쇼룸 (3건)",
     "🎯 [Z2] 핵심 적격심사 & 산출물",
@@ -43,11 +42,83 @@ def route_7_main_tabs(tab_labels: list, is_cabinet_mode: bool, current_zone: str
     return c_radar, c_tab1, c_q_ai, c_sim, c_dox, c_prof, c_tab4
 
 
+def get_sidebar_spacing_override_css() -> str:
+    """
+    sidebar_4d_ui.py 보다 높은 선택자 우선순위(html body ...)로
+    1) 헤더 박스와 라디오 리스트 사이의 상하 간격 확보
+    2) 각 라디오 메뉴 항목을 여유 있는 캡슐형 카드 버튼(줄간격·안쪽 여백·선택 시 하이라이트)으로 스타일링
+    """
+    return """
+<style>
+/* 라디오 그룹 전체 상하 여백 및 항목 간 간격(gap) 확대 */
+html body section[data-testid="stSidebar"] div[role="radiogroup"] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 7px !important;
+    margin-top: 6px !important;
+    margin-bottom: 10px !important;
+    padding: 2px 2px !important;
+}
+
+/* 개별 라디오 메뉴 항목을 고급 캡슐 카드로 변환 및 줄간격 확보 */
+html body section[data-testid="stSidebar"] div[role="radiogroup"] > label,
+html body section[data-testid="stSidebar"] div[data-testid="stRadio"] label[data-baseweb="radio"] {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(9, 14, 28, 0.95) 100%) !important;
+    border: 1px solid rgba(71, 85, 105, 0.55) !important;
+    border-radius: 10px !important;
+    padding: 8px 12px !important;
+    margin: 0px !important;
+    min-height: 38px !important;
+    display: flex !important;
+    align-items: center !important;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.38) !important;
+    transition: all 0.18s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+/* 마우스 호버 시 부드러운 입체 부상 효과 */
+html body section[data-testid="stSidebar"] div[role="radiogroup"] > label:hover,
+html body section[data-testid="stSidebar"] div[data-testid="stRadio"] label[data-baseweb="radio"]:hover {
+    border-color: rgba(56, 189, 248, 0.75) !important;
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
+    transform: translateX(3px) !important;
+}
+
+/* 현재 선택된(checked) 라디오 항목은 골드·시안 네온 테두리와 밝은 배경으로 강조 */
+html body section[data-testid="stSidebar"] div[role="radiogroup"] > label:has(input:checked),
+html body section[data-testid="stSidebar"] div[data-testid="stRadio"] label[data-baseweb="radio"]:has(input:checked) {
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.22) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
+    border: 1.5px solid #38bdf8 !important;
+    box-shadow: 0 4px 14px rgba(56, 189, 248, 0.28), inset 0 0 8px rgba(56, 189, 248, 0.12) !important;
+}
+
+/* 라디오 동그라미 아이콘과 텍스트 사이 간격 및 폰트 가독성 조정 */
+html body section[data-testid="stSidebar"] div[role="radiogroup"] > label > div:first-child {
+    margin-right: 8px !important;
+}
+
+html body section[data-testid="stSidebar"] div[role="radiogroup"] > label p,
+html body section[data-testid="stSidebar"] div[data-testid="stRadio"] label[data-baseweb="radio"] p {
+    font-size: 12.2px !important;
+    font-weight: 800 !important;
+    line-height: 1.45 !important;
+    letter-spacing: -0.15px !important;
+    color: #e2e8f0 !important;
+    margin: 0px !important;
+    white-space: nowrap !important;
+}
+
+html body section[data-testid="stSidebar"] div[role="radiogroup"] > label:has(input:checked) p {
+    color: #fef08a !important;
+    font-weight: 900 !important;
+}
+</style>
+"""
+
+
 def render_master_mode_and_zone_selector() -> tuple:
     if "_ndc_mode" not in st.session_state:
         st.session_state["_ndc_mode"] = "💎 1-Page 캐비닛 집중 모드 (무스크롤)"
     if "_ndc_zone" not in st.session_state or st.session_state["_ndc_zone"] not in DECK_ZONES:
-        # 이전 긴 이름에서 같은 Z 번호로 자동 매핑
         old_z = str(st.session_state.get("_ndc_zone", ""))
         matched = DECK_ZONES[0]
         for dz in DECK_ZONES:
@@ -57,49 +128,18 @@ def render_master_mode_and_zone_selector() -> tuple:
                 break
         st.session_state["_ndc_zone"] = matched
 
-    # 사이드바 메뉴 간격 및 라디오 항목 여백 최적화 CSS 주입
-    st.markdown(
-        """
-<style>
-/* 좌측 사이드바 라디오 버튼(모드 스위치 & Z1~Z9 메뉴) 간격 및 패딩 고급화 */
-section[data-testid="stSidebar"] div[role="radiogroup"] {
-    gap: 5px !important;
-}
-section[data-testid="stSidebar"] div[role="radiogroup"] > label {
-    background: rgba(15, 23, 42, 0.78) !important;
-    border: 1px solid rgba(56, 189, 248, 0.22) !important;
-    border-radius: 8px !important;
-    padding: 6px 10px !important;
-    margin-bottom: 3px !important;
-    transition: all 0.18s ease !important;
-}
-section[data-testid="stSidebar"] div[role="radiogroup"] > label:hover {
-    border-color: rgba(251, 191, 36, 0.65) !important;
-    background: rgba(30, 41, 59, 0.92) !important;
-    transform: translateX(2px);
-}
-section[data-testid="stSidebar"] div[role="radiogroup"] > label p {
-    font-size: 12px !important;
-    font-weight: 800 !important;
-    line-height: 1.35 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-}
-</style>
-""",
-        unsafe_allow_html=True,
-    )
-
     with st.sidebar:
+        st.markdown(get_sidebar_spacing_override_css(), unsafe_allow_html=True)
+
+        # 1) 상단 SCREEN MODE SWITCH 박스 (내부 줄간격 및 하단 여백 여유 있게 확대)
         st.markdown(
             """
-<div style="background:linear-gradient(135deg,rgba(251,191,36,0.22),rgba(15,23,42,0.96));border:1.5px solid #fbbf24;border-radius:10px;padding:9px 12px;margin-top:6px;margin-bottom:8px;box-shadow:0 6px 18px rgba(0,0,0,0.5);">
-<div style="display:flex;justify-content:space-between;align-items:center;">
-<span style="font-size:11px;font-weight:900;color:#fde68a;">💎 SCREEN MODE SWITCH</span>
-<span style="background:#fbbf24;color:#020617;font-size:8.5px;font-weight:900;padding:1px 6px;border-radius:999px;">v3.0 BOUTIQUE</span>
+<div style="background:linear-gradient(135deg,rgba(251,191,36,0.20),rgba(15,23,42,0.96));border:1.5px solid #fbbf24;border-radius:12px;padding:12px 14px;margin-top:8px;margin-bottom:10px;box-shadow:0 6px 18px rgba(0,0,0,0.45);">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+<span style="font-size:11.5px;font-weight:900;color:#fde68a;letter-spacing:0.3px;">💎 SCREEN MODE SWITCH</span>
+<span style="background:#fbbf24;color:#020617;font-size:9px;font-weight:900;padding:2px 8px;border-radius:999px;">v3.0 BOUTIQUE</span>
 </div>
-<div style="font-size:10px;color:#cbd5e1;font-weight:700;margin-top:3px;">1-Page 구역 교체 vs 기존 통합 스크롤</div>
+<div style="font-size:10.5px;color:#cbd5e1;font-weight:700;line-height:1.4;">1-Page 구역 교체 vs 기존 통합 스크롤</div>
 </div>
 """,
             unsafe_allow_html=True,
@@ -117,11 +157,12 @@ section[data-testid="stSidebar"] div[role="radiogroup"] > label p {
         is_cabinet_mode = ("1-Page" in mode)
 
         if is_cabinet_mode:
+            # 2) 중단 9대 독립 캐비닛 헤더 박스 (위쪽 라디오 그룹과 충분한 간격 14px 확보 + 아래쪽 라디오와의 간격 10px 확보)
             st.markdown(
                 """
-<div style="background:rgba(56,189,248,0.14);border:1px solid rgba(56,189,248,0.45);border-left:3.5px solid #38bdf8;border-radius:8px;padding:7px 11px;margin-top:10px;margin-bottom:7px;">
-<div style="font-size:11px;font-weight:900;color:#7dd3fc;">🗄️ 9대 독립 캐비닛 즉시 교체</div>
-<div style="font-size:9.5px;color:#94a3b8;font-weight:700;margin-top:2px;">클릭 즉시 해당 구역만 단독 표시됩니다</div>
+<div style="background:linear-gradient(135deg,rgba(14,165,233,0.18),rgba(15,23,42,0.95));border:1.5px solid rgba(56,189,248,0.55);border-left:4px solid #38bdf8;border-radius:12px;padding:11px 14px;margin-top:14px;margin-bottom:10px;box-shadow:0 6px 16px rgba(0,0,0,0.4);">
+<div style="font-size:11.5px;font-weight:900;color:#7dd3fc;margin-bottom:4px;">🗄️ 9대 독립 캐비닛 즉시 교체</div>
+<div style="font-size:10px;color:#94a3b8;font-weight:700;line-height:1.4;">클릭 즉시 해당 구역만 단독 표시됩니다</div>
 </div>
 """,
                 unsafe_allow_html=True,
@@ -132,11 +173,9 @@ section[data-testid="stSidebar"] div[role="radiogroup"] > label p {
                 key="_ndc_zone",
                 label_visibility="collapsed",
             )
-            st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
+            st.markdown("<div style='height:12px;'></div>", unsafe_allow_html=True)
         else:
             zone = "ALL"
-
-        # (중요) app_v2.py 원본에 이미 LIVE QUANTUM TELEMETRY가 존재하므로 여기서 중복 호출하지 않음!
 
     return is_cabinet_mode, zone
 
@@ -144,6 +183,9 @@ section[data-testid="stSidebar"] div[role="radiogroup"] > label p {
 def render_top_cabinet_switcher_bar(is_cabinet_mode: bool, current_zone: str) -> None:
     if not is_cabinet_mode:
         return
+
+    # 페이지 하단에서 로드되는 sidebar_4d_ui.py 이후에도 캡슐 간격 CSS가 100% 유지되도록 재주입
+    st.markdown(get_sidebar_spacing_override_css(), unsafe_allow_html=True)
 
     st.markdown(
         f"""
