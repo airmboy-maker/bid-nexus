@@ -1895,7 +1895,7 @@ with tab_radar:
         _sel_idx = min(st.session_state['_boutique_selected_idx'], max(0, len(_b_notices) - 1))
         _active_n = _b_notices[_sel_idx]
         _active_prof = _ndv_mod.analyze_construction_profile(_active_n, _sel_idx)
-        _cart_list = [_x for _i, _x in enumerate(_b_notices) if _ndv_mod.analyze_construction_profile(_x, _i)['nid'] in st.session_state['_boutique_cart_ids']]
+        _cart_list = [_ndv_mod.analyze_construction_profile(_x, _i) for _i, _x in enumerate(_b_notices) if _ndv_mod.analyze_construction_profile(_x, _i)['nid'] in st.session_state['_boutique_cart_ids']]
         _hdr_c1, _hdr_c2 = st.columns([1.6, 1.9])
         with _hdr_c2:
             _view_mode = st.radio('✨ 쇼룸 진열 방식', ['💎 3×3 부티크 캐비닛 쇼룸 (무스크롤 집중형)', '🌌 와이드 프리즘 덱 (v20.4 최종버전 뷰)'], horizontal=True, key='_boutique_view_mode_radio', label_visibility='collapsed')

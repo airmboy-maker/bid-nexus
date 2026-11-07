@@ -83,9 +83,9 @@ def build_boutique_cart_bar_html(
     view_mode: str,
 ) -> str:
     cart_cnt = len(cart_items)
-    total_est_profit = sum(int(c.get("base_amount", 0)) * 54 // 1000 for c in cart_items)
+    total_est_profit = sum(int(c.get("base_amt", c.get("base_amount", 0))) * 54 // 1000 for c in cart_items)
     profit_eok = round(total_est_profit / 100_000_000.0, 2)
-    cart_names = " · ".join([str(c.get("title", ""))[:10] + ".." for c in cart_items[:3]])
+    cart_names = " · ".join([str(c.get("title", "관급공사"))[:14] for c in cart_items[:3]])
     if not cart_names:
         cart_names = "마음에 드는 공고의 [💖 찜]을 눌러 나만의 입찰 포트폴리오를 구성하세요"
 
