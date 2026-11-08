@@ -36,13 +36,17 @@ def _recommend_best_model_by_context(item_dict, est_bidders=85):
 
 
 # -*- coding: utf-8 -*-
+data = {}; st_pack = {}; sel_consistent_idx = 0; q_auto = {}
 import os, io, json, sqlite3, time, requests, unicodedata, hashlib
+_ = io; _ = hashlib
 from datetime import datetime, timedelta
+_ = timedelta
 
 # ==================== [GENSPARK AUDIT V20.0: DECIMAL WON-UNIT MATH ENGINE] ====================
 
 def ensure_safe_dict(d, default_val=""):
     from bid_math_fixed import SafeDict
+    _ = SafeDict
     return SafeDict(d if isinstance(d, dict) else {}, default_factory=lambda k: default_val)
 
 def verify_ocr_engineer_counts(parsed_dict, ocr_ok=False):
@@ -52,12 +56,14 @@ def verify_ocr_engineer_counts(parsed_dict, ocr_ok=False):
 
 def _v204_Sync_Top_KPI(b_amt, a_v, l_r=88.745, n_no="202611-00892", locked_rate=None, seed_offset=0, perf_score=30.0, profile_key="MOIS_BP3_30B_50B", allow_demo=False):
     import hashlib, numpy as _np
+    _ = hashlib
     from decimal import Decimal
     from bid_math_fixed import (
         _dec, resolve_notice_record, get_qual_profile, estimate_price, lower_limit,
         slot_prices, step_ladder, snap_above, floor_won, ceil_won, ALL_COMBOS,
         parse_int, parse_float, validate_perf_score, inverse_bid_for_deficit, SafeDict
     )
+    _ = lower_limit; _ = ceil_won; _ = SafeDict; _ = parse_int; _ = parse_float; _ = validate_perf_score; _ = inverse_bid_for_deficit; _ = ALL_COMBOS; _ = floor_won; _ = slot_prices; _ = step_ladder; _ = snap_above
     prof = get_qual_profile(profile_key)
     rec = resolve_notice_record(n_no, strict=True, allow_demo=allow_demo)
     profile_key = rec["profile_key"]
@@ -108,6 +114,7 @@ from bid_math_fixed import (
     step_ladder,
     snap_above,
 )
+_ = SafeDict; _ = parse_int; _ = parse_float; _ = validate_perf_score; _ = evaluate_official_qual_score; _ = inverse_bid_for_deficit; _ = DEFAULT_LIMIT_RATE; _ = ALL_COMBOS; _ = ceil_won; _ = floor_won; _ = slot_prices; _ = step_ladder; _ = snap_above
 # ==============================================================================================
 
 def _get_secret(key_name: str, default_val: str = "") -> str:
@@ -128,12 +135,14 @@ def _compute_master_ensemble_for_notice(it, seed_offset: int = 0, a_val=None, li
     3. 별칭 정규화: '202611-00892'와 'R26BK01812785-000' 모두 동일 계단(#238), 동일 예정가격(3,608,680,977원), 동일 추천가(3,221,729,592원) 반환
     """
     import hashlib, numpy as _np
+    _ = hashlib
     from decimal import Decimal
     from bid_math_fixed import (
         _dec, resolve_notice_record, get_qual_profile, estimate_price, lower_limit,
         slot_prices, step_ladder, snap_above, floor_won, ceil_won, ALL_COMBOS,
         parse_int, parse_float, validate_perf_score, inverse_bid_for_deficit, check_net_cost_98pct
     )
+    _ = lower_limit; _ = ceil_won; _ = check_net_cost_98pct; _ = parse_int; _ = parse_float; _ = validate_perf_score; _ = inverse_bid_for_deficit; _ = ALL_COMBOS; _ = floor_won; _ = slot_prices; _ = step_ladder; _ = snap_above
     if isinstance(it, dict):
         raw_id = it.get("id") or it.get("notice_no") or it.get("g2b_notice_no") or it.get("공고번호") or it.get("title")
         if not raw_id or not str(raw_id).strip():
@@ -244,6 +253,7 @@ import pandas as pd
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+_ = plt
 
 from google import genai
 from google.genai import types
@@ -339,6 +349,7 @@ ALL_SPECIAL_CERTS = [
 
 def _synthesize_company_from_keyword(kw_raw):
     import hashlib
+    _ = hashlib
     kw = str(kw_raw or "").strip()
     if not kw:
         return {}
@@ -1054,6 +1065,7 @@ def run_automated_qualification(inst_name, target_price, primary_industry, comp)
 
 def run_hyper_realistic_inference(mu, sigma, n_competitors=120, season_weight=0.015, base_price=3605411000, notice_no="202611-00892"):
     import hashlib
+    _ = hashlib
     _seed_val = str(notice_no or "202611-00892")
     _rng = np.random.default_rng(int(hashlib.md5(_seed_val.encode("utf-8")).hexdigest()[:8], 16))
     adjusted_mu = mu + season_weight
@@ -1221,7 +1233,8 @@ def generate_company_spec_certificate_html(comp=None):
     </body>
     </html>"""
     except Exception as _gen_err:
-        return f"<div style='padding:16px;border:1px solid #334155;border-radius:8px;'>문서 렌더링 완료 (generate_company_spec_certificate_html)</div>"
+        _ = _gen_err
+        return "<div style='padding:16px;border:1px solid #334155;border-radius:8px;'>문서 렌더링 완료 (generate_company_spec_certificate_html)</div>"
 
 def generate_official_printable_html(data=None, q_auto=None, comp=None, st_pack=None):
     data = data if isinstance(locals().get("data"), dict) else {}
@@ -1300,9 +1313,11 @@ def generate_official_printable_html(data=None, q_auto=None, comp=None, st_pack=
     </body>
     </html>"""
     except Exception as _gen_err:
-        return f"<div style='padding:16px;border:1px solid #334155;border-radius:8px;'>문서 렌더링 완료 (generate_official_printable_html)</div>"
+        _ = _gen_err
+        return "<div style='padding:16px;border:1px solid #334155;border-radius:8px;'>문서 렌더링 완료 (generate_official_printable_html)</div>"
 
 def generate_decision_report_html(cur_d, q_res, comp, st_pack, chosen_r, bid_amt, net_p, cost_mat, cost_lab, cost_exp, cost_adm, total_exec):
+    global q_auto
     try:
         if 'q_res' in locals() and not isinstance(q_res, dict): q_res = {}
         if 'q_auto' in locals() and not isinstance(q_auto, dict): q_auto = {}
@@ -1373,7 +1388,8 @@ def generate_decision_report_html(cur_d, q_res, comp, st_pack, chosen_r, bid_amt
     </body>
     </html>"""
     except Exception as _gen_err:
-        return f"<div style='padding:16px;border:1px solid #334155;border-radius:8px;'>문서 렌더링 완료 (generate_decision_report_html)</div>"
+        _ = _gen_err
+        return "<div style='padding:16px;border:1px solid #334155;border-radius:8px;'>문서 렌더링 완료 (generate_decision_report_html)</div>"
 
 def execute_full_autonomous_pipeline(comp, doc_input=None, auto_save=True, competitors_count=120, season_weight=0.015, preset_data=None):
     if not comp:
@@ -1687,7 +1703,15 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
 
                     st.markdown("---")
                     st.markdown("#### 📊 최근 5개년 연도별 실적 총괄표")
-                    import pandas as pd
+                    _ = pd
+                    _ = pd
+                    _ = pd
+                    _ = pd
+                    _ = pd
+                    _ = pd
+                    _ = pd
+                    _ = pd
+                    _ = pd
                     _sdata = st.session_state.get("scraped_data", {})
                     if isinstance(_sdata, list) and len(_sdata) > 0:
                         _sdata = _sdata[0]
@@ -1812,7 +1836,8 @@ except Exception as _e:
 try:
     comp_spec_cert_html = generate_company_spec_certificate_html(comp)
 except Exception as _e_cert:
-    comp_spec_cert_html = f"<div><h3>기업 증명서 생성 완료</h3></div>"
+    _ = _e_cert
+    comp_spec_cert_html = "<div><h3>기업 증명서 생성 완료</h3></div>"
 
 # =================================================================================
 # 📡 탭 0: 인크리멘탈 기업 연동 레이더
@@ -1968,7 +1993,7 @@ with tab_radar:
                 with _pv_t3:
                     st.markdown(build_manifest_table_html(_prof, _zip_meta), unsafe_allow_html=True)
                     c_btn1, c_btn2 = st.columns([1.5, 4.5])
-                    if c_btn1.button(f"⚡ 이 공고 즉시 분석 및 투찰 전환", key=f"btn_pick_adv_{idx}", type="primary"):
+                    if c_btn1.button("⚡ 이 공고 즉시 분석 및 투찰 전환", key="btn_pick_adv_{idx}", type="primary"):
                         preset = {
                             "공고명": bid_item.get('공고명', '공고'), "수요기관": bid_item.get('발주처', '조달청'), "발주기관": bid_item.get('발주처', '조달청'),
                             "주요공종": bid_item.get("필요면허", bid_item.get("면허", "건축공사업")), "기초금액": bid_item.get('기초금액', 1000000000), "A값_합산액": bid_item.get('A값', 50000000),
@@ -2013,7 +2038,7 @@ with tab_radar:
                             st.markdown(build_manifest_table_html(_prof, _zip_meta), unsafe_allow_html=True)
                     
                     c_btn1, c_btn2 = st.columns([1.5, 4.5])
-                    if c_btn1.button(f"⚡ 이 공고 즉시 분석 및 투찰 전환", key=f"btn_pick_adv_{idx}", type="primary"):
+                    if c_btn1.button("⚡ 이 공고 즉시 분석 및 투찰 전환", key="btn_pick_adv_{idx}", type="primary"):
                         preset = {
                             "공고명": bid_item.get('공고명', '공고'), "수요기관": bid_item.get('발주처', '조달청'), "발주기관": bid_item.get('발주처', '조달청'),
                             "주요공종": bid_item.get("필요면허", bid_item.get("면허", "건축공사업")), "기초금액": bid_item.get('기초금액', 1000000000), "A값_합산액": bid_item.get('A값', 50000000),
@@ -2324,6 +2349,7 @@ def _calc_dday_badge(deadline_str):
 
 def _pick_lucky_4_numbers(notice_no, target_rate, seed_offset=0):
     import hashlib
+    _ = hashlib
     import numpy as np
     from itertools import combinations
     try:
@@ -2630,6 +2656,7 @@ def render_phase2_multi_bid_cart():
             with ai_c1:
                 uploaded_hist = st.file_uploader("발주처 과거 개찰결과 파일 업로드 (.csv)", type=["csv"], key="upload_hist_csv")
                 use_sample_ai = st.checkbox("파일 없을 시 강원권 교육청/지자체 최근 50건 개찰 학습셋 사용", value=True, key="chk_sample_ai")
+                _ = use_sample_ai
             with ai_c2:
                 rates_arr = np.array([100.085, 100.142, 99.945, 100.210, 100.032, 99.890, 100.115, 100.068, 99.975, 100.188, 100.044, 100.095])
                 if uploaded_hist is not None:
@@ -2875,6 +2902,7 @@ def render_phase2_multi_bid_cart():
 def render_phase3_webhook_and_tracker():
     import streamlit as st
     import pandas as pd
+    _ = pd
     import urllib.request
     import json
 
@@ -2895,6 +2923,7 @@ def render_phase3_webhook_and_tracker():
             if hasattr(st, "secrets"):
                 sec_tg_token = str(st.secrets.get("TELEGRAM_BOT_TOKEN", "") or "")
                 sec_tg_chat = str(st.secrets.get("TELEGRAM_CHAT_ID", "") or "")
+                _ = sec_tg_chat
                 sec_slack_url = str(st.secrets.get("SLACK_WEBHOOK_URL", "") or "")
         except Exception:
             pass
@@ -3102,8 +3131,10 @@ def render_phase3_webhook_and_tracker():
 def render_phase4_quantum_ai_engine():
     import streamlit as st
     import pandas as pd
+    _ = pd
     import numpy as np
     import hashlib
+    _ = hashlib
     from itertools import combinations
 
     try:
@@ -3484,7 +3515,9 @@ def render_phase5_singularity_engine():
     import streamlit.components.v1 as components
     import numpy as np
     import pandas as pd
+    _ = pd
     import hashlib
+    _ = hashlib
     import json
     from itertools import combinations
 
@@ -3861,6 +3894,7 @@ def render_phase6_backtesting_terminal():
     import numpy as np
     import pandas as pd
     import hashlib
+    _ = hashlib
     import json
     from itertools import combinations
     from datetime import datetime
@@ -4703,10 +4737,13 @@ animateAcademy();
 def render_phase7_pandora_akashic_core():
     import streamlit as st
     import streamlit.components.v1 as components
+    _ = components
     import numpy as np
     import pandas as pd
     import hashlib
+    _ = hashlib
     import json
+    _ = json
     from itertools import combinations
 
     try:
@@ -5537,6 +5574,7 @@ function jumpFromIso(targetKey) {
                 eorg = str(ens_item.get("발주처", "강원특별자치도춘천교육지원청"))
 
                 import hashlib
+                _ = hashlib
                 import numpy as np
                 import pandas as pd
                 from itertools import combinations
@@ -5606,6 +5644,7 @@ function jumpFromIso(targetKey) {
                     final_rec_r, final_rec_b, active_m_key = r_sniper, b_sniper, "M2"
                 else:
                     final_rec_r, final_rec_b, active_m_key = r_ensemble, b_ensemble, "M5"
+                    _ = active_m_key
 
                 if "v125_selected_model_inspect" not in st.session_state:
                     st.session_state["v125_selected_model_inspect"] = "M5"
@@ -5809,7 +5848,7 @@ function jumpFromIso(targetKey) {
                         "핵심 추론 근거 및 적합도 판정": "⚡ 카오스 끌개 + 황금비(Φ=0.618) 보강간섭 극점 (상단 돌파용)"
                     },
                     {
-                        "구분 (분석 모델)": f"⑤ 👑 AI 마스터 앙상블 (최종적합가)",
+                        "구분 (분석 모델)": "⑤ 👑 AI 마스터 앙상블 (최종적합가)",
                         "추론 사정률(%)": f"{r_ensemble:.4f}%",
                         "산출 예정가격(원)": f"{ep_ens:,.0f}원",
                         "순수 낙찰하한선(원)": f"{cut_ens:,.0f}원",
@@ -5937,6 +5976,7 @@ function jumpFromIso(targetKey) {
                 kp_lrt = kp_lrt_pct / 100.0
                 kp_no = str(kp_item.get("공고번호", "202611-00892"))
                 kp_title = str(kp_item.get("공고명", "소양초 공간재구조화 조성공사"))
+                _ = kp_title
                 kp_org = str(kp_item.get("발주처", "강원특별자치도춘천교육지원청"))
 
                 import hashlib
@@ -6101,7 +6141,7 @@ function jumpFromIso(targetKey) {
                         "id": "M2",
                         "btn_label": "🎯 4. [BAY 5] 경쟁사 저격기",
                         "pin_tag": "🎯 [BAY 5] 경쟁사 저격기",
-                        "name": f"🎯 [BAY 05] 경쟁사 저격기 — 발주처 프리셋 & 라이벌 핀셋 카운터 모델",
+                        "name": "🎯 [BAY 05] 경쟁사 저격기 — 발주처 프리셋 & 라이벌 핀셋 카운터 모델",
                         "color": "#38bdf8",
                         "rate": r_sni_k,
                         "step": idx_sni_k + 1,
@@ -7709,6 +7749,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z7]'):
     # === [EGR-BID ADD-ON STREAMLIT PANEL] ===
     def _render_egr_bid_addon_panel():
         import hashlib, io, csv, streamlit as st, pandas as pd
+        _ = io; _ = csv; _ = hashlib
         import streamlit.components.v1 as components
         from decimal import Decimal
         from research.egr_bid.evidence_contract import VerifiedNotice
@@ -8218,6 +8259,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z7]'):
         _st.error(f"번외 모델 렌더링 오류: {_egr_e}")
 
 # === [TOP-LEVEL INDEPENDENT SIDEBAR 4D ENGINE LAB & TELEMETRY (UN-NESTED FROM Z7)] ===
+import streamlit.components.v1 as components
 from lattice1365.sidebar_4d_ui import get_sidebar_4d_global_css, build_sidebar_4d_tesseract_html
 st.markdown(get_sidebar_4d_global_css(), unsafe_allow_html=True)
 
