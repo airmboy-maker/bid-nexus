@@ -5195,7 +5195,7 @@ def render_phase8_treasure_island_ui():
 
         # 2. [신규 4D 아이소메트릭 인포그래픽 아키텍처 맵] 전체 8단계 메뉴와 입찰 흐름을 한눈에 이해시키는 다채로운 4D 입체 조감도
         st.markdown("---")
-        with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z6]'):
+        if (not _is_cab_mode) or ('[Z6]' in _cur_cab_zone):
             st.markdown("## 🏛️ [BAY 1-A] 4D 아이소메트릭 인포그래픽 시티 : 한눈에 보는 8대 코어 아키텍처")
             st.caption("입찰 데이터 수집부터 양자 파동붕괴·보물 인양까지 8단계 핵심 공정을 6색 프리즘 4D 입체 타일로 한눈에 조망합니다.")
 
@@ -5462,8 +5462,7 @@ function jumpFromIso(targetKey) {
             st.caption("실시간 소나 레이더로 4대 황금 어장을 스캔하며, 각 보물상자의 [📋 황금좌표 복사] 클릭 시 투찰가와 추천번호가 즉시 복사됩니다.")
 
             chest_cards_html = ""
-            # [신규 v10.5] 스마트 어댑티브 비교 기어 컨트롤 바 (기본 4건 황금비율 + 6건/8건/장바구니 연동)
-        with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z5]'):
+                # [신규 v10.5] 스마트 어댑티브 비교 기어 컨트롤 바 (기본 4건 황금비율 + 6건/8건/장바구니 연동)
             if len(pool) < 8:
                 existing_nos = {it.get("공고번호") for it in pool}
                 for extra_it in [
@@ -5477,6 +5476,7 @@ function jumpFromIso(targetKey) {
                 st.session_state["bid_cart_pool"] = pool
 
             # [신규 v12.0] 4대 AI 분석 모델별 사정가 동시 비교 & 마스터 앙상블(Ensemble) 최종 추천 심판기
+        if (not _is_cab_mode) or ('[Z5]' in _cur_cab_zone):
             with st.expander("👑 [AI 마스터 앙상블 심판기] 5대 모델 사정가 클릭 추론 해부(XAI) & 최종 적합가 표준 명세서 출력", expanded=True):
                 st.caption("각 모델 카드 하단의 [🔍 추론과정 해부] 버튼을 누르면 해당 사정가가 도출된 수학적 원리와 단계별 계산 과정이 즉시 노출되며, 표준 양식 명세서로 출력할 수 있습니다.")
                 ens_c1, ens_c2, ens_c3 = st.columns([1.7, 1.5, 1.3])
@@ -6684,6 +6684,7 @@ renderKillPoints();
                     .replace("__MODELS_KP_JSON__", models_kp_json)
                 )
                 components.html(killpoint_html, height=625, scrolling=False)
+        if (not _is_cab_mode) or ('[Z6]' in _cur_cab_zone):
 
             gear_c1, gear_c2 = st.columns([2.2, 1.8])
             with gear_c1:
