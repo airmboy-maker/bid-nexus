@@ -7698,7 +7698,8 @@ def render_phase9_bidding_machine_workstation():
 
 
 with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z5]'):
-    render_phase8_treasure_island_ui()
+    if _is_cab_mode:
+        render_phase8_treasure_island_ui()
 
 with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z6]'):
     render_phase9_bidding_machine_workstation()
