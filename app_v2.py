@@ -5195,10 +5195,11 @@ def render_phase8_treasure_island_ui():
 
         # 2. [신규 4D 아이소메트릭 인포그래픽 아키텍처 맵] 전체 8단계 메뉴와 입찰 흐름을 한눈에 이해시키는 다채로운 4D 입체 조감도
         st.markdown("---")
-        st.markdown("## 🏛️ [BAY 1-A] 4D 아이소메트릭 인포그래픽 시티 : 한눈에 보는 8대 코어 아키텍처")
-        st.caption("입찰 데이터 수집부터 양자 파동붕괴·보물 인양까지 8단계 핵심 공정을 6색 프리즘 4D 입체 타일로 한눈에 조망합니다.")
+        with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z6]'):
+            st.markdown("## 🏛️ [BAY 1-A] 4D 아이소메트릭 인포그래픽 시티 : 한눈에 보는 8대 코어 아키텍처")
+            st.caption("입찰 데이터 수집부터 양자 파동붕괴·보물 인양까지 8단계 핵심 공정을 6색 프리즘 4D 입체 타일로 한눈에 조망합니다.")
 
-        iso_infographic_html = """<!DOCTYPE html>
+            iso_infographic_html = """<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
@@ -5454,279 +5455,280 @@ function jumpFromIso(targetKey) {
 </body>
 </html>"""
 
-        components.html(iso_infographic_html, height=520, scrolling=False)
+            components.html(iso_infographic_html, height=520, scrolling=False)
 
-        # 3. 보물섬 소나 레이더 & 황금 금고 맵 (v7.5 잘림 해결본 유지)
-        st.markdown("## 👑 [BAY 1-B] 골든 아틀란티스 보물섬 : 실시간 황금 소나 레이더 & 멀티 보석 금고(Vault)")
-        st.caption("실시간 소나 레이더로 4대 황금 어장을 스캔하며, 각 보물상자의 [📋 황금좌표 복사] 클릭 시 투찰가와 추천번호가 즉시 복사됩니다.")
+            # 3. 보물섬 소나 레이더 & 황금 금고 맵 (v7.5 잘림 해결본 유지)
+            st.markdown("## 👑 [BAY 1-B] 골든 아틀란티스 보물섬 : 실시간 황금 소나 레이더 & 멀티 보석 금고(Vault)")
+            st.caption("실시간 소나 레이더로 4대 황금 어장을 스캔하며, 각 보물상자의 [📋 황금좌표 복사] 클릭 시 투찰가와 추천번호가 즉시 복사됩니다.")
 
-        chest_cards_html = ""
-        # [신규 v10.5] 스마트 어댑티브 비교 기어 컨트롤 바 (기본 4건 황금비율 + 6건/8건/장바구니 연동)
-        if len(pool) < 8:
-            existing_nos = {it.get("공고번호") for it in pool}
-            for extra_it in [
-                {"공고번호": "202611-04512", "공고명": "속초 해양문화복합센터 신축 및 부대공사", "발주처": "강원특별자치도 속초시", "업종": "건축공사업", "지역": "강원특별자치도", "기초금액": 5180000000, "A값": 248000000, "낙찰하한율": 88.745, "마감일시": "2026-11-13 10:00", "목표사정률": 100.105, "필요기술자": 2},
-                {"공고번호": "202611-05190", "공고명": "동해 스마트 그린산단 통합관제센터 건립", "발주처": "강원특별자치도 동해시", "업종": "건축공사업", "지역": "강원특별자치도", "기초금액": 3890000000, "A값": 182000000, "낙찰하한율": 88.745, "마감일시": "2026-11-13 10:00", "목표사정률": 99.985, "필요기술자": 2},
-                {"공고번호": "202611-06208", "공고명": "홍천 국민체육센터 수영장 증축 및 리모델링", "발주처": "강원특별자치도 홍천군", "업종": "건축공사업", "지역": "강원특별자치도", "기초금액": 4470000000, "A값": 209000000, "낙찰하한율": 88.745, "마감일시": "2026-11-13 10:00", "목표사정률": 100.060, "필요기술자": 2},
-                {"공고번호": "202611-07815", "공고명": "삼척 도계광산지역 공공임대주택 건립공사", "발주처": "강원특별자치도 삼척시", "업종": "건축공사업", "지역": "강원특별자치도", "기초금액": 7420000000, "A값": 356000000, "낙찰하한율": 88.745, "마감일시": "2026-11-13 10:00", "목표사정률": 100.135, "필요기술자": 3}
-            ]:
-                if extra_it["공고번호"] not in existing_nos:
-                    pool.append(extra_it)
-            st.session_state["bid_cart_pool"] = pool
+            chest_cards_html = ""
+            # [신규 v10.5] 스마트 어댑티브 비교 기어 컨트롤 바 (기본 4건 황금비율 + 6건/8건/장바구니 연동)
+        with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z5]'):
+            if len(pool) < 8:
+                existing_nos = {it.get("공고번호") for it in pool}
+                for extra_it in [
+                    {"공고번호": "202611-04512", "공고명": "속초 해양문화복합센터 신축 및 부대공사", "발주처": "강원특별자치도 속초시", "업종": "건축공사업", "지역": "강원특별자치도", "기초금액": 5180000000, "A값": 248000000, "낙찰하한율": 88.745, "마감일시": "2026-11-13 10:00", "목표사정률": 100.105, "필요기술자": 2},
+                    {"공고번호": "202611-05190", "공고명": "동해 스마트 그린산단 통합관제센터 건립", "발주처": "강원특별자치도 동해시", "업종": "건축공사업", "지역": "강원특별자치도", "기초금액": 3890000000, "A값": 182000000, "낙찰하한율": 88.745, "마감일시": "2026-11-13 10:00", "목표사정률": 99.985, "필요기술자": 2},
+                    {"공고번호": "202611-06208", "공고명": "홍천 국민체육센터 수영장 증축 및 리모델링", "발주처": "강원특별자치도 홍천군", "업종": "건축공사업", "지역": "강원특별자치도", "기초금액": 4470000000, "A값": 209000000, "낙찰하한율": 88.745, "마감일시": "2026-11-13 10:00", "목표사정률": 100.060, "필요기술자": 2},
+                    {"공고번호": "202611-07815", "공고명": "삼척 도계광산지역 공공임대주택 건립공사", "발주처": "강원특별자치도 삼척시", "업종": "건축공사업", "지역": "강원특별자치도", "기초금액": 7420000000, "A값": 356000000, "낙찰하한율": 88.745, "마감일시": "2026-11-13 10:00", "목표사정률": 100.135, "필요기술자": 3}
+                ]:
+                    if extra_it["공고번호"] not in existing_nos:
+                        pool.append(extra_it)
+                st.session_state["bid_cart_pool"] = pool
 
-        # [신규 v12.0] 4대 AI 분석 모델별 사정가 동시 비교 & 마스터 앙상블(Ensemble) 최종 추천 심판기
-        with st.expander("👑 [AI 마스터 앙상블 심판기] 5대 모델 사정가 클릭 추론 해부(XAI) & 최종 적합가 표준 명세서 출력", expanded=True):
-            st.caption("각 모델 카드 하단의 [🔍 추론과정 해부] 버튼을 누르면 해당 사정가가 도출된 수학적 원리와 단계별 계산 과정이 즉시 노출되며, 표준 양식 명세서로 출력할 수 있습니다.")
-            ens_c1, ens_c2, ens_c3 = st.columns([1.7, 1.5, 1.3])
-            notice_opts = [f"[{it.get('공고번호','')}] {it.get('공고명','')}" for it in pool]
-            with ens_c1:
-                ens_lbl = st.selectbox("🎯 사정가 추론 비교 대상 공고", options=notice_opts, key="v12_ens_target")
-            ens_idx = notice_opts.index(ens_lbl)
-            ens_item = pool[ens_idx]
+            # [신규 v12.0] 4대 AI 분석 모델별 사정가 동시 비교 & 마스터 앙상블(Ensemble) 최종 추천 심판기
+            with st.expander("👑 [AI 마스터 앙상블 심판기] 5대 모델 사정가 클릭 추론 해부(XAI) & 최종 적합가 표준 명세서 출력", expanded=True):
+                st.caption("각 모델 카드 하단의 [🔍 추론과정 해부] 버튼을 누르면 해당 사정가가 도출된 수학적 원리와 단계별 계산 과정이 즉시 노출되며, 표준 양식 명세서로 출력할 수 있습니다.")
+                ens_c1, ens_c2, ens_c3 = st.columns([1.7, 1.5, 1.3])
+                notice_opts = [f"[{it.get('공고번호','')}] {it.get('공고명','')}" for it in pool]
+                with ens_c1:
+                    ens_lbl = st.selectbox("🎯 사정가 추론 비교 대상 공고", options=notice_opts, key="v12_ens_target")
+                ens_idx = notice_opts.index(ens_lbl)
+                ens_item = pool[ens_idx]
 
-            with ens_c2:
-                ens_strategy = st.selectbox(
-                    "🧠 AI 최종 적합가 합성 모드 (Ensemble Mode)",
-                    [
-                        "👑 AI 마스터 앙상블 (특이점 40% + 판도라 35% + 저격 25% 결합)",
-                        "🌌 BAY 04 특이점 단독 추천 (G2B 1,365 양자계단 +17원 락)",
-                        "🔮 BAY 03 판도라 X10 단독 추천 (카오스 끌개 + 황금비 파동붕괴)",
-                        "🎯 BAY 05 경쟁사 핀셋 저격 단독 추천 (라이벌 +0.006%p 카운터)"
-                    ],
-                    index=0,
-                    key="v12_ens_strategy"
-                )
+                with ens_c2:
+                    ens_strategy = st.selectbox(
+                        "🧠 AI 최종 적합가 합성 모드 (Ensemble Mode)",
+                        [
+                            "👑 AI 마스터 앙상블 (특이점 40% + 판도라 35% + 저격 25% 결합)",
+                            "🌌 BAY 04 특이점 단독 추천 (G2B 1,365 양자계단 +17원 락)",
+                            "🔮 BAY 03 판도라 X10 단독 추천 (카오스 끌개 + 황금비 파동붕괴)",
+                            "🎯 BAY 05 경쟁사 핀셋 저격 단독 추천 (라이벌 +0.006%p 카운터)"
+                        ],
+                        index=0,
+                        key="v12_ens_strategy"
+                    )
 
-            # [신규 v18.0] 공고 특성(참가업체 수·발주처·시기) 기반 AI 최적 모델 자동 추천 스위치 & 브리핑 바
-            auto_c1, auto_c2, auto_c3 = st.columns([1.5, 1.3, 2.2])
-            with auto_c1:
-                auto_context_on = st.toggle(
-                    "🤖 공고 특성(발주처·시기·경쟁률) 맞춤 최적 모델 자동 추천 스위치",
-                    value=True,
-                    key="v18_auto_context_switch"
-                )
-            with auto_c2:
-                est_bidders_cnt = st.slider(
-                    "👥 예상 참가 경쟁업체 수(개사)",
-                    min_value=15, max_value=250, value=95, step=5, key="v18_est_bidders"
-                )
-            ctx_rec = _recommend_best_model_by_context(ens_item, est_bidders_cnt)
-            with auto_c3:
-                w18 = st.session_state.get("v16_ai_weights", {"singularity": 0.40, "pandora": 0.35, "sniper": 0.25, "generation": 1})
-                st.info(f"🏅 **[BAY 06 누적 신뢰도 연동]** Gen-{w18.get('generation',1)}.0 가중치 (`특이점 {w18.get('singularity',0.4)*100:.0f}% · 판도라 {w18.get('pandora',0.35)*100:.0f}% · 저격 {w18.get('sniper',0.25)*100:.0f}%`) 실시간 작동 중")
+                # [신규 v18.0] 공고 특성(참가업체 수·발주처·시기) 기반 AI 최적 모델 자동 추천 스위치 & 브리핑 바
+                auto_c1, auto_c2, auto_c3 = st.columns([1.5, 1.3, 2.2])
+                with auto_c1:
+                    auto_context_on = st.toggle(
+                        "🤖 공고 특성(발주처·시기·경쟁률) 맞춤 최적 모델 자동 추천 스위치",
+                        value=True,
+                        key="v18_auto_context_switch"
+                    )
+                with auto_c2:
+                    est_bidders_cnt = st.slider(
+                        "👥 예상 참가 경쟁업체 수(개사)",
+                        min_value=15, max_value=250, value=95, step=5, key="v18_est_bidders"
+                    )
+                ctx_rec = _recommend_best_model_by_context(ens_item, est_bidders_cnt)
+                with auto_c3:
+                    w18 = st.session_state.get("v16_ai_weights", {"singularity": 0.40, "pandora": 0.35, "sniper": 0.25, "generation": 1})
+                    st.info(f"🏅 **[BAY 06 누적 신뢰도 연동]** Gen-{w18.get('generation',1)}.0 가중치 (`특이점 {w18.get('singularity',0.4)*100:.0f}% · 판도라 {w18.get('pandora',0.35)*100:.0f}% · 저격 {w18.get('sniper',0.25)*100:.0f}%`) 실시간 작동 중")
 
-            if auto_context_on:
-                st.markdown(
-                    f"""<div style="background:linear-gradient(90deg,rgba(15,23,42,0.96),rgba(30,27,75,0.92));border:1.5px solid {ctx_rec['badge_color']};border-left:7px solid {ctx_rec['badge_color']};border-radius:10px;padding:10px 15px;margin-bottom:10px;font-size:12.5px;">
+                if auto_context_on:
+                    st.markdown(
+                        f"""<div style="background:linear-gradient(90deg,rgba(15,23,42,0.96),rgba(30,27,75,0.92));border:1.5px solid {ctx_rec['badge_color']};border-left:7px solid {ctx_rec['badge_color']};border-radius:10px;padding:10px 15px;margin-bottom:10px;font-size:12.5px;">
                         <span style="color:#fde047;font-weight:900;">🤖 [공고 특성 자동 진단 결과]</span>
                         발주처(<b>{ens_item.get('발주처','')}</b>) · 마감시기(<b>{ens_item.get('마감일시','')[:7]}</b>) · 예상경쟁(<b>{est_bidders_cnt}개사</b>) 분석 결과,
                         단독 특화 1순위 모델은 <b style="color:{ctx_rec['badge_color']};">{ctx_rec['model_name']}</b>이며 이를 통합한 <b style="color:#facc15;">👑 AI 마스터 앙상블</b>이 최종 적합가로 자동 세팅되었습니다.<br>
                         <span style="color:#cbd5e1;font-size:11.5px;">💡 <b>선정 근거</b>: {ctx_rec['reason']}</span>
                     </div>""",
-                    unsafe_allow_html=True
-                )
+                        unsafe_allow_html=True
+                    )
 
-            eb_amt = float(ens_item.get("기초금액", 3605411000) or 3605411000)
-            ea_val = float(ens_item.get("A값", 170640956) or 170640956)
-            el_rt_pct = float(ens_item.get("낙찰하한율", 88.745) or 88.745)
-            el_rt = el_rt_pct / 100.0
-            eno = str(ens_item.get("공고번호", "202611-00892"))
-            etitle = str(ens_item.get("공고명", "소양초 공간재구조화 조성공사"))
-            eorg = str(ens_item.get("발주처", "강원특별자치도춘천교육지원청"))
+                eb_amt = float(ens_item.get("기초금액", 3605411000) or 3605411000)
+                ea_val = float(ens_item.get("A값", 170640956) or 170640956)
+                el_rt_pct = float(ens_item.get("낙찰하한율", 88.745) or 88.745)
+                el_rt = el_rt_pct / 100.0
+                eno = str(ens_item.get("공고번호", "202611-00892"))
+                etitle = str(ens_item.get("공고명", "소양초 공간재구조화 조성공사"))
+                eorg = str(ens_item.get("발주처", "강원특별자치도춘천교육지원청"))
 
-            import hashlib
-            import numpy as np
-            import pandas as pd
-            from itertools import combinations
-            h_v = int(hashlib.md5(eno.encode("utf-8")).hexdigest()[:8], 16)
-            rng_e = np.random.default_rng(h_v)
+                import hashlib
+                import numpy as np
+                import pandas as pd
+                from itertools import combinations
+                h_v = int(hashlib.md5(eno.encode("utf-8")).hexdigest()[:8], 16)
+                rng_e = np.random.default_rng(h_v)
 
-            # 1) 일반 레거시 프로그램(단순평균 데드존)
-            r_legacy = round(100.015 + (h_v % 40) * 0.001, 4)
-            # 2) BAY 05 경쟁사 핀셋 저격 모델
-            rival_gap_pct = round(0.038 + (h_v % 15) * 0.001, 4)
-            r_sniper = round(r_legacy + rival_gap_pct, 4)
-            # 3) BAY 04 특이점(Singularity) 원단위 양자계단 모델
-            slots_e = np.floor(eb_amt * ((np.linspace(98.25, 101.75, 15) + 0.085 + rng_e.normal(0, 0.025, 15)) / 100.0))
-            combs_e = list(combinations(range(15), 4))
-            step_prices_e = np.array([np.floor(np.mean([slots_e[i] for i in c])) for c in combs_e])
-            step_rates_e = (step_prices_e / eb_amt) * 100.0
-            sg_target_raw = r_legacy + 0.0523
-            sg_idx_e = int(np.argmin(np.abs(step_rates_e - sg_target_raw)))
-            r_singularity = round(float(step_rates_e[sg_idx_e]), 4)
-            sg_comb_nums = sorted([int(i + 1) for i in combs_e[sg_idx_e]])
-            # 4) BAY 03 판도라 아카식 X10 모델 (황금비 + 카오스 변위)
-            r_pandora = round(r_singularity + 0.0115, 4)
-            pd_idx_e = int(np.argmin(np.abs(step_rates_e - r_pandora)))
-            pd_comb_nums = sorted([int(i + 1) for i in combs_e[pd_idx_e]])
+                # 1) 일반 레거시 프로그램(단순평균 데드존)
+                r_legacy = round(100.015 + (h_v % 40) * 0.001, 4)
+                # 2) BAY 05 경쟁사 핀셋 저격 모델
+                rival_gap_pct = round(0.038 + (h_v % 15) * 0.001, 4)
+                r_sniper = round(r_legacy + rival_gap_pct, 4)
+                # 3) BAY 04 특이점(Singularity) 원단위 양자계단 모델
+                slots_e = np.floor(eb_amt * ((np.linspace(98.25, 101.75, 15) + 0.085 + rng_e.normal(0, 0.025, 15)) / 100.0))
+                combs_e = list(combinations(range(15), 4))
+                step_prices_e = np.array([np.floor(np.mean([slots_e[i] for i in c])) for c in combs_e])
+                step_rates_e = (step_prices_e / eb_amt) * 100.0
+                sg_target_raw = r_legacy + 0.0523
+                sg_idx_e = int(np.argmin(np.abs(step_rates_e - sg_target_raw)))
+                r_singularity = round(float(step_rates_e[sg_idx_e]), 4)
+                sg_comb_nums = sorted([int(i + 1) for i in combs_e[sg_idx_e]])
+                # 4) BAY 03 판도라 아카식 X10 모델 (황금비 + 카오스 변위)
+                r_pandora = round(r_singularity + 0.0115, 4)
+                pd_idx_e = int(np.argmin(np.abs(step_rates_e - r_pandora)))
+                pd_comb_nums = sorted([int(i + 1) for i in combs_e[pd_idx_e]])
 
-            # 5) 👑 AI 마스터 앙상블 (가중 합성 후 실제 존재하는 가장 가까운 G2B 양자계단에 스냅 착지)
-            _w_sync = st.session_state.get("v16_ai_weights", {"singularity": 0.40, "pandora": 0.35, "sniper": 0.25})
-            if st.session_state.get("v18_auto_context_switch", True):
-                # 공고 특성 자동 추천 스위치가 켜져 있으면 해당 공고에 유리한 특화 모델에 +15%p 부스트 가중치 자동 부여
-                if ctx_rec["model_key"] == "M4":
-                    raw_ensemble = (r_singularity * 0.30) + (r_pandora * 0.50) + (r_sniper * 0.20)
-                elif ctx_rec["model_key"] == "M2":
-                    raw_ensemble = (r_singularity * 0.30) + (r_pandora * 0.20) + (r_sniper * 0.50)
+                # 5) 👑 AI 마스터 앙상블 (가중 합성 후 실제 존재하는 가장 가까운 G2B 양자계단에 스냅 착지)
+                _w_sync = st.session_state.get("v16_ai_weights", {"singularity": 0.40, "pandora": 0.35, "sniper": 0.25})
+                if st.session_state.get("v18_auto_context_switch", True):
+                    # 공고 특성 자동 추천 스위치가 켜져 있으면 해당 공고에 유리한 특화 모델에 +15%p 부스트 가중치 자동 부여
+                    if ctx_rec["model_key"] == "M4":
+                        raw_ensemble = (r_singularity * 0.30) + (r_pandora * 0.50) + (r_sniper * 0.20)
+                    elif ctx_rec["model_key"] == "M2":
+                        raw_ensemble = (r_singularity * 0.30) + (r_pandora * 0.20) + (r_sniper * 0.50)
+                    else:
+                        raw_ensemble = (r_singularity * 0.50) + (r_pandora * 0.30) + (r_sniper * 0.20)
                 else:
-                    raw_ensemble = (r_singularity * 0.50) + (r_pandora * 0.30) + (r_sniper * 0.20)
-            else:
-                raw_ensemble = (r_singularity * _w_sync.get("singularity", 0.40)) + (r_pandora * _w_sync.get("pandora", 0.35)) + (r_sniper * _w_sync.get("sniper", 0.25))
-            ens_step_idx = int(np.argmin(np.abs(step_rates_e - raw_ensemble)))
-            r_ensemble = round(float(step_rates_e[ens_step_idx]), 4)
-            ens_comb_nums = sorted([int(i + 1) for i in combs_e[ens_step_idx]])
+                    raw_ensemble = (r_singularity * _w_sync.get("singularity", 0.40)) + (r_pandora * _w_sync.get("pandora", 0.35)) + (r_sniper * _w_sync.get("sniper", 0.25))
+                ens_step_idx = int(np.argmin(np.abs(step_rates_e - raw_ensemble)))
+                r_ensemble = round(float(step_rates_e[ens_step_idx]), 4)
+                ens_comb_nums = sorted([int(i + 1) for i in combs_e[ens_step_idx]])
 
-            def _calc_detail(rt, wedge=0):
-                ep = int(np.floor(eb_amt * (rt / 100.0)))
-                pure_cut = int(np.ceil(((ep - ea_val) * el_rt) + ea_val))
-                final_b = pure_cut + wedge
-                return ep, pure_cut, final_b
+                def _calc_detail(rt, wedge=0):
+                    ep = int(np.floor(eb_amt * (rt / 100.0)))
+                    pure_cut = int(np.ceil(((ep - ea_val) * el_rt) + ea_val))
+                    final_b = pure_cut + wedge
+                    return ep, pure_cut, final_b
 
-            ep_leg, cut_leg, b_legacy = _calc_detail(r_legacy, 0)
-            ep_sni, cut_sni, b_sniper = _calc_detail(r_sniper, 0)
-            ep_sin, cut_sin, b_singularity = _calc_detail(r_singularity, 17)
-            ep_pan, cut_pan, b_pandora = _calc_detail(r_pandora, 37)
-            ep_ens, cut_ens, b_ensemble = _calc_detail(r_ensemble, 19)
+                ep_leg, cut_leg, b_legacy = _calc_detail(r_legacy, 0)
+                ep_sni, cut_sni, b_sniper = _calc_detail(r_sniper, 0)
+                ep_sin, cut_sin, b_singularity = _calc_detail(r_singularity, 17)
+                ep_pan, cut_pan, b_pandora = _calc_detail(r_pandora, 37)
+                ep_ens, cut_ens, b_ensemble = _calc_detail(r_ensemble, 19)
 
-            # [신규 v13.0] 공고별 15C4 밀도 & 데드존 회피율 기반 모델별 시뮬레이션 타점지수(참고)(%) 및 시뮬레이션 하한선방어지수(참고)(%) 산출
-            w_mod = (h_v % 18) * 0.1
-            win_leg, def_leg = round(2.1 + w_mod * 0.3, 1), round(51.4 + w_mod * 0.4, 1)
-            win_sni, def_sni = round(16.4 + w_mod * 0.8, 1), round(85.2 + w_mod * 0.5, 1)
-            win_sin, def_sin = round(26.8 + w_mod * 0.9, 1), round(99.2 + (h_v % 5) * 0.1, 1)
-            win_pan, def_pan = round(23.5 + w_mod * 0.85, 1), round(93.4 + w_mod * 0.4, 1)
-            win_ens, def_ens = round(33.6 + w_mod * 1.1, 1), round(99.7 + (h_v % 3) * 0.1, 1)
+                # [신규 v13.0] 공고별 15C4 밀도 & 데드존 회피율 기반 모델별 시뮬레이션 타점지수(참고)(%) 및 시뮬레이션 하한선방어지수(참고)(%) 산출
+                w_mod = (h_v % 18) * 0.1
+                win_leg, def_leg = round(2.1 + w_mod * 0.3, 1), round(51.4 + w_mod * 0.4, 1)
+                win_sni, def_sni = round(16.4 + w_mod * 0.8, 1), round(85.2 + w_mod * 0.5, 1)
+                win_sin, def_sin = round(26.8 + w_mod * 0.9, 1), round(99.2 + (h_v % 5) * 0.1, 1)
+                win_pan, def_pan = round(23.5 + w_mod * 0.85, 1), round(93.4 + w_mod * 0.4, 1)
+                win_ens, def_ens = round(33.6 + w_mod * 1.1, 1), round(99.7 + (h_v % 3) * 0.1, 1)
 
-            if "특이점 단독" in ens_strategy:
-                final_rec_r, final_rec_b, active_m_key = r_singularity, b_singularity, "M3"
-            elif "판도라 X10" in ens_strategy:
-                final_rec_r, final_rec_b, active_m_key = r_pandora, b_pandora, "M4"
-            elif "핀셋 저격" in ens_strategy:
-                final_rec_r, final_rec_b, active_m_key = r_sniper, b_sniper, "M2"
-            else:
-                final_rec_r, final_rec_b, active_m_key = r_ensemble, b_ensemble, "M5"
+                if "특이점 단독" in ens_strategy:
+                    final_rec_r, final_rec_b, active_m_key = r_singularity, b_singularity, "M3"
+                elif "판도라 X10" in ens_strategy:
+                    final_rec_r, final_rec_b, active_m_key = r_pandora, b_pandora, "M4"
+                elif "핀셋 저격" in ens_strategy:
+                    final_rec_r, final_rec_b, active_m_key = r_sniper, b_sniper, "M2"
+                else:
+                    final_rec_r, final_rec_b, active_m_key = r_ensemble, b_ensemble, "M5"
 
-            if "v125_selected_model_inspect" not in st.session_state:
-                st.session_state["v125_selected_model_inspect"] = "M5"
-
-            with ens_c3:
-                st.write("")
-                if st.button("👑 이 추천가를 공고에 최종 확정 및 전체 동기화", use_container_width=True, key="btn_confirm_v12_ensemble"):
-                    pool[ens_idx]["목표사정률"] = final_rec_r
-                    st.toast(f"👑 [{eno}] 최종 적합가 {final_rec_b:,.0f}원 ({final_rec_r:.4f}%) 확정 완료!", icon="✅")
-                    st.rerun()
-
-            # 5대 모델 메트릭 + 클릭 시 해당 모델의 추론 과정을 즉시 여는 트리거 버튼 5열
-            m_col1, m_col2, m_col3, m_col4, m_col5 = st.columns(5)
-            with m_col1:
-                st.metric(f"🏢 레거시 (타점지수(시뮬레이션참고) {win_leg})", f"{b_legacy:,.0f}원", f"사정률 {r_legacy:.4f}% | 방어지수(시뮬레이션참고) {def_leg}", delta_color="inverse")
-                if st.button(f"🔍 ① 레거시 해부 ({win_leg}%)", key="btn_insp_m1", type="primary" if st.session_state["v125_selected_model_inspect"] == "M1" else "secondary", use_container_width=True):
-                    st.session_state["v125_selected_model_inspect"] = "M1"
-                    st.rerun()
-            with m_col2:
-                st.metric(f"🎯 경쟁사저격 (타점지수(시뮬레이션참고) {win_sni})", f"{b_sniper:,.0f}원", f"사정률 {r_sniper:.4f}% | 방어지수(시뮬레이션참고) {def_sni}")
-                if st.button(f"🔍 ② 저격가 해부 ({win_sni}%)", key="btn_insp_m2", type="primary" if st.session_state["v125_selected_model_inspect"] == "M2" else "secondary", use_container_width=True):
-                    st.session_state["v125_selected_model_inspect"] = "M2"
-                    st.rerun()
-            with m_col3:
-                st.metric(f"🌌 특이점락 (타점지수(시뮬레이션참고) {win_sin})", f"{b_singularity:,.0f}원", f"사정률 {r_singularity:.4f}% | 방어지수(시뮬레이션참고) {def_sin}")
-                if st.button(f"🔍 ③ 특이점 해부 ({win_sin}%)", key="btn_insp_m3", type="primary" if st.session_state["v125_selected_model_inspect"] == "M3" else "secondary", use_container_width=True):
-                    st.session_state["v125_selected_model_inspect"] = "M3"
-                    st.rerun()
-            with m_col4:
-                st.metric(f"🔮 판도라X10 (타점지수(시뮬레이션참고) {win_pan})", f"{b_pandora:,.0f}원", f"사정률 {r_pandora:.4f}% | 방어지수(시뮬레이션참고) {def_pan}")
-                if st.button(f"🔍 ④ 판도라 해부 ({win_pan}%)", key="btn_insp_m4", type="primary" if st.session_state["v125_selected_model_inspect"] == "M4" else "secondary", use_container_width=True):
-                    st.session_state["v125_selected_model_inspect"] = "M4"
-                    st.rerun()
-            with m_col5:
-                st.metric(f"👑 AI앙상블 (타점지수(시뮬레이션참고) {win_ens})", f"{b_ensemble:,.0f}원", f"합성 {r_ensemble:.4f}% | 방어지수(시뮬레이션참고) {def_ens}")
-                if st.button(f"🔍 ⑤ 최종적합 해부 ({win_ens}%)", key="btn_insp_m5", type="primary" if st.session_state["v125_selected_model_inspect"] == "M5" else "secondary", use_container_width=True):
+                if "v125_selected_model_inspect" not in st.session_state:
                     st.session_state["v125_selected_model_inspect"] = "M5"
-                    st.rerun()
 
-            # 각 모델별 상세 추론 과정 및 수학적 도출 이유 정의 사전
-            inspect_dict = {
-                "M1": {
-                    "badge": "🏢 [모델 ① 해부] 레거시 프로그램 (전기넷 등 단순 산술평균 데드존)",
-                    "color": "#fb7185",
-                    "rate": r_legacy,
-                    "ep": ep_leg,
-                    "cut": cut_leg,
-                    "wedge": 0,
-                    "bid": b_legacy,
-                    "nums": "무작위 난수 (일관성 없음)",
-                    "why": "발주처 최근 12건 개찰 사정률의 단순 산술평균(Simple Mean)만 취한 값으로, 일반 자동산출 프로그램을 쓰는 경쟁사들의 65% 이상이 이 구간(±0.02%p)에 밀집하여 동가 추첨이나 근소차 탈락 위험이 가장 높은 '경쟁 과밀 데드존'입니다.",
-                    "step1": f"단순 과거 평균 사정률 산출 = {r_legacy:.4f}% (시계열 추세 및 연말 예산 압박 미반영)",
-                    "step2": f"예정가격(E) = 기초금액({eb_amt:,.0f}원) × {r_legacy:.4f}% = {ep_leg:,.0f}원",
-                    "step3": f"순수 하한선 = [(예정가격 {ep_leg:,.0f} - A값 {ea_val:,.0f}) × {el_rt_pct:.3f}%] + A값 = {cut_leg:,.0f}원",
-                    "step4": f"웨지(Wedge) 보정 없음 (+0원) ➔ 최종 산출가 {b_legacy:,.0f}원 [판정: ❌ 데드존 회피 권고]"
-                },
-                "M2": {
-                    "badge": "🎯 [모델 ② 해부] BAY 05 발주처 재무관 프리셋 & 경쟁사 핀셋 저격(Sniper) 모델",
-                    "color": "#38bdf8",
-                    "rate": r_sniper,
-                    "ep": ep_sni,
-                    "cut": cut_sni,
-                    "wedge": 0,
-                    "bid": b_sniper,
-                    "nums": f"🎯 {sg_comb_nums[0]}번 · {sg_comb_nums[1]}번 · {sg_comb_nums[2]}번 · {sg_comb_nums[3]}번",
-                    "why": f"발주처({eorg}) 재무관의 예가 편향 프리셋과 주요 경쟁사의 상습 투찰 대역({r_legacy:.4f}%)을 분석한 뒤, 경쟁사 군집 상단을 +{rival_gap_pct:.4f}%p 차이로 컷오프(Cut-off)하여 예가 상승 시 경쟁사들이 집단 하한선 미달로 탈락할 때 단독 1순위를 차지하는 카운터 사정가입니다.",
-                    "step1": f"데드존 기준({r_legacy:.4f}%) + 발주처 성향 및 라이벌 카운터 마진(+{rival_gap_pct:.4f}%p) = {r_sniper:.4f}%",
-                    "step2": f"예정가격(E) = 기초금액({eb_amt:,.0f}원) × {r_sniper:.4f}% = {ep_sni:,.0f}원",
-                    "step3": f"순수 하한선 = [(예정가격 {ep_sni:,.0f} - A값 {ea_val:,.0f}) × {el_rt_pct:.3f}%] + A값 = {cut_sni:,.0f}원",
-                    "step4": f"레거시 데드존 대비 +{b_sniper - b_legacy:,.0f}원 상위 선점 ➔ 최종 저격가 {b_sniper:,.0f}원 [판정: 🟢 라이벌 제압 유효]"
-                },
-                "M3": {
-                    "badge": f"🌌 [모델 ③ 해부] BAY 04 특이점(Singularity) G2B 원단위 양자계단 #{sg_idx_e+1}번 락 모델",
-                    "color": "#c084fc",
-                    "rate": r_singularity,
-                    "ep": ep_sin,
-                    "cut": cut_sin,
-                    "wedge": 17,
-                    "bid": b_singularity,
-                    "nums": f"🎯 {sg_comb_nums[0]}번 · {sg_comb_nums[1]}번 · {sg_comb_nums[2]}번 · {sg_comb_nums[3]}번",
-                    "why": f"조달청(G2B) 복수예가 15C4=1,365개 조합은 원단위 절사 수식 때문에 연속적인 실수가 아니라 1,365개의 불연속 계단(Step)으로만 존재합니다. 인간 클릭 편향(3·7·8·11·12번 집중)과 11~12월 불용예산 소진 압박(+0.085%p)을 반영한 뒤 실제 존재하는 #{sg_idx_e+1}번 양자계단에 정확히 스냅(Snap)시키고 +17원 소수 웨지를 얹어 하한선 미달 확률을 0%로 봉쇄했습니다.",
-                    "step1": f"인간 클릭편향 기댓값 + 연말 예산 드리프트 ➔ 1,365개 중 #{sg_idx_e+1}번 실제 양자계단({r_singularity:.4f}%) 스냅",
-                    "step2": f"양자화 예정가격(E) = 4개 슬롯({sg_comb_nums}) 원단위 절사 평균 = {ep_sin:,.0f}원",
-                    "step3": f"계단 하한선 = [(예정가격 {ep_sin:,.0f} - A값 {ea_val:,.0f}) × {el_rt_pct:.3f}%] + A값 = {cut_sin:,.0f}원",
-                    "step4": f"절사 오차 방어 및 동가 회피 소수 웨지(+17원) 가산 ➔ 최종 특이점가 {b_singularity:,.0f}원 [판정: 🏆 양자계단 완전 밀착]"
-                },
-                "M4": {
-                    "badge": "🔮 [모델 ④ 해부] BAY 03 판도라 아카식 코어(X10) 카오스 끌개 & 황금비(Φ) 파동붕괴 모델",
-                    "color": "#f472b6",
-                    "rate": r_pandora,
-                    "ep": ep_pan,
-                    "cut": cut_pan,
-                    "wedge": 37,
-                    "bid": b_pandora,
-                    "nums": f"🎯 {pd_comb_nums[0]}번 · {pd_comb_nums[1]}번 · {pd_comb_nums[2]}번 · {pd_comb_nums[3]}번",
-                    "why": "로렌츠 카오스 기묘한 끌개(Strange Attractor)의 위상 전이점과 인간 집단 무의식이 비워두는 황금비(Φ=0.618034) 사각지대가 교차하는 보강간섭(|Ψ|²) 극대점입니다. 100개사 이상 과밀 입찰이나 발주처가 상단 슬롯을 강하게 뽑는 고사정률 장세에서 독점 낙찰을 노리는 초월 사정가입니다.",
-                    "step1": f"로렌츠 카오스 변위 + 황금비(Φ) 사각지대 보강간섭 극점 = {r_pandora:.4f}% (궤도 #{pd_idx_e+1}번)",
-                    "step2": f"파동붕괴 예정가격(E) = 기초금액({eb_amt:,.0f}원) × {r_pandora:.4f}% = {ep_pan:,.0f}원",
-                    "step3": f"순수 하한선 = [(예정가격 {ep_pan:,.0f} - A값 {ea_val:,.0f}) × {el_rt_pct:.3f}%] + A값 = {cut_pan:,.0f}원",
-                    "step4": f"황금 소수(Prime) 엔트로피 웨지(+37원) 가산 ➔ 최종 판도라가 {b_pandora:,.0f}원 [판정: ⚡ 고사정률 상단 장악]"
-                },
-                "M5": {
-                    "badge": f"👑 [모델 ⑤ 해부] AI 마스터 앙상블 최종 적합가 (4대 모델 가중합성 + 계단 #{ens_step_idx+1} 스냅)",
-                    "color": "#facc15",
-                    "rate": r_ensemble,
-                    "ep": ep_ens,
-                    "cut": cut_ens,
-                    "wedge": 19,
-                    "bid": b_ensemble,
-                    "nums": f"🎯 {ens_comb_nums[0]}번 · {ens_comb_nums[1]}번 · {ens_comb_nums[2]}번 · {ens_comb_nums[3]}번",
-                    "why": f"단일 모델의 극단값을 상호 보완하기 위해 [특이점 양자락(가중치 40%) + 판도라 X10(35%) + 경쟁사 저격기(25%)]를 수학적으로 결합한 뒤, 허공의 평균이 아닌 조달청 수식상 실제 존재하는 #{ens_step_idx+1}번 양자계단({r_ensemble:.4f}%)에 재착지시킨 BID-NEXUS의 최종 적합가(Master Consensus Bid)입니다.",
-                    "step1": f"가중합성 = ({r_singularity:.4f}%×0.40) + ({r_pandora:.4f}%×0.35) + ({r_sniper:.4f}%×0.25) = {raw_ensemble:.5f}% ➔ 계단 #{ens_step_idx+1}({r_ensemble:.4f}%) 스냅",
-                    "step2": f"최종 적합 예정가격(E) = #{ens_step_idx+1}번 계단 확정 예가 = {ep_ens:,.0f}원",
-                    "step3": f"최종 하한선 = [(예정가격 {ep_ens:,.0f} - A값 {ea_val:,.0f}) × {el_rt_pct:.3f}%] + A값 = {cut_ens:,.0f}원",
-                    "step4": f"마스터 소수 웨지(+19원) 가산 ➔ 최종 적합 투찰가 {b_ensemble:,.0f}원 [판정: 👑 전 모델 만장일치 최우선 추천]"
+                with ens_c3:
+                    st.write("")
+                    if st.button("👑 이 추천가를 공고에 최종 확정 및 전체 동기화", use_container_width=True, key="btn_confirm_v12_ensemble"):
+                        pool[ens_idx]["목표사정률"] = final_rec_r
+                        st.toast(f"👑 [{eno}] 최종 적합가 {final_rec_b:,.0f}원 ({final_rec_r:.4f}%) 확정 완료!", icon="✅")
+                        st.rerun()
+
+                # 5대 모델 메트릭 + 클릭 시 해당 모델의 추론 과정을 즉시 여는 트리거 버튼 5열
+                m_col1, m_col2, m_col3, m_col4, m_col5 = st.columns(5)
+                with m_col1:
+                    st.metric(f"🏢 레거시 (타점지수(시뮬레이션참고) {win_leg})", f"{b_legacy:,.0f}원", f"사정률 {r_legacy:.4f}% | 방어지수(시뮬레이션참고) {def_leg}", delta_color="inverse")
+                    if st.button(f"🔍 ① 레거시 해부 ({win_leg}%)", key="btn_insp_m1", type="primary" if st.session_state["v125_selected_model_inspect"] == "M1" else "secondary", use_container_width=True):
+                        st.session_state["v125_selected_model_inspect"] = "M1"
+                        st.rerun()
+                with m_col2:
+                    st.metric(f"🎯 경쟁사저격 (타점지수(시뮬레이션참고) {win_sni})", f"{b_sniper:,.0f}원", f"사정률 {r_sniper:.4f}% | 방어지수(시뮬레이션참고) {def_sni}")
+                    if st.button(f"🔍 ② 저격가 해부 ({win_sni}%)", key="btn_insp_m2", type="primary" if st.session_state["v125_selected_model_inspect"] == "M2" else "secondary", use_container_width=True):
+                        st.session_state["v125_selected_model_inspect"] = "M2"
+                        st.rerun()
+                with m_col3:
+                    st.metric(f"🌌 특이점락 (타점지수(시뮬레이션참고) {win_sin})", f"{b_singularity:,.0f}원", f"사정률 {r_singularity:.4f}% | 방어지수(시뮬레이션참고) {def_sin}")
+                    if st.button(f"🔍 ③ 특이점 해부 ({win_sin}%)", key="btn_insp_m3", type="primary" if st.session_state["v125_selected_model_inspect"] == "M3" else "secondary", use_container_width=True):
+                        st.session_state["v125_selected_model_inspect"] = "M3"
+                        st.rerun()
+                with m_col4:
+                    st.metric(f"🔮 판도라X10 (타점지수(시뮬레이션참고) {win_pan})", f"{b_pandora:,.0f}원", f"사정률 {r_pandora:.4f}% | 방어지수(시뮬레이션참고) {def_pan}")
+                    if st.button(f"🔍 ④ 판도라 해부 ({win_pan}%)", key="btn_insp_m4", type="primary" if st.session_state["v125_selected_model_inspect"] == "M4" else "secondary", use_container_width=True):
+                        st.session_state["v125_selected_model_inspect"] = "M4"
+                        st.rerun()
+                with m_col5:
+                    st.metric(f"👑 AI앙상블 (타점지수(시뮬레이션참고) {win_ens})", f"{b_ensemble:,.0f}원", f"합성 {r_ensemble:.4f}% | 방어지수(시뮬레이션참고) {def_ens}")
+                    if st.button(f"🔍 ⑤ 최종적합 해부 ({win_ens}%)", key="btn_insp_m5", type="primary" if st.session_state["v125_selected_model_inspect"] == "M5" else "secondary", use_container_width=True):
+                        st.session_state["v125_selected_model_inspect"] = "M5"
+                        st.rerun()
+
+                # 각 모델별 상세 추론 과정 및 수학적 도출 이유 정의 사전
+                inspect_dict = {
+                    "M1": {
+                        "badge": "🏢 [모델 ① 해부] 레거시 프로그램 (전기넷 등 단순 산술평균 데드존)",
+                        "color": "#fb7185",
+                        "rate": r_legacy,
+                        "ep": ep_leg,
+                        "cut": cut_leg,
+                        "wedge": 0,
+                        "bid": b_legacy,
+                        "nums": "무작위 난수 (일관성 없음)",
+                        "why": "발주처 최근 12건 개찰 사정률의 단순 산술평균(Simple Mean)만 취한 값으로, 일반 자동산출 프로그램을 쓰는 경쟁사들의 65% 이상이 이 구간(±0.02%p)에 밀집하여 동가 추첨이나 근소차 탈락 위험이 가장 높은 '경쟁 과밀 데드존'입니다.",
+                        "step1": f"단순 과거 평균 사정률 산출 = {r_legacy:.4f}% (시계열 추세 및 연말 예산 압박 미반영)",
+                        "step2": f"예정가격(E) = 기초금액({eb_amt:,.0f}원) × {r_legacy:.4f}% = {ep_leg:,.0f}원",
+                        "step3": f"순수 하한선 = [(예정가격 {ep_leg:,.0f} - A값 {ea_val:,.0f}) × {el_rt_pct:.3f}%] + A값 = {cut_leg:,.0f}원",
+                        "step4": f"웨지(Wedge) 보정 없음 (+0원) ➔ 최종 산출가 {b_legacy:,.0f}원 [판정: ❌ 데드존 회피 권고]"
+                    },
+                    "M2": {
+                        "badge": "🎯 [모델 ② 해부] BAY 05 발주처 재무관 프리셋 & 경쟁사 핀셋 저격(Sniper) 모델",
+                        "color": "#38bdf8",
+                        "rate": r_sniper,
+                        "ep": ep_sni,
+                        "cut": cut_sni,
+                        "wedge": 0,
+                        "bid": b_sniper,
+                        "nums": f"🎯 {sg_comb_nums[0]}번 · {sg_comb_nums[1]}번 · {sg_comb_nums[2]}번 · {sg_comb_nums[3]}번",
+                        "why": f"발주처({eorg}) 재무관의 예가 편향 프리셋과 주요 경쟁사의 상습 투찰 대역({r_legacy:.4f}%)을 분석한 뒤, 경쟁사 군집 상단을 +{rival_gap_pct:.4f}%p 차이로 컷오프(Cut-off)하여 예가 상승 시 경쟁사들이 집단 하한선 미달로 탈락할 때 단독 1순위를 차지하는 카운터 사정가입니다.",
+                        "step1": f"데드존 기준({r_legacy:.4f}%) + 발주처 성향 및 라이벌 카운터 마진(+{rival_gap_pct:.4f}%p) = {r_sniper:.4f}%",
+                        "step2": f"예정가격(E) = 기초금액({eb_amt:,.0f}원) × {r_sniper:.4f}% = {ep_sni:,.0f}원",
+                        "step3": f"순수 하한선 = [(예정가격 {ep_sni:,.0f} - A값 {ea_val:,.0f}) × {el_rt_pct:.3f}%] + A값 = {cut_sni:,.0f}원",
+                        "step4": f"레거시 데드존 대비 +{b_sniper - b_legacy:,.0f}원 상위 선점 ➔ 최종 저격가 {b_sniper:,.0f}원 [판정: 🟢 라이벌 제압 유효]"
+                    },
+                    "M3": {
+                        "badge": f"🌌 [모델 ③ 해부] BAY 04 특이점(Singularity) G2B 원단위 양자계단 #{sg_idx_e+1}번 락 모델",
+                        "color": "#c084fc",
+                        "rate": r_singularity,
+                        "ep": ep_sin,
+                        "cut": cut_sin,
+                        "wedge": 17,
+                        "bid": b_singularity,
+                        "nums": f"🎯 {sg_comb_nums[0]}번 · {sg_comb_nums[1]}번 · {sg_comb_nums[2]}번 · {sg_comb_nums[3]}번",
+                        "why": f"조달청(G2B) 복수예가 15C4=1,365개 조합은 원단위 절사 수식 때문에 연속적인 실수가 아니라 1,365개의 불연속 계단(Step)으로만 존재합니다. 인간 클릭 편향(3·7·8·11·12번 집중)과 11~12월 불용예산 소진 압박(+0.085%p)을 반영한 뒤 실제 존재하는 #{sg_idx_e+1}번 양자계단에 정확히 스냅(Snap)시키고 +17원 소수 웨지를 얹어 하한선 미달 확률을 0%로 봉쇄했습니다.",
+                        "step1": f"인간 클릭편향 기댓값 + 연말 예산 드리프트 ➔ 1,365개 중 #{sg_idx_e+1}번 실제 양자계단({r_singularity:.4f}%) 스냅",
+                        "step2": f"양자화 예정가격(E) = 4개 슬롯({sg_comb_nums}) 원단위 절사 평균 = {ep_sin:,.0f}원",
+                        "step3": f"계단 하한선 = [(예정가격 {ep_sin:,.0f} - A값 {ea_val:,.0f}) × {el_rt_pct:.3f}%] + A값 = {cut_sin:,.0f}원",
+                        "step4": f"절사 오차 방어 및 동가 회피 소수 웨지(+17원) 가산 ➔ 최종 특이점가 {b_singularity:,.0f}원 [판정: 🏆 양자계단 완전 밀착]"
+                    },
+                    "M4": {
+                        "badge": "🔮 [모델 ④ 해부] BAY 03 판도라 아카식 코어(X10) 카오스 끌개 & 황금비(Φ) 파동붕괴 모델",
+                        "color": "#f472b6",
+                        "rate": r_pandora,
+                        "ep": ep_pan,
+                        "cut": cut_pan,
+                        "wedge": 37,
+                        "bid": b_pandora,
+                        "nums": f"🎯 {pd_comb_nums[0]}번 · {pd_comb_nums[1]}번 · {pd_comb_nums[2]}번 · {pd_comb_nums[3]}번",
+                        "why": "로렌츠 카오스 기묘한 끌개(Strange Attractor)의 위상 전이점과 인간 집단 무의식이 비워두는 황금비(Φ=0.618034) 사각지대가 교차하는 보강간섭(|Ψ|²) 극대점입니다. 100개사 이상 과밀 입찰이나 발주처가 상단 슬롯을 강하게 뽑는 고사정률 장세에서 독점 낙찰을 노리는 초월 사정가입니다.",
+                        "step1": f"로렌츠 카오스 변위 + 황금비(Φ) 사각지대 보강간섭 극점 = {r_pandora:.4f}% (궤도 #{pd_idx_e+1}번)",
+                        "step2": f"파동붕괴 예정가격(E) = 기초금액({eb_amt:,.0f}원) × {r_pandora:.4f}% = {ep_pan:,.0f}원",
+                        "step3": f"순수 하한선 = [(예정가격 {ep_pan:,.0f} - A값 {ea_val:,.0f}) × {el_rt_pct:.3f}%] + A값 = {cut_pan:,.0f}원",
+                        "step4": f"황금 소수(Prime) 엔트로피 웨지(+37원) 가산 ➔ 최종 판도라가 {b_pandora:,.0f}원 [판정: ⚡ 고사정률 상단 장악]"
+                    },
+                    "M5": {
+                        "badge": f"👑 [모델 ⑤ 해부] AI 마스터 앙상블 최종 적합가 (4대 모델 가중합성 + 계단 #{ens_step_idx+1} 스냅)",
+                        "color": "#facc15",
+                        "rate": r_ensemble,
+                        "ep": ep_ens,
+                        "cut": cut_ens,
+                        "wedge": 19,
+                        "bid": b_ensemble,
+                        "nums": f"🎯 {ens_comb_nums[0]}번 · {ens_comb_nums[1]}번 · {ens_comb_nums[2]}번 · {ens_comb_nums[3]}번",
+                        "why": f"단일 모델의 극단값을 상호 보완하기 위해 [특이점 양자락(가중치 40%) + 판도라 X10(35%) + 경쟁사 저격기(25%)]를 수학적으로 결합한 뒤, 허공의 평균이 아닌 조달청 수식상 실제 존재하는 #{ens_step_idx+1}번 양자계단({r_ensemble:.4f}%)에 재착지시킨 BID-NEXUS의 최종 적합가(Master Consensus Bid)입니다.",
+                        "step1": f"가중합성 = ({r_singularity:.4f}%×0.40) + ({r_pandora:.4f}%×0.35) + ({r_sniper:.4f}%×0.25) = {raw_ensemble:.5f}% ➔ 계단 #{ens_step_idx+1}({r_ensemble:.4f}%) 스냅",
+                        "step2": f"최종 적합 예정가격(E) = #{ens_step_idx+1}번 계단 확정 예가 = {ep_ens:,.0f}원",
+                        "step3": f"최종 하한선 = [(예정가격 {ep_ens:,.0f} - A값 {ea_val:,.0f}) × {el_rt_pct:.3f}%] + A값 = {cut_ens:,.0f}원",
+                        "step4": f"마스터 소수 웨지(+19원) 가산 ➔ 최종 적합 투찰가 {b_ensemble:,.0f}원 [판정: 👑 전 모델 만장일치 최우선 추천]"
+                    }
                 }
-            }
 
-            cur_insp = inspect_dict.get(st.session_state["v125_selected_model_inspect"], inspect_dict["M5"])
+                cur_insp = inspect_dict.get(st.session_state["v125_selected_model_inspect"], inspect_dict["M5"])
 
-            # 선택된 모델의 상세 추론 과정(XAI) 홀로그램 해부 브리핑 박스 노출
-            st.markdown(
-                f"""<div style="
+                # 선택된 모델의 상세 추론 과정(XAI) 홀로그램 해부 브리핑 박스 노출
+                st.markdown(
+                    f"""<div style="
                     background: linear-gradient(135deg, rgba(15, 23, 42, 0.96) 0%, rgba(30, 27, 75, 0.92) 100%);
                     border: 2px solid {cur_insp['color']};
                     border-left: 8px solid {cur_insp['color']};
@@ -5753,82 +5755,82 @@ function jumpFromIso(targetKey) {
                         <div style="background:rgba(30,41,59,0.7);padding:8px 12px;border-radius:8px;color:#fde047;"><b>STEP 4 (웨지·최종확정)</b> : {cur_insp['step4']}</div>
                     </div>
                 </div>""",
-                unsafe_allow_html=True
-            )
+                    unsafe_allow_html=True
+                )
 
-            # 일련의 사정가 & 최종 적합가 표준 비교 명세표 (Standard Assessment Sheet) 및 양식 출력
-            summary_rows = [
-                {
-                    "구분 (분석 모델)": "① 🏢 레거시 (단순평균 데드존)",
-                    "추론 사정률(%)": f"{r_legacy:.4f}%",
-                    "산출 예정가격(원)": f"{ep_leg:,.0f}원",
-                    "순수 낙찰하한선(원)": f"{cut_leg:,.0f}원",
-                    "웨지 보정": "+0원",
-                    "최종 산출 투찰가(원)": f"{b_legacy:,.0f}원",
-                    "시뮬레이션 타점지수(참고)": f"🔴 {win_leg:.1f}%",
-                    "시뮬레이션 하한선방어지수(참고)": f"{def_leg:.1f}%",
-                    "데드존 대비 격차": "기준점 (0원)",
-                    "핵심 추론 근거 및 적합도 판정": "❌ 경쟁사 65% 과밀 구간 (동가·근소차 탈락 위험 회피)"
-                },
-                {
-                    "구분 (분석 모델)": "② 🎯 [BAY 5] 경쟁사 핀셋 저격",
-                    "추론 사정률(%)": f"{r_sniper:.4f}%",
-                    "산출 예정가격(원)": f"{ep_sni:,.0f}원",
-                    "순수 낙찰하한선(원)": f"{cut_sni:,.0f}원",
-                    "웨지 보정": "+0원",
-                    "최종 산출 투찰가(원)": f"{b_sniper:,.0f}원",
-                    "시뮬레이션 타점지수(참고)": f"🔵 {win_sni:.1f}% (▲{win_sni/max(win_leg,1):.1f}배)",
-                    "시뮬레이션 하한선방어지수(참고)": f"{def_sni:.1f}%",
-                    "데드존 대비 격차": f"+{b_sniper - b_legacy:,.0f}원",
-                    "핵심 추론 근거 및 적합도 판정": f"🟢 발주처 프리셋 + 라이벌 습관 상단 +{rival_gap_pct:.4f}%p 카운터"
-                },
-                {
-                    "구분 (분석 모델)": f"③ 🌌 [BAY 4] 특이점 양자계단 (#{sg_idx_e+1})",
-                    "추론 사정률(%)": f"{r_singularity:.4f}%",
-                    "산출 예정가격(원)": f"{ep_sin:,.0f}원",
-                    "순수 낙찰하한선(원)": f"{cut_sin:,.0f}원",
-                    "웨지 보정": "+17원",
-                    "최종 산출 투찰가(원)": f"{b_singularity:,.0f}원",
-                    "시뮬레이션 타점지수(참고)": f"🟣 {win_sin:.1f}% (▲{win_sin/max(win_leg,1):.1f}배)",
-                    "시뮬레이션 하한선방어지수(참고)": f"{def_sin:.1f}%",
-                    "데드존 대비 격차": f"+{b_singularity - b_legacy:,.0f}원",
-                    "핵심 추론 근거 및 적합도 판정": f"🏆 G2B 원단위 절사 #{sg_idx_e+1}번 실제 계단 락 + 인간 클릭편향 반영"
-                },
-                {
-                    "구분 (분석 모델)": f"④ 🔮 [BAY 3] 판도라 X10 (#{pd_idx_e+1})",
-                    "추론 사정률(%)": f"{r_pandora:.4f}%",
-                    "산출 예정가격(원)": f"{ep_pan:,.0f}원",
-                    "순수 낙찰하한선(원)": f"{cut_pan:,.0f}원",
-                    "웨지 보정": "+37원",
-                    "최종 산출 투찰가(원)": f"{b_pandora:,.0f}원",
-                    "시뮬레이션 타점지수(참고)": f"🩷 {win_pan:.1f}% (▲{win_pan/max(win_leg,1):.1f}배)",
-                    "시뮬레이션 하한선방어지수(참고)": f"{def_pan:.1f}%",
-                    "데드존 대비 격차": f"+{b_pandora - b_legacy:,.0f}원",
-                    "핵심 추론 근거 및 적합도 판정": "⚡ 카오스 끌개 + 황금비(Φ=0.618) 보강간섭 극점 (상단 돌파용)"
-                },
-                {
-                    "구분 (분석 모델)": f"⑤ 👑 AI 마스터 앙상블 (최종적합가)",
-                    "추론 사정률(%)": f"{r_ensemble:.4f}%",
-                    "산출 예정가격(원)": f"{ep_ens:,.0f}원",
-                    "순수 낙찰하한선(원)": f"{cut_ens:,.0f}원",
-                    "웨지 보정": "+19원",
-                    "최종 산출 투찰가(원)": f"{b_ensemble:,.0f}원",
-                    "시뮬레이션 타점지수(참고)": f"👑 {win_ens:.1f}% (▲{win_ens/max(win_leg,1):.1f}배)",
-                    "시뮬레이션 하한선방어지수(참고)": f"{def_ens:.1f}%",
-                    "데드존 대비 격차": f"+{b_ensemble - b_legacy:,.0f}원",
-                    "핵심 추론 근거 및 적합도 판정": f"👑 [최종적합] 특이점(40%)+판도라(35%)+저격(25%) 합성 ➔ 계단 #{ens_step_idx+1} 착지"
-                }
-            ]
+                # 일련의 사정가 & 최종 적합가 표준 비교 명세표 (Standard Assessment Sheet) 및 양식 출력
+                summary_rows = [
+                    {
+                        "구분 (분석 모델)": "① 🏢 레거시 (단순평균 데드존)",
+                        "추론 사정률(%)": f"{r_legacy:.4f}%",
+                        "산출 예정가격(원)": f"{ep_leg:,.0f}원",
+                        "순수 낙찰하한선(원)": f"{cut_leg:,.0f}원",
+                        "웨지 보정": "+0원",
+                        "최종 산출 투찰가(원)": f"{b_legacy:,.0f}원",
+                        "시뮬레이션 타점지수(참고)": f"🔴 {win_leg:.1f}%",
+                        "시뮬레이션 하한선방어지수(참고)": f"{def_leg:.1f}%",
+                        "데드존 대비 격차": "기준점 (0원)",
+                        "핵심 추론 근거 및 적합도 판정": "❌ 경쟁사 65% 과밀 구간 (동가·근소차 탈락 위험 회피)"
+                    },
+                    {
+                        "구분 (분석 모델)": "② 🎯 [BAY 5] 경쟁사 핀셋 저격",
+                        "추론 사정률(%)": f"{r_sniper:.4f}%",
+                        "산출 예정가격(원)": f"{ep_sni:,.0f}원",
+                        "순수 낙찰하한선(원)": f"{cut_sni:,.0f}원",
+                        "웨지 보정": "+0원",
+                        "최종 산출 투찰가(원)": f"{b_sniper:,.0f}원",
+                        "시뮬레이션 타점지수(참고)": f"🔵 {win_sni:.1f}% (▲{win_sni/max(win_leg,1):.1f}배)",
+                        "시뮬레이션 하한선방어지수(참고)": f"{def_sni:.1f}%",
+                        "데드존 대비 격차": f"+{b_sniper - b_legacy:,.0f}원",
+                        "핵심 추론 근거 및 적합도 판정": f"🟢 발주처 프리셋 + 라이벌 습관 상단 +{rival_gap_pct:.4f}%p 카운터"
+                    },
+                    {
+                        "구분 (분석 모델)": f"③ 🌌 [BAY 4] 특이점 양자계단 (#{sg_idx_e+1})",
+                        "추론 사정률(%)": f"{r_singularity:.4f}%",
+                        "산출 예정가격(원)": f"{ep_sin:,.0f}원",
+                        "순수 낙찰하한선(원)": f"{cut_sin:,.0f}원",
+                        "웨지 보정": "+17원",
+                        "최종 산출 투찰가(원)": f"{b_singularity:,.0f}원",
+                        "시뮬레이션 타점지수(참고)": f"🟣 {win_sin:.1f}% (▲{win_sin/max(win_leg,1):.1f}배)",
+                        "시뮬레이션 하한선방어지수(참고)": f"{def_sin:.1f}%",
+                        "데드존 대비 격차": f"+{b_singularity - b_legacy:,.0f}원",
+                        "핵심 추론 근거 및 적합도 판정": f"🏆 G2B 원단위 절사 #{sg_idx_e+1}번 실제 계단 락 + 인간 클릭편향 반영"
+                    },
+                    {
+                        "구분 (분석 모델)": f"④ 🔮 [BAY 3] 판도라 X10 (#{pd_idx_e+1})",
+                        "추론 사정률(%)": f"{r_pandora:.4f}%",
+                        "산출 예정가격(원)": f"{ep_pan:,.0f}원",
+                        "순수 낙찰하한선(원)": f"{cut_pan:,.0f}원",
+                        "웨지 보정": "+37원",
+                        "최종 산출 투찰가(원)": f"{b_pandora:,.0f}원",
+                        "시뮬레이션 타점지수(참고)": f"🩷 {win_pan:.1f}% (▲{win_pan/max(win_leg,1):.1f}배)",
+                        "시뮬레이션 하한선방어지수(참고)": f"{def_pan:.1f}%",
+                        "데드존 대비 격차": f"+{b_pandora - b_legacy:,.0f}원",
+                        "핵심 추론 근거 및 적합도 판정": "⚡ 카오스 끌개 + 황금비(Φ=0.618) 보강간섭 극점 (상단 돌파용)"
+                    },
+                    {
+                        "구분 (분석 모델)": f"⑤ 👑 AI 마스터 앙상블 (최종적합가)",
+                        "추론 사정률(%)": f"{r_ensemble:.4f}%",
+                        "산출 예정가격(원)": f"{ep_ens:,.0f}원",
+                        "순수 낙찰하한선(원)": f"{cut_ens:,.0f}원",
+                        "웨지 보정": "+19원",
+                        "최종 산출 투찰가(원)": f"{b_ensemble:,.0f}원",
+                        "시뮬레이션 타점지수(참고)": f"👑 {win_ens:.1f}% (▲{win_ens/max(win_leg,1):.1f}배)",
+                        "시뮬레이션 하한선방어지수(참고)": f"{def_ens:.1f}%",
+                        "데드존 대비 격차": f"+{b_ensemble - b_legacy:,.0f}원",
+                        "핵심 추론 근거 및 적합도 판정": f"👑 [최종적합] 특이점(40%)+판도라(35%)+저격(25%) 합성 ➔ 계단 #{ens_step_idx+1} 착지"
+                    }
+                ]
 
-            st.markdown("##### 📋 [표준 사정 명세표] 일련의 모델별 사정가 산출 비교 및 최종 적합가 판정 일람")
-            st.dataframe(pd.DataFrame(summary_rows), use_container_width=True, hide_index=True)
+                st.markdown("##### 📋 [표준 사정 명세표] 일련의 모델별 사정가 산출 비교 및 최종 적합가 판정 일람")
+                st.dataframe(pd.DataFrame(summary_rows), use_container_width=True, hide_index=True)
 
-            # 인쇄 및 보관용 표준 양식(HTML) 생성
-            dossier_rows_html = ""
-            for sr in summary_rows:
-                is_final = "최종적합" in sr["핵심 추론 근거 및 적합도 판정"]
-                row_bg = "background:#fef9c3;font-weight:bold;" if is_final else ""
-                dossier_rows_html += f"""
+                # 인쇄 및 보관용 표준 양식(HTML) 생성
+                dossier_rows_html = ""
+                for sr in summary_rows:
+                    is_final = "최종적합" in sr["핵심 추론 근거 및 적합도 판정"]
+                    row_bg = "background:#fef9c3;font-weight:bold;" if is_final else ""
+                    dossier_rows_html += f"""
                 <tr style="{row_bg}">
                     <td>{sr['구분 (분석 모델)']}</td>
                     <td style="text-align:center;">{sr['추론 사정률(%)']}</td>
@@ -5840,7 +5842,7 @@ function jumpFromIso(targetKey) {
                     <td>{sr['핵심 추론 근거 및 적합도 판정']}</td>
                 </tr>"""
 
-            dossier_html = f"""<!DOCTYPE html>
+                dossier_html = f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
@@ -5898,282 +5900,282 @@ function jumpFromIso(targetKey) {
 </body>
 </html>"""
 
-            dl_c1, dl_c2 = st.columns([1.5, 1.5])
-            with dl_c1:
-                st.download_button(
-                    label="🖨️ [표준 양식] AI 사정가 추론 근거 & 최종 적합가 명세서(HTML) 다운로드",
-                    data=dossier_html.encode("utf-8"),
-                    file_name=f"BID_NEXUS_Assessment_Dossier_{eno}.html",
-                    mime="text/html",
-                    use_container_width=True,
-                    key="btn_dl_v125_dossier_html"
-                )
-            with dl_c2:
-                csv_dossier = pd.DataFrame(summary_rows).to_csv(index=False).encode("utf-8-sig")
-                st.download_button(
-                    label="📊 모델별 사정가 비교 일람표(CSV/엑셀) 다운로드",
-                    data=csv_dossier,
-                    file_name=f"BID_NEXUS_Model_Comparison_{eno}.csv",
-                    mime="text/csv",
-                    use_container_width=True,
-                    key="btn_dl_v125_dossier_csv"
-                )
-
-        # [신규 v19.0] 사정률 직관 고취 & 압도적 시각 퍼포먼스 3대 킬포인트 (60FPS 4D Tactical HUD)
-        with st.expander("🔥 [사정 직관 3대 킬포인트] 모델별 클릭 비교 & ① 크레바스 지형도 · ② 15C4 시너지 링 · ③ 실시간 ±0.001%p 당락 다이얼", expanded=True):
-            st.caption("상단의 5대 분석 모델 버튼을 클릭하면 각 모델의 사정률 좌표·예가번호 4개·당락 확률이 3대 60FPS 그래픽에 즉시 반영되며, 하단에 선택된 모델의 상세 추론 원리와 그래픽 판독 해설이 문맥 단락별로 표시됩니다.")
-
-            kp_item = pool[0]
-            if "v12_ens_target" in st.session_state:
-                _kp_opts = [f"[{it.get('공고번호','')}] {it.get('공고명','')}" for it in pool]
-                if st.session_state["v12_ens_target"] in _kp_opts:
-                    kp_item = pool[_kp_opts.index(st.session_state["v12_ens_target"])]
-
-            kp_base = float(kp_item.get("기초금액", 3605411000) or 3605411000)
-            kp_aval = float(kp_item.get("A값", 170640956) or 170640956)
-            kp_lrt_pct = float(kp_item.get("낙찰하한율", 88.745) or 88.745)
-            kp_lrt = kp_lrt_pct / 100.0
-            kp_no = str(kp_item.get("공고번호", "202611-00892"))
-            kp_title = str(kp_item.get("공고명", "소양초 공간재구조화 조성공사"))
-            kp_org = str(kp_item.get("발주처", "강원특별자치도춘천교육지원청"))
-
-            import hashlib
-            import numpy as np
-            import json
-            from itertools import combinations
-
-            hv_k = int(hashlib.md5(kp_no.encode("utf-8")).hexdigest()[:8], 16)
-            rng_k = np.random.default_rng(hv_k)
-            combs_k = list(combinations(range(15), 4))
-            slots_k = np.floor(kp_base * ((np.linspace(98.25, 101.75, 15) + 0.085 + rng_k.normal(0, 0.025, 15)) / 100.0))
-            step_prices_k = np.array([np.floor(np.mean([slots_k[i] for i in c])) for c in combs_k])
-            step_rates_k = (step_prices_k / kp_base) * 100.0
-
-            r_leg_k = round(100.015 + (hv_k % 40) * 0.001, 4)
-            idx_leg_k = int(np.argmin(np.abs(step_rates_k - r_leg_k)))
-            nums_leg_k = sorted([int(i + 1) for i in combs_k[idx_leg_k]])
-
-            r_sni_k = round(r_leg_k + 0.038 + (hv_k % 15) * 0.001, 4)
-            idx_sni_k = int(np.argmin(np.abs(step_rates_k - r_sni_k)))
-            nums_sni_k = sorted([int(i + 1) for i in combs_k[idx_sni_k]])
-
-            idx_sin_k = int(np.argmin(np.abs(step_rates_k - (r_leg_k + 0.0523))))
-            r_sin_k = round(float(step_rates_k[idx_sin_k]), 4)
-            nums_sin_k = sorted([int(i + 1) for i in combs_k[idx_sin_k]])
-
-            r_pan_raw = r_sin_k + 0.0115
-            idx_pan_k = int(np.argmin(np.abs(step_rates_k - r_pan_raw)))
-            r_pan_k = round(float(step_rates_k[idx_pan_k]), 4)
-            nums_pan_k = sorted([int(i + 1) for i in combs_k[idx_pan_k]])
-
-            w_k = st.session_state.get("v16_ai_weights", {"singularity": 0.40, "pandora": 0.35, "sniper": 0.25})
-            raw_ens_k = (r_sin_k * w_k.get("singularity", 0.40)) + (r_pan_k * w_k.get("pandora", 0.35)) + (r_sni_k * w_k.get("sniper", 0.25))
-            idx_ens_k = int(np.argmin(np.abs(step_rates_k - raw_ens_k)))
-            r_ens_k = round(float(step_rates_k[idx_ens_k]), 4)
-            nums_ens_k = sorted([int(i + 1) for i in combs_k[idx_ens_k]])
-
-            def _calc_b_k(rt_v, wedge_v=0):
-                ep_v = int(np.floor(kp_base * (rt_v / 100.0)))
-                cut_v = int(np.ceil(((ep_v - kp_aval) * kp_lrt) + kp_aval))
-                return ep_v, cut_v + wedge_v
-
-            ep_leg_k, bid_leg_k = _calc_b_k(r_leg_k, 0)
-            ep_sni_k, bid_sni_k = _calc_b_k(r_sni_k, 0)
-            ep_sin_k, bid_sin_k = _calc_b_k(r_sin_k, 17)
-            ep_pan_k, bid_pan_k = _calc_b_k(r_pan_k, 37)
-            ep_ens_k, bid_ens_k = _calc_b_k(r_ens_k, 19)
-
-            models_kp_data = {
-                "M5": {
-                    "id": "M5",
-                    "btn_label": "👑 1. AI 마스터 앙상블",
-                    "pin_tag": "👑 AI 마스터 앙상블",
-                    "name": "👑 AI 마스터 앙상블 — 3대 코어 가중합성 & 양자계단 락 모델",
-                    "color": "#facc15",
-                    "rate": r_ens_k,
-                    "step": idx_ens_k + 1,
-                    "ep": ep_ens_k,
-                    "bid": bid_ens_k,
-                    "wedge": 19,
-                    "win_prob": 34.7,
-                    "def_prob": 99.2,
-                    "crev_norm": 0.61,
-                    "synergy_pct": 99.2,
-                    "nums": nums_ens_k,
-                    "verdict": "🏆 단독 1순위 골든 크레바스 (최적)",
-                    "core_summary": (
-                        f"<b>• [모델 설계 목적]</b> 단일 모델이 가질 수 있는 편향을 완벽히 상쇄하기 위해 <b>특이점 양자락({w_k.get('singularity',0.4)*100:.0f}%) · 판도라 X10({w_k.get('pandora',0.35)*100:.0f}%) · 경쟁사 저격기({w_k.get('sniper',0.25)*100:.0f}%)</b>를 역학습 신뢰도 가중치로 결합한 통합 마스터 모델입니다.<br>"
-                        f"<b>• [최종 좌표 확정]</b> 가중 합성된 기댓값을 조달청 수식상 실제 존재하는 <b>#{idx_ens_k+1}번 양자계단({r_ens_k:.4f}%)</b>에 스냅(Snap) 착지시켜 하한선 미달 위험을 원천 차단했습니다."
-                    ),
-                    "kp1_explain": (
-                        f"<div class='sub-ttl'>🌊 KP-01. 크레바스 지형도 판독</div>"
-                        f"<p class='sub-p'>좌측의 붉은색 레거시 과밀 산맥({r_leg_k:.4f}%)과 우측 고사정 산맥 사이의 <b>'경쟁 무풍 협곡(Golden Crevasse, {r_ens_k:.4f}%)'</b> 정중앙에 위치합니다.</p>"
-                        f"<p class='sub-p2'>예가 상승 시 앞선 경쟁사들이 집단 미달로 탈락할 때 단독 1순위를 차지하는 최적의 생존 좌표입니다.</p>"
-                    ),
-                    "kp2_explain": (
-                        f"<div class='sub-ttl'>🎰 KP-02. 예가 시너지 링 판독</div>"
-                        f"<p class='sub-p'>15개 번호 중 중앙 다득표 번호와 상단 방어 번호가 황금 균형을 이루는 <b>🎯 {nums_ens_k[0]}번 · {nums_ens_k[1]}번 · {nums_ens_k[2]}번 · {nums_ens_k[3]}번</b> 조합입니다.</p>"
-                        f"<p class='sub-p2'>4개 슬롯의 산술평균 원단위 절사 시 계단 <b>#{idx_ens_k+1}번({ep_ens_k:,.0f}원)</b>을 99.2% 시너지로 정확히 형성합니다.</p>"
-                    ),
-                    "kp3_explain": (
-                        f"<div class='sub-ttl'>⚡ KP-03. 당락 계기판 & 웨지 해설</div>"
-                        f"<p class='sub-p'>순수 하한선 금액에 비대칭 소수 웨지(<b>+19원</b>)를 가산하여 최종 <b>{bid_ens_k:,.0f}원</b>으로 산출되었습니다.</p>"
-                        f"<p class='sub-p2'>100원·1,000원 단위로 끝나는 경쟁사들과의 동가 추첨을 피하고 시뮬레이션 타점지수(참고) <b>34.7%</b>(시뮬레이션 상대지수)를 달성합니다.</p>"
+                dl_c1, dl_c2 = st.columns([1.5, 1.5])
+                with dl_c1:
+                    st.download_button(
+                        label="🖨️ [표준 양식] AI 사정가 추론 근거 & 최종 적합가 명세서(HTML) 다운로드",
+                        data=dossier_html.encode("utf-8"),
+                        file_name=f"BID_NEXUS_Assessment_Dossier_{eno}.html",
+                        mime="text/html",
+                        use_container_width=True,
+                        key="btn_dl_v125_dossier_html"
                     )
-                },
-                "M3": {
-                    "id": "M3",
-                    "btn_label": "🌌 2. [BAY 4] 특이점 양자락",
-                    "pin_tag": "🌌 [BAY 4] 특이점 양자락",
-                    "name": f"🌌 [BAY 04] 특이점(Singularity) — 원단위 절사 계단 #{idx_sin_k+1}번 & 클릭편향 모델",
-                    "color": "#c084fc",
-                    "rate": r_sin_k,
-                    "step": idx_sin_k + 1,
-                    "ep": ep_sin_k,
-                    "bid": bid_sin_k,
-                    "wedge": 17,
-                    "win_prob": 28.4,
-                    "def_prob": 99.4,
-                    "crev_norm": 0.58,
-                    "synergy_pct": 98.4,
-                    "nums": nums_sin_k,
-                    "verdict": "🟣 양자계단 완전 밀착 (1순위권)",
-                    "core_summary": (
-                        f"<b>• [모델 설계 목적]</b> 조달청 복수예가 15C4=1,365개 조합은 원단위 절사 규정 때문에 연속된 실수가 아닌 <b>1,365개의 불연속 계단</b>으로만 존재한다는 수학적 사실에 기반합니다.<br>"
-                        f"<b>• [최종 좌표 확정]</b> 참가자들의 1~15번 화면 중앙 번호(3·7·8·11·12번) 클릭 쏠림 확률을 베이지안으로 역산하여 실제 존재하는 <b>#{idx_sin_k+1}번 계단({r_sin_k:.4f}%)</b> 위에 <b>+17원 웨지</b>로 안착시켰습니다."
-                    ),
-                    "kp1_explain": (
-                        f"<div class='sub-ttl'>🌊 KP-01. 크레바스 지형도 판독</div>"
-                        f"<p class='sub-p'>연속 사정률 허수 구간(계단 사이의 빈 허공)을 피하고, 실제 개찰 결과로 출현 가능한 <b>#{idx_sin_k+1}번 양자계단({r_sin_k:.4f}%)</b> 바닥에 정확히 락온(Lock-On)됩니다.</p>"
-                        f"<p class='sub-p2'>원단위 절사 오차로 인한 아까운 하한선 미달 탈락 위험을 0%로 완벽히 봉쇄합니다.</p>"
-                    ),
-                    "kp2_explain": (
-                        f"<div class='sub-ttl'>🎰 KP-02. 예가 시너지 링 판독</div>"
-                        f"<p class='sub-p'>인간 행동경제학상 클릭 빈도가 가장 높은 골든존 번호가 포함된 <b>🎯 {nums_sin_k[0]}번 · {nums_sin_k[1]}번 · {nums_sin_k[2]}번 · {nums_sin_k[3]}번</b> 사면체 결속입니다.</p>"
-                        f"<p class='sub-p2'>실제 개찰 현장에서 다득표로 추첨될 사후확률(Synergy 98.4%)이 가장 높은 조합입니다.</p>"
-                    ),
-                    "kp3_explain": (
-                        f"<div class='sub-ttl'>⚡ KP-03. 당락 계기판 & 웨지 해설</div>"
-                        f"<p class='sub-p'>60~120개 업체가 참여하는 표준 시설공사 입찰에서 가장 강력한 적중 위력을 발휘합니다.</p>"
-                        f"<p class='sub-p2'>순수 커트라인에 <b>+17원 소수 웨지</b>를 결합한 <b>{bid_sin_k:,.0f}원</b>으로 단독 당선을 정밀 조준합니다.</p>"
+                with dl_c2:
+                    csv_dossier = pd.DataFrame(summary_rows).to_csv(index=False).encode("utf-8-sig")
+                    st.download_button(
+                        label="📊 모델별 사정가 비교 일람표(CSV/엑셀) 다운로드",
+                        data=csv_dossier,
+                        file_name=f"BID_NEXUS_Model_Comparison_{eno}.csv",
+                        mime="text/csv",
+                        use_container_width=True,
+                        key="btn_dl_v125_dossier_csv"
                     )
-                },
-                "M4": {
-                    "id": "M4",
-                    "btn_label": "🔮 3. [BAY 3] 판도라 X10",
-                    "pin_tag": "🔮 [BAY 3] 판도라 X10",
-                    "name": "🔮 [BAY 03] 판도라 아카식 X10 — 로렌츠 카오스 끌개 & 황금비 파동 모델",
-                    "color": "#f472b6",
-                    "rate": r_pan_k,
-                    "step": idx_pan_k + 1,
-                    "ep": ep_pan_k,
-                    "bid": bid_pan_k,
-                    "wedge": 37,
-                    "win_prob": 25.2,
-                    "def_prob": 94.2,
-                    "crev_norm": 0.67,
-                    "synergy_pct": 96.5,
-                    "nums": nums_pan_k,
-                    "verdict": "⚡ 고사정 상단 크레바스 장악",
-                    "core_summary": (
-                        f"<b>• [모델 설계 목적]</b> 11~12월 연말 불용예산 소진기나 교육청 발주 공사처럼 재무관이 상단 예비가격을 강하게 배치하는 고사정 장세에 특화된 초월 사정 모델입니다.<br>"
-                        f"<b>• [최종 좌표 확정]</b> 로렌츠 카오스 끌개의 위상 전이점과 인간 집단 무의식이 비워두는 <b>황금비(Φ=0.618034) 사각지대({r_pan_k:.4f}%, 계단 #{idx_pan_k+1})</b>를 정밀 타격합니다."
-                    ),
-                    "kp1_explain": (
-                        f"<div class='sub-ttl'>🌊 KP-01. 크레바스 지형도 판독</div>"
-                        f"<p class='sub-p'>일반 업체들의 90%가 하한선 미달로 집단 전멸하는 <b>고사정 상단 협곡({r_pan_k:.4f}%)</b>을 선제 장악합니다.</p>"
-                        f"<p class='sub-p2'>예정가격이 높게 형성되는 공고에서 경쟁자 없이 단독 1순위를 독점하는 전략적 요충지입니다.</p>"
-                    ),
-                    "kp2_explain": (
-                        f"<div class='sub-ttl'>🎰 KP-02. 예가 시너지 링 판독</div>"
-                        f"<p class='sub-p'>상단 슬롯 번호들의 양자 파동 보강간섭(|Ψ|²)이 극대화되는 <b>🎯 {nums_pan_k[0]}번 · {nums_pan_k[1]}번 · {nums_pan_k[2]}번 · {nums_pan_k[3]}번</b> 조합입니다.</p>"
-                        f"<p class='sub-p2'>고액 예비가격 추첨 시 계단 <b>#{idx_pan_k+1}번({ep_pan_k:,.0f}원)</b>으로 수렴하는 결속력을 지닙니다.</p>"
-                    ),
-                    "kp3_explain": (
-                        f"<div class='sub-ttl'>⚡ KP-03. 당락 계기판 & 웨지 해설</div>"
-                        f"<p class='sub-p'>150개사 이상 초과밀 입찰이나 연말 예산 소진기 공고에서 최우선 채택하는 고수익 사정 기어입니다.</p>"
-                        f"<p class='sub-p2'>황금 소수 웨지(<b>+37원</b>)를 가산한 <b>{bid_pan_k:,.0f}원</b>으로 산출됩니다.</p>"
-                    )
-                },
-                "M2": {
-                    "id": "M2",
-                    "btn_label": "🎯 4. [BAY 5] 경쟁사 저격기",
-                    "pin_tag": "🎯 [BAY 5] 경쟁사 저격기",
-                    "name": f"🎯 [BAY 05] 경쟁사 저격기 — 발주처 프리셋 & 라이벌 핀셋 카운터 모델",
-                    "color": "#38bdf8",
-                    "rate": r_sni_k,
-                    "step": idx_sni_k + 1,
-                    "ep": ep_sni_k,
-                    "bid": bid_sni_k,
-                    "wedge": 0,
-                    "win_prob": 18.2,
-                    "def_prob": 86.5,
-                    "crev_norm": 0.50,
-                    "synergy_pct": 91.2,
-                    "nums": nums_sni_k,
-                    "verdict": "🔵 라이벌 상단 +0.038%p 컷오프",
-                    "core_summary": (
-                        f"<b>• [모델 설계 목적]</b> 발주처({kp_org})의 최근 개찰 성향과 관내 상습 참여 라이벌 업체들의 평균 투찰 대역({r_leg_k:.4f}%)을 역추적하는 카운터 모델입니다.<br>"
-                        f"<b>• [최종 좌표 확정]</b> 라이벌 밀집 구간 바로 위(<b>+{r_sni_k - r_leg_k:.4f}%p 상향, {r_sni_k:.4f}%</b>)를 핀셋으로 커트오프하여 경쟁사들을 하방에 묶어둡니다."
-                    ),
-                    "kp1_explain": (
-                        f"<div class='sub-ttl'>🌊 KP-01. 크레바스 지형도 판독</div>"
-                        f"<p class='sub-p'>좌측 붉은 데드존 산맥의 오른쪽 비탈 끝자락(<b>{r_sni_k:.4f}%</b>)에 정교하게 포지셔닝되어 있습니다.</p>"
-                        f"<p class='sub-p2'>과밀 데드존에 몰린 업체들이 근소하게 미달될 때 가장 먼저 1순위 바통을 이어받습니다.</p>"
-                    ),
-                    "kp2_explain": (
-                        f"<div class='sub-ttl'>🎰 KP-02. 예가 시너지 링 판독</div>"
-                        f"<p class='sub-p'>발주처 재무관 성향 프리셋에 맞춘 <b>🎯 {nums_sni_k[0]}번 · {nums_sni_k[1]}번 · {nums_sni_k[2]}번 · {nums_sni_k[3]}번</b> 조합을 추출합니다.</p>"
-                        f"<p class='sub-p2'>계단 <b>#{idx_sni_k+1}번({ep_sni_k:,.0f}원)</b> 좌표를 91.2%의 시너지로 안정적으로 지지합니다.</p>"
-                    ),
-                    "kp3_explain": (
-                        f"<div class='sub-ttl'>⚡ KP-03. 당락 계기판 & 웨지 해설</div>"
-                        f"<p class='sub-p'>지역 제한 소수 정예 입찰(참가 45개사 이하)에서 특정 라이벌 업체를 제압할 때 매우 효과적입니다.</p>"
-                        f"<p class='sub-p2'>라이벌 대비 우위를 점하는 산출 투찰가는 <b>{bid_sni_k:,.0f}원</b>입니다.</p>"
-                    )
-                },
-                "M1": {
-                    "id": "M1",
-                    "btn_label": "🏢 5. 레거시 (과밀 데드존)",
-                    "pin_tag": "🏢 레거시 데드존",
-                    "name": "🏢 일반 레거시 프로그램 — 단순 산술평균 과밀 데드존 (회피 기준점)",
-                    "color": "#fb7185",
-                    "rate": r_leg_k,
-                    "step": idx_leg_k + 1,
-                    "ep": ep_leg_k,
-                    "bid": bid_leg_k,
-                    "wedge": 0,
-                    "win_prob": 2.4,
-                    "def_prob": 51.4,
-                    "crev_norm": 0.36,
-                    "synergy_pct": 42.0,
-                    "nums": nums_leg_k,
-                    "verdict": "❌ 과밀 공멸 & 하한선 미달 위험",
-                    "core_summary": (
-                        f"<b>• [모델 분석 목적]</b> 시중 일반 입찰 프로그램들이 사용하는 과거 개찰 사정률의 단순 산술평균(<b>{r_leg_k:.4f}%</b>)으로, 우리가 반드시 피해야 할 <b>회피 기준점</b>입니다.<br>"
-                        f"<b>• [위험 진단 결과]</b> 참가 업체의 65% 이상이 이 구간(±0.015%p)에 몰려 있어 동가 추첨에 걸리거나 약간의 예가 상승에도 집단 미달 탈락합니다."
-                    ),
-                    "kp1_explain": (
-                        f"<div class='sub-ttl'>🌊 KP-01. 크레바스 지형도 판독</div>"
-                        f"<p class='sub-p'>그래프 좌측의 가장 높고 험준한 <b>붉은색 용암 산맥 정중앙({r_leg_k:.4f}%)</b>에 핀이 꽂혀 있는 상태입니다.</p>"
-                        f"<p class='sub-p2'>경쟁 밀도가 극에 달해 실전 투찰 시 단독 낙찰 확률이 <b>2.4%</b>에 불과한 공멸 구간입니다.</p>"
-                    ),
-                    "kp2_explain": (
-                        f"<div class='sub-ttl'>🎰 KP-02. 예가 시너지 링 판독</div>"
-                        f"<p class='sub-p'>클릭 편향이나 양자계단 절사 보정 없이 무작위로 뽑은 <b>{nums_leg_k[0]}번 · {nums_leg_k[1]}번 · {nums_leg_k[2]}번 · {nums_leg_k[3]}번</b> 수준입니다.</p>"
-                        f"<p class='sub-p2'>번호 간 시너지 결속력이 <b>42.0%</b>로 매우 낮아 실전 예가 번호로 채택해서는 안 됩니다.</p>"
-                    ),
-                    "kp3_explain": (
-                        f"<div class='sub-ttl'>⚡ KP-03. 당락 계기판 & 웨지 해설</div>"
-                        f"<p class='sub-p'>본 모델은 실제 투찰용이 아니라 경쟁사들의 집결 위치를 파악하기 위한 대조군입니다.</p>"
-                        f"<p class='sub-p2'>이 금액({bid_leg_k:,.0f}원)보다 <b>+{bid_ens_k - bid_leg_k:,.0f}원</b> 위쪽인 AI 골든 크레바스로 회피하십시오.</p>"
-                    )
+
+            # [신규 v19.0] 사정률 직관 고취 & 압도적 시각 퍼포먼스 3대 킬포인트 (60FPS 4D Tactical HUD)
+            with st.expander("🔥 [사정 직관 3대 킬포인트] 모델별 클릭 비교 & ① 크레바스 지형도 · ② 15C4 시너지 링 · ③ 실시간 ±0.001%p 당락 다이얼", expanded=True):
+                st.caption("상단의 5대 분석 모델 버튼을 클릭하면 각 모델의 사정률 좌표·예가번호 4개·당락 확률이 3대 60FPS 그래픽에 즉시 반영되며, 하단에 선택된 모델의 상세 추론 원리와 그래픽 판독 해설이 문맥 단락별로 표시됩니다.")
+
+                kp_item = pool[0]
+                if "v12_ens_target" in st.session_state:
+                    _kp_opts = [f"[{it.get('공고번호','')}] {it.get('공고명','')}" for it in pool]
+                    if st.session_state["v12_ens_target"] in _kp_opts:
+                        kp_item = pool[_kp_opts.index(st.session_state["v12_ens_target"])]
+
+                kp_base = float(kp_item.get("기초금액", 3605411000) or 3605411000)
+                kp_aval = float(kp_item.get("A값", 170640956) or 170640956)
+                kp_lrt_pct = float(kp_item.get("낙찰하한율", 88.745) or 88.745)
+                kp_lrt = kp_lrt_pct / 100.0
+                kp_no = str(kp_item.get("공고번호", "202611-00892"))
+                kp_title = str(kp_item.get("공고명", "소양초 공간재구조화 조성공사"))
+                kp_org = str(kp_item.get("발주처", "강원특별자치도춘천교육지원청"))
+
+                import hashlib
+                import numpy as np
+                import json
+                from itertools import combinations
+
+                hv_k = int(hashlib.md5(kp_no.encode("utf-8")).hexdigest()[:8], 16)
+                rng_k = np.random.default_rng(hv_k)
+                combs_k = list(combinations(range(15), 4))
+                slots_k = np.floor(kp_base * ((np.linspace(98.25, 101.75, 15) + 0.085 + rng_k.normal(0, 0.025, 15)) / 100.0))
+                step_prices_k = np.array([np.floor(np.mean([slots_k[i] for i in c])) for c in combs_k])
+                step_rates_k = (step_prices_k / kp_base) * 100.0
+
+                r_leg_k = round(100.015 + (hv_k % 40) * 0.001, 4)
+                idx_leg_k = int(np.argmin(np.abs(step_rates_k - r_leg_k)))
+                nums_leg_k = sorted([int(i + 1) for i in combs_k[idx_leg_k]])
+
+                r_sni_k = round(r_leg_k + 0.038 + (hv_k % 15) * 0.001, 4)
+                idx_sni_k = int(np.argmin(np.abs(step_rates_k - r_sni_k)))
+                nums_sni_k = sorted([int(i + 1) for i in combs_k[idx_sni_k]])
+
+                idx_sin_k = int(np.argmin(np.abs(step_rates_k - (r_leg_k + 0.0523))))
+                r_sin_k = round(float(step_rates_k[idx_sin_k]), 4)
+                nums_sin_k = sorted([int(i + 1) for i in combs_k[idx_sin_k]])
+
+                r_pan_raw = r_sin_k + 0.0115
+                idx_pan_k = int(np.argmin(np.abs(step_rates_k - r_pan_raw)))
+                r_pan_k = round(float(step_rates_k[idx_pan_k]), 4)
+                nums_pan_k = sorted([int(i + 1) for i in combs_k[idx_pan_k]])
+
+                w_k = st.session_state.get("v16_ai_weights", {"singularity": 0.40, "pandora": 0.35, "sniper": 0.25})
+                raw_ens_k = (r_sin_k * w_k.get("singularity", 0.40)) + (r_pan_k * w_k.get("pandora", 0.35)) + (r_sni_k * w_k.get("sniper", 0.25))
+                idx_ens_k = int(np.argmin(np.abs(step_rates_k - raw_ens_k)))
+                r_ens_k = round(float(step_rates_k[idx_ens_k]), 4)
+                nums_ens_k = sorted([int(i + 1) for i in combs_k[idx_ens_k]])
+
+                def _calc_b_k(rt_v, wedge_v=0):
+                    ep_v = int(np.floor(kp_base * (rt_v / 100.0)))
+                    cut_v = int(np.ceil(((ep_v - kp_aval) * kp_lrt) + kp_aval))
+                    return ep_v, cut_v + wedge_v
+
+                ep_leg_k, bid_leg_k = _calc_b_k(r_leg_k, 0)
+                ep_sni_k, bid_sni_k = _calc_b_k(r_sni_k, 0)
+                ep_sin_k, bid_sin_k = _calc_b_k(r_sin_k, 17)
+                ep_pan_k, bid_pan_k = _calc_b_k(r_pan_k, 37)
+                ep_ens_k, bid_ens_k = _calc_b_k(r_ens_k, 19)
+
+                models_kp_data = {
+                    "M5": {
+                        "id": "M5",
+                        "btn_label": "👑 1. AI 마스터 앙상블",
+                        "pin_tag": "👑 AI 마스터 앙상블",
+                        "name": "👑 AI 마스터 앙상블 — 3대 코어 가중합성 & 양자계단 락 모델",
+                        "color": "#facc15",
+                        "rate": r_ens_k,
+                        "step": idx_ens_k + 1,
+                        "ep": ep_ens_k,
+                        "bid": bid_ens_k,
+                        "wedge": 19,
+                        "win_prob": 34.7,
+                        "def_prob": 99.2,
+                        "crev_norm": 0.61,
+                        "synergy_pct": 99.2,
+                        "nums": nums_ens_k,
+                        "verdict": "🏆 단독 1순위 골든 크레바스 (최적)",
+                        "core_summary": (
+                            f"<b>• [모델 설계 목적]</b> 단일 모델이 가질 수 있는 편향을 완벽히 상쇄하기 위해 <b>특이점 양자락({w_k.get('singularity',0.4)*100:.0f}%) · 판도라 X10({w_k.get('pandora',0.35)*100:.0f}%) · 경쟁사 저격기({w_k.get('sniper',0.25)*100:.0f}%)</b>를 역학습 신뢰도 가중치로 결합한 통합 마스터 모델입니다.<br>"
+                            f"<b>• [최종 좌표 확정]</b> 가중 합성된 기댓값을 조달청 수식상 실제 존재하는 <b>#{idx_ens_k+1}번 양자계단({r_ens_k:.4f}%)</b>에 스냅(Snap) 착지시켜 하한선 미달 위험을 원천 차단했습니다."
+                        ),
+                        "kp1_explain": (
+                            f"<div class='sub-ttl'>🌊 KP-01. 크레바스 지형도 판독</div>"
+                            f"<p class='sub-p'>좌측의 붉은색 레거시 과밀 산맥({r_leg_k:.4f}%)과 우측 고사정 산맥 사이의 <b>'경쟁 무풍 협곡(Golden Crevasse, {r_ens_k:.4f}%)'</b> 정중앙에 위치합니다.</p>"
+                            f"<p class='sub-p2'>예가 상승 시 앞선 경쟁사들이 집단 미달로 탈락할 때 단독 1순위를 차지하는 최적의 생존 좌표입니다.</p>"
+                        ),
+                        "kp2_explain": (
+                            f"<div class='sub-ttl'>🎰 KP-02. 예가 시너지 링 판독</div>"
+                            f"<p class='sub-p'>15개 번호 중 중앙 다득표 번호와 상단 방어 번호가 황금 균형을 이루는 <b>🎯 {nums_ens_k[0]}번 · {nums_ens_k[1]}번 · {nums_ens_k[2]}번 · {nums_ens_k[3]}번</b> 조합입니다.</p>"
+                            f"<p class='sub-p2'>4개 슬롯의 산술평균 원단위 절사 시 계단 <b>#{idx_ens_k+1}번({ep_ens_k:,.0f}원)</b>을 99.2% 시너지로 정확히 형성합니다.</p>"
+                        ),
+                        "kp3_explain": (
+                            f"<div class='sub-ttl'>⚡ KP-03. 당락 계기판 & 웨지 해설</div>"
+                            f"<p class='sub-p'>순수 하한선 금액에 비대칭 소수 웨지(<b>+19원</b>)를 가산하여 최종 <b>{bid_ens_k:,.0f}원</b>으로 산출되었습니다.</p>"
+                            f"<p class='sub-p2'>100원·1,000원 단위로 끝나는 경쟁사들과의 동가 추첨을 피하고 시뮬레이션 타점지수(참고) <b>34.7%</b>(시뮬레이션 상대지수)를 달성합니다.</p>"
+                        )
+                    },
+                    "M3": {
+                        "id": "M3",
+                        "btn_label": "🌌 2. [BAY 4] 특이점 양자락",
+                        "pin_tag": "🌌 [BAY 4] 특이점 양자락",
+                        "name": f"🌌 [BAY 04] 특이점(Singularity) — 원단위 절사 계단 #{idx_sin_k+1}번 & 클릭편향 모델",
+                        "color": "#c084fc",
+                        "rate": r_sin_k,
+                        "step": idx_sin_k + 1,
+                        "ep": ep_sin_k,
+                        "bid": bid_sin_k,
+                        "wedge": 17,
+                        "win_prob": 28.4,
+                        "def_prob": 99.4,
+                        "crev_norm": 0.58,
+                        "synergy_pct": 98.4,
+                        "nums": nums_sin_k,
+                        "verdict": "🟣 양자계단 완전 밀착 (1순위권)",
+                        "core_summary": (
+                            f"<b>• [모델 설계 목적]</b> 조달청 복수예가 15C4=1,365개 조합은 원단위 절사 규정 때문에 연속된 실수가 아닌 <b>1,365개의 불연속 계단</b>으로만 존재한다는 수학적 사실에 기반합니다.<br>"
+                            f"<b>• [최종 좌표 확정]</b> 참가자들의 1~15번 화면 중앙 번호(3·7·8·11·12번) 클릭 쏠림 확률을 베이지안으로 역산하여 실제 존재하는 <b>#{idx_sin_k+1}번 계단({r_sin_k:.4f}%)</b> 위에 <b>+17원 웨지</b>로 안착시켰습니다."
+                        ),
+                        "kp1_explain": (
+                            f"<div class='sub-ttl'>🌊 KP-01. 크레바스 지형도 판독</div>"
+                            f"<p class='sub-p'>연속 사정률 허수 구간(계단 사이의 빈 허공)을 피하고, 실제 개찰 결과로 출현 가능한 <b>#{idx_sin_k+1}번 양자계단({r_sin_k:.4f}%)</b> 바닥에 정확히 락온(Lock-On)됩니다.</p>"
+                            f"<p class='sub-p2'>원단위 절사 오차로 인한 아까운 하한선 미달 탈락 위험을 0%로 완벽히 봉쇄합니다.</p>"
+                        ),
+                        "kp2_explain": (
+                            f"<div class='sub-ttl'>🎰 KP-02. 예가 시너지 링 판독</div>"
+                            f"<p class='sub-p'>인간 행동경제학상 클릭 빈도가 가장 높은 골든존 번호가 포함된 <b>🎯 {nums_sin_k[0]}번 · {nums_sin_k[1]}번 · {nums_sin_k[2]}번 · {nums_sin_k[3]}번</b> 사면체 결속입니다.</p>"
+                            f"<p class='sub-p2'>실제 개찰 현장에서 다득표로 추첨될 사후확률(Synergy 98.4%)이 가장 높은 조합입니다.</p>"
+                        ),
+                        "kp3_explain": (
+                            f"<div class='sub-ttl'>⚡ KP-03. 당락 계기판 & 웨지 해설</div>"
+                            f"<p class='sub-p'>60~120개 업체가 참여하는 표준 시설공사 입찰에서 가장 강력한 적중 위력을 발휘합니다.</p>"
+                            f"<p class='sub-p2'>순수 커트라인에 <b>+17원 소수 웨지</b>를 결합한 <b>{bid_sin_k:,.0f}원</b>으로 단독 당선을 정밀 조준합니다.</p>"
+                        )
+                    },
+                    "M4": {
+                        "id": "M4",
+                        "btn_label": "🔮 3. [BAY 3] 판도라 X10",
+                        "pin_tag": "🔮 [BAY 3] 판도라 X10",
+                        "name": "🔮 [BAY 03] 판도라 아카식 X10 — 로렌츠 카오스 끌개 & 황금비 파동 모델",
+                        "color": "#f472b6",
+                        "rate": r_pan_k,
+                        "step": idx_pan_k + 1,
+                        "ep": ep_pan_k,
+                        "bid": bid_pan_k,
+                        "wedge": 37,
+                        "win_prob": 25.2,
+                        "def_prob": 94.2,
+                        "crev_norm": 0.67,
+                        "synergy_pct": 96.5,
+                        "nums": nums_pan_k,
+                        "verdict": "⚡ 고사정 상단 크레바스 장악",
+                        "core_summary": (
+                            f"<b>• [모델 설계 목적]</b> 11~12월 연말 불용예산 소진기나 교육청 발주 공사처럼 재무관이 상단 예비가격을 강하게 배치하는 고사정 장세에 특화된 초월 사정 모델입니다.<br>"
+                            f"<b>• [최종 좌표 확정]</b> 로렌츠 카오스 끌개의 위상 전이점과 인간 집단 무의식이 비워두는 <b>황금비(Φ=0.618034) 사각지대({r_pan_k:.4f}%, 계단 #{idx_pan_k+1})</b>를 정밀 타격합니다."
+                        ),
+                        "kp1_explain": (
+                            f"<div class='sub-ttl'>🌊 KP-01. 크레바스 지형도 판독</div>"
+                            f"<p class='sub-p'>일반 업체들의 90%가 하한선 미달로 집단 전멸하는 <b>고사정 상단 협곡({r_pan_k:.4f}%)</b>을 선제 장악합니다.</p>"
+                            f"<p class='sub-p2'>예정가격이 높게 형성되는 공고에서 경쟁자 없이 단독 1순위를 독점하는 전략적 요충지입니다.</p>"
+                        ),
+                        "kp2_explain": (
+                            f"<div class='sub-ttl'>🎰 KP-02. 예가 시너지 링 판독</div>"
+                            f"<p class='sub-p'>상단 슬롯 번호들의 양자 파동 보강간섭(|Ψ|²)이 극대화되는 <b>🎯 {nums_pan_k[0]}번 · {nums_pan_k[1]}번 · {nums_pan_k[2]}번 · {nums_pan_k[3]}번</b> 조합입니다.</p>"
+                            f"<p class='sub-p2'>고액 예비가격 추첨 시 계단 <b>#{idx_pan_k+1}번({ep_pan_k:,.0f}원)</b>으로 수렴하는 결속력을 지닙니다.</p>"
+                        ),
+                        "kp3_explain": (
+                            f"<div class='sub-ttl'>⚡ KP-03. 당락 계기판 & 웨지 해설</div>"
+                            f"<p class='sub-p'>150개사 이상 초과밀 입찰이나 연말 예산 소진기 공고에서 최우선 채택하는 고수익 사정 기어입니다.</p>"
+                            f"<p class='sub-p2'>황금 소수 웨지(<b>+37원</b>)를 가산한 <b>{bid_pan_k:,.0f}원</b>으로 산출됩니다.</p>"
+                        )
+                    },
+                    "M2": {
+                        "id": "M2",
+                        "btn_label": "🎯 4. [BAY 5] 경쟁사 저격기",
+                        "pin_tag": "🎯 [BAY 5] 경쟁사 저격기",
+                        "name": f"🎯 [BAY 05] 경쟁사 저격기 — 발주처 프리셋 & 라이벌 핀셋 카운터 모델",
+                        "color": "#38bdf8",
+                        "rate": r_sni_k,
+                        "step": idx_sni_k + 1,
+                        "ep": ep_sni_k,
+                        "bid": bid_sni_k,
+                        "wedge": 0,
+                        "win_prob": 18.2,
+                        "def_prob": 86.5,
+                        "crev_norm": 0.50,
+                        "synergy_pct": 91.2,
+                        "nums": nums_sni_k,
+                        "verdict": "🔵 라이벌 상단 +0.038%p 컷오프",
+                        "core_summary": (
+                            f"<b>• [모델 설계 목적]</b> 발주처({kp_org})의 최근 개찰 성향과 관내 상습 참여 라이벌 업체들의 평균 투찰 대역({r_leg_k:.4f}%)을 역추적하는 카운터 모델입니다.<br>"
+                            f"<b>• [최종 좌표 확정]</b> 라이벌 밀집 구간 바로 위(<b>+{r_sni_k - r_leg_k:.4f}%p 상향, {r_sni_k:.4f}%</b>)를 핀셋으로 커트오프하여 경쟁사들을 하방에 묶어둡니다."
+                        ),
+                        "kp1_explain": (
+                            f"<div class='sub-ttl'>🌊 KP-01. 크레바스 지형도 판독</div>"
+                            f"<p class='sub-p'>좌측 붉은 데드존 산맥의 오른쪽 비탈 끝자락(<b>{r_sni_k:.4f}%</b>)에 정교하게 포지셔닝되어 있습니다.</p>"
+                            f"<p class='sub-p2'>과밀 데드존에 몰린 업체들이 근소하게 미달될 때 가장 먼저 1순위 바통을 이어받습니다.</p>"
+                        ),
+                        "kp2_explain": (
+                            f"<div class='sub-ttl'>🎰 KP-02. 예가 시너지 링 판독</div>"
+                            f"<p class='sub-p'>발주처 재무관 성향 프리셋에 맞춘 <b>🎯 {nums_sni_k[0]}번 · {nums_sni_k[1]}번 · {nums_sni_k[2]}번 · {nums_sni_k[3]}번</b> 조합을 추출합니다.</p>"
+                            f"<p class='sub-p2'>계단 <b>#{idx_sni_k+1}번({ep_sni_k:,.0f}원)</b> 좌표를 91.2%의 시너지로 안정적으로 지지합니다.</p>"
+                        ),
+                        "kp3_explain": (
+                            f"<div class='sub-ttl'>⚡ KP-03. 당락 계기판 & 웨지 해설</div>"
+                            f"<p class='sub-p'>지역 제한 소수 정예 입찰(참가 45개사 이하)에서 특정 라이벌 업체를 제압할 때 매우 효과적입니다.</p>"
+                            f"<p class='sub-p2'>라이벌 대비 우위를 점하는 산출 투찰가는 <b>{bid_sni_k:,.0f}원</b>입니다.</p>"
+                        )
+                    },
+                    "M1": {
+                        "id": "M1",
+                        "btn_label": "🏢 5. 레거시 (과밀 데드존)",
+                        "pin_tag": "🏢 레거시 데드존",
+                        "name": "🏢 일반 레거시 프로그램 — 단순 산술평균 과밀 데드존 (회피 기준점)",
+                        "color": "#fb7185",
+                        "rate": r_leg_k,
+                        "step": idx_leg_k + 1,
+                        "ep": ep_leg_k,
+                        "bid": bid_leg_k,
+                        "wedge": 0,
+                        "win_prob": 2.4,
+                        "def_prob": 51.4,
+                        "crev_norm": 0.36,
+                        "synergy_pct": 42.0,
+                        "nums": nums_leg_k,
+                        "verdict": "❌ 과밀 공멸 & 하한선 미달 위험",
+                        "core_summary": (
+                            f"<b>• [모델 분석 목적]</b> 시중 일반 입찰 프로그램들이 사용하는 과거 개찰 사정률의 단순 산술평균(<b>{r_leg_k:.4f}%</b>)으로, 우리가 반드시 피해야 할 <b>회피 기준점</b>입니다.<br>"
+                            f"<b>• [위험 진단 결과]</b> 참가 업체의 65% 이상이 이 구간(±0.015%p)에 몰려 있어 동가 추첨에 걸리거나 약간의 예가 상승에도 집단 미달 탈락합니다."
+                        ),
+                        "kp1_explain": (
+                            f"<div class='sub-ttl'>🌊 KP-01. 크레바스 지형도 판독</div>"
+                            f"<p class='sub-p'>그래프 좌측의 가장 높고 험준한 <b>붉은색 용암 산맥 정중앙({r_leg_k:.4f}%)</b>에 핀이 꽂혀 있는 상태입니다.</p>"
+                            f"<p class='sub-p2'>경쟁 밀도가 극에 달해 실전 투찰 시 단독 낙찰 확률이 <b>2.4%</b>에 불과한 공멸 구간입니다.</p>"
+                        ),
+                        "kp2_explain": (
+                            f"<div class='sub-ttl'>🎰 KP-02. 예가 시너지 링 판독</div>"
+                            f"<p class='sub-p'>클릭 편향이나 양자계단 절사 보정 없이 무작위로 뽑은 <b>{nums_leg_k[0]}번 · {nums_leg_k[1]}번 · {nums_leg_k[2]}번 · {nums_leg_k[3]}번</b> 수준입니다.</p>"
+                            f"<p class='sub-p2'>번호 간 시너지 결속력이 <b>42.0%</b>로 매우 낮아 실전 예가 번호로 채택해서는 안 됩니다.</p>"
+                        ),
+                        "kp3_explain": (
+                            f"<div class='sub-ttl'>⚡ KP-03. 당락 계기판 & 웨지 해설</div>"
+                            f"<p class='sub-p'>본 모델은 실제 투찰용이 아니라 경쟁사들의 집결 위치를 파악하기 위한 대조군입니다.</p>"
+                            f"<p class='sub-p2'>이 금액({bid_leg_k:,.0f}원)보다 <b>+{bid_ens_k - bid_leg_k:,.0f}원</b> 위쪽인 AI 골든 크레바스로 회피하십시오.</p>"
+                        )
+                    }
                 }
-            }
 
-            models_kp_json = json.dumps(models_kp_data, ensure_ascii=False)
+                models_kp_json = json.dumps(models_kp_data, ensure_ascii=False)
 
-            killpoint_html_tpl = """<!DOCTYPE html>
+                killpoint_html_tpl = """<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
@@ -6674,143 +6676,143 @@ renderKillPoints();
 </body>
 </html>"""
 
-            killpoint_html = (
-                killpoint_html_tpl
-                .replace("__KP_BASE__", str(kp_base))
-                .replace("__KP_AVAL__", str(kp_aval))
-                .replace("__KP_LRT__", str(kp_lrt))
-                .replace("__MODELS_KP_JSON__", models_kp_json)
-            )
-            components.html(killpoint_html, height=625, scrolling=False)
+                killpoint_html = (
+                    killpoint_html_tpl
+                    .replace("__KP_BASE__", str(kp_base))
+                    .replace("__KP_AVAL__", str(kp_aval))
+                    .replace("__KP_LRT__", str(kp_lrt))
+                    .replace("__MODELS_KP_JSON__", models_kp_json)
+                )
+                components.html(killpoint_html, height=625, scrolling=False)
 
-        gear_c1, gear_c2 = st.columns([2.2, 1.8])
-        with gear_c1:
-            compare_mode = st.selectbox(
-                "🎛️ 스마트 어댑티브 입찰 비교 스케일 (AI 추천: 평시 TOP 4 황금비율 / 집중일 6·8건 확장)",
-                options=[
-                    "👑 [AI 추천 기본] 핵심 4건 황금비율 비교 (2×2 ZERO-SCROLL)",
-                    "💎 [주간 확장] 상위 6건 와이드 비교 (3×2 그리드)",
-                    "🔥 [전수 총력전] 상위 8건 맥시멈 비교 (4×2 그리드)",
-                    "🛒 [장바구니 연동] BAY 02 장바구니 체크 공고만 자동 맞춤 표시"
-                ],
-                index=0,
-                key="v105_compare_scale_mode"
-            )
-        with gear_c2:
-            sort_criteria = st.selectbox(
-                "⚡ 보물상자 우선순위 자동 정렬 기준",
-                options=[
-                    "📌 기본 우선순위 (최근 전환/등록 순)",
-                    "💰 순기대수익(황금 전리품) 최대 순",
-                    "🚨 입찰 마감임박(D-Day) 빠른 순",
-                    "🏛️ 기초금액 대형 공사 순"
-                ],
-                index=0,
-                key="v105_sort_criteria"
-            )
+            gear_c1, gear_c2 = st.columns([2.2, 1.8])
+            with gear_c1:
+                compare_mode = st.selectbox(
+                    "🎛️ 스마트 어댑티브 입찰 비교 스케일 (AI 추천: 평시 TOP 4 황금비율 / 집중일 6·8건 확장)",
+                    options=[
+                        "👑 [AI 추천 기본] 핵심 4건 황금비율 비교 (2×2 ZERO-SCROLL)",
+                        "💎 [주간 확장] 상위 6건 와이드 비교 (3×2 그리드)",
+                        "🔥 [전수 총력전] 상위 8건 맥시멈 비교 (4×2 그리드)",
+                        "🛒 [장바구니 연동] BAY 02 장바구니 체크 공고만 자동 맞춤 표시"
+                    ],
+                    index=0,
+                    key="v105_compare_scale_mode"
+                )
+            with gear_c2:
+                sort_criteria = st.selectbox(
+                    "⚡ 보물상자 우선순위 자동 정렬 기준",
+                    options=[
+                        "📌 기본 우선순위 (최근 전환/등록 순)",
+                        "💰 순기대수익(황금 전리품) 최대 순",
+                        "🚨 입찰 마감임박(D-Day) 빠른 순",
+                        "🏛️ 기초금액 대형 공사 순"
+                    ],
+                    index=0,
+                    key="v105_sort_criteria"
+                )
 
-        working_pool = list(pool)
-        if "순기대수익" in sort_criteria:
-            working_pool.sort(key=lambda x: float(x.get("기초금액", 0)), reverse=True)
-        elif "마감임박" in sort_criteria:
-            working_pool.sort(key=lambda x: str(x.get("마감일시", "9999")))
-        elif "대형 공사" in sort_criteria:
-            working_pool.sort(key=lambda x: float(x.get("기초금액", 0)), reverse=True)
+            working_pool = list(pool)
+            if "순기대수익" in sort_criteria:
+                working_pool.sort(key=lambda x: float(x.get("기초금액", 0)), reverse=True)
+            elif "마감임박" in sort_criteria:
+                working_pool.sort(key=lambda x: str(x.get("마감일시", "9999")))
+            elif "대형 공사" in sort_criteria:
+                working_pool.sort(key=lambda x: float(x.get("기초금액", 0)), reverse=True)
 
-        if "상위 6건" in compare_mode:
-            active_vault_items = working_pool[:6]
-            grid_col_css = "repeat(3, minmax(0, 1fr))"
-            iframe_h = 875
-        elif "상위 8건" in compare_mode:
-            active_vault_items = working_pool[:8]
-            grid_col_css = "repeat(4, minmax(0, 1fr))"
-            iframe_h = 895
-        elif "장바구니 연동" in compare_mode:
-            sel_lbls = st.session_state.get("bid_cart_selected", [])
-            matched = [
-                it for it in working_pool
-                if f"[{it.get('공고번호', '')}] {it.get('공고명', '')} ({it.get('기초금액', 0):,.0f}원)" in sel_lbls
+            if "상위 6건" in compare_mode:
+                active_vault_items = working_pool[:6]
+                grid_col_css = "repeat(3, minmax(0, 1fr))"
+                iframe_h = 875
+            elif "상위 8건" in compare_mode:
+                active_vault_items = working_pool[:8]
+                grid_col_css = "repeat(4, minmax(0, 1fr))"
+                iframe_h = 895
+            elif "장바구니 연동" in compare_mode:
+                sel_lbls = st.session_state.get("bid_cart_selected", [])
+                matched = [
+                    it for it in working_pool
+                    if f"[{it.get('공고번호', '')}] {it.get('공고명', '')} ({it.get('기초금액', 0):,.0f}원)" in sel_lbls
+                ]
+                active_vault_items = matched if matched else working_pool[:4]
+                cnt_v = len(active_vault_items)
+                grid_col_css = "repeat(4, minmax(0, 1fr))" if cnt_v >= 7 else ("repeat(3, 1fr)" if cnt_v >= 5 else "repeat(2, 1fr)")
+                iframe_h = 895 if cnt_v > 4 else 790
+            else:
+                active_vault_items = working_pool[:4]
+                grid_col_css = "repeat(2, minmax(0, 1fr))"
+                iframe_h = 845
+
+            st.session_state["v105_active_compare_count"] = len(active_vault_items)
+
+            gem_badges = [
+                ("👑 ROYAL CROWN VAULT", "#facc15", "rgba(250,204,21,0.16)"),
+                ("💎 DIAMOND CORE VAULT", "#38bdf8", "rgba(56,189,248,0.16)"),
+                ("🟢 EMERALD DEEP VAULT", "#34d399", "rgba(52,211,153,0.16)"),
+                ("🔮 AMETHYST ARCANE VAULT", "#c084fc", "rgba(192,132,252,0.16)"),
+                ("🌹 RUBY CRIMSON VAULT", "#fb7185", "rgba(251,113,133,0.16)"),
+                ("💠 SAPPHIRE AERO VAULT", "#60a5fa", "rgba(96,165,250,0.16)"),
+                ("🔥 TOPAZ SOLAR VAULT", "#fb923c", "rgba(251,146,60,0.16)"),
+                ("⚡ PLATINUM QUANTUM VAULT", "#2dd4bf", "rgba(45,212,191,0.16)")
             ]
-            active_vault_items = matched if matched else working_pool[:4]
-            cnt_v = len(active_vault_items)
-            grid_col_css = "repeat(4, minmax(0, 1fr))" if cnt_v >= 7 else ("repeat(3, 1fr)" if cnt_v >= 5 else "repeat(2, 1fr)")
-            iframe_h = 895 if cnt_v > 4 else 790
-        else:
-            active_vault_items = working_pool[:4]
-            grid_col_css = "repeat(2, minmax(0, 1fr))"
-            iframe_h = 845
 
-        st.session_state["v105_active_compare_count"] = len(active_vault_items)
+            total_treasure_profit = 0
+            total_treasure_bid = 0
+            win_rates_accum = []
+            sonar_targets_list = []
 
-        gem_badges = [
-            ("👑 ROYAL CROWN VAULT", "#facc15", "rgba(250,204,21,0.16)"),
-            ("💎 DIAMOND CORE VAULT", "#38bdf8", "rgba(56,189,248,0.16)"),
-            ("🟢 EMERALD DEEP VAULT", "#34d399", "rgba(52,211,153,0.16)"),
-            ("🔮 AMETHYST ARCANE VAULT", "#c084fc", "rgba(192,132,252,0.16)"),
-            ("🌹 RUBY CRIMSON VAULT", "#fb7185", "rgba(251,113,133,0.16)"),
-            ("💠 SAPPHIRE AERO VAULT", "#60a5fa", "rgba(96,165,250,0.16)"),
-            ("🔥 TOPAZ SOLAR VAULT", "#fb923c", "rgba(251,146,60,0.16)"),
-            ("⚡ PLATINUM QUANTUM VAULT", "#2dd4bf", "rgba(45,212,191,0.16)")
-        ]
+            import json
+            N_items = max(len(active_vault_items), 1)
+            # 레이더 원 안에서 겹치지 않게 반지름(r)과 각도(theta)를 공고 개수(N_items)만큼 동적 분배
+            radii_cycle = [26, 44, 60, 74, 35, 52, 68, 80]
 
-        total_treasure_profit = 0
-        total_treasure_bid = 0
-        win_rates_accum = []
-        sonar_targets_list = []
+            for idx, it in enumerate(active_vault_items):
+                ens_info = _compute_master_ensemble_for_notice(it, int(st.session_state.get("lucky_seed_offset", 0))) if "_compute_master_ensemble_for_notice" in globals() else {
+                    "rate": float(it.get("목표사정률", 100.065) or 100.065),
+                    "step_no": 558 + idx * 7,
+                    "opt_bid": round(((float(it.get("기초금액", 3605411000)) * (float(it.get("목표사정률", 100.065)) / 100.0) - float(it.get("A값", 170640956))) * (float(it.get("낙찰하한율", 88.745)) / 100.0)) + float(it.get("A값", 170640956))),
+                    "est_profit": 280000000,
+                    "win_rate": 34.2,
+                    "def_rate": 99.2,
+                    "lucky_4": "🎯 3번 · 7번 · 11번 · 14번"
+                }
 
-        import json
-        N_items = max(len(active_vault_items), 1)
-        # 레이더 원 안에서 겹치지 않게 반지름(r)과 각도(theta)를 공고 개수(N_items)만큼 동적 분배
-        radii_cycle = [26, 44, 60, 74, 35, 52, 68, 80]
+                m_rt_pct = ens_info["rate"]
+                opt_bid = ens_info["opt_bid"]
+                est_profit = ens_info["est_profit"]
+                v_win_rate = ens_info["win_rate"]
+                v_def_rate = ens_info["def_rate"]
+                step_no = ens_info["step_no"]
+                lk_nums = ens_info["lucky_4"]
 
-        for idx, it in enumerate(active_vault_items):
-            ens_info = _compute_master_ensemble_for_notice(it, int(st.session_state.get("lucky_seed_offset", 0))) if "_compute_master_ensemble_for_notice" in globals() else {
-                "rate": float(it.get("목표사정률", 100.065) or 100.065),
-                "step_no": 558 + idx * 7,
-                "opt_bid": round(((float(it.get("기초금액", 3605411000)) * (float(it.get("목표사정률", 100.065)) / 100.0) - float(it.get("A값", 170640956))) * (float(it.get("낙찰하한율", 88.745)) / 100.0)) + float(it.get("A값", 170640956))),
-                "est_profit": 280000000,
-                "win_rate": 34.2,
-                "def_rate": 99.2,
-                "lucky_4": "🎯 3번 · 7번 · 11번 · 14번"
-            }
+                total_treasure_bid += opt_bid
+                total_treasure_profit += est_profit
+                win_rates_accum.append(v_win_rate)
 
-            m_rt_pct = ens_info["rate"]
-            opt_bid = ens_info["opt_bid"]
-            est_profit = ens_info["est_profit"]
-            v_win_rate = ens_info["win_rate"]
-            v_def_rate = ens_info["def_rate"]
-            step_no = ens_info["step_no"]
-            lk_nums = ens_info["lucky_4"]
+                g_title, g_color, g_bg = gem_badges[idx % len(gem_badges)]
+                d_badge = _calc_dday_badge(it.get("마감일시", "")) if "_calc_dday_badge" in globals() else "⏳ D-Day"
+                full_title = str(it.get("공고명", ""))
+                v_no = str(it.get("공고번호", ""))
 
-            total_treasure_bid += opt_bid
-            total_treasure_profit += est_profit
-            win_rates_accum.append(v_win_rate)
+                # 소나 레이더에 찍힐 짧은 약칭 (앞 5글자) 및 좌표 생성
+                short_lbl = full_title.replace(" ", "")[:5]
+                theta_val = round((idx * (2.0 * 3.141592 / N_items)) + 0.55, 3)
+                r_val = radii_cycle[idx % len(radii_cycle)]
+                # 오른쪽 반원 끝에 있는 라벨은 원 안쪽(right 정렬)으로 배치해 글자 잘림 방지
+                import math
+                cos_v = math.cos(theta_val)
+                align_dir = "right" if (cos_v > 0.35 and r_val > 50) else "left"
 
-            g_title, g_color, g_bg = gem_badges[idx % len(gem_badges)]
-            d_badge = _calc_dday_badge(it.get("마감일시", "")) if "_calc_dday_badge" in globals() else "⏳ D-Day"
-            full_title = str(it.get("공고명", ""))
-            v_no = str(it.get("공고번호", ""))
+                sonar_targets_list.append({
+                    "r": r_val,
+                    "theta": theta_val,
+                    "label": f"{idx+1}.{short_lbl}",
+                    "color": g_color,
+                    "align": align_dir
+                })
 
-            # 소나 레이더에 찍힐 짧은 약칭 (앞 5글자) 및 좌표 생성
-            short_lbl = full_title.replace(" ", "")[:5]
-            theta_val = round((idx * (2.0 * 3.141592 / N_items)) + 0.55, 3)
-            r_val = radii_cycle[idx % len(radii_cycle)]
-            # 오른쪽 반원 끝에 있는 라벨은 원 안쪽(right 정렬)으로 배치해 글자 잘림 방지
-            import math
-            cos_v = math.cos(theta_val)
-            align_dir = "right" if (cos_v > 0.35 and r_val > 50) else "left"
+                copy_payload = f"[{v_no}] {full_title} | 👑AI앙상블 투찰가: {opt_bid:,}원 | 사정률: {m_rt_pct:.4f}%(계단#{step_no}) | 시뮬레이션 타점지수(참고): {v_win_rate:.1f}% | 추천번호: {lk_nums}"
 
-            sonar_targets_list.append({
-                "r": r_val,
-                "theta": theta_val,
-                "label": f"{idx+1}.{short_lbl}",
-                "color": g_color,
-                "align": align_dir
-            })
-
-            copy_payload = f"[{v_no}] {full_title} | 👑AI앙상블 투찰가: {opt_bid:,}원 | 사정률: {m_rt_pct:.4f}%(계단#{step_no}) | 시뮬레이션 타점지수(참고): {v_win_rate:.1f}% | 추천번호: {lk_nums}"
-
-            chest_cards_html += f"""
+                chest_cards_html += f"""
             <div class="chest-card" style="border-color:{g_color};background:linear-gradient(145deg, {g_bg}, rgba(9,13,26,0.96));">
                 <div class="chest-top">
                     <span class="gem-tag" style="color:{g_color};border-color:{g_color};">{g_title}</span>
@@ -6834,10 +6836,10 @@ renderKillPoints();
             </div>
             """
 
-        sonar_targets_json = json.dumps(sonar_targets_list, ensure_ascii=False)
-        avg_win_rt = round(sum(win_rates_accum) / len(win_rates_accum), 1) if win_rates_accum else 34.5
+            sonar_targets_json = json.dumps(sonar_targets_list, ensure_ascii=False)
+            avg_win_rt = round(sum(win_rates_accum) / len(win_rates_accum), 1) if win_rates_accum else 34.5
 
-        treasure_island_html = f"""<!DOCTYPE html>
+            treasure_island_html = f"""<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
@@ -7304,7 +7306,7 @@ drawSonar();
 </body>
 </html>"""
 
-        components.html(treasure_island_html, height=iframe_h, scrolling=False)
+            components.html(treasure_island_html, height=iframe_h, scrolling=False)
 
     except Exception as _ti_err:
         st.info(f"4D 아이소메트릭 보물섬 UI 준비 완료 ({_ti_err})")
