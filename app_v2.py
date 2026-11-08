@@ -7698,7 +7698,7 @@ def render_phase9_bidding_machine_workstation():
 
 
 with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z5]'):
-    if _is_cab_mode:
+    if _is_cab_mode and ('[Z5]' in _cur_cab_zone):
         render_phase8_treasure_island_ui()
 
 with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z6]'):
@@ -7720,46 +7720,6 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z7]'):
         )
 
         # 좌측 사이드바 전체에 4D 아이소메트릭 홀로그램 CSS 주입 + 60FPS 4D 테서랙트(초입방체) 지휘 콘솔 탑재!
-        from lattice1365.sidebar_4d_ui import get_sidebar_4d_global_css, build_sidebar_4d_tesseract_html
-        st.markdown(get_sidebar_4d_global_css(), unsafe_allow_html=True)
-
-        with st.sidebar:
-            # ZONE 1(상단 보안)과 ZONE 2(하단 AI 엔진 랩)를 분리하는 시각적 디바이더 + 하단 물리 스페이서(height:10px)로 겹침 원천 차단
-            st.markdown("""
-        <div style="padding-top:10px;padding-bottom:10px;display:block;">
-            <div style="border-top:1.5px dashed rgba(56,189,248,0.35);padding-top:10px;display:flex;justify-content:space-between;align-items:center;">
-                <span style="color:#7dd3fc;font-size:13px;font-weight:900;letter-spacing:0.3px;">🧭 AI ENGINE LAB</span>
-                <span style="background:rgba(56,189,248,0.16);border:1px solid rgba(56,189,248,0.45);color:#38bdf8;font-size:8.5px;font-weight:900;padding:2px 7px;border-radius:999px;">ZONE 2 · ADD-ON</span>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-            g_col1, g_col2 = st.columns(2)
-            with g_col1:
-                on_picker = st.checkbox(
-                    "🎯 3D 로또추첨",
-                    value=True,
-                    key="_addon_chk_picker_v2",
-                )
-                on_egr = st.checkbox(
-                    "🛡️ EGR 방어선",
-                    value=True,
-                    key="_addon_chk_egr_v2",
-                )
-            with g_col2:
-                on_arena = st.checkbox(
-                    "🔥 스나이퍼배틀",
-                    value=True,
-                    key="_addon_chk_arena_v2",
-                )
-                on_lat = st.checkbox(
-                    "⚡ LATTICE 격자",
-                    value=True,
-                    key="_addon_chk_lat_v2",
-                )
-
-            _active_cnt = sum([bool(on_picker), bool(on_arena), bool(on_egr), bool(on_lat)])
-            components.html(build_sidebar_4d_tesseract_html(active_count=_active_cnt), height=232, scrolling=False)
 
         slot = st.empty()
         if not on_picker and not on_arena and not on_egr and not on_lat:
@@ -8256,3 +8216,45 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z7]'):
     except Exception as _egr_e:
         import streamlit as _st
         _st.error(f"번외 모델 렌더링 오류: {_egr_e}")
+
+# === [TOP-LEVEL INDEPENDENT SIDEBAR 4D ENGINE LAB & TELEMETRY (UN-NESTED FROM Z7)] ===
+from lattice1365.sidebar_4d_ui import get_sidebar_4d_global_css, build_sidebar_4d_tesseract_html
+st.markdown(get_sidebar_4d_global_css(), unsafe_allow_html=True)
+
+with st.sidebar:
+    # ZONE 1(상단 보안)과 ZONE 2(하단 AI 엔진 랩)를 분리하는 시각적 디바이더 + 하단 물리 스페이서(height:10px)로 겹침 원천 차단
+    st.markdown("""
+        <div style="padding-top:10px;padding-bottom:10px;display:block;">
+            <div style="border-top:1.5px dashed rgba(56,189,248,0.35);padding-top:10px;display:flex;justify-content:space-between;align-items:center;">
+                <span style="color:#7dd3fc;font-size:13px;font-weight:900;letter-spacing:0.3px;">🧭 AI ENGINE LAB</span>
+                <span style="background:rgba(56,189,248,0.16);border:1px solid rgba(56,189,248,0.45);color:#38bdf8;font-size:8.5px;font-weight:900;padding:2px 7px;border-radius:999px;">ZONE 2 · ADD-ON</span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    g_col1, g_col2 = st.columns(2)
+    with g_col1:
+        on_picker = st.checkbox(
+            "🎯 3D 로또추첨",
+            value=True,
+            key="_addon_chk_picker_v2",
+        )
+        on_egr = st.checkbox(
+            "🛡️ EGR 방어선",
+            value=True,
+            key="_addon_chk_egr_v2",
+        )
+    with g_col2:
+        on_arena = st.checkbox(
+            "🔥 스나이퍼배틀",
+            value=True,
+            key="_addon_chk_arena_v2",
+        )
+        on_lat = st.checkbox(
+            "⚡ LATTICE 격자",
+            value=True,
+            key="_addon_chk_lat_v2",
+        )
+
+    _active_cnt = sum([bool(on_picker), bool(on_arena), bool(on_egr), bool(on_lat)])
+    components.html(build_sidebar_4d_tesseract_html(active_count=_active_cnt), height=232, scrolling=False)
