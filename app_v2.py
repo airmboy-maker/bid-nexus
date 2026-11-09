@@ -2147,7 +2147,7 @@ import lattice1365.native_deck_controller as _ndc_mod
 _is_cab_mode, _cur_cab_zone = _ndc_mod.render_master_mode_and_zone_selector()
 _ndc_mod.render_top_cabinet_switcher_bar(_is_cab_mode, _cur_cab_zone)
 with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
-    with st.expander('📊 [타겟 공고 요약 & 마감 브리핑 서랍] — 기업 마스터 스펙 · 적격심사 판정(29.5점) · AI 최적 투찰가 요약 (클릭하여 열기/닫기)', expanded=not _is_cab_mode):
+    with st.expander('💠 STEP 0 · 📊 [타겟 공고 요약 & 마감 브리핑 서랍] — 기업 마스터 · 적격심사 판정(29.5점) · AI 최적 투찰가 요약 (클릭 시 열림)', expanded=not _is_cab_mode):
         with st.expander("🏢 [1단계] 기업 적격심사 마스터 스펙 등록 및 수정 (클릭하여 열기/닫기)", expanded=False):
             # 🔒 1단계: 기업 적격심사 마스터 등록
             if not is_profile_ready:
@@ -2589,7 +2589,7 @@ with tab_radar:
                                 else:
                                     st.session_state['_boutique_cart_ids'].append(_gprof['nid']); _save_persisted_cart(st.session_state['_boutique_cart_ids'])
                                 st.rerun()
-            with st.expander(f"🗝️ STEP 2 · [선택된 보물 캐비닛 상세 도감 & 문서볼트 열기] [{_active_prof['nid']}] {_active_prof['title']}", expanded=False):
+            with st.expander(f"💎 STEP 2 · 🗝️ [선택된 보물 캐비닛 상세 도감 & 문서볼트] [{_active_prof['nid']}] {_active_prof['title']}", expanded=False):
                 idx = _sel_idx
                 bid_item = _active_n
                 _prof = _active_prof
@@ -9008,7 +9008,7 @@ try:
     _cab_z_pull = str(globals().get("_cur_cab_zone", st.session_state.get("selected_cabinet_zone", "[Z1]")))
     _cab_m_pull = bool(globals().get("_is_cab_mode", True))
     if (not _cab_m_pull) or ("[Z1]" in _cab_z_pull):
-        with st.expander("STEP 3 · 🚀 [조달청 G2B 신규 공고 실시간 수신 & 직접 투입 컨트롤러] (클릭 시 열림)", expanded=False):
+        with st.expander("⚡ STEP 3 · 🚀 [조달청 G2B 신규 공고 실시간 수신 & 직접 투입] — 나라장터 자동 수집 · 새 공고문 즉시 반영 (클릭 시 열림)", expanded=False):
             _p_c1, _p_c2, _p_c3 = st.columns([1.4, 1.4, 2.2])
             with _p_c1:
                 if st.session_state.get("_last_pull_msg"):
@@ -9109,7 +9109,7 @@ try:
     _cab_m_now = bool(globals().get("_is_cab_mode", True))
     if (not _cab_m_now) or ("[Z1]" in _cab_z_now) or ("[Z8]" in _cab_z_now):
         import streamlit.components.v1 as _stc_z1doc
-        with st.expander("STEP 4 · 📂 [입찰공고 원문 · 시방서 · 물량내역서 6종 통합 뷰어 & 원클릭 인쇄]", expanded=False):
+        with st.expander("🖨️ STEP 4 · 📂 [입찰공고 원문 · 시방서 · 내역서 6종 통합 뷰어] — 나라장터 G2B 정식 풀버전 미리보기 & 원클릭 인쇄 (클릭 시 열림)", expanded=False):
             _d_c1, _d_c2, _d_c3 = st.columns([2.6, 1.2, 1.2])
             with _d_c1:
                 _spec_sel = st.selectbox(
@@ -10431,28 +10431,53 @@ _stc_gap.html("""
         try {
             const doc = window.parent.document;
             const exps = Array.from(doc.querySelectorAll('[data-testid="stExpander"]'));
-            let exp2 = null;
-            let exp3 = null;
+            let exp2 = null, exp3 = null, exp4 = null;
             exps.forEach(ex => {
                 const txt = (ex.innerText || "");
+                // 모든 아코디언 박스의 너비를 부모 컨테이너 100%로 통일
+                ex.style.setProperty("width", "100%", "important");
+                ex.style.setProperty("max-width", "100%", "important");
+                ex.style.setProperty("box-sizing", "border-box", "important");
+                const w = ex.closest('[data-testid="stElementContainer"]') || ex.parentElement;
+                if (w) {
+                    w.style.setProperty("width", "100%", "important");
+                    w.style.setProperty("max-width", "100%", "important");
+                }
                 if (txt.includes("STEP 2") || txt.includes("상세 도감")) exp2 = ex;
                 if (txt.includes("STEP 3") || txt.includes("신규 공고")) exp3 = ex;
+                if (txt.includes("STEP 4") || txt.includes("6종 통합")) exp4 = ex;
             });
 
+            // 1) STEP 2 <-> STEP 3 간격을 정확히 8px로 도킹 및 너비 동기화
             if (exp2 && exp3) {
                 const wrap3 = exp3.closest('[data-testid="stElementContainer"]') || exp3.parentElement;
                 if (wrap3) {
-                    // 먼저 기존 보정값을 0으로 리셋한 뒤 순수 자연 간격(rawGap)을 측정
-                    wrap3.style.marginTop = "0px";
-                    const rect2 = exp2.getBoundingClientRect();
-                    const rect3 = exp3.getBoundingClientRect();
-                    const rawGap = rect3.top - rect2.bottom;
-                    // 두 박스 사이 간격이 12px 보다 크면 정확히 8px 간격만 남기고 위로 당겨 도킹!
-                    if (rawGap > 12 && rawGap < 600) {
-                        const pullPx = Math.round(rawGap - 8);
-                        wrap3.style.setProperty("margin-top", "-" + pullPx + "px", "important");
+                    const curMt3 = parseFloat(wrap3.style.marginTop || "0") || 0;
+                    const r2 = exp2.getBoundingClientRect();
+                    const r3 = exp3.getBoundingClientRect();
+                    const gap23 = r3.top - r2.bottom;
+                    if (Math.abs(gap23 - 8) > 2 && gap23 < 600) {
+                        const newMt3 = Math.round(curMt3 - (gap23 - 8));
+                        wrap3.style.setProperty("margin-top", newMt3 + "px", "important");
                         wrap3.style.setProperty("position", "relative", "important");
                         wrap3.style.setProperty("z-index", "5", "important");
+                    }
+                }
+            }
+
+            // 2) STEP 3 <-> STEP 4 간격도 STEP 2 <-> STEP 3 와 똑같이 8px로 칼같이 일치!
+            if (exp3 && exp4) {
+                const wrap4 = exp4.closest('[data-testid="stElementContainer"]') || exp4.parentElement;
+                if (wrap4) {
+                    const curMt4 = parseFloat(wrap4.style.marginTop || "0") || 0;
+                    const r3b = exp3.getBoundingClientRect();
+                    const r4t = exp4.getBoundingClientRect();
+                    const gap34 = r4t.top - r3b.bottom;
+                    if (Math.abs(gap34 - 8) > 2 && gap34 < 600) {
+                        const newMt4 = Math.round(curMt4 - (gap34 - 8));
+                        wrap4.style.setProperty("margin-top", newMt4 + "px", "important");
+                        wrap4.style.setProperty("position", "relative", "important");
+                        wrap4.style.setProperty("z-index", "5", "important");
                     }
                 }
             }
