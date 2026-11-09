@@ -268,13 +268,44 @@ def _save_persisted_notices(_pitems):
 # === [UNIVERSAL SESSION STATE PERSISTENCE ENGINE] ===
 _FULL_STATE_PATH = _cart_os.path.join(_cart_os.path.dirname(_cart_os.path.abspath(__file__)), ".streamlit", "full_app_state.json")
 
-_PERSIST_SKIP_PREFIXES = ("__", "FormSubmitter", "btn_", "z1_raw_file_up", "ocr_file", "upload")
+# st.button / st.file_uploader / st.download_button 등 값 직접 할당이 금지된 위젯 키를 완벽히 차단하고,
+# 실제로 영구 보존해야 하는 데이터 및 설정 키만 허용하는 안전 필터
+_SAFE_EXACT_KEYS = {
+    "_boutique_cart_ids", "live_pulled_notices",
+    "_boutique_sel_idx", "_boutique_page", "selected_cabinet_zone",
+    "selected_notice_no", "selected_notice_title", "selected_notice_org",
+    "selected_notice_loc", "selected_notice_days", "selected_notice_desc",
+    "selected_notice_risk", "selected_notice_deadline", "selected_notice_note",
+    "base_amount", "est_price", "a_value", "net_cost", "lower_limit_rate",
+    "master_unlocked", "pin_authenticated", "admin_authenticated",
+    "z1_bid_spec_doc_selector", "z1_spec_zoom",
+    "z8_live_preview_selector", "z8_zoom_sl",
+    "quick_in_no", "quick_in_base", "quick_in_a", "quick_in_net",
+    "_last_pull_msg"
+}
+
+_SAFE_SUBSTRINGS = (
+    "filter_", "search_", "company_", "master_", "corp_",
+    "score_", "sim_", "slider_", "selected_", "target_", "custom_"
+)
+
+_FORBIDDEN_WIDGET_WORDS = (
+    "btn", "button", "uploader", "file_up", "download", "form",
+    "trigger", "click", "toggle", "nav_", "tab_", "top_z", "side_z", "cab_btn"
+)
 
 def _is_persistable_kv(_k, _v):
     _ks = str(_k)
-    if any(_ks.startswith(_p) for _p in _PERSIST_SKIP_PREFIXES):
+    _kl = _ks.lower()
+    if _ks.startswith("__"):
         return False
-    if any(_w in _ks.lower() for _w in ["button", "uploader", "file_up", "download", "trigger", "clicked"]):
+    # 버튼이나 업로더 등 할당 금지 위젯 키는 절대 저장/복원하지 않음
+    if any(_bad in _kl for _bad in _FORBIDDEN_WIDGET_WORDS):
+        return False
+    # st.button 의 반환값은 항상 bool 이므로 명시적 인증 키 외의 bool 은 제외
+    if isinstance(_v, bool) and _ks not in ("master_unlocked", "pin_authenticated", "admin_authenticated"):
+        return False
+    if _ks not in _SAFE_EXACT_KEYS and not any(_sub in _kl for _sub in _SAFE_SUBSTRINGS):
         return False
     if isinstance(_v, (str, int, float, bool)):
         return True
@@ -292,7 +323,7 @@ def _load_full_app_state():
             with open(_FULL_STATE_PATH, "r", encoding="utf-8") as _ff:
                 _fdata = _cart_json.load(_ff)
                 if isinstance(_fdata, dict):
-                    return _fdata
+                    return {k: v for k, v in _fdata.items() if _is_persistable_kv(k, v)}
     except Exception:
         pass
     return {}
@@ -315,8 +346,10 @@ def _boot_restore_full_state():
             _saved = _load_full_app_state()
             for _k, _v in _saved.items():
                 if _k not in st.session_state and _is_persistable_kv(_k, _v):
-                    st.session_state[_k] = _v
-            # 카트 및 신규 공고 전용 파일과도 양방향 동기화 보장
+                    try:
+                        st.session_state[_k] = _v
+                    except Exception:
+                        pass
             if "_boutique_cart_ids" not in st.session_state:
                 st.session_state["_boutique_cart_ids"] = _load_persisted_cart()
             if "live_pulled_notices" not in st.session_state:
