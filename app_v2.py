@@ -10431,36 +10431,38 @@ _stc_gap.html("""
         try {
             const doc = window.parent.document;
             const exps = Array.from(doc.querySelectorAll('[data-testid="stExpander"]'));
-            let step2Wrap = null;
-            let step3Wrap = null;
+            let exp2 = null;
+            let exp3 = null;
             exps.forEach(ex => {
-                const txt = ex.innerText || "";
-                const wrap = ex.closest('[data-testid="stElementContainer"]') || ex.closest('.element-container');
-                if (txt.includes("STEP 2") || txt.includes("상세 도감")) step2Wrap = wrap;
-                if (txt.includes("STEP 3") || txt.includes("신규 공고")) step3Wrap = wrap;
+                const txt = (ex.innerText || "");
+                if (txt.includes("STEP 2") || txt.includes("상세 도감")) exp2 = ex;
+                if (txt.includes("STEP 3") || txt.includes("신규 공고")) exp3 = ex;
             });
 
-            if (step2Wrap && step3Wrap && step2Wrap.parentElement === step3Wrap.parentElement) {
-                let cur = step2Wrap.nextElementSibling;
-                while (cur && cur !== step3Wrap) {
-                    // STEP 2 와 STEP 3 사이에 끼어 있는 보이지 않는 요소들의 높이와 여백만 0으로 축소 (노드 삭제/이동 없음!)
-                    cur.style.height = "0px";
-                    cur.style.minHeight = "0px";
-                    cur.style.marginTop = "-8px";
-                    cur.style.marginBottom = "-8px";
-                    cur.style.padding = "0px";
-                    cur.style.overflow = "hidden";
-                    cur = cur.nextElementSibling;
+            if (exp2 && exp3) {
+                const wrap3 = exp3.closest('[data-testid="stElementContainer"]') || exp3.parentElement;
+                if (wrap3) {
+                    // 먼저 기존 보정값을 0으로 리셋한 뒤 순수 자연 간격(rawGap)을 측정
+                    wrap3.style.marginTop = "0px";
+                    const rect2 = exp2.getBoundingClientRect();
+                    const rect3 = exp3.getBoundingClientRect();
+                    const rawGap = rect3.top - rect2.bottom;
+                    // 두 박스 사이 간격이 12px 보다 크면 정확히 8px 간격만 남기고 위로 당겨 도킹!
+                    if (rawGap > 12 && rawGap < 600) {
+                        const pullPx = Math.round(rawGap - 8);
+                        wrap3.style.setProperty("margin-top", "-" + pullPx + "px", "important");
+                        wrap3.style.setProperty("position", "relative", "important");
+                        wrap3.style.setProperty("z-index", "5", "important");
+                    }
                 }
-                step2Wrap.style.marginBottom = "6px";
-                step3Wrap.style.marginTop = "0px";
             }
         } catch (e) {}
     }
-    collapseMiddleGap();
+        collapseMiddleGap();
     setTimeout(collapseMiddleGap, 100);
     setTimeout(collapseMiddleGap, 350);
     setTimeout(collapseMiddleGap, 800);
+    setInterval(collapseMiddleGap, 500);
 })();
 </script>
 """, height=0, scrolling=False)
