@@ -8796,6 +8796,46 @@ try:
     if "live_pulled_notices" in st.session_state and isinstance(st.session_state["live_pulled_notices"], list):
         _save_persisted_notices(st.session_state["live_pulled_notices"])
     _save_full_app_state(dict(st.session_state))
+
+    with st.sidebar:
+        st.markdown("---")
+        with st.expander("💾 [자동저장 관리 & 초기화 설정]", expanded=False):
+            _c_cnt = len(st.session_state.get("_boutique_cart_ids", []))
+            _p_cnt = len(st.session_state.get("live_pulled_notices", []))
+            st.caption(f"🟢 실시간 디스크 백업 가동 중 (카트 {_c_cnt}건 / 추가공고 {_p_cnt}건)")
+
+            if st.button("🔄 화면·필터·슬라이더만 초기화", key="btn_reset_ui_only", use_container_width=True):
+                _keep_cart = list(st.session_state.get("_boutique_cart_ids", []))
+                _keep_pull = list(st.session_state.get("live_pulled_notices", []))
+                st.session_state.clear()
+                st.session_state["_boutique_cart_ids"] = _keep_cart
+                st.session_state["live_pulled_notices"] = _keep_pull
+                st.session_state["master_unlocked"] = True
+                st.session_state["pin_authenticated"] = True
+                st.session_state["admin_authenticated"] = True
+                _save_full_app_state(dict(st.session_state))
+                st.rerun()
+
+            if st.button("🗑️ 추가 공고 & 찜 카트 비우기 (기본 9건)", key="btn_reset_cart_and_pulled", use_container_width=True):
+                st.session_state["_boutique_cart_ids"] = []
+                st.session_state["live_pulled_notices"] = []
+                st.session_state["_boutique_sel_idx"] = 0
+                st.session_state["_boutique_page"] = 0
+                _save_persisted_cart([])
+                _save_persisted_notices([])
+                _save_full_app_state(dict(st.session_state))
+                st.rerun()
+
+            if st.button("🧹 전체 설정 공장 초기화 (API키 보존)", key="btn_reset_factory_all", use_container_width=True):
+                for _fp in [_CART_SAVE_PATH, _PULLED_SAVE_PATH, _FULL_STATE_PATH]:
+                    try:
+                        if _cart_os.path.exists(_fp):
+                            _cart_os.remove(_fp)
+                    except Exception:
+                        pass
+                st.session_state.clear()
+                st.session_state["__universal_state_restored"] = True
+                st.rerun()
 except Exception:
     pass
 
