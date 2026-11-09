@@ -8464,3 +8464,81 @@ div[data-testid="stMetricDelta"] > div {
 </style>
 """, unsafe_allow_html=True)
 
+
+# === [GLOBAL BOX & METRIC CENTER ALIGNMENT] ===
+st.markdown("""
+<style>
+/* === [GLOBAL BOX & METRIC CENTER ALIGNMENT CSS] === */
+/* 1) 모든 메트릭 카드(경영상태, 시공실적, 신인도, 데드존, 5대 모델 등) 내부 요소 완벽 중앙 정렬 */
+div[data-testid="stMetric"],
+div[data-testid="metric-container"] {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding: 14px 10px !important;
+}
+div[data-testid="stMetricLabel"],
+div[data-testid="stMetricLabel"] > div,
+div[data-testid="stMetricLabel"] p {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+    margin: 0 auto !important;
+}
+div[data-testid="stMetricValue"],
+div[data-testid="stMetricValue"] > div {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+    margin: 2px auto !important;
+}
+/* 초록/빨강 하단 배지(재무비율, 1.00배 만점, 99.850%~100.250% 등) 화살표와 글자 한 줄 중앙 정렬 */
+div[data-testid="stMetricDelta"] {
+    width: auto !important;
+    max-width: 96% !important;
+    display: inline-flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+    margin: 4px auto 0 auto !important;
+    padding: 3px 10px !important;
+    border-radius: 999px !important;
+}
+div[data-testid="stMetricDelta"] > div,
+div[data-testid="stMetricDelta"] svg {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    margin: 0 2px !important;
+}
+/* 2) 알림 박스(적용 규정 배너 등) 및 일반 카드 컨테이너 내부 텍스트 중앙 정렬 */
+div[data-testid="stAlert"] div[role="alert"],
+div[data-testid="stAlert"] p {
+    text-align: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+}
+/* 3) 버튼 및 캐비닛 탭 내부 텍스트 정중앙 배치 */
+div.stButton > button,
+div.stDownloadButton > button {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+}
+/* 4) 표(Table) 헤더 및 셀 텍스트 중앙 정렬 */
+table th, table td {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
