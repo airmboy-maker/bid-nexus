@@ -8832,43 +8832,93 @@ try:
 
     with st.sidebar:
         st.markdown("---")
-        with st.expander("💾 [자동저장 관리 & 초기화 설정]", expanded=False):
+        with st.expander("💾 [자동저장 관리 & 초기화 설정 (관리자 PIN 보호)]", expanded=False):
             _c_cnt = len(st.session_state.get("_boutique_cart_ids", []))
             _p_cnt = len(st.session_state.get("live_pulled_notices", []))
             st.caption(f"🟢 실시간 디스크 백업 가동 중 (카트 {_c_cnt}건 / 추가공고 {_p_cnt}건)")
 
-            if st.button("🔄 화면·필터·슬라이더만 초기화", key="btn_reset_ui_only", use_container_width=True):
-                _keep_cart = list(st.session_state.get("_boutique_cart_ids", []))
-                _keep_pull = list(st.session_state.get("live_pulled_notices", []))
-                st.session_state.clear()
-                st.session_state["_boutique_cart_ids"] = _keep_cart
-                st.session_state["live_pulled_notices"] = _keep_pull
-                st.session_state["master_unlocked"] = True
-                st.session_state["pin_authenticated"] = True
-                st.session_state["admin_authenticated"] = True
-                _save_full_app_state(dict(st.session_state))
-                st.rerun()
+            # 관리자 PIN 로드 (.streamlit/admin_pin.txt 우선 -> st.secrets['ADMIN_PIN'] -> 기본 '0000')
+            _PIN_FILE = _cart_os.path.join(_cart_os.path.dirname(_cart_os.path.abspath(__file__)), ".streamlit", "admin_pin.txt")
+            _master_pin = "0000"
+            try:
+                if _cart_os.path.exists(_PIN_FILE):
+                    with open(_PIN_FILE, "r", encoding="utf-8") as _pf:
+                        _saved_p = _pf.read().strip()
+                        if _saved_p:
+                            _master_pin = _saved_p
+                else:
+                    _sec_p = str(st.secrets.get("ADMIN_PIN", "0000")).strip()
+                    if _sec_p:
+                        _master_pin = _sec_p
+            except Exception:
+                pass
 
-            if st.button("🗑️ 추가 공고 & 찜 카트 비우기 (기본 9건)", key="btn_reset_cart_and_pulled", use_container_width=True):
-                st.session_state["_boutique_cart_ids"] = []
-                st.session_state["live_pulled_notices"] = []
-                st.session_state["_boutique_sel_idx"] = 0
-                st.session_state["_boutique_page"] = 0
-                _save_persisted_cart([])
-                _save_persisted_notices([])
-                _save_full_app_state(dict(st.session_state))
-                st.rerun()
+            _in_pin = st.text_input(
+                "🔐 초기화 승인 관리자 비밀번호 (PIN)",
+                value="",
+                type="password",
+                placeholder="관리자 PIN 입력 (기본: 0000)",
+                key="reset_guard_pin_input"
+            )
+            _pin_ok = (_in_pin.strip() == _master_pin)
 
-            if st.button("🧹 전체 설정 공장 초기화 (API키 보존)", key="btn_reset_factory_all", use_container_width=True):
-                for _fp in [_CART_SAVE_PATH, _PULLED_SAVE_PATH, _FULL_STATE_PATH]:
-                    try:
-                        if _cart_os.path.exists(_fp):
-                            _cart_os.remove(_fp)
-                    except Exception:
-                        pass
-                st.session_state.clear()
-                st.session_state["__universal_state_restored"] = True
-                st.rerun()
+            if _in_pin and not _pin_ok:
+                st.error("❌ 관리자 비밀번호가 일치하지 않습니다.")
+            elif _pin_ok:
+                st.success("🔓 관리자 인증 완료! 아래 초기화 버튼이 활성화되었습니다.")
+            else:
+                st.caption("🔒 실수로 인한 데이터 삭제 방지를 위해 관리자 PIN 입력 시에만 버튼이 열립니다.")
+
+            if st.button("🔄 화면·필터·슬라이더만 초기화", key="btn_reset_ui_only", use_container_width=True, disabled=not _pin_ok):
+                if _pin_ok:
+                    _keep_cart = list(st.session_state.get("_boutique_cart_ids", []))
+                    _keep_pull = list(st.session_state.get("live_pulled_notices", []))
+                    st.session_state.clear()
+                    st.session_state["_boutique_cart_ids"] = _keep_cart
+                    st.session_state["live_pulled_notices"] = _keep_pull
+                    st.session_state["master_unlocked"] = True
+                    st.session_state["pin_authenticated"] = True
+                    st.session_state["admin_authenticated"] = True
+                    _save_full_app_state(dict(st.session_state))
+                    st.rerun()
+
+            if st.button("🗑️ 추가 공고 & 찜 카트 비우기 (기본 9건)", key="btn_reset_cart_and_pulled", use_container_width=True, disabled=not _pin_ok):
+                if _pin_ok:
+                    st.session_state["_boutique_cart_ids"] = []
+                    st.session_state["live_pulled_notices"] = []
+                    st.session_state["_boutique_sel_idx"] = 0
+                    st.session_state["_boutique_page"] = 0
+                    _save_persisted_cart([])
+                    _save_persisted_notices([])
+                    _save_full_app_state(dict(st.session_state))
+                    st.rerun()
+
+            if st.button("🧹 전체 설정 공장 초기화 (API키 보존)", key="btn_reset_factory_all", use_container_width=True, disabled=not _pin_ok):
+                if _pin_ok:
+                    for _fp in [_CART_SAVE_PATH, _PULLED_SAVE_PATH, _FULL_STATE_PATH]:
+                        try:
+                            if _cart_os.path.exists(_fp):
+                                _cart_os.remove(_fp)
+                        except Exception:
+                            pass
+                    st.session_state.clear()
+                    st.session_state["__universal_state_restored"] = True
+                    st.rerun()
+
+            if _pin_ok:
+                st.markdown("---")
+                _new_p = st.text_input("🔑 새 관리자 비밀번호 변경 (원할 때만 입력)", value="", type="password", placeholder="새 비밀번호 4~8자리", key="new_admin_pin_input")
+                if st.button("💾 새 관리자 번호로 변경 저장", key="btn_save_new_admin_pin", use_container_width=True):
+                    if len(_new_p.strip()) >= 4:
+                        try:
+                            _cart_os.makedirs(_cart_os.path.dirname(_PIN_FILE), exist_ok=True)
+                            with open(_PIN_FILE, "w", encoding="utf-8") as _pf:
+                                _pf.write(_new_p.strip())
+                            st.success("✅ 새 관리자 비밀번호가 영구 저장되었습니다!")
+                        except Exception:
+                            pass
+                    else:
+                        st.warning("⚠️ 비밀번호는 최소 4자리 이상 입력해 주세요.")
 except Exception:
     pass
 
