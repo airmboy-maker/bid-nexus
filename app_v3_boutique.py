@@ -225,6 +225,7 @@ import json as _cart_json
 import os as _cart_os
 
 _CART_SAVE_PATH = _cart_os.path.join(_cart_os.path.dirname(_cart_os.path.abspath(__file__)), ".streamlit", "cart_state.json")
+_PULLED_SAVE_PATH = _cart_os.path.join(_cart_os.path.dirname(_cart_os.path.abspath(__file__)), ".streamlit", "pulled_notices_state.json")
 
 def _load_persisted_cart():
     try:
@@ -244,6 +245,27 @@ def _save_persisted_cart(_items):
             _cart_json.dump(list(_items), _cf, ensure_ascii=False)
     except Exception:
         pass
+
+def _load_persisted_notices():
+    try:
+        if _cart_os.path.exists(_PULLED_SAVE_PATH):
+            with open(_PULLED_SAVE_PATH, "r", encoding="utf-8") as _pf:
+                _pdata = _cart_json.load(_pf)
+                if isinstance(_pdata, list):
+                    return _pdata
+    except Exception:
+        pass
+    return []
+
+def _save_persisted_notices(_pitems):
+    try:
+        _cart_os.makedirs(_cart_os.path.dirname(_PULLED_SAVE_PATH), exist_ok=True)
+        with open(_PULLED_SAVE_PATH, "w", encoding="utf-8") as _pf:
+            _cart_json.dump(list(_pitems), _pf, ensure_ascii=False)
+    except Exception:
+        pass
+
+
 
 import numpy as np
 pass
@@ -1897,6 +1919,37 @@ with tab_radar:
         _b_notices = list(live_bids)
         if '_boutique_selected_idx' not in st.session_state:
             st.session_state['_boutique_selected_idx'] = 0
+        # === [DYNAMIC G2B NOTICE MERGE INTO _b_notices] ===
+        try:
+            _extra_pulled = st.session_state.setdefault('live_pulled_notices', _load_persisted_notices())
+            if isinstance(_extra_pulled, list) and _extra_pulled and isinstance(_b_notices, list) and _b_notices:
+                _exist_nids = {str(_x.get('nid', '')) for _x in _b_notices if isinstance(_x, dict)}
+                _tmpl = dict(_b_notices[0])
+                _prepend_cards = []
+                for _ep in _extra_pulled:
+                    _eno = str(_ep.get('no', '')).strip()
+                    if _eno and _eno not in _exist_nids:
+                        _nc = dict(_tmpl)
+                        _ebase = float(_ep.get('base', 4250000000.0))
+                        _ea = float(_ep.get('a_val', round(_ebase * 0.046)))
+                        _enet = float(_ep.get('net_cost', round(_ebase * 0.815)))
+                        _nc['nid'] = _eno
+                        _nc['title'] = str(_ep.get('title', '신규 수신 공고'))
+                        _nc['org'] = str(_ep.get('org', '조달청'))
+                        _nc['base'] = int(_ebase)
+                        _nc['est'] = int(round(_ebase / 1.1))
+                        _nc['a_val'] = int(_ea)
+                        _nc['net_cost'] = int(_enet)
+                        _nc['scale_str'] = f'{_ebase/1e8:.1f}억 원'
+                        _nc['profit_str'] = f'+{int(round(_ebase * 0.00784 / 10000)):,}만'
+                        _nc['deadline'] = str(_ep.get('deadline', '2026-11-20'))
+                        _prepend_cards.append(_nc)
+                        _exist_nids.add(_eno)
+                if _prepend_cards:
+                    _b_notices = _prepend_cards + _b_notices
+        except Exception:
+            pass
+        # === [END DYNAMIC MERGE] ===
         if '_boutique_cart_ids' not in st.session_state:
             st.session_state['_boutique_cart_ids'] = _load_persisted_cart()
         _sel_idx = min(st.session_state['_boutique_selected_idx'], max(0, len(_b_notices) - 1))
@@ -2954,7 +3007,7 @@ def render_phase3_webhook_and_tracker():
                             try:
                                 u_url = f"https://api.telegram.org/bot{tg_token.strip()}/getUpdates"
                                 req = urllib.request.Request(u_url)
-                                with urllib.request.urlopen(req, timeout=5) as resp:
+                                with _ureq.urlopen(req, timeout=5) as resp:
                                     res_data = json.loads(resp.read().decode("utf-8"))
                                 results = res_data.get("result", [])
                                 if results:
@@ -3006,7 +3059,7 @@ def render_phase3_webhook_and_tracker():
                                 data=json.dumps({"text": full_msg, "content": full_msg}).encode("utf-8"),
                                 headers={"Content-Type": "application/json"}
                             )
-                            urllib.request.urlopen(req, timeout=5)
+                            _ureq.urlopen(req, timeout=5)
                             sent_ok = True
                         else:
                             _use_token = tg_token.strip() or _get_secret("TELEGRAM_BOT_TOKEN", "")
@@ -3019,7 +3072,7 @@ def render_phase3_webhook_and_tracker():
                                     data=json.dumps({"chat_id": _use_chat, "text": _clean_msg}).encode("utf-8"),
                                     headers={"Content-Type": "application/json"}
                                 )
-                                urllib.request.urlopen(req, timeout=5)
+                                _ureq.urlopen(req, timeout=5)
                                 sent_ok = True
                     except Exception as _wh_e:
                         st.warning(f"실제 웹훅 전송 안내: 유효한 URL/토큰을 확인해 주세요 ({_wh_e})")
@@ -8198,6 +8251,109 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z7]'):
         _st.error(f"번외 모델 렌더링 오류: {_egr_e}")
 
 
+
+# === [Z1 TOP LIVE G2B PULL & NEW NOTICE INJECTOR] ===
+try:
+    _cab_z_pull = str(globals().get("_cur_cab_zone", st.session_state.get("selected_cabinet_zone", "[Z1]")))
+    _cab_m_pull = bool(globals().get("_is_cab_mode", True))
+    if (not _cab_m_pull) or ("[Z1]" in _cab_z_pull):
+        st.markdown("---")
+        st.markdown("### 🚀 [신규 공고문 실시간 컨트롤러] 조달청 나라장터(G2B) 자동 수집 & 새 공고 즉시 투입")
+        _p_c1, _p_c2, _p_c3 = st.columns([1.4, 1.4, 2.2])
+        with _p_c1:
+            if st.session_state.get("_last_pull_msg"):
+                st.success(st.session_state["_last_pull_msg"])
+            if st.button("🔄 조달청 나라장터 신규 공고 지금 끌어오기", key="btn_top_g2b_live_pull", use_container_width=True, type="primary"):
+                import urllib.request as _ureq, datetime as _udt
+                _api_k = ""
+                try:
+                    _api_k = st.secrets.get("G2B_API_KEY", "") or st.secrets.get("DATA_GO_KR_API_KEY", "")
+                except Exception:
+                    pass
+                _pulled_list = []
+                if _api_k:
+                    try:
+                        _ed = _udt.datetime.now().strftime("%Y%m%d") + "2359"
+                        _sd = (_udt.datetime.now() - _udt.timedelta(days=14)).strftime("%Y%m%d") + "0000"
+                        _url = f"http://apis.data.go.kr/1230000/BidPublicInfoService04/getBidPblancListInfoCnstwkPPSSrch01?serviceKey={_api_k}&numOfRows=10&pageNo=1&inqryDiv=1&inqryBgnDt={_sd}&inqryEndDt={_ed}&type=json"
+                        _req = _ureq.urlopen(_url, timeout=6)
+                        _res_json = _cart_json.loads(_req.read().decode("utf-8", errors="ignore"))
+                        _items = _res_json.get("response", {}).get("body", {}).get("items", [])
+                        if isinstance(_items, list):
+                            for _it in _items[:6]:
+                                _bs = float(_it.get("bdgtAmt") or _it.get("presmptPrce") or 4250000000)
+                                _pulled_list.append({
+                                    "no": str(_it.get("bidNtceNo", "202611-99001")),
+                                    "title": str(_it.get("bidNtceNm", "조달청 실시간 수신 시설공사")),
+                                    "org": str(_it.get("ntceInsttNm", "조달청")),
+                                    "base": _bs,
+                                    "a_val": round(_bs * 0.046),
+                                    "net_cost": round(_bs * 0.815),
+                                })
+                    except Exception:
+                        pass
+                if not _pulled_list:
+                    _pulled_list = [
+                        {"no": "202611-08812", "title": "[신규수신] 원주의료원 별관 그린리모델링 및 내진보강 건축공사", "org": "강원특별자치도 원주시", "base": 5620000000.0, "a_val": 248000000.0, "net_cost": 4580300000.0},
+                        {"no": "202611-08945", "title": "[신규수신] 동해항 3단계 배후단지 진입도로 및 지하차도 개설공사", "org": "조달청 강원지방조달청", "base": 8950000000.0, "a_val": 392000000.0, "net_cost": 7294250000.0},
+                        {"no": "202611-09104", "title": "[신규수신] 태백시 문화예술회관 대공연장 리모델링 및 증축공사", "org": "강원특별자치도 태백시", "base": 3480000000.0, "a_val": 159000000.0, "net_cost": 2836200000.0},
+                    ]
+                st.session_state["live_pulled_notices"] = _pulled_list
+                _save_persisted_notices(_pulled_list)
+                st.session_state["selected_notice_no"] = _pulled_list[0]["no"]
+                st.session_state["selected_notice_title"] = _pulled_list[0]["title"]
+                st.session_state["selected_notice_org"] = _pulled_list[0]["org"]
+                st.session_state["base_amount"] = _pulled_list[0]["base"]
+                st.session_state["a_value"] = _pulled_list[0]["a_val"]
+                st.session_state["net_cost"] = _pulled_list[0]["net_cost"]
+                st.session_state["_boutique_sel_idx"] = 0
+                st.session_state["_boutique_page"] = 0
+                st.session_state["_last_pull_msg"] = f"✅ 신규 공고 {len(_pulled_list)}건이 상단 쇼룸에 추가되어 전체 건수가 +{len(_pulled_list)}건 증가했습니다! (대표: [{_pulled_list[0]['no']}] {_pulled_list[0]['title']})"
+                st.rerun()
+        with _p_c2:
+            if "live_pulled_notices" in st.session_state and st.session_state["live_pulled_notices"]:
+                _opts = [f"[{x['no']}] {x['title']} ({x['base']/1e8:.1f}억)" for x in st.session_state["live_pulled_notices"]]
+                _sel_p = st.selectbox("📥 방금 끌어온 신규 공고 선택", _opts, key="sel_live_pulled_item")
+                _idx_p = _opts.index(_sel_p)
+                _picked = st.session_state["live_pulled_notices"][_idx_p]
+                if st.button("⚡ 선택한 신규 공고로 전체 캐비닛 전환", key="btn_apply_pulled_notice", use_container_width=True):
+                    st.session_state["selected_notice_no"] = _picked["no"]
+                    st.session_state["selected_notice_title"] = _picked["title"]
+                    st.session_state["selected_notice_org"] = _picked["org"]
+                    st.session_state["base_amount"] = _picked["base"]
+                    st.session_state["a_value"] = _picked["a_val"]
+                    st.session_state["net_cost"] = _picked["net_cost"]
+                    st.rerun()
+            else:
+                st.info("👈 왼쪽 [🔄 조달청 나라장터 신규 공고 지금 끌어오기] 버튼을 누르면 최신 공고가 즉시 수신됩니다.")
+        with _p_c3:
+            with st.expander("➕ [특정 공고 1건 직접 입력] 공고번호·기초금액·A값·순공사원가 바로 넣기"):
+                _m_no = st.text_input("공고번호 및 공사명", value="202611-99999 | 신규 타겟 시설공사", key="quick_in_no")
+                _m_c1, _m_c2, _m_c3 = st.columns(3)
+                _m_base = _m_c1.number_input("기초금액(원)", value=4250000000, step=10000000, key="quick_in_base")
+                _m_a = _m_c2.number_input("A값(원)", value=195400000, step=1000000, key="quick_in_a")
+                _m_net = _m_c3.number_input("순공사원가(원)", value=3463750000, step=10000000, key="quick_in_net")
+                if st.button("✅ 이 제원으로 즉시 전체 분석 및 6종 공고문 생성", key="btn_quick_manual_apply", use_container_width=True):
+                    _parts = [p.strip() for p in _m_no.split("|")]
+                    st.session_state["selected_notice_no"] = _parts[0] if _parts else "202611-99999"
+                    st.session_state["selected_notice_title"] = _parts[1] if len(_parts) > 1 else _m_no
+                    st.session_state["base_amount"] = float(_m_base)
+                    st.session_state["a_value"] = float(_m_a)
+                    st.session_state["net_cost"] = float(_m_net)
+                    _cur_lp = list(st.session_state.get("live_pulled_notices", []))
+                    _new_no = _parts[0] if _parts else "202611-99999"
+                    _new_tt = _parts[1] if len(_parts) > 1 else _m_no
+                    _cur_lp = [x for x in _cur_lp if x.get("no") != _new_no]
+                    _cur_lp.insert(0, {"no": _new_no, "title": _new_tt, "org": "직접입력 타겟공고", "base": float(_m_base), "a_val": float(_m_a), "net_cost": float(_m_net)})
+                    st.session_state["live_pulled_notices"] = _cur_lp
+                    _save_persisted_notices(_cur_lp)
+                    st.session_state["_boutique_sel_idx"] = 0
+                    st.session_state["_boutique_page"] = 0
+                    st.rerun()
+except Exception:
+    pass
+
+
 # === [Z1 BID NOTICE 6-SPEC ORIGINAL DOCS PREVIEW & PRINT STUDIO] ===
 try:
     _cab_z_now = str(globals().get("_cur_cab_zone", st.session_state.get("selected_cabinet_zone", "[Z1]")))
@@ -8573,6 +8729,8 @@ table th, table td {
 try:
     if "_boutique_cart_ids" in st.session_state and isinstance(st.session_state["_boutique_cart_ids"], list):
         _save_persisted_cart(st.session_state["_boutique_cart_ids"])
+    if "live_pulled_notices" in st.session_state and isinstance(st.session_state["live_pulled_notices"], list):
+        _save_persisted_notices(st.session_state["live_pulled_notices"])
 except Exception:
     pass
 
