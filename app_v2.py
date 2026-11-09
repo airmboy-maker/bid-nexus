@@ -9113,7 +9113,8 @@ try:
     _cab_z_pull = str(globals().get("_cur_cab_zone", st.session_state.get("selected_cabinet_zone", "[Z1]")))
     _cab_m_pull = bool(globals().get("_is_cab_mode", True))
     if (not _cab_m_pull) or ("[Z1]" in _cab_z_pull):
-        with st.expander("STEP 2 · 🚀 [조달청 G2B 신규 공고 실시간 수신 & 직접 투입 컨트롤러] (클릭 시 열림)", expanded=False):
+        st.markdown('<div style="margin-top:-115px;"></div>', unsafe_allow_html=True)
+        with st.expander("STEP 3 · 🚀 [조달청 G2B 신규 공고 실시간 수신 & 직접 투입 컨트롤러] (클릭 시 열림)", expanded=False):
             _p_c1, _p_c2, _p_c3 = st.columns([1.4, 1.4, 2.2])
             with _p_c1:
                 if st.session_state.get("_last_pull_msg"):
