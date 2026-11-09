@@ -10381,3 +10381,87 @@ div.element-container:has(div[data-testid="stExpander"]) {
 }
 </style>
 """, unsafe_allow_html=True)
+
+
+# === [ZERO-HEIGHT IFRAME & EXPANDER GAP COLLAPSE] ===
+st.markdown("""
+<style>
+/* === [ZERO-HEIGHT IFRAME & EXPANDER GAP COLLAPSE] === */
+/* 1) height="0" 인 투명 스크립트 iframe 자체와 그 부모 컨테이너의 높이를 0으로 완전 압축 (화면 요소는 절대 건드리지 않음) */
+iframe[height="0"] {
+    height: 0px !important;
+    min-height: 0px !important;
+    max-height: 0px !important;
+    margin: 0px !important;
+    padding: 0px !important;
+    border: none !important;
+    display: block !important;
+}
+div[data-testid="stElementContainer"]:has(> iframe[height="0"]),
+div[data-testid="stElementContainer"]:has(div[data-testid="stCustomComponentV1"] iframe[height="0"]),
+div.element-container:has(iframe[height="0"]) {
+    height: 0px !important;
+    min-height: 0px !important;
+    margin-top: -10px !important;
+    margin-bottom: -10px !important;
+    padding: 0px !important;
+    overflow: hidden !important;
+}
+
+/* 2) style 태그만 들어있는 마크다운 컨테이너의 상하 마진 제거 (display:none 대신 height:0 사용으로 안전 보장) */
+div[data-testid="stElementContainer"]:has(> div[data-testid="stMarkdown"] > div > style:only-child) {
+    height: 0px !important;
+    min-height: 0px !important;
+    margin-top: -10px !important;
+    margin-bottom: -10px !important;
+    padding: 0px !important;
+    overflow: hidden !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# 3) DOM 이동(insertBefore) 없이, STEP 2 아코디언과 STEP 3 아코디언 사이에 끼어 있는
+#    중간 형제 요소(height=0 iframe / 빈 style 블록)들의 margin과 height만 0px로 압축하여
+#    STEP 3가 STEP 2 바로 밑(6px 간격)으로 자연스럽게 올라오도록 처리!
+import streamlit.components.v1 as _stc_gap
+_stc_gap.html("""
+<script>
+(function() {
+    function collapseMiddleGap() {
+        try {
+            const doc = window.parent.document;
+            const exps = Array.from(doc.querySelectorAll('[data-testid="stExpander"]'));
+            let step2Wrap = null;
+            let step3Wrap = null;
+            exps.forEach(ex => {
+                const txt = ex.innerText || "";
+                const wrap = ex.closest('[data-testid="stElementContainer"]') || ex.closest('.element-container');
+                if (txt.includes("STEP 2") || txt.includes("상세 도감")) step2Wrap = wrap;
+                if (txt.includes("STEP 3") || txt.includes("신규 공고")) step3Wrap = wrap;
+            });
+
+            if (step2Wrap && step3Wrap && step2Wrap.parentElement === step3Wrap.parentElement) {
+                let cur = step2Wrap.nextElementSibling;
+                while (cur && cur !== step3Wrap) {
+                    // STEP 2 와 STEP 3 사이에 끼어 있는 보이지 않는 요소들의 높이와 여백만 0으로 축소 (노드 삭제/이동 없음!)
+                    cur.style.height = "0px";
+                    cur.style.minHeight = "0px";
+                    cur.style.marginTop = "-8px";
+                    cur.style.marginBottom = "-8px";
+                    cur.style.padding = "0px";
+                    cur.style.overflow = "hidden";
+                    cur = cur.nextElementSibling;
+                }
+                step2Wrap.style.marginBottom = "6px";
+                step3Wrap.style.marginTop = "0px";
+            }
+        } catch (e) {}
+    }
+    collapseMiddleGap();
+    setTimeout(collapseMiddleGap, 100);
+    setTimeout(collapseMiddleGap, 350);
+    setTimeout(collapseMiddleGap, 800);
+})();
+</script>
+""", height=0, scrolling=False)
+
