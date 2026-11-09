@@ -265,6 +265,68 @@ def _save_persisted_notices(_pitems):
     except Exception:
         pass
 
+# === [UNIVERSAL SESSION STATE PERSISTENCE ENGINE] ===
+_FULL_STATE_PATH = _cart_os.path.join(_cart_os.path.dirname(_cart_os.path.abspath(__file__)), ".streamlit", "full_app_state.json")
+
+_PERSIST_SKIP_PREFIXES = ("__", "FormSubmitter", "btn_", "z1_raw_file_up", "ocr_file", "upload")
+
+def _is_persistable_kv(_k, _v):
+    _ks = str(_k)
+    if any(_ks.startswith(_p) for _p in _PERSIST_SKIP_PREFIXES):
+        return False
+    if any(_w in _ks.lower() for _w in ["button", "uploader", "file_up", "download", "trigger", "clicked"]):
+        return False
+    if isinstance(_v, (str, int, float, bool)):
+        return True
+    if isinstance(_v, (list, dict)):
+        try:
+            _cart_json.dumps(_v)
+            return True
+        except Exception:
+            return False
+    return False
+
+def _load_full_app_state():
+    try:
+        if _cart_os.path.exists(_FULL_STATE_PATH):
+            with open(_FULL_STATE_PATH, "r", encoding="utf-8") as _ff:
+                _fdata = _cart_json.load(_ff)
+                if isinstance(_fdata, dict):
+                    return _fdata
+    except Exception:
+        pass
+    return {}
+
+def _save_full_app_state(_state_dict):
+    try:
+        _clean = {}
+        for _k, _v in _state_dict.items():
+            if _is_persistable_kv(_k, _v):
+                _clean[str(_k)] = _v
+        _cart_os.makedirs(_cart_os.path.dirname(_FULL_STATE_PATH), exist_ok=True)
+        with open(_FULL_STATE_PATH, "w", encoding="utf-8") as _ff:
+            _cart_json.dump(_clean, _ff, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
+
+def _boot_restore_full_state():
+    try:
+        if "__universal_state_restored" not in st.session_state:
+            _saved = _load_full_app_state()
+            for _k, _v in _saved.items():
+                if _k not in st.session_state and _is_persistable_kv(_k, _v):
+                    st.session_state[_k] = _v
+            # 카트 및 신규 공고 전용 파일과도 양방향 동기화 보장
+            if "_boutique_cart_ids" not in st.session_state:
+                st.session_state["_boutique_cart_ids"] = _load_persisted_cart()
+            if "live_pulled_notices" not in st.session_state:
+                st.session_state["live_pulled_notices"] = _load_persisted_notices()
+            st.session_state["__universal_state_restored"] = True
+    except Exception:
+        pass
+# === [END UNIVERSAL PERSISTENCE HELPER] ===
+
+
 
 
 import numpy as np
@@ -287,6 +349,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+_boot_restore_full_state()  # AUTO-RESTORE ALL 7 ZONES
 
 
 st.markdown("""
@@ -8727,10 +8790,12 @@ table th, table td {
 
 # === [PERSISTENT CART STATE SYNC HOOK] ===
 try:
+    _boot_restore_full_state()
     if "_boutique_cart_ids" in st.session_state and isinstance(st.session_state["_boutique_cart_ids"], list):
         _save_persisted_cart(st.session_state["_boutique_cart_ids"])
     if "live_pulled_notices" in st.session_state and isinstance(st.session_state["live_pulled_notices"], list):
         _save_persisted_notices(st.session_state["live_pulled_notices"])
+    _save_full_app_state(dict(st.session_state))
 except Exception:
     pass
 
