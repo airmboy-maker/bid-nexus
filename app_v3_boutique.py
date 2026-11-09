@@ -219,6 +219,32 @@ def _compute_master_ensemble_for_notice(it, seed_offset: int = 0, a_val=None, li
 
 
 import streamlit as st
+
+# === [PERSISTENT CART STATE HELPER] ===
+import json as _cart_json
+import os as _cart_os
+
+_CART_SAVE_PATH = _cart_os.path.join(_cart_os.path.dirname(_cart_os.path.abspath(__file__)), ".streamlit", "cart_state.json")
+
+def _load_persisted_cart():
+    try:
+        if _cart_os.path.exists(_CART_SAVE_PATH):
+            with open(_CART_SAVE_PATH, "r", encoding="utf-8") as _cf:
+                _data = _cart_json.load(_cf)
+                if isinstance(_data, list):
+                    return _data
+    except Exception:
+        pass
+    return []
+
+def _save_persisted_cart(_items):
+    try:
+        _cart_os.makedirs(_cart_os.path.dirname(_CART_SAVE_PATH), exist_ok=True)
+        with open(_CART_SAVE_PATH, "w", encoding="utf-8") as _cf:
+            _cart_json.dump(list(_items), _cf, ensure_ascii=False)
+    except Exception:
+        pass
+
 import numpy as np
 pass
 import matplotlib
@@ -8541,4 +8567,25 @@ table th, table td {
 }
 </style>
 """, unsafe_allow_html=True)
+
+
+# === [PERSISTENT CART STATE SYNC HOOK] ===
+try:
+    _CAND_CART_KEYS = ['_boutique_cart_ids', 'active_cart_target', 'bid_cart_pool', 'bid_cart_selected']
+    for _ck in list(st.session_state.keys()) + _CAND_CART_KEYS:
+        if any(_w in str(_ck).lower() for _w in ["cart", "fav", "wish", "jjim"]):
+            _cur_val = st.session_state.get(_ck, None)
+            if isinstance(_cur_val, (list, set)):
+                _prev_key = f"__prev_sync_{_ck}"
+                _Loaded = _load_persisted_cart()
+                if _prev_key not in st.session_state:
+                    # 앱 최초 실행 시 저장된 파일 상태(예: 0건 빈 리스트)로 덮어쓰기!
+                    st.session_state[_ck] = list(_Loaded) if isinstance(_cur_val, list) else set(_Loaded)
+                    st.session_state[_prev_key] = list(_Loaded)
+                else:
+                    if list(_cur_val) != st.session_state[_prev_key]:
+                        _save_persisted_cart(list(_cur_val))
+                        st.session_state[_prev_key] = list(_cur_val)
+except Exception:
+    pass
 
