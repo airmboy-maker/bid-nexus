@@ -9227,7 +9227,7 @@ try:
             </div>
         </body></html>
         """
-        _stc_v9.html(_v9_html, height=365, scrolling=False)
+        _stc_v9.html(_v9_html, height=435, scrolling=False)
 except Exception:
     pass
 
