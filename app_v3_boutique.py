@@ -1898,7 +1898,7 @@ with tab_radar:
         if '_boutique_selected_idx' not in st.session_state:
             st.session_state['_boutique_selected_idx'] = 0
         if '_boutique_cart_ids' not in st.session_state:
-            st.session_state['_boutique_cart_ids'] = [analyze_construction_profile(_b_notices[0], 0)['nid']] if _b_notices else []
+            st.session_state['_boutique_cart_ids'] = _load_persisted_cart()
         _sel_idx = min(st.session_state['_boutique_selected_idx'], max(0, len(_b_notices) - 1))
         _active_n = _b_notices[_sel_idx]
         _active_prof = analyze_construction_profile(_active_n, _sel_idx)
@@ -1943,9 +1943,9 @@ with tab_radar:
                                 st.rerun()
                             if _b_col2.button('💖 카트담기' if not _in_cart else '🗑️ 찜해제', key=f'btn_cart_grid_{_g_idx}', use_container_width=True):
                                 if _in_cart:
-                                    st.session_state['_boutique_cart_ids'].remove(_gprof['nid'])
+                                    st.session_state['_boutique_cart_ids'].remove(_gprof['nid']); _save_persisted_cart(st.session_state['_boutique_cart_ids'])
                                 else:
-                                    st.session_state['_boutique_cart_ids'].append(_gprof['nid'])
+                                    st.session_state['_boutique_cart_ids'].append(_gprof['nid']); _save_persisted_cart(st.session_state['_boutique_cart_ids'])
                                 st.rerun()
             with st.expander(f"🗝️ [선택된 보물 캐비닛 상세 도감 & 문서볼트 열기] [{_active_prof['nid']}] {_active_prof['title']}", expanded=False):
                 idx = _sel_idx
@@ -8571,21 +8571,8 @@ table th, table td {
 
 # === [PERSISTENT CART STATE SYNC HOOK] ===
 try:
-    _CAND_CART_KEYS = ['_boutique_cart_ids', 'active_cart_target', 'bid_cart_pool', 'bid_cart_selected']
-    for _ck in list(st.session_state.keys()) + _CAND_CART_KEYS:
-        if any(_w in str(_ck).lower() for _w in ["cart", "fav", "wish", "jjim"]):
-            _cur_val = st.session_state.get(_ck, None)
-            if isinstance(_cur_val, (list, set)):
-                _prev_key = f"__prev_sync_{_ck}"
-                _Loaded = _load_persisted_cart()
-                if _prev_key not in st.session_state:
-                    # 앱 최초 실행 시 저장된 파일 상태(예: 0건 빈 리스트)로 덮어쓰기!
-                    st.session_state[_ck] = list(_Loaded) if isinstance(_cur_val, list) else set(_Loaded)
-                    st.session_state[_prev_key] = list(_Loaded)
-                else:
-                    if list(_cur_val) != st.session_state[_prev_key]:
-                        _save_persisted_cart(list(_cur_val))
-                        st.session_state[_prev_key] = list(_cur_val)
+    if "_boutique_cart_ids" in st.session_state and isinstance(st.session_state["_boutique_cart_ids"], list):
+        _save_persisted_cart(st.session_state["_boutique_cart_ids"])
 except Exception:
     pass
 
