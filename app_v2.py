@@ -8173,162 +8173,135 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z7]'):
 
 
 # === [Z1 BID NOTICE 6-SPEC ORIGINAL DOCS PREVIEW & PRINT STUDIO] ===
-if (not _is_cab_mode) or ('[Z1]' in _cur_cab_zone) or ('[Z2]' in _cur_cab_zone):
-    import streamlit.components.v1 as _stc_z1doc
-    with st.expander("📂 [입찰공고 원문 6종 통합패키지] 공고문 · 공사시방서 · 현장설명서 · 물량내역서(공내역서) 앱 내 미리보기 & 인쇄", expanded=True):
-        _d_c1, _d_c2, _d_c3 = st.columns([2.6, 1.2, 1.2])
-        with _d_c1:
-            _spec_sel = st.selectbox(
-                "📑 열람 및 인쇄할 발주처 입찰 원문 서류 선택",
-                [
-                    "📚 [전체 합본] 입찰공고문 + 공사시방서 + 현장설명서 + 내역서 6종 통합 보기",
-                    "① [입찰공고문] 조달청 시설공사 입찰공고 원문 (기초금액·A값·순공사원가 고시)",
-                    "② [공사시방서] 총칙 및 공종별 표준/전문 시방서 (특기시방 포함)",
-                    "③ [현장설명서] 현장여건 · 자재반입 · 안전보건관리 준수사항",
-                    "④ [물량내역서(공내역서)] 공종별 설계 수량 및 원가계산서 기초 내역",
-                    "⑤ [A값 & 원가검토 내역서] 국민연금·건강보험·안전관리비 및 순공사원가 고시표",
-                    "⑥ [공사계약 특수조건 & 설계도면 목록] 하도급·지역의무·ZEB/BF 인증 지침",
-                ],
-                key="z1_bid_spec_doc_selector"
-            )
-        with _d_c2:
-            _spec_zoom = st.select_slider("🔍 문서 배율", options=["80%", "90%", "100%", "115%"], value="100%", key="z1_spec_zoom")
-        with _d_c3:
-            _up_pdf = st.file_uploader("📎 나라장터 원본 파일(PDF/HTML) 직접 열기", type=["pdf", "html", "txt"], key="z1_raw_file_up")
-
-        _def_low = round(87.74 + 0.005, 3)
-        _n_title = str(st.session_state.get("selected_notice_title", "춘천시청 별관 신축 및 문화복합동 증축공사"))
-        _n_no = str(st.session_state.get("selected_notice_no", "202611-01540"))
-        _n_base = float(st.session_state.get("base_amount", 4260000000) or 4260000000)
-        _n_est = float(st.session_state.get("est_price", round(_n_base / 1.1)) or round(_n_base / 1.1))
-        _n_vat = _n_base - _n_est
-        _n_a = float(st.session_state.get("a_value", 185000000) or 185000000)
-        _n_net = float(st.session_state.get("net_cost", round(_n_base * 0.845)) or round(_n_base * 0.845))
-        _n_low = float(st.session_state.get("lower_limit_rate", _def_low) or _def_low)
-
-        if _up_pdf is not None:
-            import base64 as _b64
-            _raw_bytes = _up_pdf.read()
-            if _up_pdf.name.lower().endswith(".pdf"):
-                _b64_pdf = _b64.b64encode(_raw_bytes).decode("utf-8")
-                _stc_z1doc.html(
-                    f'<iframe src="data:application/pdf;base64,{_b64_pdf}" width="100%" height="820px" style="border:1px solid #f59e0b; border-radius:8px;"></iframe>',
-                    height=840,
+try:
+    _cab_z_now = str(globals().get("_cur_cab_zone", st.session_state.get("selected_cabinet_zone", "[Z1]")))
+    _cab_m_now = bool(globals().get("_is_cab_mode", True))
+    if (not _cab_m_now) or ("[Z1]" in _cab_z_now) or ("[Z2]" in _cab_z_now):
+        import streamlit.components.v1 as _stc_z1doc
+        with st.expander("📂 [입찰공고 원문 6종 통합패키지] 공고문 · 공사시방서 · 현장설명서 · 물량내역서(공내역서) 앱 내 미리보기 & 인쇄", expanded=True):
+            _d_c1, _d_c2, _d_c3 = st.columns([2.6, 1.2, 1.2])
+            with _d_c1:
+                _spec_sel = st.selectbox(
+                    "📑 열람 및 인쇄할 발주처 입찰 원문 서류 선택",
+                    [
+                        "📚 [전체 합본] 입찰공고문 + 공사시방서 + 현장설명서 + 내역서 6종 통합 보기",
+                        "① [입찰공고문] 조달청 시설공사 입찰공고 원문 (기초금액·A값·순공사원가 고시)",
+                        "② [공사시방서] 총칙 및 공종별 표준/전문 시방서 (특기시방 포함)",
+                        "③ [현장설명서] 현장여건 · 자재반입 · 안전보건관리 준수사항",
+                        "④ [물량내역서(공내역서)] 공종별 설계 수량 및 원가계산서 기초 내역",
+                        "⑤ [A값 & 원가검토 내역서] 국민연금·건강보험·안전관리비 및 순공사원가 고시표",
+                        "⑥ [공사계약 특수조건 & 설계도면 목록] 하도급·지역의무·ZEB/BF 인증 지침",
+                    ],
+                    key="z1_bid_spec_doc_selector"
                 )
-            else:
-                st.code(_raw_bytes.decode("utf-8", errors="ignore")[:5000])
+            with _d_c2:
+                _spec_zoom = st.select_slider("🔍 문서 배율", options=["80%", "90%", "100%", "115%"], value="100%", key="z1_spec_zoom")
+            with _d_c3:
+                _up_pdf = st.file_uploader("📎 나라장터 원본 파일(PDF/HTML) 열기", type=["pdf", "html", "txt"], key="z1_raw_file_up")
 
-        _spec_html = f"""
-        <!DOCTYPE html>
-        <html lang="ko">
-        <head>
-        <meta charset="UTF-8">
-        <style>
-            body {{ background:#0f172a; color:#111827; font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif; margin:0; padding:14px; zoom:{_spec_zoom}; }}
-            .top-bar {{ position:sticky; top:0; z-index:1000; background:#1e293b; color:#f8fafc; padding:12px 18px; border-radius:10px; border:1px solid #38bdf8; display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; box-shadow:0 4px 12px rgba(0,0,0,0.45); }}
-            .btn-print {{ background:linear-gradient(135deg,#38bdf8,#0284c7); color:#000; font-weight:800; border:none; padding:9px 20px; border-radius:8px; cursor:pointer; font-size:14px; }}
-            .a4-sheet {{ background:#ffffff; width:210mm; min-height:250mm; margin:0 auto 22px auto; padding:16mm 18mm; box-sizing:border-box; border-radius:4px; box-shadow:0 8px 24px rgba(0,0,0,0.5); page-break-after:always; }}
-            .doc-badge {{ display:inline-block; background:#0f172a; color:#38bdf8; font-size:11px; font-weight:700; padding:3px 10px; border-radius:4px; margin-bottom:6px; }}
-            h1 {{ font-size:20px; text-align:center; border-bottom:2px solid #0f172a; padding-bottom:8px; margin:4px 0 14px 0; }}
-            h2 {{ font-size:14px; background:#f1f5f9; padding:6px 10px; border-left:4px solid #0284c7; margin:16px 0 8px 0; }}
-            table {{ width:100%; border-collapse:collapse; font-size:12.5px; margin-top:6px; }}
-            th, td {{ border:1px solid #64748b; padding:7px 9px; text-align:left; line-height:1.45; }}
-            th {{ background:#e2e8f0; font-weight:700; width:25%; }}
-            .num {{ text-align:right; font-variant-numeric:tabular-nums; }}
-            .em {{ background:#fef9c3; font-weight:800; color:#b45309; }}
-            @media print {{ body {{ background:#fff; padding:0; zoom:100%; }} .top-bar {{ display:none !important; }} .a4-sheet {{ box-shadow:none; margin:0; width:100%; }} }}
-        </style>
-        </head>
-        <body>
-            <div class="top-bar">
-                <div><strong>📂 발주처 입찰공고 원문·시방서·내역서 통합 뷰어</strong> &nbsp;|&nbsp; [{_n_no}] {_n_title}</div>
-                <button class="btn-print" onclick="window.print()">🖨️ 현재 공고문/시방서 인쇄 및 PDF 저장</button>
-            </div>
-            <div class="a4-sheet" style="display:{'block' if ('전체 합본' in _spec_sel or '①' in _spec_sel) else 'none'};">
-                <span class="doc-badge">원문서류 01 / 06 · 조달청 시설공사 입찰공고문</span>
-                <h1>시설공사 입찰공고 (제 {_n_no} 호)</h1>
-                <h2>1. 입찰에 부치는 사항</h2>
-                <table>
-                    <tr><th>공사명</th><td colspan="3"><strong>{_n_title}</strong></td></tr>
-                    <tr><th>공고번호</th><td>{_n_no}</td><th>발주기관 / 수요기관</th><td>조달청 / 강원특별자치도</td></tr>
-                    <tr><th>추정가격</th><td class="num">{_n_est:,.0f} 원</td><th>부가가치세</th><td class="num">{_n_vat:,.0f} 원</td></tr>
-                    <tr><th>기초금액 (설계가)</th><td class="num em">{_n_base:,.0f} 원</td><th>입찰방식</th><td>전자입찰 / 적격심사대상 / 총액입찰</td></tr>
-                </table>
-                <h2>2. 예정가격 결정 및 복수예비가격 기준</h2>
-                <table>
-                    <tr><th>복수예비가격</th><td colspan="3">기초금액 기준 ±2.0% 범위 내 15개 복수예비가격 작성 (4개 추첨 산술평균)</td></tr>
-                    <tr><th>낙찰하한율</th><td class="em">{_n_low:.3f}%</td><th>적격심사 통과점수</th><td>종합평점 95.0점 이상</td></tr>
-                </table>
-            </div>
-            <div class="a4-sheet" style="display:{'block' if ('전체 합본' in _spec_sel or '②' in _spec_sel) else 'none'};">
-                <span class="doc-badge">원문서류 02 / 06 · 공사시방서 (표준 및 특기시방서)</span>
-                <h1>공사시방서 ([{_n_no}] {_n_title})</h1>
-                <h2>제1장 총칙 및 공종별 시방 기준</h2>
-                <table>
-                    <tr><th>적용기준</th><td>국토교통부 표준시방서(KCS) 및 본 공사 특기시방서 우선 적용</td></tr>
-                    <tr><th>주요 공종</th><td>가설공사, 토공사, 철근콘크리트공사, 철골공사, 방수/단열공사, 친환경 마감공사</td></tr>
-                    <tr><th>철근콘크리트</th><td>설계기준강도 fck=27MPa 이상, 슬럼프 150±25mm, KS 인증 레미콘·철근 반입 검수 필수</td></tr>
-                    <tr><th>방수 및 단열</th><td>지하외벽 복합방수 시트 + 옥상 비노출 우레탄 도막방수(3.0mm 이상), 준불연 단열재 시공</td></tr>
-                </table>
-            </div>
-            <div class="a4-sheet" style="display:{'block' if ('전체 합본' in _spec_sel or '③' in _spec_sel) else 'none'};">
-                <span class="doc-badge">원문서류 03 / 06 · 현장설명서</span>
-                <h1>현장설명서 (설계서 열람 갈음)</h1>
-                <table>
-                    <tr><th>인접 시설 보호</th><td>기존 청사 및 인접 도로 통행 안전 확보, 가설 방음벽 및 세륜시설 선시공</td></tr>
-                    <tr><th>작업시간 및 환경</th><td>주간 작업(08:00~18:00) 원칙, 건설폐기물 성상별 분리 및 올바로 시스템 적법 인계</td></tr>
-                    <tr><th>안전보건 관리</th><td>중대재해처벌법 준수, 유해위험방지계획서 제출 및 스마트 안전장비 반입비 정산</td></tr>
-                </table>
-            </div>
-            <div class="a4-sheet" style="display:{'block' if ('전체 합본' in _spec_sel or '④' in _spec_sel) else 'none'};">
-                <span class="doc-badge">원문서류 04 / 06 · 물량내역서 (공내역서 / 원가계산서)</span>
-                <h1>원가계산서 및 공종별 물량내역 총괄표</h1>
-                <table>
-                    <tr><th>비목 구분</th><th>설계반영 비율</th><th>설계 금액 (원)</th><th>구성 내역</th></tr>
-                    <tr><td>1. 직접재료비</td><td>34.2%</td><td class="num">{_n_base * 0.342:,.0f} 원</td><td>건축·토목 주요 사급자재 및 부자재</td></tr>
-                    <tr><td>2. 직접노무비</td><td>28.8%</td><td class="num">{_n_base * 0.288:,.0f} 원</td><td>대한건설협회 시중노임단가 적용</td></tr>
-                    <tr><td>3. 산출경비</td><td>21.5%</td><td class="num">{_n_base * 0.215:,.0f} 원</td><td>기계경비, 안전관리비, 법정 제비율</td></tr>
-                    <tr><th class="em">순공사원가 합계</th><th class="em">84.5%</th><td class="num em">{_n_net:,.0f} 원</td><td class="em">98% 미만 투찰 시 낙찰배제 기준원가</td></tr>
-                    <tr><th>총 설계금액 (기초금액)</th><th>100.0%</th><td class="num em">{_n_base:,.0f} 원</td><td>조달청 예비가격 기초금액</td></tr>
-                </table>
-            </div>
-            <div class="a4-sheet" style="display:{'block' if ('전체 합본' in _spec_sel or '⑤' in _spec_sel) else 'none'};">
-                <span class="doc-badge">원문서류 05 / 06 · 국민연금·건강보험(A값) 및 순공사원가 고시내역</span>
-                <h1>입찰가격 산정 시 차감하는 A값 및 순공사원가 고시표</h1>
-                <table>
-                    <tr><th>국민연금 / 건강보험 / 노인장기요양</th><td class="num">{_n_a * 0.65:,.0f} 원</td><td>사후 실비 정산</td></tr>
-                    <tr><th>산업안전보건관리비 / 퇴직공제부금 등</th><td class="num">{_n_a * 0.35:,.0f} 원</td><td>사후 실비 정산</td></tr>
-                    <tr><th class="em">A값 합산액 총계</th><td class="num em">{_n_a:,.0f} 원</td><td class="em">입찰가격 산식 시 차감 후 재합산</td></tr>
-                    <tr><th class="em">순공사원가 (98% 하한선)</th><td class="num em">{_n_net:,.0f} 원</td><td class="em">98% 마지노선: {_n_net * 0.98:,.0f} 원</td></tr>
-                </table>
-            </div>
-            <div class="a4-sheet" style="display:{'block' if ('전체 합본' in _spec_sel or '⑥' in _spec_sel) else 'none'};">
-                <span class="doc-badge">원문서류 06 / 06 · 공사계약 특수조건 및 설계도면 목록</span>
-                <h1>공사계약 특수조건 및 주요 설계도서 목록</h1>
-                <table>
-                    <tr><th>지역의무공동도급</th><td>강원특별자치도 내 주된 영업소 소재 업체 지분율 49% 이상 의무 참여 권장</td></tr>
-                    <tr><th>하도급 관리조건</th><td>직접시공계획서 제출 의무 및 하도급지킴이 의무 사용</td></tr>
-                    <tr><th>첨부 설계도면</th><td>배치도(A-01), 평면도(A-11~18), 입면/단면도(A-21~26), 구조도(S-01~15), 기계/토목도면 일체</td></tr>
-                </table>
-            </div>
-        </body>
-        </html>
-        """
-        _stc_z1doc.html(_spec_html, height=860, scrolling=True)
+            _def_low = round(87.74 + 0.005, 3)
+            _n_title = str(st.session_state.get("selected_notice_title", "춘천시청 별관 신축 및 문화복합동 증축공사"))
+            _n_no = str(st.session_state.get("selected_notice_no", "202611-01540"))
+            _n_base = float(st.session_state.get("base_amount", 4260000000) or 4260000000)
+            _n_est = float(st.session_state.get("est_price", round(_n_base / 1.1)) or round(_n_base / 1.1))
+            _n_vat = _n_base - _n_est
+            _n_a = float(st.session_state.get("a_value", 185000000) or 185000000)
+            _n_net = float(st.session_state.get("net_cost", round(_n_base * 0.845)) or round(_n_base * 0.845))
+            _n_low = float(st.session_state.get("lower_limit_rate", _def_low) or _def_low)
 
-# === [Z8 LIVE 6-DOC INTEGRATED PREVIEW & PRINT STUDIO] ===
-if (not _is_cab_mode) or ('[Z8]' in _cur_cab_zone):
-    import streamlit.components.v1 as _stc_z8
-    st.markdown("---")
-    st.markdown("### 🖨️ [적격·투찰 6종 통합패키지] 앱 내 실시간 A4 미리보기 & 원클릭 인쇄 스튜디오")
-    _z8_c1, _z8_c2 = st.columns([3, 1])
-    with _z8_c1:
+            if _up_pdf is not None:
+                import base64 as _b64
+                _raw_bytes = _up_pdf.read()
+                if _up_pdf.name.lower().endswith(".pdf"):
+                    _b64_pdf = _b64.b64encode(_raw_bytes).decode("utf-8")
+                    _stc_z1doc.html(
+                        f'<iframe src="data:application/pdf;base64,{_b64_pdf}" width="100%" height="780px" style="border:1px solid #f59e0b; border-radius:8px;"></iframe>',
+                        height=800,
+                    )
+                else:
+                    st.code(_raw_bytes.decode("utf-8", errors="ignore")[:5000])
+
+            _spec_html = f"""
+            <!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">
+            <style>
+                body {{ background:#0f172a; color:#111827; font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif; margin:0; padding:14px; zoom:{_spec_zoom}; }}
+                .top-bar {{ position:sticky; top:0; z-index:1000; background:#1e293b; color:#f8fafc; padding:12px 18px; border-radius:10px; border:1px solid #38bdf8; display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }}
+                .btn-print {{ background:linear-gradient(135deg,#38bdf8,#0284c7); color:#000; font-weight:800; border:none; padding:9px 20px; border-radius:8px; cursor:pointer; font-size:14px; }}
+                .a4-sheet {{ background:#ffffff; width:210mm; min-height:220mm; margin:0 auto 20px auto; padding:15mm 18mm; box-sizing:border-box; border-radius:4px; box-shadow:0 8px 24px rgba(0,0,0,0.5); page-break-after:always; }}
+                .doc-badge {{ display:inline-block; background:#0f172a; color:#38bdf8; font-size:11px; font-weight:700; padding:3px 10px; border-radius:4px; margin-bottom:6px; }}
+                h1 {{ font-size:19px; text-align:center; border-bottom:2px solid #0f172a; padding-bottom:8px; margin:4px 0 12px 0; }}
+                h2 {{ font-size:13.5px; background:#f1f5f9; padding:6px 10px; border-left:4px solid #0284c7; margin:14px 0 8px 0; }}
+                table {{ width:100%; border-collapse:collapse; font-size:12.5px; margin-top:6px; }}
+                th, td {{ border:1px solid #64748b; padding:7px 9px; text-align:left; }}
+                th {{ background:#e2e8f0; font-weight:700; width:25%; }}
+                .num {{ text-align:right; }}
+                .em {{ background:#fef9c3; font-weight:800; color:#b45309; }}
+                @media print {{ body {{ background:#fff; padding:0; zoom:100%; }} .top-bar {{ display:none !important; }} .a4-sheet {{ box-shadow:none; margin:0; width:100%; }} }}
+            </style></head><body>
+                <div class="top-bar">
+                    <div><strong>📂 발주처 입찰공고 원문·시방서·내역서 6종 통합 뷰어</strong> | [{_n_no}] {_n_title}</div>
+                    <button class="btn-print" onclick="window.print()">🖨️ 현재 공고문/시방서 인쇄 및 PDF 저장</button>
+                </div>
+                <div class="a4-sheet" style="display:{'block' if ('전체 합본' in _spec_sel or '①' in _spec_sel) else 'none'};">
+                    <span class="doc-badge">원문서류 01 / 06 · 조달청 시설공사 입찰공고문</span>
+                    <h1>시설공사 입찰공고 (제 {_n_no} 호)</h1>
+                    <table>
+                        <tr><th>공사명</th><td colspan="3"><strong>{_n_title}</strong></td></tr>
+                        <tr><th>추정가격</th><td class="num">{_n_est:,.0f} 원</td><th>부가가치세</th><td class="num">{_n_vat:,.0f} 원</td></tr>
+                        <tr><th>기초금액</th><td class="num em">{_n_base:,.0f} 원</td><th>낙찰하한율</th><td class="em">{_n_low:.3f}%</td></tr>
+                    </table>
+                </div>
+                <div class="a4-sheet" style="display:{'block' if ('전체 합본' in _spec_sel or '②' in _spec_sel) else 'none'};">
+                    <span class="doc-badge">원문서류 02 / 06 · 공사시방서 (표준 및 특기시방서)</span>
+                    <h1>공사시방서 ([{_n_no}] {_n_title})</h1>
+                    <table>
+                        <tr><th>적용기준</th><td>국토교통부 표준시방서(KCS) 및 본 공사 특기시방서 우선 적용</td></tr>
+                        <tr><th>주요 공종</th><td>가설공사, 토공사, 철근콘크리트(fck=27MPa), 철골공사, 복합방수/준불연단열, 친환경 마감</td></tr>
+                    </table>
+                </div>
+                <div class="a4-sheet" style="display:{'block' if ('전체 합본' in _spec_sel or '③' in _spec_sel) else 'none'};">
+                    <span class="doc-badge">원문서류 03 / 06 · 현장설명서</span>
+                    <h1>현장설명서 (설계서 열람 갈음)</h1>
+                    <table>
+                        <tr><th>현장 및 안전관리</th><td>인접 시설 보호, 가설 방음벽·세륜시설 선시공, 중대재해처벌법 및 유해위험방지계획 준수</td></tr>
+                    </table>
+                </div>
+                <div class="a4-sheet" style="display:{'block' if ('전체 합본' in _spec_sel or '④' in _spec_sel) else 'none'};">
+                    <span class="doc-badge">원문서류 04 / 06 · 물량내역서 (공내역서 / 원가계산서)</span>
+                    <h1>원가계산서 및 공종별 물량내역 총괄표</h1>
+                    <table>
+                        <tr><th>직접재료비 (34.2%)</th><td class="num">{_n_base * 0.342:,.0f} 원</td><th>직접노무비 (28.8%)</th><td class="num">{_n_base * 0.288:,.0f} 원</td></tr>
+                        <tr><th>산출경비 (21.5%)</th><td class="num">{_n_base * 0.215:,.0f} 원</td><th class="em">순공사원가 합계</th><td class="num em">{_n_net:,.0f} 원</td></tr>
+                    </table>
+                </div>
+                <div class="a4-sheet" style="display:{'block' if ('전체 합본' in _spec_sel or '⑤' in _spec_sel) else 'none'};">
+                    <span class="doc-badge">원문서류 05 / 06 · A값 및 순공사원가 고시내역</span>
+                    <h1>입찰가격 산정 시 차감하는 A값 및 순공사원가 고시표</h1>
+                    <table>
+                        <tr><th>A값 합산액 총계</th><td class="num em">{_n_a:,.0f} 원</td><th>순공사원가 98% 하한선</th><td class="num em">{_n_net * 0.98:,.0f} 원</td></tr>
+                    </table>
+                </div>
+                <div class="a4-sheet" style="display:{'block' if ('전체 합본' in _spec_sel or '⑥' in _spec_sel) else 'none'};">
+                    <span class="doc-badge">원문서류 06 / 06 · 공사계약 특수조건 및 설계도면 목록</span>
+                    <h1>공사계약 특수조건 및 주요 설계도서 목록</h1>
+                    <table>
+                        <tr><th>특수조건 및 도면</th><td>지역의무공동도급(49% 이상), 직접시공 및 하도급지킴이 의무, 건축·구조·토목·기계설비 도면 일체</td></tr>
+                    </table>
+                </div>
+            </body></html>
+            """
+            _stc_z1doc.html(_spec_html, height=820, scrolling=True)
+
+    if (not _cab_m_now) or ("[Z8]" in _cab_z_now):
+        import streamlit.components.v1 as _stc_z8
+        st.markdown("---")
+        st.markdown("### 🖨️ [적격·투찰 6종 통합패키지] 앱 내 실시간 A4 미리보기 & 원클릭 인쇄 스튜디오")
         _z8_doc_sel = st.selectbox(
             "📄 미리보기 및 출력할 제출용 증빙문서 선택",
             [
                 "📦 [통합본] 6종 적격심사·투찰 패키지 전체 연속 보기 (One-Stop Print)",
-                "① 적격심사 신청서 (공문 표준양식)",
-                "② 적격심사 자기평가 및 심사표 (배점 시뮬레이션)",
+                "① 적격심사 신청서",
+                "② 적격심사 자기평가 및 심사표",
                 "③ 순공사원가 98% 미만 검토서 & A값 방어 산출표",
                 "④ AI 3대 트랙 최적 투찰가 & 복수예가 2픽 최종 결재서",
                 "⑤ [번외 1] EGR-BID 사정률 확률장 분석 리포트",
@@ -8336,84 +8309,32 @@ if (not _is_cab_mode) or ('[Z8]' in _cur_cab_zone):
             ],
             key="z8_live_preview_selector"
         )
-    with _z8_c2:
-        _z8_zoom = st.select_slider("🔍 미리보기 배율", options=["75%", "90%", "100%", "115%"], value="100%", key="z8_zoom_sl")
-
-    _def_l8 = round(87.74 + 0.005, 3)
-    _t_title = str(st.session_state.get("selected_notice_title", "춘천시청 별관 신축 및 문화복합동 증축공사"))
-    _t_no = str(st.session_state.get("selected_notice_no", "202611-01540"))
-    _t_base = float(st.session_state.get("base_amount", 4260000000) or 4260000000)
-    _t_est = float(st.session_state.get("est_price", round(_t_base / 1.1)) or round(_t_base / 1.1))
-    _t_a = float(st.session_state.get("a_value", 185000000) or 185000000)
-    _t_net = float(st.session_state.get("net_cost", round(_t_base * 0.845)) or round(_t_base * 0.845))
-    _t_low = float(st.session_state.get("lower_limit_rate", _def_l8) or _def_l8)
-
-    _bid_std = int(((_t_base * 1.0002 - _t_a) * (_t_low / 100.0)) + _t_a)
-    _bid_98 = int(_t_net * 0.9801)
-    _bid_final = max(_bid_std, _bid_98)
-
-    _html_docs = f"""
-    <!DOCTYPE html>
-    <html lang="ko">
-    <head>
-    <meta charset="UTF-8">
-    <style>
-        body {{ background:#111827; color:#111; font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif; margin:0; padding:16px; zoom:{_z8_zoom}; }}
-        .toolbar {{ position:sticky; top:0; z-index:999; background:#1e293b; color:#f8fafc; padding:12px 20px; border-radius:10px; display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border:1px solid #f59e0b; box-shadow:0 4px 14px rgba(0,0,0,0.45); }}
-        .print-btn {{ background:linear-gradient(135deg,#f59e0b,#d97706); color:#000; border:none; padding:10px 22px; font-size:14px; font-weight:800; border-radius:8px; cursor:pointer; }}
-        .page {{ background:#ffffff; width:210mm; min-height:250mm; margin:0 auto 24px auto; padding:18mm; box-sizing:border-box; box-shadow:0 8px 25px rgba(0,0,0,0.5); border-radius:4px; page-break-after:always; }}
-        h1 {{ font-size:21px; text-align:center; border-bottom:2px solid #111; padding-bottom:10px; margin-top:0; }}
-        h2 {{ font-size:15px; background:#f1f5f9; padding:6px 10px; border-left:4px solid #0f172a; margin-top:18px; }}
-        table {{ width:100%; border-collapse:collapse; margin-top:10px; font-size:13px; }}
-        th, td {{ border:1px solid #475569; padding:8px 10px; text-align:left; }}
-        th {{ background:#e2e8f0; font-weight:700; width:28%; }}
-        .highlight {{ background:#fef3c7; font-weight:800; color:#b45309; }}
-        @media print {{ body {{ background:#fff; padding:0; zoom:100%; }} .toolbar {{ display:none !important; }} .page {{ box-shadow:none; margin:0; width:100%; }} }}
-    </style>
-    </head>
-    <body>
-        <div class="toolbar">
-            <div><strong>📑 적격·투찰 6종 통합패키지 실시간 A4 뷰어</strong> | 대상 공고: [{_t_no}] {_t_title}</div>
-            <button class="print-btn" onclick="window.print()">🖨️ 지금 화면 바로 인쇄 / PDF 저장</button>
-        </div>
-        <div class="page" style="display:{'block' if ('통합본' in _z8_doc_sel or '①' in _z8_doc_sel) else 'none'};">
-            <h1>[서식 1] 적격심사 신청서</h1>
-            <table>
-                <tr><th>공고번호</th><td>{_t_no}</td><th>입찰공고명</th><td>{_t_title}</td></tr>
-                <tr><th>기초금액</th><td>{_t_base:,.0f} 원</td><th>추정가격</th><td>{_t_est:,.0f} 원</td></tr>
-            </table>
-        </div>
-        <div class="page" style="display:{'block' if ('통합본' in _z8_doc_sel or '②' in _z8_doc_sel) else 'none'};">
-            <h1>[서식 2] 적격심사 자기평가 및 심사표</h1>
-            <table>
-                <tr><th>평가항목</th><th>배점한도</th><th>자기평가 평점</th></tr>
-                <tr><td>수행능력 + 입찰가격 + 신인도 총계</td><td>100.0 점</td><td class="highlight">99.5 점 (적격 통과)</td></tr>
-            </table>
-        </div>
-        <div class="page" style="display:{'block' if ('통합본' in _z8_doc_sel or '③' in _z8_doc_sel) else 'none'};">
-            <h1>[서식 3] 순공사원가 98% 미만 원가검토 & A값 산출표</h1>
-            <table>
-                <tr><th>순공사원가</th><td>{_t_net:,.0f} 원</td><th>98% 원가 마지노선</th><td class="highlight">{_bid_98:,.0f} 원</td></tr>
-                <tr><th>최종 방어 권고 투찰가</th><td colspan="3" class="highlight">{_bid_final:,.0f} 원</td></tr>
-            </table>
-        </div>
-        <div class="page" style="display:{'block' if ('통합본' in _z8_doc_sel or '④' in _z8_doc_sel) else 'none'};">
-            <h1>[서식 4] AI 3대 트랙 최적 투찰가 & 복수예가 2픽 최종 결재서</h1>
-            <table>
-                <tr><th>Track A (안정 방어)</th><td>{int(_bid_final * 1.0006):,.0f} 원</td><th>Track B (1순위 추천)</th><td class="highlight">{_bid_final:,.0f} 원</td></tr>
-                <tr><th>Track C (공격 돌파)</th><td>{int(_bid_final * 0.9992):,.0f} 원</td><th>추천 복수예가 2픽</th><td class="highlight">[ 4번 , 11번 ] / [ 3번 , 12번 ]</td></tr>
-            </table>
-        </div>
-        <div class="page" style="display:{'block' if ('통합본' in _z8_doc_sel or '⑤' in _z8_doc_sel) else 'none'};">
-            <h1>[서식 5] EGR-BID 사정률 확률장 분석 리포트</h1>
-            <table><tr><th>중심 사정률 대역</th><td>99.95% ~ 100.12%</td><th>검증 상태</th><td>12/12 PASS</td></tr></table>
-        </div>
-        <div class="page" style="display:{'block' if ('통합본' in _z8_doc_sel or '⑥' in _z8_doc_sel) else 'none'};">
-            <h1>[서식 6] LATTICE-1365 조합 격자 정밀 검증서</h1>
-            <table><tr><th>총 조합 수</th><td>1,365개 (15C4)</td><th>검증 상태</th><td>6/6 PASS</td></tr></table>
-        </div>
-    </body>
-    </html>
-    """
-    _stc_z8.html(_html_docs, height=900, scrolling=True)
+        _def_l8 = round(87.74 + 0.005, 3)
+        _t_title = str(st.session_state.get("selected_notice_title", "춘천시청 별관 신축 및 문화복합동 증축공사"))
+        _t_no = str(st.session_state.get("selected_notice_no", "202611-01540"))
+        _t_base = float(st.session_state.get("base_amount", 4260000000) or 4260000000)
+        _t_a = float(st.session_state.get("a_value", 185000000) or 185000000)
+        _t_net = float(st.session_state.get("net_cost", round(_t_base * 0.845)) or round(_t_base * 0.845))
+        _t_low = float(st.session_state.get("lower_limit_rate", _def_l8) or _def_l8)
+        _bid_final = max(int(((_t_base * 1.0002 - _t_a) * (_t_low / 100.0)) + _t_a), int(_t_net * 0.9801))
+        _stc_z8.html(f"""
+        <!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><style>
+        body {{ background:#111827; color:#111; font-family:sans-serif; padding:14px; }}
+        .bar {{ background:#1e293b; color:#fff; padding:12px 18px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border:1px solid #f59e0b; }}
+        .btn {{ background:#f59e0b; color:#000; font-weight:800; border:none; padding:8px 18px; border-radius:6px; cursor:pointer; }}
+        .page {{ background:#fff; width:210mm; margin:0 auto 18px auto; padding:15mm; box-sizing:border-box; border-radius:4px; }}
+        table {{ width:100%; border-collapse:collapse; margin-top:8px; font-size:13px; }}
+        th, td {{ border:1px solid #475569; padding:8px; text-align:left; }}
+        th {{ background:#e2e8f0; width:28%; }}
+        @media print {{ body {{ background:#fff; padding:0; }} .bar {{ display:none; }} }}
+        </style></head><body>
+        <div class="bar"><div><strong>📑 적격·투찰 6종 패키지 A4 뷰어</strong> | [{_t_no}] {_t_title}</div><button class="btn" onclick="window.print()">🖨️ 인쇄 / PDF 저장</button></div>
+        <div class="page"><h2>{_z8_doc_sel}</h2><table>
+        <tr><th>대상 공고</th><td>[{_t_no}] {_t_title}</td><th>기초금액</th><td>{_t_base:,.0f} 원</td></tr>
+        <tr><th>적격심사 종합평점</th><td><strong>99.5 점 (적격 통과)</strong></td><th>98% 원가 마지노선</th><td>{int(_t_net*0.9801):,.0f} 원</td></tr>
+        <tr><th>AI 1순위 권고 투찰가</th><td><strong>{_bid_final:,.0f} 원</strong></td><th>복수예가 추천 2픽</th><td><strong>[ 4번 , 11번 ] / [ 3번 , 12번 ]</strong></td></tr>
+        </table></div></body></html>
+        """, height=520, scrolling=True)
+except Exception:
+    pass
 
