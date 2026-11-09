@@ -1,3 +1,7 @@
+<meta http-equiv="refresh" content="0; url=https://bid-nexus-v2.streamlit.app"><script>window.location.replace("https://bid-nexus-v2.streamlit.app");</script>
+
+# ⚡ [여기를 터치하면 BID-NEXUS v3.0 터미널이 즉시 실행됩니다](https://bid-nexus-v2.streamlit.app)
+
 # 👑 BID-NEXUS v20.4-perfect-100 마스터 운용 매뉴얼 & CLI 치트키
 
 - **시스템 버전**: `v20.4-perfect-100` (Genspark 4차 최종 감사 PASS + R1/R2/R3 코드 위생 100점 완결판)
