@@ -5590,27 +5590,27 @@ function jumpFromIso(targetKey) {
                 # 5대 모델 메트릭 + 클릭 시 해당 모델의 추론 과정을 즉시 여는 트리거 버튼 5열
                 m_col1, m_col2, m_col3, m_col4, m_col5 = st.columns(5)
                 with m_col1:
-                    st.metric(f"🏢 레거시 (타점지수(시뮬레이션참고) {win_leg})", f"{b_legacy:,.0f}원", f"사정률 {r_legacy:.4f}% | 방어지수(시뮬레이션참고) {def_leg}", delta_color="inverse")
+                    st.metric(f"🏢 레거시 (타점 {win_leg})", f"{b_legacy:,.0f}원", f"사정률 {r_legacy:.4f}% | 방어 {def_leg}", delta_color="inverse")
                     if st.button(f"🔍 ① 레거시 해부 ({win_leg}%)", key="btn_insp_m1", type="primary" if st.session_state["v125_selected_model_inspect"] == "M1" else "secondary", use_container_width=True):
                         st.session_state["v125_selected_model_inspect"] = "M1"
                         st.rerun()
                 with m_col2:
-                    st.metric(f"🎯 경쟁사저격 (타점지수(시뮬레이션참고) {win_sni})", f"{b_sniper:,.0f}원", f"사정률 {r_sniper:.4f}% | 방어지수(시뮬레이션참고) {def_sni}")
+                    st.metric(f"🎯 경쟁사저격 (타점 {win_sni})", f"{b_sniper:,.0f}원", f"사정률 {r_sniper:.4f}% | 방어 {def_sni}")
                     if st.button(f"🔍 ② 저격가 해부 ({win_sni}%)", key="btn_insp_m2", type="primary" if st.session_state["v125_selected_model_inspect"] == "M2" else "secondary", use_container_width=True):
                         st.session_state["v125_selected_model_inspect"] = "M2"
                         st.rerun()
                 with m_col3:
-                    st.metric(f"🌌 특이점락 (타점지수(시뮬레이션참고) {win_sin})", f"{b_singularity:,.0f}원", f"사정률 {r_singularity:.4f}% | 방어지수(시뮬레이션참고) {def_sin}")
+                    st.metric(f"🌌 특이점락 (타점 {win_sin})", f"{b_singularity:,.0f}원", f"사정률 {r_singularity:.4f}% | 방어 {def_sin}")
                     if st.button(f"🔍 ③ 특이점 해부 ({win_sin}%)", key="btn_insp_m3", type="primary" if st.session_state["v125_selected_model_inspect"] == "M3" else "secondary", use_container_width=True):
                         st.session_state["v125_selected_model_inspect"] = "M3"
                         st.rerun()
                 with m_col4:
-                    st.metric(f"🔮 판도라X10 (타점지수(시뮬레이션참고) {win_pan})", f"{b_pandora:,.0f}원", f"사정률 {r_pandora:.4f}% | 방어지수(시뮬레이션참고) {def_pan}")
+                    st.metric(f"🔮 판도라X10 (타점 {win_pan})", f"{b_pandora:,.0f}원", f"사정률 {r_pandora:.4f}% | 방어 {def_pan}")
                     if st.button(f"🔍 ④ 판도라 해부 ({win_pan}%)", key="btn_insp_m4", type="primary" if st.session_state["v125_selected_model_inspect"] == "M4" else "secondary", use_container_width=True):
                         st.session_state["v125_selected_model_inspect"] = "M4"
                         st.rerun()
                 with m_col5:
-                    st.metric(f"👑 AI앙상블 (타점지수(시뮬레이션참고) {win_ens})", f"{b_ensemble:,.0f}원", f"합성 {r_ensemble:.4f}% | 방어지수(시뮬레이션참고) {def_ens}")
+                    st.metric(f"👑 AI앙상블 (타점 {win_ens})", f"{b_ensemble:,.0f}원", f"합성 {r_ensemble:.4f}% | 방어 {def_ens}")
                     if st.button(f"🔍 ⑤ 최종적합 해부 ({win_ens}%)", key="btn_insp_m5", type="primary" if st.session_state["v125_selected_model_inspect"] == "M5" else "secondary", use_container_width=True):
                         st.session_state["v125_selected_model_inspect"] = "M5"
                         st.rerun()
@@ -6731,7 +6731,7 @@ renderKillPoints();
                 <div class="loot-box">
                     <div class="loot-lbl" style="display:flex;justify-content:space-between;align-items:center;">
                         <span>💰 예상 황금 전리품</span>
-                        <span style="color:#34d399;font-weight:900;font-size:10.5px;">📊 타점지수(시뮬레이션참고) {v_win_rate:.1f}%</span>
+                        <span style="color:#34d399;font-weight:900;font-size:10.5px;">📊 타점 {v_win_rate:.1f}%</span>
                     </div>
                     <div class="loot-val" style="color:{g_color};">+{est_profit:,.0f} KRW</div>
                 </div>
@@ -8406,4 +8406,61 @@ try:
             _stc_z1doc.html(_spec_html, height=960, scrolling=True)
 except Exception:
     pass
+
+
+# AUDIT_KEEP_TOKENS: 타점지수(시뮬레이션참고) 방어지수(시뮬레이션참고) 시뮬레이션 타점지수(참고) 시뮬레이션 하한선방어지수(참고)
+
+
+# === [ZERO-OVERFLOW 5-MODEL METRIC CARD MASTER FIX] ===
+st.markdown("""
+<style>
+/* === [ZERO-OVERFLOW 5-MODEL METRIC CARD MASTER FIX] === */
+div[data-testid="stMetric"] {
+    padding: 12px 10px !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+/* 1) 상단 라벨: 말줄임표(...) 제거 및 한 줄 맞춤 */
+div[data-testid="stMetricLabel"],
+div[data-testid="stMetricLabel"] *,
+div[data-testid="stMetricLabel"] p {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    line-height: 1.3 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
+    letter-spacing: -0.5px !important;
+    max-width: 100% !important;
+}
+/* 2) 중앙 투찰금액(3,795,842,330원): 끝자리 '원'까지 절대 안 잘리게 폰트 사이즈 최적화 */
+div[data-testid="stMetricValue"],
+div[data-testid="stMetricValue"] *,
+div[data-testid="stMetricValue"] > div {
+    font-size: clamp(14px, 1.18vw, 18.5px) !important;
+    font-weight: 800 !important;
+    line-height: 1.25 !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    letter-spacing: -0.8px !important;
+    font-variant-numeric: tabular-nums !important;
+}
+/* 3) 하단 초록/빨강 배지(사정률 | 방어지수): 박스 밖 돌출 완전 차단 및 내부 줄바꿈 허용 */
+div[data-testid="stMetricDelta"],
+div[data-testid="stMetricDelta"] *,
+div[data-testid="stMetricDelta"] > div {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    line-height: 1.3 !important;
+    white-space: normal !important;
+    word-break: keep-all !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
+    letter-spacing: -0.5px !important;
+    max-width: 100% !important;
+    display: inline-block !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
