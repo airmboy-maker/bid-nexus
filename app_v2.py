@@ -8857,7 +8857,7 @@ try:
                 "🔐 초기화 승인 관리자 비밀번호 (PIN)",
                 value="",
                 type="password",
-                placeholder="관리자 PIN 입력 (기본: 0000)",
+                placeholder="PIN 입력 (기본:0000)",
                 key="reset_guard_pin_input"
             )
             _pin_ok = (_in_pin.strip() == _master_pin)
@@ -8907,7 +8907,7 @@ try:
 
             if _pin_ok:
                 st.markdown("---")
-                _new_p = st.text_input("🔑 새 관리자 비밀번호 변경 (원할 때만 입력)", value="", type="password", placeholder="새 비밀번호 4~8자리", key="new_admin_pin_input")
+                _new_p = st.text_input("🔑 새 관리자 비밀번호 변경 (원할 때만 입력)", value="", type="password", placeholder="새 PIN (4자리 이상)", key="new_admin_pin_input")
                 if st.button("💾 새 관리자 번호로 변경 저장", key="btn_save_new_admin_pin", use_container_width=True):
                     if len(_new_p.strip()) >= 4:
                         try:
@@ -8921,4 +8921,62 @@ try:
                         st.warning("⚠️ 비밀번호는 최소 4자리 이상 입력해 주세요.")
 except Exception:
     pass
+
+
+# === [SIDEBAR ZERO-TRUNCATION & RESPONSIVE WRAP] ===
+st.markdown("""
+<style>
+/* === [SIDEBAR ZERO-TRUNCATION & RESPONSIVE WRAP CSS] === */
+section[data-testid="stSidebar"] * {
+    text-overflow: clip !important;
+}
+/* 사이드바 캡션, 일반 문단, 아코디언 제목, 알림 문구: 말줄임(...) 금지 및 어절 단위 자동 줄바꿈 */
+section[data-testid="stSidebar"] [data-testid="stCaptionContainer"],
+section[data-testid="stSidebar"] [data-testid="stCaptionContainer"] p,
+section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+section[data-testid="stSidebar"] summary p,
+section[data-testid="stSidebar"] summary span,
+section[data-testid="stSidebar"] label p,
+section[data-testid="stSidebar"] div[data-testid="stAlert"] p {
+    white-space: normal !important;
+    word-break: keep-all !important;
+    overflow-wrap: anywhere !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    line-height: 1.45 !important;
+    font-size: 12.2px !important;
+    letter-spacing: -0.4px !important;
+}
+/* 사이드바 버튼: 너비가 좁아지면 버튼 높이가 자동으로 늘어나며 두 줄로 전체 한글 표시 */
+section[data-testid="stSidebar"] div.stButton > button {
+    height: auto !important;
+    min-height: 38px !important;
+    padding: 8px 10px !important;
+    white-space: normal !important;
+    word-break: keep-all !important;
+    overflow-wrap: anywhere !important;
+    line-height: 1.35 !important;
+}
+section[data-testid="stSidebar"] div.stButton > button p {
+    white-space: normal !important;
+    word-break: keep-all !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    font-size: 12.5px !important;
+    line-height: 1.35 !important;
+}
+/* 비밀번호 입력창 플레이스홀더 및 입력 텍스트가 우측 눈(👁️) 아이콘에 잘리지 않도록 폰트/여백 최적화 */
+section[data-testid="stSidebar"] input[type="password"],
+section[data-testid="stSidebar"] input[type="text"] {
+    font-size: 12px !important;
+    letter-spacing: -0.4px !important;
+    padding-right: 6px !important;
+}
+section[data-testid="stSidebar"] input::placeholder {
+    font-size: 11.5px !important;
+    letter-spacing: -0.5px !important;
+    opacity: 0.85 !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
