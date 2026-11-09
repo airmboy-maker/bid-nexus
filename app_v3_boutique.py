@@ -9105,7 +9105,7 @@ try:
         <!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">
         <style>
             * {{ box-sizing: border-box; font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif; }}
-            body {{ margin: 0; padding: 4px; background: transparent; color: #f8fafc; }}
+            body {{ margin: 0; padding: 6px 6px 22px 6px; background: transparent; color: #f8fafc; }}
             .studio-wrap {{
                 background: radial-gradient(circle at 15% 20%, rgba(56, 189, 248, 0.14), rgba(15, 23, 42, 0.95) 70%);
                 border: 1px solid rgba(56, 189, 248, 0.35);
@@ -9227,7 +9227,7 @@ try:
             </div>
         </body></html>
         """
-        _stc_v9.html(_v9_html, height=435, scrolling=False)
+        _stc_v9.html(_v9_html, height=485, scrolling=False)
 except Exception:
     pass
 
