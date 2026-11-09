@@ -389,8 +389,9 @@ try:
     import pandas as _pd_vis
     import streamlit.components.v1 as _stc_vis
 
-    if not hasattr(st, "_orig_dataframe_ raw"):
-        st._orig_dataframe_raw = st.dataframe
+    if not hasattr(st, "_orig_dataframe_raw") or getattr(st._orig_dataframe_raw, "__name__", "") == "_render_hologram_df":
+        if getattr(st.dataframe, "__name__", "") != "_render_hologram_df":
+            st._orig_dataframe_raw = st.dataframe
 
     _COL_KOR_MAP = {
         "id": "No.",
@@ -543,7 +544,7 @@ try:
                 _df = _df.rename(columns=_renamed)
         except Exception:
             pass
-        return st._orig_dataframe_raw(data, *args, **kwargs)
+        return st._orig_dataframe_raw(_df if '_df' in locals() else data, *args, **kwargs)
 
     st.dataframe = _render_hologram_df
 except Exception:
