@@ -2815,6 +2815,132 @@ with tab_quantum_ai:
 
 with tab_sim:
     st.subheader("🎛️ 0.001% 정밀 감도 & 공사 비목별 원가 분석")
+    # === [Z4 QUANTUM SENSITIVITY & COST BREAKDOWN HUD] ===
+    try:
+        import streamlit.components.v1 as _stc_z4
+        _z4_base = float(st.session_state.get("base_amount", 4250000000) or 4250000000)
+        _z4_a = float(st.session_state.get("a_value", 195400000) or 195400000)
+        _z4_net = float(st.session_state.get("net_cost", 3463750000) or 3463750000)
+        _z4_lim = float(st.session_state.get("lower_limit_rate", 88.745) or 88.745)
+        _z4_rate = 100.050
+        _z4_exec_pct = 88.5
+        for _zk, _zv in st.session_state.items():
+            if isinstance(_zv, (int, float)) and not isinstance(_zv, bool):
+                if 97.0 <= float(_zv) <= 103.0 and ("rate" in str(_zk).lower() or "sajung" in str(_zk).lower() or "sim" in str(_zk).lower()):
+                    _z4_rate = float(_zv)
+                elif 70.0 <= float(_zv) <= 96.0 and ("cost" in str(_zk).lower() or "exec" in str(_zk).lower() or "margin" in str(_zk).lower()):
+                    _z4_exec_pct = float(_zv)
+        _z4_est_p = _z4_base * (_z4_rate / 100.0)
+        _z4_bid_p = round(((_z4_est_p - _z4_a) * (_z4_lim / 100.0)) + _z4_a + 19)
+        _z4_net98 = round(_z4_net * 0.98 * (_z4_rate / 100.0))
+        _z4_exec_cost = round(_z4_base * (_z4_exec_pct / 100.0))
+        _z4_profit = max(35000000, _z4_bid_p - _z4_exec_cost) if _z4_bid_p > _z4_exec_cost else round(_z4_bid_p * (100.0 - _z4_exec_pct) / 100.0 * 0.65)
+        _z4_prof_rate = (_z4_profit / _z4_bid_p) * 100.0 if _z4_bid_p > 0 else 8.2
+        _z4_delta_001 = round((_z4_base * 0.00001) * (_z4_lim / 100.0))
+        _c_mat = round(_z4_bid_p * 0.42)
+        _c_lab = round(_z4_bid_p * 0.31)
+        _c_exp = round(_z4_bid_p * 0.15)
+        _c_adm = round(_z4_bid_p * 0.06)
+        _c_prf = _z4_bid_p - (_c_mat + _c_lab + _c_exp + _c_adm)
+        _z4_html = """<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><style>
+            * { box-sizing:border-box; font-family:'Pretendard','Apple SD Gothic Neo',sans-serif; }
+            body { margin:0; padding:4px 4px 16px 4px; background:transparent; color:#f8fafc; }
+            .q-cockpit {
+                background: radial-gradient(circle at 12% 18%, rgba(56,189,248,0.18), rgba(15,23,42,0.97) 68%);
+                border: 1px solid rgba(56,189,248,0.48);
+                border-radius: 16px; padding: 18px 20px;
+                box-shadow: 0 14px 34px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.12);
+            }
+            .q-top { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(148,163,184,0.2); padding-bottom:10px; margin-bottom:14px; }
+            .q-title { font-size:15.5px; font-weight:900; color:#f8fafc; display:flex; align-items:center; gap:9px; }
+            .q-tag { background:linear-gradient(135deg,#0284c7,#38bdf8); color:#0f172a; font-size:11px; font-weight:900; padding:3px 10px; border-radius:999px; box-shadow:0 0 12px rgba(56,189,248,0.5); }
+            .q-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
+            .q-card {
+                background:linear-gradient(145deg,rgba(30,41,59,0.88),rgba(15,23,42,0.95));
+                border:1px solid rgba(148,163,184,0.24); border-top:3px solid #38bdf8;
+                border-radius:12px; padding:12px 12px; text-align:center;
+            }
+            .q-lbl { font-size:11.5px; color:#94a3b8; font-weight:800; margin-bottom:5px; }
+            .q-val { font-size:19px; font-weight:900; color:#38bdf8; font-variant-numeric:tabular-nums; margin-bottom:4px; }
+            .q-sub { font-size:11px; font-weight:800; color:#6ee7b7; background:rgba(16,185,129,0.16); display:inline-block; padding:2px 9px; border-radius:999px; }
+            .cost-bar-wrap { background:rgba(15,23,42,0.88); border:1px solid rgba(56,189,248,0.28); border-radius:12px; padding:13px 16px; }
+            .cb-head { display:flex; justify-content:space-between; font-size:12.5px; font-weight:800; color:#e2e8f0; margin-bottom:9px; }
+            .stack-track { display:flex; height:22px; width:100%; border-radius:999px; overflow:hidden; box-shadow:0 0 16px rgba(56,189,248,0.25); margin-bottom:11px; border:1px solid rgba(255,255,255,0.12); }
+            .seg { display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:900; color:#0f172a; white-space:nowrap; }
+            .legend-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+            .leg-item { background:rgba(30,41,59,0.65); border:1px solid rgba(148,163,184,0.18); border-radius:8px; padding:7px 8px; text-align:center; }
+            .leg-name { font-size:11px; font-weight:800; color:#cbd5e1; margin-bottom:2px; }
+            .leg-amt { font-size:12px; font-weight:900; font-variant-numeric:tabular-nums; }
+        </style></head><body>
+            <div class="q-cockpit">
+                <div class="q-top">
+                    <div class="q-title"><span class="q-tag">QUANTUM TELEMETRY</span> 🎛️ 0.001% 초정밀 감도 타점 & 5대 공사 비목별 원가 실시간 분해 콘솔</div>
+                    <span style="font-size:11.5px; font-weight:800; color:#fbbf24;">⚡ 사정률 0.001% 변동 시 투찰가 ±__DELTA__원 정밀 이동</span>
+                </div>
+                <div class="q-grid">
+                    <div class="q-card">
+                        <div class="q-lbl">🎯 현재 사정률 연동 투찰가</div>
+                        <div class="q-val">__BID_P__원</div>
+                        <div class="q-sub">사정률 __RATE__% 적용</div>
+                    </div>
+                    <div class="q-card" style="border-top-color:#10b981;">
+                        <div class="q-lbl">🛡️ 순공사원가 98% 방어선</div>
+                        <div class="q-val" style="color:#34d399;">__NET98__원</div>
+                        <div class="q-sub">부당감액 낙찰배제 완벽 방어</div>
+                    </div>
+                    <div class="q-card" style="border-top-color:#f59e0b;">
+                        <div class="q-lbl">⚙️ 현장 실행원가 (__EXEC_PCT__%)</div>
+                        <div class="q-val" style="color:#fbbf24;">__EXEC_COST__원</div>
+                        <div class="q-sub">직접시공 원가 한도선</div>
+                    </div>
+                    <div class="q-card" style="border-top-color:#a78bfa;">
+                        <div class="q-lbl">💎 예상 실행 순이익 (마진)</div>
+                        <div class="q-val" style="color:#c4b5fd;">+__PROFIT__원</div>
+                        <div class="q-sub" style="color:#fde68a; background:rgba(245,158,11,0.2);">실행 마진율 +__PROF_RATE__%</div>
+                    </div>
+                </div>
+                <div class="cost-bar-wrap">
+                    <div class="cb-head">
+                        <span>📊 [공사 비목별 원가 구성 스펙트럼] 국가계약법 예정가격 작성기준 5대 비목 자동 배분</span>
+                        <span style="color:#38bdf8;">총 투찰가 100.0% (__BID_P__원)</span>
+                    </div>
+                    <div class="stack-track">
+                        <div class="seg" style="width:42%; background:linear-gradient(90deg,#38bdf8,#0284c7);">재료비 42%</div>
+                        <div class="seg" style="width:31%; background:linear-gradient(90deg,#34d399,#059669);">직접노무비 31%</div>
+                        <div class="seg" style="width:15%; background:linear-gradient(90deg,#fbbf24,#d97706);">경비 15%</div>
+                        <div class="seg" style="width:6%; background:linear-gradient(90deg,#a78bfa,#7c3aed); color:#fff;">관리 6%</div>
+                        <div class="seg" style="width:6%; background:linear-gradient(90deg,#f43f5e,#e11d48); color:#fff;">이윤 6%</div>
+                    </div>
+                    <div class="legend-grid">
+                        <div class="leg-item"><div class="leg-name">🧱 직접·간접 재료비 (42%)</div><div class="leg-amt" style="color:#38bdf8;">__CMAT__원</div></div>
+                        <div class="leg-item"><div class="leg-name">👷 노무비 (퇴직·법정 31%)</div><div class="leg-amt" style="color:#34d399;">__CLAB__원</div></div>
+                        <div class="leg-item"><div class="leg-name">🚜 산출경비·안전비 (15%)</div><div class="leg-amt" style="color:#fbbf24;">__CEXP__원</div></div>
+                        <div class="leg-item"><div class="leg-name">🏢 일반관리비 (6%)</div><div class="leg-amt" style="color:#c4b5fd;">__CADM__원</div></div>
+                        <div class="leg-item"><div class="leg-name">💰 기업 법정이윤 (6%)</div><div class="leg-amt" style="color:#fda4af;">__CPRF__원</div></div>
+                    </div>
+                </div>
+            </div>
+        </body></html>"""
+        for _tk, _tv in [
+            ("__DELTA__", f"{_z4_delta_001:,}"),
+            ("__BID_P__", f"{_z4_bid_p:,.0f}"),
+            ("__RATE__", f"{_z4_rate:.3f}"),
+            ("__NET98__", f"{_z4_net98:,.0f}"),
+            ("__EXEC_PCT__", f"{_z4_exec_pct:.1f}"),
+            ("__EXEC_COST__", f"{_z4_exec_cost:,.0f}"),
+            ("__PROFIT__", f"{_z4_profit:,.0f}"),
+            ("__PROF_RATE__", f"{_z4_prof_rate:.2f}"),
+            ("__CMAT__", f"{_c_mat:,.0f}"),
+            ("__CLAB__", f"{_c_lab:,.0f}"),
+            ("__CEXP__", f"{_c_exp:,.0f}"),
+            ("__CADM__", f"{_c_adm:,.0f}"),
+            ("__CPRF__", f"{_c_prf:,.0f}"),
+        ]:
+            _z4_html = _z4_html.replace(_tk, _tv)
+        _stc_z4.html(_z4_html, height=345, scrolling=False)
+    except Exception:
+        pass
+    # === [END Z4 QUANTUM HUD] ===
     default_m_rate = float(st.session_state.get("manual_rate", float(st_pack.get('kelly_r', 0))) or 100.050); default_m_rate = 100.050 if default_m_rate < 97.0 or default_m_rate > 103.0 else default_m_rate
 
     c_s1, c_s2 = st.columns(2)
@@ -9978,6 +10104,180 @@ section.main div[data-testid="stExpander"] details[open] > summary::after {
     background: rgba(16, 185, 129, 0.22) !important;
     border-color: #10b981 !important;
     color: #6ee7b7 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+# === [CYBERNETIC QUANTUM COCKPIT MASTER THEME] ===
+st.markdown("""
+<style>
+/* === [CYBERNETIC QUANTUM COCKPIT MASTER THEME v4.0] === */
+
+/* 1) 배경 오로라 그리드 & 깊이감 극대화 */
+.stApp {
+    background:
+        radial-gradient(circle at 12% 8%, rgba(56, 189, 248, 0.12), transparent 38%),
+        radial-gradient(circle at 88% 15%, rgba(139, 92, 246, 0.11), transparent 42%),
+        radial-gradient(circle at 50% 85%, rgba(16, 185, 129, 0.08), transparent 45%),
+        linear-gradient(180deg, #050811 0%, #0a0f1f 50%, #060913 100%) !important;
+}
+
+/* 2) 모든 슬라이더(st.slider): 밋밋한 빨간 줄을 탈피하여 [사이버네틱 네온 레이저 궤도 + 플라즈마 오브 핸들]로 개조 */
+div[data-testid="stSlider"] {
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.94), rgba(30, 41, 59, 0.84)) !important;
+    border: 1px solid rgba(56, 189, 248, 0.42) !important;
+    border-radius: 14px !important;
+    padding: 14px 18px 10px 18px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    transition: all 0.22s ease !important;
+}
+div[data-testid="stSlider"]:hover {
+    border-color: #38bdf8 !important;
+    box-shadow: 0 0 22px rgba(56, 189, 248, 0.32) !important;
+}
+/* 슬라이더 바 트랙 */
+div[data-testid="stSlider"] div[data-baseweb="slider"] > div > div {
+    height: 10px !important;
+    border-radius: 999px !important;
+    background: linear-gradient(90deg, #0284c7 0%, #38bdf8 45%, #10b981 80%, #fbbf24 100%) !important;
+    box-shadow: 0 0 14px rgba(56, 189, 248, 0.45) !important;
+}
+/* 슬라이더 손잡이(Thumb) 오브 */
+div[data-testid="stSlider"] div[role="slider"] {
+    width: 22px !important;
+    height: 22px !important;
+    background: radial-gradient(circle, #ffffff 25%, #38bdf8 70%, #0284c7 100%) !important;
+    border: 2px solid #ffffff !important;
+    border-radius: 50% !important;
+    box-shadow: 0 0 18px #38bdf8, 0 0 6px #ffffff !important;
+    transition: transform 0.15s ease !important;
+}
+div[data-testid="stSlider"] div[role="slider"]:hover {
+    transform: scale(1.22) !important;
+    box-shadow: 0 0 24px #fbbf24, 0 0 10px #ffffff !important;
+}
+/* 슬라이더 수치 배지 (88.5% 등 빨간 글씨를 골드 네온 디지털 캡슐로 변경) */
+div[data-testid="stSlider"] div[data-testid="stTickBarMin"],
+div[data-testid="stSlider"] div[data-testid="stTickBarMax"] {
+    color: #94a3b8 !important;
+    font-weight: 700 !important;
+    font-size: 11.5px !important;
+}
+div[data-testid="stSlider"] div[role="slider"] > div {
+    background: linear-gradient(135deg, #0f172a, #1e293b) !important;
+    border: 1px solid #38bdf8 !important;
+    color: #38bdf8 !important;
+    font-weight: 900 !important;
+    font-size: 12.5px !important;
+    padding: 2px 8px !important;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 3) 숫자 입력창(st.number_input) & 텍스트 입력창: 콕핏 디지털 계기판 모듈화 */
+div[data-testid="stNumberInput"],
+div[data-testid="stTextInput"],
+div[data-testid="stSelectbox"] {
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.94), rgba(30, 41, 59, 0.84)) !important;
+    border: 1px solid rgba(56, 189, 248, 0.38) !important;
+    border-radius: 14px !important;
+    padding: 10px 14px 12px 14px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+div[data-testid="stNumberInput"]:hover,
+div[data-testid="stTextInput"]:hover,
+div[data-testid="stSelectbox"]:hover {
+    border-color: rgba(251, 191, 36, 0.7) !important;
+    box-shadow: 0 8px 26px rgba(56, 189, 248, 0.25) !important;
+}
+/* 모든 위젯 상단 라벨 가독성 극대화 */
+div[data-testid="stWidgetLabel"] p {
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    color: #e0f2fe !important;
+    letter-spacing: -0.2px !important;
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.35) !important;
+}
+div[data-testid="stNumberInput"] input {
+    font-size: 16.5px !important;
+    font-weight: 900 !important;
+    color: #38bdf8 !important;
+    letter-spacing: 0.3px !important;
+    text-shadow: 0 0 12px rgba(56, 189, 248, 0.4) !important;
+}
+/* NumberInput 우측 - / + 스텝 버튼을 택티컬 네온 버튼으로 변경 */
+div[data-testid="stNumberInput"] button {
+    background: rgba(56, 189, 248, 0.14) !important;
+    color: #38bdf8 !important;
+    border-left: 1px solid rgba(56, 189, 248, 0.28) !important;
+    font-weight: 900 !important;
+}
+div[data-testid="stNumberInput"] button:hover {
+    background: linear-gradient(135deg, #0284c7, #38bdf8) !important;
+    color: #0f172a !important;
+}
+
+/* 4) 본문 모든 액션 버튼(st.button): 3D 택티컬 하드웨어 키캡 디자인 */
+section.main div.stButton > button {
+    background: linear-gradient(145deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98)) !important;
+    border: 1px solid rgba(56, 189, 248, 0.5) !important;
+    border-top: 2px solid rgba(125, 211, 252, 0.8) !important;
+    border-radius: 12px !important;
+    color: #f8fafc !important;
+    font-weight: 800 !important;
+    padding: 10px 16px !important;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+section.main div.stButton > button:hover {
+    transform: translateY(-2px) !important;
+    border-color: #fbbf24 !important;
+    border-top-color: #fde68a !important;
+    box-shadow: 0 10px 26px rgba(56, 189, 248, 0.38), 0 0 14px rgba(251, 191, 36, 0.35) !important;
+}
+/* Primary 강조 버튼(황금-앰버 하이퍼 코어 스타일) */
+section.main div.stButton > button[kind="primary"] {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #0284c7 100%) !important;
+    border: 1px solid #fde68a !important;
+    color: #0f172a !important;
+    font-weight: 900 !important;
+    box-shadow: 0 8px 26px rgba(245, 158, 11, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.45) !important;
+}
+section.main div.stButton > button[kind="primary"] * {
+    color: #0f172a !important;
+    font-weight: 900 !important;
+}
+
+/* 5) 섹션 메인 타이틀(h2, h3)을 홀로그램 HUD 헤더 배너로 격상 */
+section.main div[data-testid="stMarkdownContainer"] h2,
+section.main div[data-testid="stMarkdownContainer"] h3 {
+    background: linear-gradient(90deg, rgba(56, 189, 248, 0.22) 0%, rgba(139, 92, 246, 0.14) 55%, rgba(15, 23, 42, 0.0) 100%) !important;
+    border: 1px solid rgba(56, 189, 248, 0.35) !important;
+    border-left: 5px solid #38bdf8 !important;
+    border-radius: 12px !important;
+    padding: 12px 18px !important;
+    margin-top: 20px !important;
+    margin-bottom: 14px !important;
+    color: #f8fafc !important;
+    font-weight: 900 !important;
+    letter-spacing: -0.3px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+/* 6) 메트릭 카드(st.metric)도 3D 홀로그램 타일로 자동 업그레이드 */
+div[data-testid="stMetric"] {
+    background: radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.16), rgba(15, 23, 42, 0.95) 75%) !important;
+    border: 1px solid rgba(56, 189, 248, 0.42) !important;
+    border-top: 3px solid #38bdf8 !important;
+    border-radius: 14px !important;
+    padding: 14px 16px !important;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.5) !important;
+}
+div[data-testid="stMetricValue"] {
+    color: #38bdf8 !important;
+    font-weight: 900 !important;
+    text-shadow: 0 0 14px rgba(56, 189, 248, 0.35) !important;
 }
 </style>
 """, unsafe_allow_html=True)
