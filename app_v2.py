@@ -489,7 +489,7 @@ try:
                     </body></html>"""
                     return _stc_vis.html(_eng_html, height=130, scrolling=False)
                 _cols = [str(c) for c in _df.columns]
-                # [Z8] 적격심사 증빙서류 편철 일람표 감지 ('서류명' & '발급처' 포함 시)
+                # [Z8] 적격심사 증빙서류 편철 일람표 감지 ('서류명' & '발급처' 포함 시) — 각 행 클릭 시 A4 뷰어 즉시 연결!
                 if "서류명" in _cols and "발급처" in _cols:
                     _cnt = len(_df)
                     _rows_html = ""
@@ -515,43 +515,279 @@ try:
                         _req_bg = "rgba(244, 63, 94, 0.18)" if "필수" in _req else "rgba(148, 163, 184, 0.18)"
                         _req_fg = "#fda4af" if "필수" in _req else "#cbd5e1"
                         _req_bd = "rgba(244, 63, 94, 0.5)" if "필수" in _req else "rgba(148, 163, 184, 0.4)"
+                        _act_cls = "row-active" if _idx == 0 else ""
                         _rows_html += f"""
-                        <tr>
+                        <tr id="doc-row-{_idx}" class="{_act_cls}" onclick="openDocViewer({_idx})" style="cursor:pointer;">
                             <td style="text-align:center;"><span class="seq-orb">0{_seq}</span></td>
                             <td style="text-align:center;"><span class="pill" style="background:{_bg}; color:{_fg}; border:1px solid {_bd};">{_cat}</span></td>
                             <td style="text-align:left; font-weight:800; color:#f8fafc; font-size:13.5px;">📄 {_dname}</td>
                             <td style="text-align:center; color:#cbd5e1; font-weight:600;">🏛️ {_issuer}</td>
                             <td style="text-align:center;"><span class="status-pill">{_stat}</span></td>
                             <td style="text-align:center;"><span class="pill" style="background:{_req_bg}; color:{_req_fg}; border:1px solid {_req_bd};">⚡ {_req}</span></td>
+                            <td style="text-align:center;">
+                                <button class="view-btn" id="vbtn-{_idx}" onclick="event.stopPropagation(); openDocViewer({_idx});">🔍 뷰어 열기</button>
+                            </td>
                         </tr>"""
+
+                    # 현재 선택된 공고 제원 추출
+                    _v_no = str(st.session_state.get("selected_notice_no", "202611-01540"))
+                    _v_title = str(st.session_state.get("selected_notice_title", "춘천시청 별관 신축 및 문화복합동 증축공사"))
+                    _v_org = str(st.session_state.get("selected_notice_org", "강원특별자치도 춘천시"))
+                    _v_base = float(st.session_state.get("base_amount", 4250000000) or 4250000000)
+                    _v_a = float(st.session_state.get("a_value", 195400000) or 195400000)
+                    _v_net = float(st.session_state.get("net_cost", 3463750000) or 3463750000)
+                    _v_bid = round(((_v_base * 1.000728 - _v_a) * 0.88745) + _v_a + 19)
+
                     _doc_html = f"""<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><style>
                         * {{ box-sizing: border-box; font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif; }}
-                        body {{ margin: 0; padding: 6px 6px 22px 6px; background: transparent; color: #f8fafc; }}
-                        .holo-wrap {{ background: radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.14), rgba(15, 23, 42, 0.96) 72%); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 16px; padding: 18px 20px; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55); }}
+                        body {{ margin: 0; padding: 6px 6px 24px 6px; background: transparent; color: #f8fafc; }}
+                        .holo-wrap {{ background: radial-gradient(circle at 15% 10%, rgba(56, 189, 248, 0.15), rgba(15, 23, 42, 0.97) 72%); border: 1px solid rgba(56, 189, 248, 0.42); border-radius: 16px; padding: 18px 20px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.58); }}
                         .kpi-bar {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }}
                         .k-item {{ background: linear-gradient(145deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.92)); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 10px; padding: 10px 12px; text-align: center; border-top: 3px solid #38bdf8; }}
                         .k-lbl {{ font-size: 11.5px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; }}
                         .k-val {{ font-size: 17px; font-weight: 900; color: #f8fafc; }}
-                        .tbl-box {{ overflow-x: auto; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3); }}
-                        table {{ width: 100%; border-collapse: collapse; font-size: 13px; background: rgba(15, 23, 42, 0.88); }}
-                        th {{ background: linear-gradient(180deg, rgba(30, 41, 59, 0.98), rgba(15, 23, 42, 0.98)); color: #38bdf8; font-weight: 800; padding: 12px 12px; border-bottom: 2px solid rgba(56, 189, 248, 0.45); text-align: center; white-space: nowrap; }}
-                        td {{ padding: 11px 12px; border-bottom: 1px solid rgba(148, 163, 184, 0.14); white-space: nowrap; }}
-                        tr:hover td {{ background: rgba(56, 189, 248, 0.09); }}
+                        .tbl-box {{ overflow-x: auto; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.32); margin-bottom: 16px; }}
+                        table.chk-tbl {{ width: 100%; border-collapse: collapse; font-size: 13px; background: rgba(15, 23, 42, 0.9); }}
+                        table.chk-tbl th {{ background: linear-gradient(180deg, rgba(30, 41, 59, 0.98), rgba(15, 23, 42, 0.98)); color: #38bdf8; font-weight: 800; padding: 11px 10px; border-bottom: 2px solid rgba(56, 189, 248, 0.45); text-align: center; white-space: nowrap; }}
+                        table.chk-tbl td {{ padding: 10px 10px; border-bottom: 1px solid rgba(148, 163, 184, 0.14); white-space: nowrap; transition: all 0.18s; }}
+                        table.chk-tbl tr:hover td {{ background: rgba(56, 189, 248, 0.11); }}
+                        table.chk-tbl tr.row-active td {{ background: rgba(56, 189, 248, 0.18) !important; border-top: 1px solid rgba(56, 189, 248, 0.5); border-bottom: 1px solid rgba(56, 189, 248, 0.5); }}
                         .seq-orb {{ display: inline-block; background: linear-gradient(135deg, #0284c7, #38bdf8); color: #0f172a; font-weight: 900; font-size: 11.5px; padding: 3px 9px; border-radius: 999px; box-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }}
                         .pill {{ display: inline-block; font-weight: 800; font-size: 11.5px; padding: 4px 11px; border-radius: 999px; }}
                         .status-pill {{ display: inline-block; background: rgba(16, 185, 129, 0.16); border: 1px solid rgba(16, 185, 129, 0.55); color: #6ee7b7; font-weight: 800; font-size: 12px; padding: 4px 12px; border-radius: 999px; }}
+                        .view-btn {{
+                            background: linear-gradient(135deg, #0284c7, #38bdf8); color: #0f172a;
+                            border: none; border-radius: 8px; padding: 6px 13px; font-weight: 900; font-size: 12px;
+                            cursor: pointer; box-shadow: 0 0 12px rgba(56, 189, 248, 0.38); transition: all 0.18s;
+                        }}
+                        .view-btn:hover {{ background: linear-gradient(135deg, #f59e0b, #fbbf24); transform: translateY(-1px); box-shadow: 0 0 16px rgba(245, 158, 11, 0.55); }}
+                        .view-btn.active-btn {{ background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #0f172a; box-shadow: 0 0 16px rgba(245, 158, 11, 0.6); }}
+
+                        /* 하단 직결 A4 공식 서류 뷰어 스튜디오 */
+                        .viewer-bar {{
+                            display: flex; justify-content: space-between; align-items: center;
+                            background: linear-gradient(90deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
+                            border: 1px solid rgba(251, 191, 36, 0.5); border-radius: 12px;
+                            padding: 10px 16px; margin-bottom: 14px;
+                        }}
+                        .viewer-title {{ font-size: 14px; font-weight: 800; color: #fde68a; display: flex; align-items: center; gap: 10px; }}
+                        .btn-group {{ display: flex; gap: 8px; align-items: center; }}
+                        .print-btn {{
+                            background: linear-gradient(135deg, #f59e0b, #d97706); color: #0f172a;
+                            border: none; border-radius: 8px; padding: 7px 16px; font-weight: 900; font-size: 12.5px;
+                            cursor: pointer; box-shadow: 0 0 14px rgba(245, 158, 11, 0.45);
+                        }}
+                        .toggle-btn {{
+                            background: rgba(51, 65, 85, 0.85); color: #e2e8f0; border: 1px solid rgba(148, 163, 184, 0.4);
+                            border-radius: 8px; padding: 7px 13px; font-weight: 700; font-size: 12px; cursor: pointer;
+                        }}
+                        .a4-stage {{
+                            background: #ffffff; color: #0f172a; border-radius: 10px;
+                            padding: 30px 36px; max-width: 880px; margin: 0 auto;
+                            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.65); border-top: 6px solid #1e3a8a;
+                            position: relative;
+                        }}
+                        .doc-head {{ text-align: center; border-bottom: 2px double #1e293b; padding-bottom: 14px; margin-bottom: 18px; }}
+                        .doc-head h2 {{ margin: 0 0 6px 0; font-size: 22px; color: #0f172a; letter-spacing: 1px; }}
+                        .doc-head p {{ margin: 0; font-size: 12.5px; color: #475569; font-weight: 600; }}
+                        table.a4-tbl {{ width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 12.5px; color: #0f172a; }}
+                        table.a4-tbl th {{ background: #f1f5f9; color: #1e293b; border: 1px solid #94a3b8; padding: 9px 10px; font-weight: 800; text-align: center; }}
+                        table.a4-tbl td {{ border: 1px solid #94a3b8; padding: 9px 12px; color: #0f172a; background: #ffffff; }}
+                        .stamp-box {{ display: flex; justify-content: flex-end; align-items: center; gap: 14px; margin-top: 18px; padding-top: 12px; border-top: 1px solid #cbd5e1; font-weight: 800; color: #1e293b; font-size: 14px; }}
+                        .red-seal {{
+                            display: inline-flex; align-items: center; justify-content: center;
+                            width: 54px; height: 54px; border: 3px solid #dc2626; border-radius: 50%;
+                            color: #dc2626; font-weight: 900; font-size: 11.5px; text-align: center; line-height: 1.15;
+                            transform: rotate(-8deg); background: rgba(220, 38, 38, 0.06);
+                        }}
+                        @media print {{
+                            body * {{ visibility: hidden; }}
+                            #a4-printable, #a4-printable * {{ visibility: visible; }}
+                            #a4-printable {{ position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; }}
+                        }}
                     </style></head><body>
                         <div class="holo-wrap">
                             <div class="kpi-bar">
                                 <div class="k-item"><div class="k-lbl">📂 편철 대상 증빙서류</div><div class="k-val" style="color:#38bdf8;">총 {_cnt}종 풀패키지</div></div>
                                 <div class="k-item" style="border-top-color:#10b981;"><div class="k-lbl">✅ 서류 구비 및 검증 상태</div><div class="k-val" style="color:#34d399;">{_cnt} / {_cnt}종 (100% 완비)</div></div>
-                                <div class="k-item" style="border-top-color:#f59e0b;"><div class="k-lbl">🔗 나라장터 G2B 전자연계</div><div class="k-val" style="color:#fbbf24;">실시간 자동연계 완료</div></div>
-                                <div class="k-item" style="border-top-color:#a78bfa;"><div class="k-lbl">🖨️ 서식 출력 준비도</div><div class="k-val" style="color:#c4b5fd;">즉시 인쇄·제출 가능</div></div>
+                                <div class="k-item" style="border-top-color:#f59e0b;"><div class="k-lbl">🔗 서류별 원클릭 뷰어</div><div class="k-val" style="color:#fbbf24;">우측 [🔍 뷰어 열기] 클릭</div></div>
+                                <div class="k-item" style="border-top-color:#a78bfa;"><div class="k-lbl">🖨️ 서식 출력 준비도</div><div class="k-val" style="color:#c4b5fd;">즉시 인쇄·PDF 저장</div></div>
                             </div>
-                            <div class="tbl-box"><table><thead><tr><th style="width:7%;">순번</th><th style="width:12%;">구분</th><th style="width:31%;">증빙 서류명</th><th style="width:20%;">발급 기관</th><th style="width:17%;">검증 상태</th><th style="width:13%;">제출 필수여부</th></tr></thead><tbody>{_rows_html}</tbody></table></div>
+                            <div class="tbl-box">
+                                <table class="chk-tbl">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:6%;">순번</th>
+                                            <th style="width:11%;">구분</th>
+                                            <th style="width:28%;">증빙 서류명 (클릭 시 뷰어 연동)</th>
+                                            <th style="width:18%;">발급 기관</th>
+                                            <th style="width:15%;">검증 상태</th>
+                                            <th style="width:11%;">제출 필수여부</th>
+                                            <th style="width:11%;">실시간 뷰어</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>{_rows_html}</tbody>
+                                </table>
+                            </div>
+
+                            <!-- 서류 선택 시 즉시 열리는 직결 A4 뷰어 스튜디오 -->
+                            <div class="viewer-bar">
+                                <div class="viewer-title" id="active-doc-banner">
+                                    🔎 현재 열람 중인 서류: [01] 시설공사 적격심사 신청서 [별지 제1호]
+                                </div>
+                                <div class="btn-group">
+                                    <button class="toggle-btn" onclick="toggleStage()">🔼 뷰어 접기 / 펼치기</button>
+                                    <button class="print-btn" onclick="window.print()">🖨️ 현재 서류 즉시 인쇄 / PDF 저장</button>
+                                </div>
+                            </div>
+
+                            <div id="a4-printable" class="a4-stage">
+                                <div id="a4-inner-content"></div>
+                            </div>
                         </div>
+
+                        <script>
+                        const DOC_TEMPLATES = [
+                            {{
+                                title: "[01] 시설공사 적격심사 신청서 [별지 제1호]",
+                                docHeader: "시설공사 적격심사 신청서 (별지 제1호 서식)",
+                                sub: "문서번호: G2B-{_v_no}-Q01 | 나라장터 전자조달시스템 적격심사 정식 편철본",
+                                body: `
+                                    <table class="a4-tbl">
+                                        <tr><th style="width:22%;">공고번호</th><td style="width:28%; font-weight:800;">제 {_v_no} 호</td><th style="width:22%;">발주기관</th><td style="width:28%;">{_v_org}</td></tr>
+                                        <tr><th>입찰공고명</th><td colspan="3" style="font-weight:800; color:#1e3a8a;">{_v_title}</td></tr>
+                                        <tr><th>기초금액</th><td>{_v_base:,.0f}원</td><th>AI 목표 투찰금액</th><td style="font-weight:900; color:#0284c7;">{_v_bid:,.0f}원 (하한율 88.745%)</td></tr>
+                                        <tr><th>신청인 (상호)</th><td>주식회사 비드넥서스건설</td><th>대표자</th><td>대표이사 (인감 날인필)</td></tr>
+                                        <tr><th>제출 서류 확인</th><td colspan="3">적격심사 자기평가표(별지 제2호), 시공실적증명원, 경영상태 확인서, 기술자 보유증명서 일체 첨부</td></tr>
+                                    </table>
+                                    <p style="font-size:13px; line-height:1.7; text-align:center; margin:18px 0;">
+                                        위 공사의 입찰과 관련하여 조달청 시설공사 적격심사 세부기준에 의거 관계서류를 첨부하여 적격심사를 신청합니다.
+                                    </p>
+                                `,
+                                seal: "대표이사<br>직인날인"
+                            }},
+                            {{
+                                title: "[02] 적격심사 자기평가표 및 세부명세 [별지 제2호]",
+                                docHeader: "적격심사 자기평가 및 심사표 (별지 제2호 서식)",
+                                sub: "적용기준: 조달청 시설공사 적격심사 세부기준 [종합평점 95점 이상 만점 통과]",
+                                body: `
+                                    <table class="a4-tbl">
+                                        <thead><tr><th>심사 항목</th><th>배점 한도</th><th>자기평가 평점</th><th>산출 근거 및 검증 내역</th><th>판정</th></tr></thead>
+                                        <tbody>
+                                            <tr><td style="text-align:center; font-weight:800;">① 시공경험 (실적)</td><td style="text-align:center;">12.0점</td><td style="text-align:center; font-weight:900; color:#0284c7;">12.0점</td><td>최근 5개년 누적 35.0억 원 (기준 대비 충족)</td><td style="text-align:center; color:#059669; font-weight:800;">만점</td></tr>
+                                            <tr><td style="text-align:center; font-weight:800;">② 경영상태 (재무)</td><td style="text-align:center;">12.0점</td><td style="text-align:center; font-weight:900; color:#0284c7;">12.0점</td><td>신용평가 A- 등급 / 부채·유동비율 만점 기준</td><td style="text-align:center; color:#059669; font-weight:800;">만점</td></tr>
+                                            <tr><td style="text-align:center; font-weight:800;">③ 특별신인도 가점</td><td style="text-align:center;">+2.0점</td><td style="text-align:center; font-weight:900; color:#0284c7;">+1.5점</td><td>고용창출·무재해·특수시공자격 보유</td><td style="text-align:center; color:#059669; font-weight:800;">적격</td></tr>
+                                            <tr><td style="text-align:center; font-weight:800;">④ 입찰가격 평점</td><td style="text-align:center;">76.0점</td><td style="text-align:center; font-weight:900; color:#0284c7;">74.0점</td><td>목표 투찰가 {_v_bid:,.0f}원 (A값 {_v_a:,.0f}원 반영)</td><td style="text-align:center; color:#059669; font-weight:800;">최적타점</td></tr>
+                                            <tr style="background:#f8fafc;"><th colspan="2">종합 자기평가 합계</th><th style="color:#dc2626; font-size:15px;">99.5 / 100점</th><th colspan="2" style="color:#059669;">1순위 적격심사 통과 확실 (기준 95.0점 초과)</th></tr>
+                                        </tbody>
+                                    </table>
+                                `,
+                                seal: "자기평가<br>검증필"
+                            }},
+                            {{
+                                title: "[03] 한전 무정전/활선 시공인증 및 특수면허 확인서",
+                                docHeader: "특수 시공자격 및 무정전·활선 시공인증 확인원",
+                                sub: "발급기관: 한국전력공사 / 대한전기협회 · 시설공사 특수공종 적격 증빙",
+                                body: `
+                                    <table class="a4-tbl">
+                                        <thead><tr><th>인증 번호</th><th>특수 시공자격 명칭</th><th>인증 등급</th><th>유효 기간</th><th>G2B 전자연계 상태</th></tr></thead>
+                                        <tbody>
+                                            <tr><td style="text-align:center;">KEPCO-2026-0814</td><td style="font-weight:800;">⚡ 무정전공사 시공자격 인증서</td><td style="text-align:center;">제1종 (특고압/배전)</td><td style="text-align:center;">2024.03 ~ 2027.03</td><td style="text-align:center; color:#059669; font-weight:800;">✅ 원본 대조필</td></tr>
+                                            <tr><td style="text-align:center;">KEPCO-2026-1192</td><td style="font-weight:800;">🛡️ 활선공사 시공자격 확인서</td><td style="text-align:center;">특수공법 1등급</td><td style="text-align:center;">2024.06 ~ 2027.06</td><td style="text-align:center; color:#059669; font-weight:800;">✅ 원본 대조필</td></tr>
+                                            <tr><td style="text-align:center;">MOLIT-2026-0410</td><td style="font-weight:800;">🏛️ 그린리모델링 및 내진보강 전문면허</td><td style="text-align:center;">건축·구조 특화</td><td style="text-align:center;">상시 유효</td><td style="text-align:center; color:#059669; font-weight:800;">✅ 나라장터 등록</td></tr>
+                                        </tbody>
+                                    </table>
+                                `,
+                                seal: "한국전력<br>원본대조"
+                            }},
+                            {{
+                                title: "[04] 건설/전기 기술자 보유증명서 (협회 직인 원본)",
+                                docHeader: "건설·전기 상주 기술인력 보유증명서",
+                                sub: "발급기관: 한국건설기술인협회 / 한국전기기술인협회 (경력증명 전산연계본)",
+                                body: `
+                                    <table class="a4-tbl">
+                                        <thead><tr><th>연번</th><th>기술 등급</th><th>성명</th><th>전문 분야</th><th>보유 자격증</th><th>상주 여부</th></tr></thead>
+                                        <tbody>
+                                            <tr><td style="text-align:center;">1</td><td style="text-align:center; font-weight:800; color:#b45309;">👑 특급기술자</td><td style="text-align:center;">김태훈 외 1명</td><td>건축시공 · 안전관리</td><td>건축시공기술사 / 기사1급</td><td style="text-align:center; color:#059669; font-weight:800;">상주 (4대보험 필)</td></tr>
+                                            <tr><td style="text-align:center;">2</td><td style="text-align:center; font-weight:800; color:#0284c7;">💎 고급기술자</td><td style="text-align:center;">이정우 외 2명</td><td>건축구조 · 품질관리</td><td>건축기사 / 건설안전기사</td><td style="text-align:center; color:#059669; font-weight:800;">상주 (4대보험 필)</td></tr>
+                                            <tr><td style="text-align:center;">3</td><td style="text-align:center; font-weight:800; color:#6d28d9;">⚡ 중급기술자</td><td style="text-align:center;">박현수 외 3명</td><td>기계설비 · 전기시공</td><td>전기기사 / 소방설비기사</td><td style="text-align:center; color:#059669; font-weight:800;">상주 (4대보험 필)</td></tr>
+                                            <tr><td style="text-align:center;">4</td><td style="text-align:center; font-weight:800; color:#059669;">🛡️ 초급기술자</td><td style="text-align:center;">최민재 외 4명</td><td>공무 · 계측 · 시공지원</td><td>건축산업기사</td><td style="text-align:center; color:#059669; font-weight:800;">상주 (4대보험 필)</td></tr>
+                                            <tr style="background:#f8fafc;"><th colspan="2">보유 기술자 총원</th><th colspan="4" style="color:#0284c7;">총 14명 (특급 2 · 고급 3 · 중급 4 · 초급 5) — 적격심사 기술능력 만점 기준 100% 충족</th></tr>
+                                        </tbody>
+                                    </table>
+                                `,
+                                seal: "기술인협회<br>직인원본"
+                            }},
+                            {{
+                                title: "[05] 공공입찰용 신용평가등급 확인서",
+                                docHeader: "공공입찰용 기업신용평가등급 확인서",
+                                sub: "발급기관: NICE평가정보 / 이크레더블 (조달청 G2B 전자조달시스템 실시간 전송필)",
+                                body: `
+                                    <table class="a4-tbl">
+                                        <tr><th style="width:25%;">평가 대상 기업</th><td style="width:25%; font-weight:800;">(주)비드넥서스건설</td><th style="width:25%;">신용평가 등급</th><td style="width:25%; font-weight:900; font-size:16px; color:#059669;">A- (우량 / 만점등급)</td></tr>
+                                        <tr><th>부채비율</th><td>68.4% (업종평균 112.5% 대비 최우수)</td><th>유동비율</th><td>164.2% (업종평균 135.0% 대비 최우수)</td></tr>
+                                        <tr><th>평가 완료일</th><td>2026-04-15</td><th>유효 기간</th><td>2026-04-15 ~ 2027-04-14 (입찰일 현재 유효)</td></tr>
+                                        <tr><th>적격심사 경영상태 배점</th><td colspan="3" style="font-weight:900; color:#0284c7;">12.0점 / 12.0점 만점 (조달청 경영상태 심사기준 100% 충족)</td></tr>
+                                    </table>
+                                `,
+                                seal: "신용평가<br>G2B연계"
+                            }},
+                            {{
+                                title: "[06] 건설공사 실적증명서 (최근 5개년 누적실적)",
+                                docHeader: "건설공사 기성실적 증명서 (최근 5개년 연도별 총괄)",
+                                sub: "발급기관: 대한건설협회 / 대한전문건설협회 (시공능력평가액 50.0억 원 공인)",
+                                body: `
+                                    <table class="a4-tbl">
+                                        <thead><tr><th>연도 구분</th><th>공종 (면허)</th><th>연도별 확정 기성실적</th><th>시공능력평가액</th><th>협회 검증 상태</th></tr></thead>
+                                        <tbody>
+                                            <tr><td style="text-align:center;">2021년</td><td style="text-align:center;">건축공사업</td><td style="text-align:right; font-weight:700;">700,000,000원</td><td rowspan="5" style="text-align:center; font-weight:900; color:#0284c7; font-size:14px;">5,000,000,000원<br>(50.0억 원)</td><td style="text-align:center; color:#059669;">✅ 신고필</td></tr>
+                                            <tr><td style="text-align:center;">2022년</td><td style="text-align:center;">건축공사업</td><td style="text-align:right; font-weight:700;">700,000,000원</td><td style="text-align:center; color:#059669;">✅ 신고필</td></tr>
+                                            <tr><td style="text-align:center;">2023년</td><td style="text-align:center;">건축공사업</td><td style="text-align:right; font-weight:700;">700,000,000원</td><td style="text-align:center; color:#059669;">✅ 신고필</td></tr>
+                                            <tr><td style="text-align:center;">2024년</td><td style="text-align:center;">건축공사업</td><td style="text-align:right; font-weight:700;">700,000,000원</td><td style="text-align:center; color:#059669;">✅ 신고필</td></tr>
+                                            <tr><td style="text-align:center;">2025년</td><td style="text-align:center;">건축공사업</td><td style="text-align:right; font-weight:700;">700,000,000원</td><td style="text-align:center; color:#059669;">✅ 신고필</td></tr>
+                                            <tr style="background:#f8fafc;"><th colspan="2">최근 5개년 누적 합계</th><th style="text-align:right; color:#059669; font-size:14px;">3,500,000,000원 (35.0억 원)</th><th colspan="2" style="color:#0284c7;">적격심사 시공경험(실적) 12.0/12.0점 만점</th></tr>
+                                        </tbody>
+                                    </table>
+                                `,
+                                seal: "대한건설협회<br>직인원본"
+                            }}
+                        ];
+
+                        function openDocViewer(idx) {{
+                            const d = DOC_TEMPLATES[idx] || DOC_TEMPLATES[0];
+                            document.getElementById("active-doc-banner").innerHTML = "🔎 현재 열람 중인 서류: " + d.title;
+                            document.getElementById("a4-printable").style.display = "block";
+                            document.getElementById("a4-inner-content").innerHTML = `
+                                <div class="doc-head">
+                                    <h2>${{d.docHeader}}</h2>
+                                    <p>${{d.sub}}</p>
+                                </div>
+                                ${{d.body}}
+                                <div class="stamp-box">
+                                    <span>발급일자: 2026년 11월 09일 | 진위확인코드: BN-2026-VERIFIED</span>
+                                    <div class="red-seal">${{d.seal}}</div>
+                                </div>
+                            `;
+                            for (let i = 0; i < 6; i++) {{
+                                const r = document.getElementById("doc-row-" + i);
+                                const b = document.getElementById("vbtn-" + i);
+                                if (r) r.className = (i === idx) ? "row-active" : "";
+                                if (b) {{
+                                    b.className = (i === idx) ? "view-btn active-btn" : "view-btn";
+                                    b.innerText = (i === idx) ? "📂 열람 중" : "🔍 뷰어 열기";
+                                }}
+                            }}
+                        }}
+
+                        function toggleStage() {{
+                            const stg = document.getElementById("a4-printable");
+                            stg.style.display = (stg.style.display === "none") ? "block" : "none";
+                        }}
+
+                        openDocViewer(0);
+                        </script>
                     </body></html>"""
-                    return _stc_vis.html(_doc_html, height=455, scrolling=False)
+                    return _stc_vis.html(_doc_html, height=860, scrolling=True)
 
                 # SQLite 투찰 이력 자동 각인 원장 감지 시 전용 홀로그램 보드 렌더링
                 if "bid_name" in _cols and "target_bid" in _cols:
