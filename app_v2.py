@@ -5622,7 +5622,7 @@ function jumpFromIso(targetKey) {
 
             # [신규 v12.0] 4대 AI 분석 모델별 사정가 동시 비교 & 마스터 앙상블(Ensemble) 최종 추천 심판기
         if (not _is_cab_mode) or ('[Z5]' in _cur_cab_zone):
-            with st.expander("👑 [AI 마스터 앙상블 심판기] 5대 모델 사정가 클릭 추론 해부(XAI) & 최종 적합가 표준 명세서 출력", expanded=True):
+            with st.expander("👑 [AI 마스터 앙상블 심판기] 5대 모델 사정가 클릭 추론 해부(XAI) & 최종 적합가 표준 명세서 출력", expanded=False):
                 st.caption("각 모델 카드 하단의 [🔍 추론과정 해부] 버튼을 누르면 해당 사정가가 도출된 수학적 원리와 단계별 계산 과정이 즉시 노출되며, 표준 양식 명세서로 출력할 수 있습니다.")
                 ens_c1, ens_c2, ens_c3 = st.columns([1.7, 1.5, 1.3])
                 notice_opts = [f"[{it.get('공고번호','')}] {it.get('공고명','')}" for it in pool]
@@ -6004,7 +6004,7 @@ function jumpFromIso(targetKey) {
                     )
 
             # [신규 v19.0] 사정률 직관 고취 & 압도적 시각 퍼포먼스 3대 킬포인트 (60FPS 4D Tactical HUD)
-            with st.expander("🔥 [사정 직관 3대 킬포인트] 모델별 클릭 비교 & ① 크레바스 지형도 · ② 15C4 시너지 링 · ③ 실시간 ±0.001%p 당락 다이얼", expanded=True):
+            with st.expander("🔥 [사정 직관 3대 킬포인트] 모델별 클릭 비교 & ① 크레바스 지형도 · ② 15C4 시너지 링 · ③ 실시간 ±0.001%p 당락 다이얼", expanded=False):
                 st.caption("상단의 5대 분석 모델 버튼을 클릭하면 각 모델의 사정률 좌표·예가번호 4개·당락 확률이 3대 60FPS 그래픽에 즉시 반영되며, 하단에 선택된 모델의 상세 추론 원리와 그래픽 판독 해설이 문맥 단락별로 표시됩니다.")
 
                 kp_item = pool[0]
@@ -7936,7 +7936,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z7]'):
             if on_picker:
                 # =====================================================================
                 from lattice1365.selector_ai import compute_ai_slot_selection_Automation
-                with st.expander("🎯 [AI 복수예가 추첨 번호 & 1,365 조합 자동 추천기] 나라장터 응찰 시 체크할 최적 2개 번호 & TOP 10 조합 (클릭하여 열기/닫기)", expanded=True):
+                with st.expander("🎯 [AI 복수예가 추첨 번호 & 1,365 조합 자동 추천기] 나라장터 응찰 시 체크할 최적 2개 번호 & TOP 10 조합 (클릭하여 열기/닫기)", expanded=False):
                     sel_c1, sel_c2 = st.columns([2, 2])
                     with sel_c1:
                         target_model_choice = st.radio(
@@ -8045,7 +8045,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z7]'):
                 build_lattice_wave_rider_html,
             )
             if on_arena:
-                with st.expander("🔥 [실시간 개찰 배틀 시뮬레이터] 3대 엔진(M5 · EGR-BID · LATTICE-1365) vs 경쟁사 탄착 스나이퍼 아레나 (클릭하여 열기/닫기)", expanded=True):
+                with st.expander("🔥 [실시간 개찰 배틀 시뮬레이터] 3대 엔진(M5 · EGR-BID · LATTICE-1365) vs 경쟁사 탄착 스나이퍼 아레나 (클릭하여 열기/닫기)", expanded=False):
                     arena_html = build_tactical_sniper_arena_html(
                         m5_bid=int(m5_bid),
                         egr_bid=int(res.recommendation_won) if res.recommendation_won else 0,
@@ -8330,7 +8330,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z7]'):
                 both_html_doc = format_printable_html_report(
                     notice_obj, in_title, res, m1_m5, src_label, firm_cost_won=cost_won, standalone_doc=True, report_mode="both"
                 )
-                with st.expander("🖨️ [번외 1 + 번외 2 통합 출력물] 3대 트랙(M5 · EGR-BID · LATTICE-1365) 통합 A4 결재 양식서 보기", expanded=True):
+                with st.expander("🖨️ [번외 1 + 번외 2 통합 출력물] 3대 트랙(M5 · EGR-BID · LATTICE-1365) 통합 A4 결재 양식서 보기", expanded=False):
                     components.html(both_html_doc, height=900, scrolling=True)
                     st.download_button(
                         "🖨️ [번외 1 + 번외 2 통합본] 3대 트랙 공식 사정분석서 (.html) 다운로드",
@@ -8353,92 +8353,90 @@ try:
     _cab_z_pull = str(globals().get("_cur_cab_zone", st.session_state.get("selected_cabinet_zone", "[Z1]")))
     _cab_m_pull = bool(globals().get("_is_cab_mode", True))
     if (not _cab_m_pull) or ("[Z1]" in _cab_z_pull):
-        st.markdown("---")
-        st.markdown("### 🚀 [신규 공고문 실시간 컨트롤러] 조달청 나라장터(G2B) 자동 수집 & 새 공고 즉시 투입")
-        _p_c1, _p_c2, _p_c3 = st.columns([1.4, 1.4, 2.2])
-        with _p_c1:
-            if st.session_state.get("_last_pull_msg"):
-                st.success(st.session_state["_last_pull_msg"])
-            if st.button("🔄 조달청 나라장터 신규 공고 지금 끌어오기", key="btn_top_g2b_live_pull", use_container_width=True, type="primary"):
-                import urllib.request as _ureq, datetime as _udt
-                _api_k = ""
-                try:
-                    _api_k = st.secrets.get("G2B_API_KEY", "") or st.secrets.get("DATA_GO_KR_API_KEY", "")
-                except Exception:
-                    pass
-                _pulled_list = []
-                if _api_k:
+        with st.expander("🚀 [부가메뉴 · 신규 공고문 실시간 컨트롤러] 조달청 나라장터(G2B) 자동 수집 & 새 공고 직접 투입 (클릭 시 열림)", expanded=False):
+            _p_c1, _p_c2, _p_c3 = st.columns([1.4, 1.4, 2.2])
+            with _p_c1:
+                if st.session_state.get("_last_pull_msg"):
+                    st.success(st.session_state["_last_pull_msg"])
+                if st.button("🔄 조달청 나라장터 신규 공고 지금 끌어오기", key="btn_top_g2b_live_pull", use_container_width=True, type="primary"):
+                    import urllib.request as _ureq, datetime as _udt
+                    _api_k = ""
                     try:
-                        _ed = _udt.datetime.now().strftime("%Y%m%d") + "2359"
-                        _sd = (_udt.datetime.now() - _udt.timedelta(days=14)).strftime("%Y%m%d") + "0000"
-                        _url = f"http://apis.data.go.kr/1230000/BidPublicInfoService04/getBidPblancListInfoCnstwkPPSSrch01?serviceKey={_api_k}&numOfRows=10&pageNo=1&inqryDiv=1&inqryBgnDt={_sd}&inqryEndDt={_ed}&type=json"
-                        _req = _ureq.urlopen(_url, timeout=6)
-                        _res_json = _cart_json.loads(_req.read().decode("utf-8", errors="ignore"))
-                        _items = _res_json.get("response", {}).get("body", {}).get("items", [])
-                        if isinstance(_items, list):
-                            for _it in _items[:6]:
-                                _bs = float(_it.get("bdgtAmt") or _it.get("presmptPrce") or 4250000000)
-                                _pulled_list.append({
-                                    "no": str(_it.get("bidNtceNo", "202611-99001")),
-                                    "title": str(_it.get("bidNtceNm", "조달청 실시간 수신 시설공사")),
-                                    "org": str(_it.get("ntceInsttNm", "조달청")),
-                                    "base": _bs,
-                                    "a_val": round(_bs * 0.046),
-                                    "net_cost": round(_bs * 0.815),
-                                })
+                        _api_k = st.secrets.get("G2B_API_KEY", "") or st.secrets.get("DATA_GO_KR_API_KEY", "")
                     except Exception:
                         pass
-                if not _pulled_list:
-                    _pulled_list = [
-                        {"no": "202611-08812", "title": "[신규수신] 원주의료원 별관 그린리모델링 및 내진보강 건축공사", "org": "강원특별자치도 원주시", "base": 5620000000.0, "a_val": 248000000.0, "net_cost": 4580300000.0},
-                        {"no": "202611-08945", "title": "[신규수신] 동해항 3단계 배후단지 진입도로 및 지하차도 개설공사", "org": "조달청 강원지방조달청", "base": 8950000000.0, "a_val": 392000000.0, "net_cost": 7294250000.0},
-                        {"no": "202611-09104", "title": "[신규수신] 태백시 문화예술회관 대공연장 리모델링 및 증축공사", "org": "강원특별자치도 태백시", "base": 3480000000.0, "a_val": 159000000.0, "net_cost": 2836200000.0},
-                    ]
-                st.session_state["live_pulled_notices"] = _pulled_list
-                _save_persisted_notices(_pulled_list)
-                st.session_state["selected_notice_no"] = _pulled_list[0]["no"]
-                st.session_state["selected_notice_title"] = _pulled_list[0]["title"]
-                st.session_state["selected_notice_org"] = _pulled_list[0]["org"]
-                st.session_state["base_amount"] = _pulled_list[0]["base"]
-                st.session_state["a_value"] = _pulled_list[0]["a_val"]
-                st.session_state["net_cost"] = _pulled_list[0]["net_cost"]
-                st.session_state["_boutique_sel_idx"] = 0
-                st.session_state["_boutique_page"] = 0
-                st.session_state["_last_pull_msg"] = f"✅ 신규 공고 {len(_pulled_list)}건이 상단 쇼룸에 추가되어 전체 건수가 +{len(_pulled_list)}건 증가했습니다! (대표: [{_pulled_list[0]['no']}] {_pulled_list[0]['title']})"
-                st.rerun()
-        with _p_c2:
-            if "live_pulled_notices" in st.session_state and st.session_state["live_pulled_notices"]:
-                _opts = [f"[{x['no']}] {x['title']} ({x['base']/1e8:.1f}억)" for x in st.session_state["live_pulled_notices"]]
-                _sel_p = st.selectbox("📥 방금 끌어온 신규 공고 선택", _opts, key="sel_live_pulled_item")
-                _idx_p = _opts.index(_sel_p)
-                _picked = st.session_state["live_pulled_notices"][_idx_p]
-                if st.button("⚡ 선택한 신규 공고로 전체 캐비닛 전환", key="btn_apply_pulled_notice", use_container_width=True):
-                    st.session_state["selected_notice_no"] = _picked["no"]
-                    st.session_state["selected_notice_title"] = _picked["title"]
-                    st.session_state["selected_notice_org"] = _picked["org"]
-                    st.session_state["base_amount"] = _picked["base"]
-                    st.session_state["a_value"] = _picked["a_val"]
-                    st.session_state["net_cost"] = _picked["net_cost"]
+                    _pulled_list = []
+                    if _api_k:
+                        try:
+                            _ed = _udt.datetime.now().strftime("%Y%m%d") + "2359"
+                            _sd = (_udt.datetime.now() - _udt.timedelta(days=14)).strftime("%Y%m%d") + "0000"
+                            _url = f"http://apis.data.go.kr/1230000/BidPublicInfoService04/getBidPblancListInfoCnstwkPPSSrch01?serviceKey={_api_k}&numOfRows=10&pageNo=1&inqryDiv=1&inqryBgnDt={_sd}&inqryEndDt={_ed}&type=json"
+                            _req = _ureq.urlopen(_url, timeout=6)
+                            _res_json = _cart_json.loads(_req.read().decode("utf-8", errors="ignore"))
+                            _items = _res_json.get("response", {}).get("body", {}).get("items", [])
+                            if isinstance(_items, list):
+                                for _it in _items[:6]:
+                                    _bs = float(_it.get("bdgtAmt") or _it.get("presmptPrce") or 4250000000)
+                                    _pulled_list.append({
+                                        "no": str(_it.get("bidNtceNo", "202611-99001")),
+                                        "title": str(_it.get("bidNtceNm", "조달청 실시간 수신 시설공사")),
+                                        "org": str(_it.get("ntceInsttNm", "조달청")),
+                                        "base": _bs,
+                                        "a_val": round(_bs * 0.046),
+                                        "net_cost": round(_bs * 0.815),
+                                    })
+                        except Exception:
+                            pass
+                    if not _pulled_list:
+                        _pulled_list = [
+                            {"no": "202611-08812", "title": "[신규수신] 원주의료원 별관 그린리모델링 및 내진보강 건축공사", "org": "강원특별자치도 원주시", "base": 5620000000.0, "a_val": 248000000.0, "net_cost": 4580300000.0},
+                            {"no": "202611-08945", "title": "[신규수신] 동해항 3단계 배후단지 진입도로 및 지하차도 개설공사", "org": "조달청 강원지방조달청", "base": 8950000000.0, "a_val": 392000000.0, "net_cost": 7294250000.0},
+                            {"no": "202611-09104", "title": "[신규수신] 태백시 문화예술회관 대공연장 리모델링 및 증축공사", "org": "강원특별자치도 태백시", "base": 3480000000.0, "a_val": 159000000.0, "net_cost": 2836200000.0},
+                        ]
+                    st.session_state["live_pulled_notices"] = _pulled_list
+                    _save_persisted_notices(_pulled_list)
+                    st.session_state["selected_notice_no"] = _pulled_list[0]["no"]
+                    st.session_state["selected_notice_title"] = _pulled_list[0]["title"]
+                    st.session_state["selected_notice_org"] = _pulled_list[0]["org"]
+                    st.session_state["base_amount"] = _pulled_list[0]["base"]
+                    st.session_state["a_value"] = _pulled_list[0]["a_val"]
+                    st.session_state["net_cost"] = _pulled_list[0]["net_cost"]
+                    st.session_state["_boutique_sel_idx"] = 0
+                    st.session_state["_boutique_page"] = 0
+                    st.session_state["_last_pull_msg"] = f"✅ 신규 공고 {len(_pulled_list)}건이 상단 쇼룸에 추가되었습니다!"
                     st.rerun()
-            else:
-                st.info("👈 왼쪽 [🔄 조달청 나라장터 신규 공고 지금 끌어오기] 버튼을 누르면 최신 공고가 즉시 수신됩니다.")
-        with _p_c3:
-            with st.expander("➕ [특정 공고 1건 직접 입력] 공고번호·기초금액·A값·순공사원가 바로 넣기"):
-                _m_no = st.text_input("공고번호 및 공사명", value="202611-99999 | 신규 타겟 시설공사", key="quick_in_no")
+            with _p_c2:
+                if "live_pulled_notices" in st.session_state and st.session_state["live_pulled_notices"]:
+                    _opts = [f"[{x['no']}] {x['title']} ({x['base']/1e8:.1f}억)" for x in st.session_state["live_pulled_notices"]]
+                    _sel_p = st.selectbox("📥 추가된 신규 공고 선택", _opts, key="sel_live_pulled_item")
+                    _idx_p = _opts.index(_sel_p)
+                    _picked = st.session_state["live_pulled_notices"][_idx_p]
+                    if st.button("⚡ 선택한 공고로 전체 캐비닛 전환", key="btn_apply_pulled_notice", use_container_width=True):
+                        st.session_state["selected_notice_no"] = _picked["no"]
+                        st.session_state["selected_notice_title"] = _picked["title"]
+                        st.session_state["selected_notice_org"] = _picked["org"]
+                        st.session_state["base_amount"] = _picked["base"]
+                        st.session_state["a_value"] = _picked["a_val"]
+                        st.session_state["net_cost"] = _picked["net_cost"]
+                        st.rerun()
+                else:
+                    st.info("👈 왼쪽 버튼을 누르면 최신 공고가 수신됩니다.")
+            with _p_c3:
+                _m_no = st.text_input("➕ 직접 추가 (공고번호 | 공사명)", value="202611-99999 | 신규 타겟 시설공사", key="quick_in_no")
                 _m_c1, _m_c2, _m_c3 = st.columns(3)
                 _m_base = _m_c1.number_input("기초금액(원)", value=4250000000, step=10000000, key="quick_in_base")
                 _m_a = _m_c2.number_input("A값(원)", value=195400000, step=1000000, key="quick_in_a")
                 _m_net = _m_c3.number_input("순공사원가(원)", value=3463750000, step=10000000, key="quick_in_net")
-                if st.button("✅ 이 제원으로 즉시 전체 분석 및 6종 공고문 생성", key="btn_quick_manual_apply", use_container_width=True):
+                if st.button("✅ 이 제원으로 즉시 추가 및 분석", key="btn_quick_manual_apply", use_container_width=True):
                     _parts = [p.strip() for p in _m_no.split("|")]
-                    st.session_state["selected_notice_no"] = _parts[0] if _parts else "202611-99999"
-                    st.session_state["selected_notice_title"] = _parts[1] if len(_parts) > 1 else _m_no
+                    _new_no = _parts[0] if _parts else "202611-99999"
+                    _new_tt = _parts[1] if len(_parts) > 1 else _m_no
+                    st.session_state["selected_notice_no"] = _new_no
+                    st.session_state["selected_notice_title"] = _new_tt
                     st.session_state["base_amount"] = float(_m_base)
                     st.session_state["a_value"] = float(_m_a)
                     st.session_state["net_cost"] = float(_m_net)
                     _cur_lp = list(st.session_state.get("live_pulled_notices", []))
-                    _new_no = _parts[0] if _parts else "202611-99999"
-                    _new_tt = _parts[1] if len(_parts) > 1 else _m_no
                     _cur_lp = [x for x in _cur_lp if x.get("no") != _new_no]
                     _cur_lp.insert(0, {"no": _new_no, "title": _new_tt, "org": "직접입력 타겟공고", "base": float(_m_base), "a_val": float(_m_a), "net_cost": float(_m_net)})
                     st.session_state["live_pulled_notices"] = _cur_lp
@@ -8454,9 +8452,9 @@ except Exception:
 try:
     _cab_z_now = str(globals().get("_cur_cab_zone", st.session_state.get("selected_cabinet_zone", "[Z1]")))
     _cab_m_now = bool(globals().get("_is_cab_mode", True))
-    if (not _cab_m_now) or ("[Z1]" in _cab_z_now) or ("[Z2]" in _cab_z_now) or ("[Z8]" in _cab_z_now):
+    if (not _cab_m_now) or ("[Z1]" in _cab_z_now) or ("[Z8]" in _cab_z_now):
         import streamlit.components.v1 as _stc_z1doc
-        with st.expander("📂 [입찰공고 원문 & 시방서 6종 통합패키지] 나라장터 G2B 정식 풀버전 앱 내 미리보기 & 원클릭 인쇄", expanded=True):
+        with st.expander("📂 [입찰공고 원문 & 시방서 6종 통합패키지] 나라장터 G2B 정식 풀버전 앱 내 미리보기 & 원클릭 인쇄", expanded=False):
             _d_c1, _d_c2, _d_c3 = st.columns([2.6, 1.2, 1.2])
             with _d_c1:
                 _spec_sel = st.selectbox(
