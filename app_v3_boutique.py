@@ -355,6 +355,10 @@ def _boot_restore_full_state():
             if "live_pulled_notices" not in st.session_state:
                 st.session_state["live_pulled_notices"] = _load_persisted_notices()
             st.session_state["__universal_state_restored"] = True
+            st.session_state.setdefault("master_unlocked", True)
+            st.session_state.setdefault("pin_authenticated", True)
+            st.session_state.setdefault("admin_authenticated", True)
+            st.session_state.setdefault("corp_master_registered", True)
     except Exception:
         pass
 # === [END UNIVERSAL PERSISTENCE HELPER] ===
@@ -9109,7 +9113,7 @@ try:
     _cab_z_pull = str(globals().get("_cur_cab_zone", st.session_state.get("selected_cabinet_zone", "[Z1]")))
     _cab_m_pull = bool(globals().get("_is_cab_mode", True))
     if (not _cab_m_pull) or ("[Z1]" in _cab_z_pull):
-        with st.expander("🚀 [부가메뉴 · 신규 공고문 실시간 컨트롤러] 조달청 나라장터(G2B) 자동 수집 & 새 공고 직접 투입 (클릭 시 열림)", expanded=False):
+        with st.expander("STEP 2 · 🚀 [조달청 G2B 신규 공고 실시간 수신 & 직접 투입 컨트롤러] (클릭 시 열림)", expanded=False):
             _p_c1, _p_c2, _p_c3 = st.columns([1.4, 1.4, 2.2])
             with _p_c1:
                 if st.session_state.get("_last_pull_msg"):
@@ -9210,7 +9214,7 @@ try:
     _cab_m_now = bool(globals().get("_is_cab_mode", True))
     if (not _cab_m_now) or ("[Z1]" in _cab_z_now) or ("[Z8]" in _cab_z_now):
         import streamlit.components.v1 as _stc_z1doc
-        with st.expander("📂 [입찰공고 원문 & 시방서 6종 통합패키지] 나라장터 G2B 정식 풀버전 앱 내 미리보기 & 원클릭 인쇄", expanded=False):
+        with st.expander("STEP 4 · 📂 [입찰공고 원문 · 시방서 · 물량내역서 6종 통합 뷰어 & 원클릭 인쇄]", expanded=False):
             _d_c1, _d_c2, _d_c3 = st.columns([2.6, 1.2, 1.2])
             with _d_c1:
                 _spec_sel = st.selectbox(
@@ -10278,6 +10282,106 @@ div[data-testid="stMetricValue"] {
     color: #38bdf8 !important;
     font-weight: 900 !important;
     text-shadow: 0 0 14px rgba(56, 189, 248, 0.35) !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+# === [WORKFLOW HIERARCHY & ZERO-GAP SPACING OPTIMIZER] ===
+st.markdown("""
+<style>
+/* === [WORKFLOW HIERARCHY & ZERO-GAP SPACING OPTIMIZER v5.0] === */
+
+/* 1) 전체 컨테이너 상하 여백 및 블록 간격(Gap)을 조밀하고 균형 잡힌 황금비율(10px)로 통일 */
+section.main div.block-container {
+    padding-top: 1.4rem !important;
+    padding-bottom: 2.0rem !important;
+    max-width: 98% !important;
+}
+section.main div[data-testid="stVerticalBlock"] > div {
+    margin-bottom: 0px !important;
+}
+section.main div[data-testid="stVerticalBlock"] {
+    gap: 0.55rem !important;
+}
+/* 불필요하게 공간을 차지하는 가로 구분선(hr) 여백 최소화 */
+section.main hr {
+    margin: 6px 0 !important;
+    border-color: rgba(56, 189, 248, 0.18) !important;
+}
+
+/* 2) 뷰 모드 선택 라디오 버튼(1페이지 3건 / 3x3 쇼룸 / 와이드 테이블)을 두 줄 깨짐 없이 한 줄 중앙 세그먼트 바로 정렬! */
+section.main div[data-testid="stRadio"] > div[role="radiogroup"] {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 10px !important;
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.85)) !important;
+    border: 1px solid rgba(56, 189, 248, 0.38) !important;
+    border-radius: 999px !important;
+    padding: 6px 16px !important;
+    width: fit-content !important;
+    margin: 0 auto 6px auto !important;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45) !important;
+}
+section.main div[data-testid="stRadio"] label {
+    background: transparent !important;
+    padding: 4px 12px !important;
+    border-radius: 999px !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+    transition: all 0.18s ease !important;
+}
+section.main div[data-testid="stRadio"] label:hover {
+    background: rgba(56, 189, 248, 0.15) !important;
+}
+section.main div[data-testid="stRadio"] label p {
+    font-size: 12.5px !important;
+    font-weight: 800 !important;
+    white-space: nowrap !important;
+}
+
+/* 3) 쇼룸 카드와 하단 버튼([현재 열람중]/[캐비닛 열기], [카트담기])이 위아래로 떨어져 보이지 않도록 일체형 도킹 */
+section.main div[data-testid="column"] div.stButton > button {
+    min-height: 40px !important;
+    padding: 7px 12px !important;
+    border-radius: 10px !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+}
+/* 카드 하단 1순위 주업무 버튼(열람/분석 - 좌측 컬럼)은 시안-블루 네온 강조, 2순위 보조 버튼(카트담기 - 우측 컬럼)은 퍼플-로즈 슬림 스타일로 위계 구분 */
+section.main div[data-testid="column"]:nth-child(1) div.stButton > button[kind="primary"] {
+    background: linear-gradient(135deg, #0284c7 0%, #2563eb 55%, #4f46e5 100%) !important;
+    border: 1px solid #7dd3fc !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
+}
+section.main div[data-testid="column"]:nth-child(1) div.stButton > button[kind="primary"] * {
+    color: #ffffff !important;
+}
+
+/* 4) 하단 STEP 1 ~ STEP 4 아코디언(st.expander) 박스 간격을 8px 로 촘촘하게 밀착하여 덩그러니 비어 보이던 현상 완전 제거 */
+section.main div[data-testid="stExpander"] {
+    margin-top: 4px !important;
+    margin-bottom: 4px !important;
+    border-radius: 12px !important;
+}
+section.main div[data-testid="stExpander"] details > summary {
+    padding: 11px 16px !important;
+}
+
+/* 5) 좌측 사이드바 Z1~Z9 캐비닛 네비게이션 버튼 간격 압축(한 화면에 Z1~Z9가 스크롤 없이 한눈에 들어오도록 최적화) */
+section[data-testid="stSidebar"] div.stButton > button {
+    min-height: 34px !important;
+    padding: 6px 10px !important;
+    margin-bottom: 2px !important;
+    border-radius: 9px !important;
+    font-size: 12px !important;
+}
+section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] {
+    gap: 0.38rem !important;
 }
 </style>
 """, unsafe_allow_html=True)
