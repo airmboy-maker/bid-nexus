@@ -384,6 +384,223 @@ st.set_page_config(
 )
 _boot_restore_full_state()  # AUTO-RESTORE ALL 7 ZONES
 
+# === [GLOBAL DATAFRAME & SQLITE LEDGER HOLOGRAM VISUALIZER] ===
+try:
+    import pandas as _pd_vis
+    import streamlit.components.v1 as _stc_vis
+
+    if not hasattr(st, "_orig_dataframe_ raw"):
+        st._orig_dataframe_raw = st.dataframe
+
+    _COL_KOR_MAP = {
+        "id": "No.",
+        "created_at": "각인 일시",
+        "bid_name": "입찰 공고명",
+        "inst_name": "발주 기관",
+        "base_price": "기초금액(원)",
+        "a_val": "A값(법정비용)",
+        "limit_rate": "낙찰하한율",
+        "target_bid": "AI 목표 투찰가",
+        "planned_rate": "목표 사정률",
+        "margin_rate": "기대 마진율",
+        "risk_score": "리스크 지수",
+        "qual_verdict": "적격심사 판정",
+        "notice_no": "공고번호",
+        "est_price": "추정가격(원)",
+        "net_cost": "순공사원가(원)",
+    }
+
+    def _render_hologram_df(data=None, *args, **kwargs):
+        try:
+            _df = data.copy() if isinstance(data, _pd_vis.DataFrame) else _pd_vis.DataFrame(data)
+            if _df is not None and not _df.empty:
+                _cols = [str(c) for c in _df.columns]
+                # SQLite 투찰 이력 자동 각인 원장 감지 시 전용 홀로그램 보드 렌더링
+                if "bid_name" in _cols and "target_bid" in _cols:
+                    _cnt = len(_df)
+                    _avg_bid = float(_pd_vis.to_numeric(_df["target_bid"], errors="coerce").mean() or 0)
+                    _avg_rate = float(_pd_vis.to_numeric(_df.get("planned_rate", 100.0), errors="coerce").mean() or 100.0)
+                    _avg_risk = float(_pd_vis.to_numeric(_df.get("risk_score", 30), errors="coerce").mean() or 30.0)
+
+                    _rows_html = ""
+                    for _, _r in _df.iterrows():
+                        _rid = _r.get("id", "-")
+                        _dt = str(_r.get("created_at", "-"))
+                        _bname = str(_r.get("bid_name", "-"))
+                        _iname = str(_r.get("inst_name", "-"))
+                        _bprice = float(_r.get("base_price", 0) or 0)
+                        _aval = float(_r.get("a_val", 0) or 0)
+                        _lrate = float(_r.get("limit_rate", 88.745) or 88.745)
+                        _tbid = float(_r.get("target_bid", 0) or 0)
+                        _prate = float(_r.get("planned_rate", 100.0) or 100.0)
+                        _mrate = float(_r.get("margin_rate", 0.0) or 0.0)
+                        _rscore = int(float(_r.get("risk_score", 25) or 25))
+                        _qverd = str(_r.get("qual_verdict", "적격 통과"))
+
+                        _r_color = "#10b981" if _rscore <= 30 else ("#f59e0b" if _rscore <= 60 else "#ef4444")
+                        _r_label = "안전" if _rscore <= 30 else ("주의" if _rscore <= 60 else "경고")
+
+                        _rows_html += f"""
+                        <tr>
+                            <td style="text-align:center;"><span class="id-pill">#{_rid}</span></td>
+                            <td style="text-align:center; color:#94a3b8; font-size:12px;">{_dt}</td>
+                            <td style="text-align:left; font-weight:800; color:#f8fafc;">{_bname}</td>
+                            <td style="text-align:center; color:#cbd5e1;">{_iname}</td>
+                            <td style="text-align:right; font-variant-numeric:tabular-nums;">{_bprice:,.0f}원</td>
+                            <td style="text-align:right; color:#94a3b8; font-variant-numeric:tabular-nums;">{_aval:,.0f}원</td>
+                            <td style="text-align:center; color:#fbbf24; font-weight:700;">{_lrate:.3f}%</td>
+                            <td style="text-align:right; font-weight:900; color:#38bdf8; font-size:13.5px; font-variant-numeric:tabular-nums;">{_tbid:,.0f}원</td>
+                            <td style="text-align:center;"><span class="rate-badge">{_prate:.4f}%</span></td>
+                            <td style="text-align:center; color:#34d399; font-weight:700;">{_mrate:.4f}%</td>
+                            <td style="min-width:115px;">
+                                <div class="risk-wrap">
+                                    <div class="risk-top"><span>{_r_label}</span><span style="color:{_r_color};">{_rscore}점</span></div>
+                                    <div class="risk-track"><div class="risk-fill" style="width:{min(100, _rscore)}%; background:{_r_color};"></div></div>
+                                </div>
+                            </td>
+                            <td style="text-align:center;"><span class="verdict-badge">✅ {_qverd}</span></td>
+                        </tr>
+                        """
+
+                    _ledger_html = f"""
+                    <!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">
+                    <style>
+                        * {{ box-sizing: border-box; font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif; }}
+                        body {{ margin: 0; padding: 6px 6px 20px 6px; background: transparent; color: #f8fafc; }}
+                        .ledger-card {{
+                            background: radial-gradient(circle at 10% 10%, rgba(56, 189, 248, 0.14), rgba(15, 23, 42, 0.96) 70%);
+                            border: 1px solid rgba(56, 189, 248, 0.38);
+                            border-radius: 16px; padding: 18px 20px;
+                            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
+                        }}
+                        .kpi-row {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }}
+                        .k-box {{
+                            background: linear-gradient(145deg, rgba(30, 41, 59, 0.82), rgba(15, 23, 42, 0.92));
+                            border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 10px;
+                            padding: 10px 12px; text-align: center; border-top: 3px solid #38bdf8;
+                        }}
+                        .k-lbl {{ font-size: 11.5px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; }}
+                        .k-val {{ font-size: 18px; font-weight: 900; color: #f8fafc; }}
+                        .tbl-wrap {{ overflow-x: auto; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.28); }}
+                        table {{ width: 100%; border-collapse: collapse; font-size: 12.5px; background: rgba(15, 23, 42, 0.85); }}
+                        th {{
+                            background: linear-gradient(180deg, rgba(30, 41, 59, 0.98), rgba(15, 23, 42, 0.98));
+                            color: #38bdf8; font-weight: 800; padding: 11px 10px;
+                            border-bottom: 2px solid rgba(56, 189, 248, 0.45);
+                            text-align: center; white-space: nowrap;
+                        }}
+                        td {{ padding: 10px 10px; border-bottom: 1px solid rgba(148, 163, 184, 0.15); white-space: nowrap; }}
+                        tr:hover td {{ background: rgba(56, 189, 248, 0.08); }}
+                        .id-pill {{ background: rgba(56, 189, 248, 0.18); color: #38bdf8; font-weight: 800; padding: 3px 8px; border-radius: 6px; font-size: 11.5px; }}
+                        .rate-badge {{ background: rgba(167, 139, 250, 0.18); border: 1px solid rgba(167, 139, 250, 0.5); color: #c4b5fd; font-weight: 800; padding: 3px 8px; border-radius: 999px; font-size: 11.5px; }}
+                        .verdict-badge {{ background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.55); color: #6ee7b7; font-weight: 800; padding: 4px 10px; border-radius: 999px; font-size: 11.5px; }}
+                        .risk-wrap {{ display: flex; flex-direction: column; gap: 4px; }}
+                        .risk-top {{ display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; color: #cbd5e1; }}
+                        .risk-track {{ height: 7px; background: rgba(30, 41, 59, 0.95); border-radius: 999px; overflow: hidden; }}
+                        .risk-fill {{ height: 100%; border-radius: 999px; }}
+                    </style></head><body>
+                        <div class="ledger-card">
+                            <div class="kpi-row">
+                                <div class="k-box">
+                                    <div class="k-lbl">🗂️ 원장 누적 각인 건수</div>
+                                    <div class="k-val" style="color:#38bdf8;">총 {_cnt}건 각인 완료</div>
+                                </div>
+                                <div class="k-box" style="border-top-color:#34d399;">
+                                    <div class="k-lbl">💰 평균 목표 투찰금액</div>
+                                    <div class="k-val" style="color:#34d399;">{_avg_bid:,.0f}원</div>
+                                </div>
+                                <div class="k-box" style="border-top-color:#a78bfa;">
+                                    <div class="k-lbl">🎯 평균 목표 사정률</div>
+                                    <div class="k-val" style="color:#a78bfa;">{_avg_rate:.4f}%</div>
+                                </div>
+                                <div class="k-box" style="border-top-color:#fbbf24;">
+                                    <div class="k-lbl">🛡️ 평균 리스크 방어지수</div>
+                                    <div class="k-val" style="color:#fbbf24;">{_avg_risk:.1f}점 (안정권)</div>
+                                </div>
+                            </div>
+                            <div class="tbl-wrap">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>번호</th><th>각인 일시</th><th>입찰 공고명</th><th>발주 기관</th>
+                                            <th>기초금액</th><th>A값(법정비용)</th><th>낙찰하한율</th><th>AI 목표 투찰가</th>
+                                            <th>목표 사정률</th><th>기대 마진율</th><th>리스크 게이지</th><th>적격심사 판정</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {_rows_html}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </body></html>
+                    """
+                    _h = min(560, max(270, 155 + _cnt * 48))
+                    return _stc_vis.html(_ledger_html, height=_h, scrolling=True)
+
+                # 일반 데이터프레임도 영문 컬럼이 있으면 한글로 자동 변환 및 천단위 콤마 포맷팅
+                _renamed = {_c: _COL_KOR_MAP.get(str(_c), _c) for _c in _df.columns}
+                _df = _df.rename(columns=_renamed)
+        except Exception:
+            pass
+        return st._orig_dataframe_raw(data, *args, **kwargs)
+
+    st.dataframe = _render_hologram_df
+except Exception:
+    pass
+
+# 2. 앱 내 모든 일반 마크다운 표(Table) 및 st.dataframe 컨테이너를 하이엔드 네온 글래스 테이블로 고도화하는 글로벌 CSS
+st.markdown("""
+<style>
+/* === [GLOBAL NEON GLASS TABLE & DATAFRAME UPGRADE CSS] === */
+.stMarkdown table {
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.78)) !important;
+    border: 1px solid rgba(56, 189, 248, 0.35) !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+    margin: 12px 0 18px 0 !important;
+}
+.stMarkdown table thead th {
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.98), rgba(15, 23, 42, 0.98)) !important;
+    color: #38bdf8 !important;
+    font-weight: 800 !important;
+    font-size: 13px !important;
+    padding: 12px 12px !important;
+    border-bottom: 2px solid rgba(56, 189, 248, 0.45) !important;
+    border-right: 1px solid rgba(148, 163, 184, 0.15) !important;
+}
+.stMarkdown table tbody td {
+    padding: 10px 12px !important;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.14) !important;
+    border-right: 1px solid rgba(148, 163, 184, 0.1) !important;
+    color: #e2e8f0 !important;
+    font-size: 13px !important;
+    font-variant-numeric: tabular-nums !important;
+    transition: background 0.18s ease !important;
+}
+.stMarkdown table tbody tr:hover td {
+    background: rgba(56, 189, 248, 0.11) !important;
+    color: #ffffff !important;
+}
+.stMarkdown table tbody tr:last-child td {
+    border-bottom: none !important;
+}
+/* 데이터프레임 외곽 테두리 네온 글로우 */
+div[data-testid="stDataFrame"] {
+    border: 1px solid rgba(56, 189, 248, 0.38) !important;
+    border-radius: 12px !important;
+    padding: 4px !important;
+    background: rgba(15, 23, 42, 0.85) !important;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45) !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
 
 st.markdown("""
 <style>
