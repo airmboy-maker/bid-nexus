@@ -929,114 +929,11 @@ except Exception:
     pass
 
 # 2. 앱 내 모든 일반 마크다운 표(Table) 및 st.dataframe 컨테이너를 하이엔드 네온 글래스 테이블로 고도화하는 글로벌 CSS
-st.markdown("""
-<style>
-/* === [GLOBAL NEON GLASS TABLE & DATAFRAME UPGRADE CSS] === */
-.stMarkdown table {
-    width: 100% !important;
-    border-collapse: separate !important;
-    border-spacing: 0 !important;
-    background: linear-gradient(145deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.78)) !important;
-    border: 1px solid rgba(56, 189, 248, 0.35) !important;
-    border-radius: 12px !important;
-    overflow: hidden !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
-    margin: 12px 0 18px 0 !important;
-}
-.stMarkdown table thead th {
-    background: linear-gradient(180deg, rgba(30, 41, 59, 0.98), rgba(15, 23, 42, 0.98)) !important;
-    color: #38bdf8 !important;
-    font-weight: 800 !important;
-    font-size: 13px !important;
-    padding: 12px 12px !important;
-    border-bottom: 2px solid rgba(56, 189, 248, 0.45) !important;
-    border-right: 1px solid rgba(148, 163, 184, 0.15) !important;
-}
-.stMarkdown table tbody td {
-    padding: 10px 12px !important;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.14) !important;
-    border-right: 1px solid rgba(148, 163, 184, 0.1) !important;
-    color: #e2e8f0 !important;
-    font-size: 13px !important;
-    font-variant-numeric: tabular-nums !important;
-    transition: background 0.18s ease !important;
-}
-.stMarkdown table tbody tr:hover td {
-    background: rgba(56, 189, 248, 0.11) !important;
-    color: #ffffff !important;
-}
-.stMarkdown table tbody tr:last-child td {
-    border-bottom: none !important;
-}
-/* 데이터프레임 외곽 테두리 네온 글로우 */
-div[data-testid="stDataFrame"] {
-    border: 1px solid rgba(56, 189, 248, 0.38) !important;
-    border-radius: 12px !important;
-    padding: 4px !important;
-    background: rgba(15, 23, 42, 0.85) !important;
-    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45) !important;
-}
-</style>
-""", unsafe_allow_html=True)
 
 
 
-st.markdown("""
-<style>
-    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-    * { font-family: 'Pretendard', -apple-system, sans-serif; }
-    .stApp {
-        background: radial-gradient(circle at 10% 20%, rgba(13, 27, 62, 0.55) 0%, rgba(5, 10, 24, 0.98) 90%);
-        color: #F8FAFC;
-    }
-    .status-badge-locked {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        background: rgba(239, 68, 68, 0.2);
-        color: #EF4444;
-        border: 1px solid rgba(239, 68, 68, 0.4);
-    }
-    .status-badge-active {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        background: rgba(16, 185, 129, 0.2);
-        color: #10B981;
-        border: 1px solid rgba(16, 185, 129, 0.4);
-    }
-    .timer-badge {
-        font-size: 1.15rem;
-        font-weight: 800;
-        color: #F59E0B;
-        background: rgba(245, 158, 11, 0.15);
-        padding: 6px 14px;
-        border-radius: 8px;
-        border: 1px solid rgba(245, 158, 11, 0.3);
-        display: inline-block;
-    }
-    .quant-tag {
-        background: rgba(139, 92, 246, 0.2);
-        color: #C4B5FD;
-        border: 1px solid rgba(139, 92, 246, 0.4);
-        padding: 2px 8px;
-        border-radius: 4px;
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
-    .radar-card {
-        background: rgba(15, 23, 42, 0.7);
-        border: 1px solid rgba(59, 130, 246, 0.25);
-        border-radius: 10px;
-        padding: 14px 18px;
-        margin-bottom: 12px;
-    }
-</style>
-""", unsafe_allow_html=True)
+
+
 
 DATA_API_KEY = os.environ.get("DATA_GO_KR_API_KEY", "")
 try:
@@ -2692,7 +2589,7 @@ with tab_radar:
                                 else:
                                     st.session_state['_boutique_cart_ids'].append(_gprof['nid']); _save_persisted_cart(st.session_state['_boutique_cart_ids'])
                                 st.rerun()
-            with st.expander(f"🗝️ [선택된 보물 캐비닛 상세 도감 & 문서볼트 열기] [{_active_prof['nid']}] {_active_prof['title']}", expanded=False):
+            with st.expander(f"🗝️ STEP 2 · [선택된 보물 캐비닛 상세 도감 & 문서볼트 열기] [{_active_prof['nid']}] {_active_prof['title']}", expanded=False):
                 idx = _sel_idx
                 bid_item = _active_n
                 _prof = _active_prof
@@ -9106,14 +9003,11 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z7]'):
         import streamlit as _st
         _st.error(f"번외 모델 렌더링 오류: {_egr_e}")
 
-
-
 # === [Z1 TOP LIVE G2B PULL & NEW NOTICE INJECTOR] ===
 try:
     _cab_z_pull = str(globals().get("_cur_cab_zone", st.session_state.get("selected_cabinet_zone", "[Z1]")))
     _cab_m_pull = bool(globals().get("_is_cab_mode", True))
     if (not _cab_m_pull) or ("[Z1]" in _cab_z_pull):
-        st.markdown('<div style="margin-top:-115px;"></div>', unsafe_allow_html=True)
         with st.expander("STEP 3 · 🚀 [조달청 G2B 신규 공고 실시간 수신 & 직접 투입 컨트롤러] (클릭 시 열림)", expanded=False):
             _p_c1, _p_c2, _p_c3 = st.columns([1.4, 1.4, 2.2])
             with _p_c1:
@@ -9449,135 +9343,11 @@ except Exception:
 
 
 # === [ZERO-OVERFLOW 5-MODEL METRIC CARD MASTER FIX] ===
-st.markdown("""
-<style>
-/* === [ZERO-OVERFLOW 5-MODEL METRIC CARD MASTER FIX] === */
-div[data-testid="stMetric"] {
-    padding: 12px 10px !important;
-    overflow: hidden !important;
-    box-sizing: border-box !important;
-}
-/* 1) 상단 라벨: 말줄임표(...) 제거 및 한 줄 맞춤 */
-div[data-testid="stMetricLabel"],
-div[data-testid="stMetricLabel"] *,
-div[data-testid="stMetricLabel"] p {
-    font-size: 12px !important;
-    font-weight: 700 !important;
-    line-height: 1.3 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: clip !important;
-    letter-spacing: -0.5px !important;
-    max-width: 100% !important;
-}
-/* 2) 중앙 투찰금액(3,795,842,330원): 끝자리 '원'까지 절대 안 잘리게 폰트 사이즈 최적화 */
-div[data-testid="stMetricValue"],
-div[data-testid="stMetricValue"] *,
-div[data-testid="stMetricValue"] > div {
-    font-size: clamp(14px, 1.18vw, 18.5px) !important;
-    font-weight: 800 !important;
-    line-height: 1.25 !important;
-    white-space: nowrap !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
-    letter-spacing: -0.8px !important;
-    font-variant-numeric: tabular-nums !important;
-}
-/* 3) 하단 초록/빨강 배지(사정률 | 방어지수): 박스 밖 돌출 완전 차단 및 내부 줄바꿈 허용 */
-div[data-testid="stMetricDelta"],
-div[data-testid="stMetricDelta"] *,
-div[data-testid="stMetricDelta"] > div {
-    font-size: 11px !important;
-    font-weight: 600 !important;
-    line-height: 1.3 !important;
-    white-space: normal !important;
-    word-break: keep-all !important;
-    overflow: hidden !important;
-    text-overflow: clip !important;
-    letter-spacing: -0.5px !important;
-    max-width: 100% !important;
-    display: inline-block !important;
-}
-</style>
-""", unsafe_allow_html=True)
+
 
 
 # === [GLOBAL BOX & METRIC CENTER ALIGNMENT] ===
-st.markdown("""
-<style>
-/* === [GLOBAL BOX & METRIC CENTER ALIGNMENT CSS] === */
-/* 1) 모든 메트릭 카드(경영상태, 시공실적, 신인도, 데드존, 5대 모델 등) 내부 요소 완벽 중앙 정렬 */
-div[data-testid="stMetric"],
-div[data-testid="metric-container"] {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    text-align: center !important;
-    padding: 14px 10px !important;
-}
-div[data-testid="stMetricLabel"],
-div[data-testid="stMetricLabel"] > div,
-div[data-testid="stMetricLabel"] p {
-    width: 100% !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    text-align: center !important;
-    margin: 0 auto !important;
-}
-div[data-testid="stMetricValue"],
-div[data-testid="stMetricValue"] > div {
-    width: 100% !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    text-align: center !important;
-    margin: 2px auto !important;
-}
-/* 초록/빨강 하단 배지(재무비율, 1.00배 만점, 99.850%~100.250% 등) 화살표와 글자 한 줄 중앙 정렬 */
-div[data-testid="stMetricDelta"] {
-    width: auto !important;
-    max-width: 96% !important;
-    display: inline-flex !important;
-    flex-direction: row !important;
-    justify-content: center !important;
-    align-items: center !important;
-    text-align: center !important;
-    margin: 4px auto 0 auto !important;
-    padding: 3px 10px !important;
-    border-radius: 999px !important;
-}
-div[data-testid="stMetricDelta"] > div,
-div[data-testid="stMetricDelta"] svg {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    white-space: nowrap !important;
-    margin: 0 2px !important;
-}
-/* 2) 알림 박스(적용 규정 배너 등) 및 일반 카드 컨테이너 내부 텍스트 중앙 정렬 */
-div[data-testid="stAlert"] div[role="alert"],
-div[data-testid="stAlert"] p {
-    text-align: center !important;
-    justify-content: center !important;
-    width: 100% !important;
-}
-/* 3) 버튼 및 캐비닛 탭 내부 텍스트 정중앙 배치 */
-div.stButton > button,
-div.stDownloadButton > button {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    text-align: center !important;
-}
-/* 4) 표(Table) 헤더 및 셀 텍스트 중앙 정렬 */
-table th, table td {
-    text-align: center !important;
-    vertical-align: middle !important;
-}
-</style>
-""", unsafe_allow_html=True)
+
 
 
 # === [PERSISTENT CART STATE SYNC HOOK] ===
@@ -9683,126 +9453,13 @@ except Exception:
 
 
 # === [SIDEBAR ZERO-TRUNCATION & RESPONSIVE WRAP] ===
-st.markdown("""
-<style>
-/* === [SIDEBAR ZERO-TRUNCATION & RESPONSIVE WRAP CSS] === */
-section[data-testid="stSidebar"] * {
-    text-overflow: clip !important;
-}
-/* 사이드바 캡션, 일반 문단, 아코디언 제목, 알림 문구: 말줄임(...) 금지 및 어절 단위 자동 줄바꿈 */
-section[data-testid="stSidebar"] [data-testid="stCaptionContainer"],
-section[data-testid="stSidebar"] [data-testid="stCaptionContainer"] p,
-section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
-section[data-testid="stSidebar"] summary p,
-section[data-testid="stSidebar"] summary span,
-section[data-testid="stSidebar"] label p,
-section[data-testid="stSidebar"] div[data-testid="stAlert"] p {
-    white-space: normal !important;
-    word-break: keep-all !important;
-    overflow-wrap: anywhere !important;
-    overflow: visible !important;
-    text-overflow: unset !important;
-    line-height: 1.45 !important;
-    font-size: 12.2px !important;
-    letter-spacing: -0.4px !important;
-}
-/* 사이드바 버튼: 너비가 좁아지면 버튼 높이가 자동으로 늘어나며 두 줄로 전체 한글 표시 */
-section[data-testid="stSidebar"] div.stButton > button {
-    height: auto !important;
-    min-height: 38px !important;
-    padding: 8px 10px !important;
-    white-space: normal !important;
-    word-break: keep-all !important;
-    overflow-wrap: anywhere !important;
-    line-height: 1.35 !important;
-}
-section[data-testid="stSidebar"] div.stButton > button p {
-    white-space: normal !important;
-    word-break: keep-all !important;
-    overflow: visible !important;
-    text-overflow: unset !important;
-    font-size: 12.5px !important;
-    line-height: 1.35 !important;
-}
-/* 비밀번호 입력창 플레이스홀더 및 입력 텍스트가 우측 눈(👁️) 아이콘에 잘리지 않도록 폰트/여백 최적화 */
-section[data-testid="stSidebar"] input[type="password"],
-section[data-testid="stSidebar"] input[type="text"] {
-    font-size: 12px !important;
-    letter-spacing: -0.4px !important;
-    padding-right: 6px !important;
-}
-section[data-testid="stSidebar"] input::placeholder {
-    font-size: 11.5px !important;
-    letter-spacing: -0.5px !important;
-    opacity: 0.85 !important;
-}
-</style>
-""", unsafe_allow_html=True)
+
 
 
 # === [Z9 EXECUTIVE VISUALIZATION & NEON GLASSMORPHISM STUDIO] ===
 try:
     # 1. 전 영역 입력 폼·멀티셀렉트·숫자창·아코디언을 하이엔드 핀테크 글래스모피즘 스타일로 고도화
-    st.markdown("""
-    <style>
-    /* 멀티셀렉트 선택 칩: 촌스러운 빨간색 대신 골드-앰버 네온 캡슐로 변경 & 말줄임(...) 해제 */
-    span[data-baseweb="tag"] {
-        background: linear-gradient(135deg, rgba(245, 158, 11, 0.28), rgba(217, 119, 6, 0.45)) !important;
-        border: 1px solid rgba(251, 191, 36, 0.75) !important;
-        border-radius: 999px !important;
-        color: #fef3c7 !important;
-        font-weight: 700 !important;
-        padding: 4px 12px !important;
-        box-shadow: 0 0 12px rgba(245, 158, 11, 0.25) !important;
-        max-width: none !important;
-    }
-    span[data-baseweb="tag"] span {
-        max-width: none !important;
-        overflow: visible !important;
-        text-overflow: unset !important;
-        white-space: nowrap !important;
-    }
-    /* 숫자 입력창(NumberInput) 및 텍스트 입력창: 네온 테두리 & 입체 그림자 */
-    div[data-testid="stNumberInput"] > div,
-    div[data-testid="stTextInput"] > div > div,
-    div[data-baseweb="select"] > div {
-        background: linear-gradient(145deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.78)) !important;
-        border: 1px solid rgba(56, 189, 248, 0.35) !important;
-        border-radius: 10px !important;
-        box-shadow: inset 0 1px 2px rgba(255,255,255,0.06), 0 4px 14px rgba(0, 0, 0, 0.35) !important;
-        transition: all 0.2s ease-in-out !important;
-    }
-    div[data-testid="stNumberInput"] > div:focus-within,
-    div[data-testid="stTextInput"] > div > div:focus-within,
-    div[data-baseweb="select"] > div:focus-within {
-        border-color: #38bdf8 !important;
-        box-shadow: 0 0 16px rgba(56, 189, 248, 0.45) !important;
-    }
-    div[data-testid="stNumberInput"] input {
-        color: #38bdf8 !important;
-        font-weight: 800 !important;
-        font-size: 15px !important;
-        text-align: center !important;
-    }
-    /* 소제목(⚡ 특수 시공 자격, 👷 상주 기술인력, 🏗️ 보유 면허별 시평액 등) 좌측 네온 포인트 바 */
-    div[data-testid="stMarkdownContainer"] h3,
-    div[data-testid="stMarkdownContainer"] h4 {
-        background: linear-gradient(90deg, rgba(56, 189, 248, 0.14), rgba(15, 23, 42, 0.0)) !important;
-        border-left: 4px solid #38bdf8 !important;
-        padding: 8px 14px !important;
-        border-radius: 0 8px 8px 0 !important;
-        margin-top: 18px !important;
-        margin-bottom: 10px !important;
-    }
-    /* 하단 5개년 누적 합산 알림 박스를 골드-에메랄드 프리미엄 배너로 업그레이드 */
-    div[data-testid="stAlert"] {
-        background: linear-gradient(135deg, rgba(6, 78, 59, 0.55), rgba(15, 23, 42, 0.9)) !important;
-        border: 1px solid rgba(16, 185, 129, 0.6) !important;
-        border-radius: 12px !important;
-        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.18) !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+    
 
     # 2. [Z9:기업마스터] 화면일 때 실시간 그래픽 시각화 스튜디오(KPI 홀로그램 + 5개년 실적 바 차트 + 기술인력 게이지) 렌더링
     _cab_z_v9 = str(globals().get("_cur_cab_zone", st.session_state.get("selected_cabinet_zone", "[Z1]")))
@@ -9994,8 +9651,350 @@ except Exception:
 
 
 # === [CYBERNETIC OCR UPLOADER & Z9 TOP HEADER CSS] ===
+
+
+
+# === [HOLOGRAM DOWNLOAD BUTTONS & EXPANDER LAUNCHER] ===
+
+
+
+# === [CYBERNETIC QUANTUM COCKPIT MASTER THEME] ===
+
+
+
+# === [WORKFLOW HIERARCHY & ZERO-GAP SPACING OPTIMIZER] ===
+
+# === [SINGLE UNIFIED MASTER CSS BLOCK] ===
 st.markdown("""
 <style>
+/* === [GLOBAL NEON GLASS TABLE & DATAFRAME UPGRADE CSS] === */
+.stMarkdown table {
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.78)) !important;
+    border: 1px solid rgba(56, 189, 248, 0.35) !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+    margin: 12px 0 18px 0 !important;
+}
+.stMarkdown table thead th {
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.98), rgba(15, 23, 42, 0.98)) !important;
+    color: #38bdf8 !important;
+    font-weight: 800 !important;
+    font-size: 13px !important;
+    padding: 12px 12px !important;
+    border-bottom: 2px solid rgba(56, 189, 248, 0.45) !important;
+    border-right: 1px solid rgba(148, 163, 184, 0.15) !important;
+}
+.stMarkdown table tbody td {
+    padding: 10px 12px !important;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.14) !important;
+    border-right: 1px solid rgba(148, 163, 184, 0.1) !important;
+    color: #e2e8f0 !important;
+    font-size: 13px !important;
+    font-variant-numeric: tabular-nums !important;
+    transition: background 0.18s ease !important;
+}
+.stMarkdown table tbody tr:hover td {
+    background: rgba(56, 189, 248, 0.11) !important;
+    color: #ffffff !important;
+}
+.stMarkdown table tbody tr:last-child td {
+    border-bottom: none !important;
+}
+/* 데이터프레임 외곽 테두리 네온 글로우 */
+div[data-testid="stDataFrame"] {
+    border: 1px solid rgba(56, 189, 248, 0.38) !important;
+    border-radius: 12px !important;
+    padding: 4px !important;
+    background: rgba(15, 23, 42, 0.85) !important;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45) !important;
+}
+
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+    * { font-family: 'Pretendard', -apple-system, sans-serif; }
+    .stApp {
+        background: radial-gradient(circle at 10% 20%, rgba(13, 27, 62, 0.55) 0%, rgba(5, 10, 24, 0.98) 90%);
+        color: #F8FAFC;
+    }
+    .status-badge-locked {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        background: rgba(239, 68, 68, 0.2);
+        color: #EF4444;
+        border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+    .status-badge-active {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        background: rgba(16, 185, 129, 0.2);
+        color: #10B981;
+        border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+    .timer-badge {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #F59E0B;
+        background: rgba(245, 158, 11, 0.15);
+        padding: 6px 14px;
+        border-radius: 8px;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        display: inline-block;
+    }
+    .quant-tag {
+        background: rgba(139, 92, 246, 0.2);
+        color: #C4B5FD;
+        border: 1px solid rgba(139, 92, 246, 0.4);
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .radar-card {
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid rgba(59, 130, 246, 0.25);
+        border-radius: 10px;
+        padding: 14px 18px;
+        margin-bottom: 12px;
+    }
+
+/* === [ZERO-OVERFLOW 5-MODEL METRIC CARD MASTER FIX] === */
+div[data-testid="stMetric"] {
+    padding: 12px 10px !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+/* 1) 상단 라벨: 말줄임표(...) 제거 및 한 줄 맞춤 */
+div[data-testid="stMetricLabel"],
+div[data-testid="stMetricLabel"] *,
+div[data-testid="stMetricLabel"] p {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    line-height: 1.3 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
+    letter-spacing: -0.5px !important;
+    max-width: 100% !important;
+}
+/* 2) 중앙 투찰금액(3,795,842,330원): 끝자리 '원'까지 절대 안 잘리게 폰트 사이즈 최적화 */
+div[data-testid="stMetricValue"],
+div[data-testid="stMetricValue"] *,
+div[data-testid="stMetricValue"] > div {
+    font-size: clamp(14px, 1.18vw, 18.5px) !important;
+    font-weight: 800 !important;
+    line-height: 1.25 !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    letter-spacing: -0.8px !important;
+    font-variant-numeric: tabular-nums !important;
+}
+/* 3) 하단 초록/빨강 배지(사정률 | 방어지수): 박스 밖 돌출 완전 차단 및 내부 줄바꿈 허용 */
+div[data-testid="stMetricDelta"],
+div[data-testid="stMetricDelta"] *,
+div[data-testid="stMetricDelta"] > div {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    line-height: 1.3 !important;
+    white-space: normal !important;
+    word-break: keep-all !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
+    letter-spacing: -0.5px !important;
+    max-width: 100% !important;
+    display: inline-block !important;
+}
+
+/* === [GLOBAL BOX & METRIC CENTER ALIGNMENT CSS] === */
+/* 1) 모든 메트릭 카드(경영상태, 시공실적, 신인도, 데드존, 5대 모델 등) 내부 요소 완벽 중앙 정렬 */
+div[data-testid="stMetric"],
+div[data-testid="metric-container"] {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding: 14px 10px !important;
+}
+div[data-testid="stMetricLabel"],
+div[data-testid="stMetricLabel"] > div,
+div[data-testid="stMetricLabel"] p {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+    margin: 0 auto !important;
+}
+div[data-testid="stMetricValue"],
+div[data-testid="stMetricValue"] > div {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+    margin: 2px auto !important;
+}
+/* 초록/빨강 하단 배지(재무비율, 1.00배 만점, 99.850%~100.250% 등) 화살표와 글자 한 줄 중앙 정렬 */
+div[data-testid="stMetricDelta"] {
+    width: auto !important;
+    max-width: 96% !important;
+    display: inline-flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+    margin: 4px auto 0 auto !important;
+    padding: 3px 10px !important;
+    border-radius: 999px !important;
+}
+div[data-testid="stMetricDelta"] > div,
+div[data-testid="stMetricDelta"] svg {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    margin: 0 2px !important;
+}
+/* 2) 알림 박스(적용 규정 배너 등) 및 일반 카드 컨테이너 내부 텍스트 중앙 정렬 */
+div[data-testid="stAlert"] div[role="alert"],
+div[data-testid="stAlert"] p {
+    text-align: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+}
+/* 3) 버튼 및 캐비닛 탭 내부 텍스트 정중앙 배치 */
+div.stButton > button,
+div.stDownloadButton > button {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+}
+/* 4) 표(Table) 헤더 및 셀 텍스트 중앙 정렬 */
+table th, table td {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+/* === [SIDEBAR ZERO-TRUNCATION & RESPONSIVE WRAP CSS] === */
+section[data-testid="stSidebar"] * {
+    text-overflow: clip !important;
+}
+/* 사이드바 캡션, 일반 문단, 아코디언 제목, 알림 문구: 말줄임(...) 금지 및 어절 단위 자동 줄바꿈 */
+section[data-testid="stSidebar"] [data-testid="stCaptionContainer"],
+section[data-testid="stSidebar"] [data-testid="stCaptionContainer"] p,
+section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+section[data-testid="stSidebar"] summary p,
+section[data-testid="stSidebar"] summary span,
+section[data-testid="stSidebar"] label p,
+section[data-testid="stSidebar"] div[data-testid="stAlert"] p {
+    white-space: normal !important;
+    word-break: keep-all !important;
+    overflow-wrap: anywhere !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    line-height: 1.45 !important;
+    font-size: 12.2px !important;
+    letter-spacing: -0.4px !important;
+}
+/* 사이드바 버튼: 너비가 좁아지면 버튼 높이가 자동으로 늘어나며 두 줄로 전체 한글 표시 */
+section[data-testid="stSidebar"] div.stButton > button {
+    height: auto !important;
+    min-height: 38px !important;
+    padding: 8px 10px !important;
+    white-space: normal !important;
+    word-break: keep-all !important;
+    overflow-wrap: anywhere !important;
+    line-height: 1.35 !important;
+}
+section[data-testid="stSidebar"] div.stButton > button p {
+    white-space: normal !important;
+    word-break: keep-all !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    font-size: 12.5px !important;
+    line-height: 1.35 !important;
+}
+/* 비밀번호 입력창 플레이스홀더 및 입력 텍스트가 우측 눈(👁️) 아이콘에 잘리지 않도록 폰트/여백 최적화 */
+section[data-testid="stSidebar"] input[type="password"],
+section[data-testid="stSidebar"] input[type="text"] {
+    font-size: 12px !important;
+    letter-spacing: -0.4px !important;
+    padding-right: 6px !important;
+}
+section[data-testid="stSidebar"] input::placeholder {
+    font-size: 11.5px !important;
+    letter-spacing: -0.5px !important;
+    opacity: 0.85 !important;
+}
+
+/* 멀티셀렉트 선택 칩: 촌스러운 빨간색 대신 골드-앰버 네온 캡슐로 변경 & 말줄임(...) 해제 */
+    span[data-baseweb="tag"] {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.28), rgba(217, 119, 6, 0.45)) !important;
+        border: 1px solid rgba(251, 191, 36, 0.75) !important;
+        border-radius: 999px !important;
+        color: #fef3c7 !important;
+        font-weight: 700 !important;
+        padding: 4px 12px !important;
+        box-shadow: 0 0 12px rgba(245, 158, 11, 0.25) !important;
+        max-width: none !important;
+    }
+    span[data-baseweb="tag"] span {
+        max-width: none !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+        white-space: nowrap !important;
+    }
+    /* 숫자 입력창(NumberInput) 및 텍스트 입력창: 네온 테두리 & 입체 그림자 */
+    div[data-testid="stNumberInput"] > div,
+    div[data-testid="stTextInput"] > div > div,
+    div[data-baseweb="select"] > div {
+        background: linear-gradient(145deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.78)) !important;
+        border: 1px solid rgba(56, 189, 248, 0.35) !important;
+        border-radius: 10px !important;
+        box-shadow: inset 0 1px 2px rgba(255,255,255,0.06), 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+        transition: all 0.2s ease-in-out !important;
+    }
+    div[data-testid="stNumberInput"] > div:focus-within,
+    div[data-testid="stTextInput"] > div > div:focus-within,
+    div[data-baseweb="select"] > div:focus-within {
+        border-color: #38bdf8 !important;
+        box-shadow: 0 0 16px rgba(56, 189, 248, 0.45) !important;
+    }
+    div[data-testid="stNumberInput"] input {
+        color: #38bdf8 !important;
+        font-weight: 800 !important;
+        font-size: 15px !important;
+        text-align: center !important;
+    }
+    /* 소제목(⚡ 특수 시공 자격, 👷 상주 기술인력, 🏗️ 보유 면허별 시평액 등) 좌측 네온 포인트 바 */
+    div[data-testid="stMarkdownContainer"] h3,
+    div[data-testid="stMarkdownContainer"] h4 {
+        background: linear-gradient(90deg, rgba(56, 189, 248, 0.14), rgba(15, 23, 42, 0.0)) !important;
+        border-left: 4px solid #38bdf8 !important;
+        padding: 8px 14px !important;
+        border-radius: 0 8px 8px 0 !important;
+        margin-top: 18px !important;
+        margin-bottom: 10px !important;
+    }
+    /* 하단 5개년 누적 합산 알림 박스를 골드-에메랄드 프리미엄 배너로 업그레이드 */
+    div[data-testid="stAlert"] {
+        background: linear-gradient(135deg, rgba(6, 78, 59, 0.55), rgba(15, 23, 42, 0.9)) !important;
+        border: 1px solid rgba(16, 185, 129, 0.6) !important;
+        border-radius: 12px !important;
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.18) !important;
+    }
+
 /* === [CYBERNETIC OCR UPLOADER & Z9 TOP HEADER CSS] === */
 section[data-testid="stFileUploaderDropzone"] {
     background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.14), rgba(15, 23, 42, 0.92) 75%) !important;
@@ -10019,13 +10018,7 @@ section[data-testid="stFileUploaderDropzone"] button {
     padding: 6px 16px !important;
     box-shadow: 0 0 12px rgba(56, 189, 248, 0.45) !important;
 }
-</style>
-""", unsafe_allow_html=True)
 
-
-# === [HOLOGRAM DOWNLOAD BUTTONS & EXPANDER LAUNCHER] ===
-st.markdown("""
-<style>
 /* === [HOLOGRAM DOWNLOAD BUTTONS & EXPANDER LAUNCHER CSS] === */
 /* 1) 다운로드 버튼(st.download_button): 밋밋한 다홍색/검은색 버튼을 3D 골드 & 시안 홀로그램 액션 바로 업그레이드 */
 div[data-testid="stDownloadButton"] > button {
@@ -10110,13 +10103,7 @@ section.main div[data-testid="stExpander"] details[open] > summary::after {
     border-color: #10b981 !important;
     color: #6ee7b7 !important;
 }
-</style>
-""", unsafe_allow_html=True)
 
-
-# === [CYBERNETIC QUANTUM COCKPIT MASTER THEME] ===
-st.markdown("""
-<style>
 /* === [CYBERNETIC QUANTUM COCKPIT MASTER THEME v4.0] === */
 
 /* 1) 배경 오로라 그리드 & 깊이감 극대화 */
@@ -10284,13 +10271,7 @@ div[data-testid="stMetricValue"] {
     font-weight: 900 !important;
     text-shadow: 0 0 14px rgba(56, 189, 248, 0.35) !important;
 }
-</style>
-""", unsafe_allow_html=True)
 
-
-# === [WORKFLOW HIERARCHY & ZERO-GAP SPACING OPTIMIZER] ===
-st.markdown("""
-<style>
 /* === [WORKFLOW HIERARCHY & ZERO-GAP SPACING OPTIMIZER v5.0] === */
 
 /* 1) 전체 컨테이너 상하 여백 및 블록 간격(Gap)을 조밀하고 균형 잡힌 황금비율(10px)로 통일 */
@@ -10384,6 +10365,19 @@ section[data-testid="stSidebar"] div.stButton > button {
 section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] {
     gap: 0.38rem !important;
 }
+
+/* === [DIRECT EXPANDER DOCKING CSS] === */
+section.main div[data-testid="stExpander"] {
+    margin-top: 0px !important;
+    margin-bottom: 6px !important;
+}
+/* STEP 3 아코디언(조달청 G2B 신규 공고)을 감싼 컨테이너를 위로 직접 당겨 STEP 2 바로 밑에 도킹 */
+div[data-testid="stElementContainer"]:has(div[data-testid="stExpander"] summary p),
+div.element-container:has(div[data-testid="stExpander"]) {
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+}
 </style>
 """, unsafe_allow_html=True)
-
