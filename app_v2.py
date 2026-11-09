@@ -2864,7 +2864,33 @@ with tab_dox:
     st.dataframe(pd.DataFrame(dox_checklist), use_container_width=True, hide_index=True)
 
     st.markdown("---")
-    st.markdown("#### 📄 인쇄 및 PDF 저장용 공식 서식 다운로드")
+    st.markdown("""
+<div style="background:radial-gradient(circle at 15% 20%, rgba(56,189,248,0.16), rgba(15,23,42,0.96) 72%); border:1px solid rgba(56,189,248,0.42); border-radius:16px; padding:18px 20px 14px 20px; margin-top:14px; margin-bottom:10px; box-shadow:0 12px 30px rgba(0,0,0,0.55);">
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(148,163,184,0.2); padding-bottom:10px; margin-bottom:14px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <span style="background:linear-gradient(135deg,#0284c7,#38bdf8); color:#0f172a; font-weight:900; font-size:12px; padding:4px 10px; border-radius:8px; box-shadow:0 0 12px rgba(56,189,248,0.45);">OFFICIAL EXPORT</span>
+            <span style="font-size:16px; font-weight:900; color:#f8fafc;">📄 인쇄 및 PDF 저장용 공식 서식 다운로드 센터</span>
+        </div>
+        <span style="background:rgba(16,185,129,0.18); border:1px solid rgba(16,185,129,0.55); color:#6ee7b7; font-size:11.5px; font-weight:800; padding:4px 12px; border-radius:999px;">🟢 A4 고해상도 직인·워터마크 자동 각인 완료</span>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+        <div style="background:linear-gradient(145deg,rgba(30,41,59,0.88),rgba(15,23,42,0.95)); border:1px solid rgba(251,191,36,0.45); border-top:3px solid #fbbf24; border-radius:12px; padding:14px 16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span style="font-size:13.5px; font-weight:900; color:#fde68a;">📑 PACKAGE 01 · 적격심사 신청서 및 자기평가표</span>
+                <span style="background:rgba(245,158,11,0.22); border:1px solid #fbbf24; color:#fef3c7; font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:999px;">별지 제1·2호 통합본</span>
+            </div>
+            <div style="font-size:12px; color:#cbd5e1; line-height:1.5;">• 공고번호·기초금액·AI 목표투찰가 및 적격심사 99.5점 평점표 자동 기입<br>• 브라우저에서 열기 즉시 <b>Ctrl+P / ⌘+P</b>로 A4 정식 PDF 인쇄 지원</div>
+        </div>
+        <div style="background:linear-gradient(145deg,rgba(30,41,59,0.88),rgba(15,23,42,0.95)); border:1px solid rgba(56,189,248,0.45); border-top:3px solid #38bdf8; border-radius:12px; padding:14px 16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span style="font-size:13.5px; font-weight:900; color:#e0f2fe;">🏛️ PACKAGE 02 · 시평액·5개년 실적·기술인력 총괄 증명원</span>
+                <span style="background:rgba(56,189,248,0.2); border:1px solid #38bdf8; color:#bae6fd; font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:999px;">협회 직인 대조필</span>
+            </div>
+            <div style="font-size:12px; color:#cbd5e1; line-height:1.5;">• 건축시평액(50억)·5개년 실적(35억)·상주기술자(14명)·무정전/활선 인증 수록<br>• 발주처 적격심사 편철 제출용 오프라인 독립 실행형(.html) 공식 문서</div>
+        </div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
     d_c1, d_c2 = st.columns(2)
     d_c1.download_button(
         label="📥 적격심사 신청서 및 자기평가표 (.html)",
@@ -9861,6 +9887,97 @@ section[data-testid="stFileUploaderDropzone"] button {
     border-radius: 8px !important;
     padding: 6px 16px !important;
     box-shadow: 0 0 12px rgba(56, 189, 248, 0.45) !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+# === [HOLOGRAM DOWNLOAD BUTTONS & EXPANDER LAUNCHER] ===
+st.markdown("""
+<style>
+/* === [HOLOGRAM DOWNLOAD BUTTONS & EXPANDER LAUNCHER CSS] === */
+/* 1) 다운로드 버튼(st.download_button): 밋밋한 다홍색/검은색 버튼을 3D 골드 & 시안 홀로그램 액션 바로 업그레이드 */
+div[data-testid="stDownloadButton"] > button {
+    width: 100% !important;
+    min-height: 48px !important;
+    background: linear-gradient(135deg, rgba(14, 116, 144, 0.85), rgba(2, 132, 199, 0.95), rgba(37, 99, 235, 0.9)) !important;
+    border: 1px solid rgba(56, 189, 248, 0.75) !important;
+    border-radius: 12px !important;
+    color: #f8fafc !important;
+    font-weight: 900 !important;
+    font-size: 14px !important;
+    letter-spacing: -0.2px !important;
+    box-shadow: 0 6px 20px rgba(2, 132, 199, 0.38), inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
+    transition: all 0.22s ease !important;
+}
+/* 좌측 첫 번째 컬럼의 다운로드 버튼(적격심사 신청서)은 골드-앰버 네온 테마로 차별화 */
+div[data-testid="column"]:first-child div[data-testid="stDownloadButton"] > button,
+div[data-testid="stDownloadButton"] > button[kind="primary"] {
+    background: linear-gradient(135deg, rgba(217, 119, 6, 0.92), rgba(245, 158, 11, 0.95), rgba(234, 88, 12, 0.9)) !important;
+    border: 1px solid rgba(253, 224, 71, 0.85) !important;
+    color: #0f172a !important;
+    box-shadow: 0 6px 22px rgba(245, 158, 11, 0.42), inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
+}
+div[data-testid="column"]:first-child div[data-testid="stDownloadButton"] > button *,
+div[data-testid="stDownloadButton"] > button[kind="primary"] * {
+    color: #0f172a !important;
+    font-weight: 900 !important;
+}
+div[data-testid="stDownloadButton"] > button:hover {
+    transform: translateY(-2px) scale(1.005) !important;
+    filter: brightness(1.12) !important;
+    box-shadow: 0 10px 28px rgba(56, 189, 248, 0.55) !important;
+}
+
+/* 2) 접혀 있는 부가 메뉴(st.expander): 얇고 밋밋한 줄을 하이엔드 홀로그램 런처 카드로 시각화 */
+div[data-testid="stExpander"] {
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.94), rgba(30, 41, 59, 0.86)) !important;
+    border: 1px solid rgba(56, 189, 248, 0.42) !important;
+    border-left: 5px solid #38bdf8 !important;
+    border-radius: 14px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    margin-top: 12px !important;
+    margin-bottom: 14px !important;
+    overflow: hidden !important;
+    transition: all 0.22s ease !important;
+}
+div[data-testid="stExpander"]:hover {
+    border-color: rgba(251, 191, 36, 0.75) !important;
+    border-left-color: #fbbf24 !important;
+    box-shadow: 0 10px 28px rgba(56, 189, 248, 0.25) !important;
+}
+div[data-testid="stExpander"] details > summary {
+    padding: 13px 18px !important;
+    background: linear-gradient(90deg, rgba(56, 189, 248, 0.14), rgba(139, 92, 246, 0.10), rgba(15, 23, 42, 0.0)) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+}
+div[data-testid="stExpander"] details > summary p {
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    color: #e0f2fe !important;
+    letter-spacing: -0.2px !important;
+}
+/* 본문 영역의 Expander 우측 끝에 [⚡ STUDIO OPEN] 홀로그램 배지 자동 부착 */
+section.main div[data-testid="stExpander"] details > summary::after {
+    content: "⚡ CLICK TO OPEN STUDIO" !important;
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(139, 92, 246, 0.28)) !important;
+    border: 1px solid rgba(56, 189, 248, 0.6) !important;
+    color: #7dd3fc !important;
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    padding: 4px 11px !important;
+    border-radius: 999px !important;
+    margin-left: auto !important;
+    white-space: nowrap !important;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.25) !important;
+}
+section.main div[data-testid="stExpander"] details[open] > summary::after {
+    content: "🟢 ACTIVE STUDIO (클릭 시 접기)" !important;
+    background: rgba(16, 185, 129, 0.22) !important;
+    border-color: #10b981 !important;
+    color: #6ee7b7 !important;
 }
 </style>
 """, unsafe_allow_html=True)
