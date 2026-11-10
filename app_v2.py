@@ -1,31 +1,4 @@
 import streamlit as st
-# === [GLOBAL ZERO-MASK INTERCEPTOR v18.0] ===
-import streamlit as _st_root
-from streamlit.delta_generator import DeltaGenerator as _DG_Core
-import re as _re_zmask
-
-def _apply_strict_zero_mask(body):
-    try:
-        _sel_no = str(_st_root.session_state.get("selected_notice_no", "") or "").strip()
-        _pulled = _st_root.session_state.get("pulled_notices", []) or []
-        _manual_b = int(_st_root.session_state.get("_z34_base", 0) or 0)
-        if (not _sel_no and len(_pulled) == 0 and _manual_b == 0) and isinstance(body, str):
-            body = _re_zmask.sub(r'[+-]?\s*\d{1,3}(?:,\d{3})+\s*원', '0원', body)
-            body = _re_zmask.sub(r'[+-]?\s*\d+\s*원', '0원', body)
-            body = _re_zmask.sub(r'사정률\s*\d+\.\d+%\s*적용', '사정률 0.000% 대기', body)
-            body = _re_zmask.sub(r'실행\s*마진율\s*[+-]?\d+\.\d+%', '실행 마진율 0.00%', body)
-            body = body.replace("총 투찰가 100.0%", "총 투찰가 0.0%")
-    except Exception:
-        pass
-    return body
-
-if not getattr(_DG_Core, "_dg_zero_hooked_v18", False):
-    _orig_dg_md = _DG_Core.markdown
-    def _hooked_dg_markdown(self, body, *args, **kwargs):
-        return _orig_dg_md(self, _apply_strict_zero_mask(body), *args, **kwargs)
-    _DG_Core.markdown = _hooked_dg_markdown
-    _DG_Core._dg_zero_hooked_v18 = True
-# === [END GLOBAL ZERO-MASK INTERCEPTOR] ===
 
 
 
