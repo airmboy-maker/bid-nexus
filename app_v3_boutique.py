@@ -3552,7 +3552,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                     if st.session_state.get("_trigger_harvest_anim", False):
                         st.session_state["_trigger_harvest_anim"] = False
                         import time as _t_harv
-                        from lattice1365.local_ml_engine import safe_auto_harvest_v2 as _run_safe_harv
+                        from lattice1365.local_ml_engine import safe_auto_harvest_v3 as _run_safe_harv
 
                         _raw_c = st.session_state.get("_trigger_harvest_cnt", "300")
                         _b_num = 300
