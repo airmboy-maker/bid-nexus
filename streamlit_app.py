@@ -3686,16 +3686,16 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                     _ext_info = _auto_extract_rivals_v8(clear_seeds=False)
                     _rival_extracted = _ext_info.get("extracted_rivals", 0)
                 st.success(f"대량 학습 & 경쟁사 추출 완료: 개찰 기록 {_b_res.get('inserted')}건 흡수 & 경쟁사 프로파일 {_rival_extracted}건 자동 등록!")
-        # === [SNIPER-X v9.5 3대 실전 편의 패키지: ①투찰가 원클릭 복사 ②자사·관계사 프리셋 ③주간 다중공고 장바구니] ===
+        # === [SNIPER-X v9.5 3대 실전 편의 패키지: ①투찰가 원클릭 복사 ②자사·관계사 프리셋 ③주간 다중공고 장바구니 + 총합계 요약 배너] ===
         st.markdown("<hr style='border:0;border-top:1px solid rgba(56,189,248,0.25);margin:12px 0;'>", unsafe_allow_html=True)
         _tab_copy, _tab_preset, _tab_cart = st.tabs([
             "📋 ① 나라장터 전자입찰서 투찰가 원클릭 복사",
             "🏢 ② 자사 및 관계사 스펙 원클릭 프리셋 등록기",
-            "🛒 ③ 주간 다중 공고 장바구니 일괄 타격 비교표"
+            "🛒 ③ 주간 다중 공고 장바구니 & 총 기대수익 비교표"
         ])
 
         with _tab_copy:
-            st.markdown("<div style='font-size:12px;color:#94A3B8;margin-bottom:6px;'>💡 나라장터(G2B) 전자입찰서 입력란에 바로 붙여넣을 수 있도록 <b>콤마(,)가 제거된 순수 숫자</b>와 금액 확인용 박스를 동시에 제공합니다. 우측 복사 아이콘을 누르면 즉시 클립보드에 복사됩니다.</div>", unsafe_allow_html=True)
+            st.markdown("<div style='font-size:12px;color:#94A3B8;margin-bottom:6px;'>💡 나라장터(G2B) 전자입찰서 입력란에 바로 붙여넣을 수 있도록 <b>콤마(,)가 제거된 순수 숫자</b>를 제공합니다. 우측 복사 아이콘을 누르면 즉시 클립보드에 복사됩니다.</div>", unsafe_allow_html=True)
             _cp1, _cp2, _cp3, _cp4 = st.columns(4)
             with _cp1:
                 st.caption(f"⚡ 마감 과열 보정 최종타점 ({_sg8_res.get('final_trigger_rate', 0.0):.4f}%)")
@@ -3784,7 +3784,11 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                         "실행마진율(%)": f"{_margin_rate:+.2f}%",
                         "진공타점(원)": f"{int(_s1.get('vacuum_bid', 0)):,}",
                         "울프팩1호기(원)": f"{int(_w1.get('wp_alpha_bid', 0)):,}",
-                        "울프팩2호기(원)": f"{int(_w1.get('wp_beta_bid', 0)):,}"
+                        "울프팩2호기(원)": f"{int(_w1.get('wp_beta_bid', 0)):,}",
+                        "_raw_base": int(_use_b_cart),
+                        "_raw_sniper": int(_sniper_amt),
+                        "_raw_cost": int(_est_cost),
+                        "_raw_margin": int(_net_margin)
                     })
                     st.success(f"✅ 장바구니 추가 완료! (예상 순이익: {_net_margin:+,}원 / 마진율 {_margin_rate:+.2f}%)")
             with _ct_top3:
@@ -3815,7 +3819,11 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                             "실행마진율(%)": f"{_m_pct_v:+.2f}%",
                             "진공타점(원)": f"{int(_s_tmp.get('vacuum_bid', 0)):,}",
                             "울프팩1호기(원)": f"{int(_w_tmp.get('wp_alpha_bid', 0)):,}",
-                            "울프팩2호기(원)": f"{int(_w_tmp.get('wp_beta_bid', 0)):,}"
+                            "울프팩2호기(원)": f"{int(_w_tmp.get('wp_beta_bid', 0)):,}",
+                            "_raw_base": int(_bs_s),
+                            "_raw_sniper": int(_s_bid_v),
+                            "_raw_cost": int(_c_amt_v),
+                            "_raw_margin": int(_m_krw_v)
                         })
                     st.rerun()
             with _ct_top4:
@@ -3825,11 +3833,62 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                     st.rerun()
 
             if st.session_state["_weekly_bid_cart_v95"]:
-                st.dataframe(st.session_state["_weekly_bid_cart_v95"], use_container_width=True)
+                # 장바구니 상단 요약 배너: 총 공고 수, 총 기초금액 합계, 총 스나이퍼 투찰가 합계, 총 예상순이익 합계 및 평균 마진율 계산
+                _cart_items = st.session_state["_weekly_bid_cart_v95"]
+                _tot_cnt = len(_cart_items)
+                _tot_base = 0
+                _tot_sniper = 0
+                _tot_margin = 0
+                for _it in _cart_items:
+                    _b_num = int(_it.get("_raw_base") or str(_it.get("기초금액(원)", "0")).replace(",", "").strip() or 0)
+                    _s_num = int(_it.get("_raw_sniper") or str(_it.get("1순위스나이퍼(원)", "0")).replace(",", "").strip() or 0)
+                    _m_str = str(_it.get("예상순이익(원)", "0")).replace(",", "").replace("원", "").replace("+", "").strip()
+                    _m_num = int(_it.get("_raw_margin") if "_raw_margin" in _it else (int(_m_str) if _m_str.lstrip("-").isdigit() else int(_s_num - _b_num * (float(_cost_ratio_pct) / 100.0))))
+                    _tot_base += _b_num
+                    _tot_sniper += _s_num
+                    _tot_margin += _m_num
+                _avg_margin_pct = (_tot_margin / _tot_sniper * 100.0) if _tot_sniper > 0 else 0.0
+
+                st.markdown(f"""
+                <div style="background:linear-gradient(90deg, rgba(6,78,59,0.65), rgba(15,23,42,0.95));border:1.5px solid #10B981;border-radius:10px;padding:12px 18px;margin:8px 0 12px 0;box-shadow:0 0 18px rgba(16,185,129,0.22);">
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
+                        <div>
+                            <span style="background:#10B981;color:#052E16;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:4px;">PORTFOLIO PROFIT SUMMARY</span>
+                            <span style="color:#F8FAFC;font-size:13.5px;font-weight:900;margin-left:8px;">📊 주간 장바구니 총 {_tot_cnt}개 공고 합산 기대수익 브리핑 (실행원가율 {_cost_ratio_pct:.1f}% 기준)</span>
+                        </div>
+                        <div style="color:#A7F3D0;font-size:11.5px;font-weight:700;">평균 실행마진율: <b style="color:#34D399;font-size:14px;">{_avg_margin_pct:+.2f}%</b></div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:10px;">
+                        <div style="background:rgba(15,23,42,0.85);border:1px solid rgba(56,189,248,0.35);border-radius:8px;padding:8px 12px;text-align:center;">
+                            <div style="color:#94A3B8;font-size:11px;">담긴 타겟 공고 수</div>
+                            <div style="color:#38BDF8;font-size:16px;font-weight:900;margin-top:2px;">총 {_tot_cnt}건</div>
+                        </div>
+                        <div style="background:rgba(15,23,42,0.85);border:1px solid rgba(148,163,184,0.35);border-radius:8px;padding:8px 12px;text-align:center;">
+                            <div style="color:#94A3B8;font-size:11px;">총 기초금액 합계</div>
+                            <div style="color:#F8FAFC;font-size:16px;font-weight:900;margin-top:2px;">{_tot_base:,}원</div>
+                        </div>
+                        <div style="background:rgba(15,23,42,0.85);border:1px solid rgba(168,85,247,0.40);border-radius:8px;padding:8px 12px;text-align:center;">
+                            <div style="color:#94A3B8;font-size:11px;">총 1순위 투찰금액 합계</div>
+                            <div style="color:#C084FC;font-size:16px;font-weight:900;margin-top:2px;">{_tot_sniper:,}원</div>
+                        </div>
+                        <div style="background:rgba(16,185,129,0.14);border:1.5px solid #34D399;border-radius:8px;padding:8px 12px;text-align:center;">
+                            <div style="color:#A7F3D0;font-size:11px;font-weight:800;">💰 총 예상순이익 합계 (세전 마진)</div>
+                            <div style="color:#34D399;font-size:16.5px;font-weight:900;margin-top:2px;">{_tot_margin:+,}원</div>
+                        </div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                # 화면 표시 및 CSV 출력용 리스트 (_raw_* 내부 계산키 제외)
+                _display_rows = [
+                    {k: v for k, v in r.items() if not str(k).startswith("_raw_")}
+                    for r in _cart_items
+                ]
+                st.dataframe(_display_rows, use_container_width=True)
                 _csv_buf = _io_sx.StringIO()
-                _w_csv = _csv_sx.DictWriter(_csv_buf, fieldnames=list(st.session_state["_weekly_bid_cart_v95"][0].keys()))
+                _w_csv = _csv_sx.DictWriter(_csv_buf, fieldnames=list(_display_rows[0].keys()))
                 _w_csv.writeheader()
-                _w_csv.writerows(st.session_state["_weekly_bid_cart_v95"])
+                _w_csv.writerows(_display_rows)
                 st.download_button(
                     "📥 주간 다중 공고 일괄 타격 & 예상순이익 비교표 CSV(엑셀) 다운로드",
                     data=_csv_buf.getvalue().encode("utf-8-sig"),
