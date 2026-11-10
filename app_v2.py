@@ -3303,7 +3303,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
     _sx_title = str(st.session_state.get("selected_notice_title", "") or "공고 미선택 (Z1 쇼룸에서 공고를 선택하세요)") if _sx_has_notice else "공고 미선택 (Z1 쇼룸에서 공고를 선택하세요)"
 
     _sx_res = _run_sniper_x(agency=_sx_ag, base_amt=_sx_base, a_val=_sx_aval, lower_limit=_sx_low)
-    _rival_list_v8 = _get_rival_bookmarks_v8()
+    _rival_list_v8 = _get_rivals_v8()
 
     with st.expander("🎯 [SNIPER-X v8.0 궁극 비밀병기] 15C4 진공 타점 · 몬테카를로 워게임 · 라이벌 DNA 북마크 · 마감 과열도 보정기 — [클릭 시 열림]", expanded=False):
         # 상단 컨트롤 바: 라이벌 북마크 선택 & 마감 직전 과열도 선택
