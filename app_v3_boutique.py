@@ -3686,6 +3686,134 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                     _ext_info = _auto_extract_rivals_v8(clear_seeds=False)
                     _rival_extracted = _ext_info.get("extracted_rivals", 0)
                 st.success(f"대량 학습 & 경쟁사 추출 완료: 개찰 기록 {_b_res.get('inserted')}건 흡수 & 경쟁사 프로파일 {_rival_extracted}건 자동 등록!")
+        # === [SNIPER-X v9.5 3대 실전 편의 패키지: ①투찰가 원클릭 복사 ②자사·관계사 프리셋 ③주간 다중공고 장바구니] ===
+        st.markdown("<hr style='border:0;border-top:1px solid rgba(56,189,248,0.25);margin:12px 0;'>", unsafe_allow_html=True)
+        _tab_copy, _tab_preset, _tab_cart = st.tabs([
+            "📋 ① 나라장터 전자입찰서 투찰가 원클릭 복사",
+            "🏢 ② 자사 및 관계사 스펙 원클릭 프리셋 등록기",
+            "🛒 ③ 주간 다중 공고 장바구니 일괄 타격 비교표"
+        ])
+
+        with _tab_copy:
+            st.markdown("<div style='font-size:12px;color:#94A3B8;margin-bottom:6px;'>💡 나라장터(G2B) 전자입찰서 입력란에 바로 붙여넣을 수 있도록 <b>콤마(,)가 제거된 순수 숫자</b>와 금액 확인용 박스를 동시에 제공합니다. 우측 복사 아이콘을 누르면 즉시 클립보드에 복사됩니다.</div>", unsafe_allow_html=True)
+            _cp1, _cp2, _cp3, _cp4 = st.columns(4)
+            with _cp1:
+                st.caption(f"⚡ 마감 과열 보정 최종타점 ({_sg8_res.get('final_trigger_rate', 0.0):.4f}%)")
+                st.code(f"{int(_sg8_res.get('final_trigger_bid', 0))}", language="text")
+            with _cp2:
+                st.caption(f"🕳️ 블라인드 스팟 진공타점 ({_sx_res.get('vacuum_rate', 0.0):.4f}%)")
+                st.code(f"{int(_sx_res.get('vacuum_bid', 0))}", language="text")
+            with _cp3:
+                st.caption(f"⚔️ 워게임 최적 타점 ({_wg_res.get('optimal_war_rate', 0.0):.4f}%)")
+                st.code(f"{int(_wg_res.get('optimal_war_bid', 0))}", language="text")
+            with _cp4:
+                st.caption(f"🦅 라이벌 핀셋 추월타점 ({_kv7_res.get('front_run_rate', 0.0):.4f}%)")
+                st.code(f"{int(_kv7_res.get('front_run_bid', 0))}", language="text")
+
+            _wp_c1, _wp_c2, _wp_c3 = st.columns(3)
+            with _wp_c1:
+                st.caption("🐺 울프팩 제1호기 (본사 주력 · 끝자리 3원)")
+                st.code(f"{int(_wp9_res.get('wp_alpha_bid', 0))}", language="text")
+            with _wp_c2:
+                st.caption("🐺 울프팩 제2호기 (제2법인 진공매복 · 끝자리 7원)")
+                st.code(f"{int(_wp9_res.get('wp_beta_bid', 0))}", language="text")
+            with _wp_c3:
+                st.caption("🐺 울프팩 제3호기 (제3법인 상단차단 · 끝자리 9원)")
+                st.code(f"{int(_wp9_res.get('wp_gamma_bid', 0))}", language="text")
+
+        with _tab_preset:
+            if "_corp_presets_v95" not in st.session_state:
+                st.session_state["_corp_presets_v95"] = {
+                    "본사 (주력 제1법인)": {"corp_name": "본사(주력법인)", "license": "건축공사업 · 실내건축 · 전기공사", "region": "전국/관내", "sipyung": 12500000000, "manage_score": 15.0, "perf_score": 13.5, "cred_score": 1.0},
+                    "제2관계사 (울프팩 2호기)": {"corp_name": "제2관계사(주)", "license": "실내건축공사업 · 시설물유지", "region": "서울/경기", "sipyung": 6800000000, "manage_score": 15.0, "perf_score": 13.0, "cred_score": 1.5},
+                    "제3파트너사 (컨소시엄 3호기)": {"corp_name": "제3파트너건설(주)", "license": "전기공사업 · 정보통신공사업", "region": "전국", "sipyung": 9200000000, "manage_score": 14.8, "perf_score": 13.5, "cred_score": 1.2}
+                }
+            _pr_c1, _pr_c2, _pr_c3 = st.columns(3)
+            for _idx_p, (_p_key, _p_val) in enumerate(st.session_state["_corp_presets_v95"].items()):
+                _target_col = [_pr_c1, _pr_c2, _pr_c3][_idx_p % 3]
+                with _target_col:
+                    st.markdown(f"""
+                    <div style="background:rgba(15,23,42,0.9);border:1px solid rgba(56,189,248,0.4);border-radius:8px;padding:10px 12px;margin-bottom:6px;">
+                        <div style="color:#38BDF8;font-size:12px;font-weight:900;">🏢 {_p_key}</div>
+                        <div style="color:#E2E8F0;font-size:11.5px;margin-top:3px;">면허: {_p_val['license']}</div>
+                        <div style="color:#34D399;font-size:11.5px;font-weight:800;">시평액: {_p_val['sipyung']:,}원 | 적격 29.5점 만점</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    if st.button(f"🔓 [{_p_key[:6]}] 스펙 즉시 장착", key=f"_btn_preset_apply_{_idx_p}", use_container_width=True):
+                        st.session_state["master_spec_unlocked"] = True
+                        st.session_state["gatekeeper_unlocked"] = True
+                        st.session_state["active_corp_preset"] = _p_key
+                        st.session_state["corp_sipyung"] = _p_val["sipyung"]
+                        st.success(f"✅ [{_p_key}] 마스터 스펙 장착 및 전 구간(Z1~Z9) 적격심사 29.5점 연동 완료!")
+
+        with _tab_cart:
+            if "_weekly_bid_cart_v95" not in st.session_state:
+                st.session_state["_weekly_bid_cart_v95"] = []
+
+            _ct_b1, _ct_b2, _ct_b3 = st.columns([2.0, 1.5, 1.5])
+            with _ct_b1:
+                if st.button("➕ 현재 타겟 공고 & 6대 타점을 주간 장바구니에 담기", key="_cart_add_btn", use_container_width=True):
+                    _use_b_cart = _sx_base if _sx_base > 0 else 1500000000
+                    _use_a_cart = _sx_aval if _sx_aval > 0 else 90000000
+                    _s1 = _run_sniper_x(agency=(_sx_ag or "조달청"), base_amt=_use_b_cart, a_val=_use_a_cart, lower_limit=_sx_low)
+                    _w1 = _run_wolfpack_v9(agency=(_sx_ag or "조달청"), base_amt=_use_b_cart, a_val=_use_a_cart, lower_limit=_sx_low, center_rate=float(_s1.get("sniper_rate", 100.0317)), vacuum_rate=float(_s1.get("vacuum_rate", 99.9840)))
+                    st.session_state["_weekly_bid_cart_v95"].append({
+                        "순번": len(st.session_state["_weekly_bid_cart_v95"]) + 1,
+                        "공고명": _sx_title[:28] if _sx_base > 0 else f"표준공고 #{len(st.session_state['_weekly_bid_cart_v95'])+1} (15억)",
+                        "발주처": _sx_ag if _sx_ag else "조달청",
+                        "기초금액(원)": f"{_use_b_cart:,}",
+                        "1순위스나이퍼(원)": f"{int(_s1.get('sniper_bid', 0)):,}",
+                        "목표사정률(%)": f"{float(_s1.get('sniper_rate', 0.0)):.4f}%",
+                        "진공타점(원)": f"{int(_s1.get('vacuum_bid', 0)):,}",
+                        "울프팩1호기(원)": f"{int(_w1.get('wp_alpha_bid', 0)):,}",
+                        "울프팩2호기(원)": f"{int(_w1.get('wp_beta_bid', 0)):,}",
+                        "울프팩3호기(원)": f"{int(_w1.get('wp_gamma_bid', 0)):,}"
+                    })
+                    st.success("✅ 주간 다중 공고 장바구니에 추가되었습니다!")
+            with _ct_b2:
+                if st.button("⚡ 이번 주 샘플 3개 공고 일괄 생성 비교", key="_cart_sample3_btn", use_container_width=True):
+                    _samples_cfg = [
+                        ("조달청", "교육시설 환경개선 전기공사", 1500000000, 90000000, 87.745),
+                        ("경기도", "관내 복합문화센터 실내건축공사", 2400000000, 140000000, 87.745),
+                        ("한국토지주택공사", "공동주택 단지 기계설비공사", 4500000000, 250000000, 87.745)
+                    ]
+                    st.session_state["_weekly_bid_cart_v95"] = []
+                    for _i_s, (_ag_s, _tit_s, _bs_s, _av_s, _lw_s) in enumerate(_samples_cfg, 1):
+                        _s_tmp = _run_sniper_x(agency=_ag_s, base_amt=_bs_s, a_val=_av_s, lower_limit=_lw_s)
+                        _w_tmp = _run_wolfpack_v9(agency=_ag_s, base_amt=_bs_s, a_val=_av_s, lower_limit=_lw_s, center_rate=float(_s_tmp.get("sniper_rate", 100.0317)), vacuum_rate=float(_s_tmp.get("vacuum_rate", 99.9840)))
+                        st.session_state["_weekly_bid_cart_v95"].append({
+                            "순번": _i_s,
+                            "공고명": _tit_s,
+                            "발주처": _ag_s,
+                            "기초금액(원)": f"{_bs_s:,}",
+                            "1순위스나이퍼(원)": f"{int(_s_tmp.get('sniper_bid', 0)):,}",
+                            "목표사정률(%)": f"{float(_s_tmp.get('sniper_rate', 0.0)):.4f}%",
+                            "진공타점(원)": f"{int(_s_tmp.get('vacuum_bid', 0)):,}",
+                            "울프팩1호기(원)": f"{int(_w_tmp.get('wp_alpha_bid', 0)):,}",
+                            "울프팩2호기(원)": f"{int(_w_tmp.get('wp_beta_bid', 0)):,}",
+                            "울프팩3호기(원)": f"{int(_w_tmp.get('wp_gamma_bid', 0)):,}"
+                        })
+                    st.rerun()
+            with _ct_b3:
+                if st.button("🗑️ 장바구니 비우기", key="_cart_clear_btn", use_container_width=True):
+                    st.session_state["_weekly_bid_cart_v95"] = []
+                    st.rerun()
+
+            if st.session_state["_weekly_bid_cart_v95"]:
+                st.dataframe(st.session_state["_weekly_bid_cart_v95"], use_container_width=True)
+                _csv_buf = _io_sx.StringIO()
+                _w_csv = _csv_sx.DictWriter(_csv_buf, fieldnames=list(st.session_state["_weekly_bid_cart_v95"][0].keys()))
+                _w_csv.writeheader()
+                _w_csv.writerows(st.session_state["_weekly_bid_cart_v95"])
+                st.download_button(
+                    "📥 주간 다중 공고 일괄 타격 비교표 CSV(엑셀) 다운로드",
+                    data=_csv_buf.getvalue().encode("utf-8-sig"),
+                    file_name=f"BID_NEXUS_주간타격비교표_{_dt_sx.datetime.now().strftime('%Y%m%d')}.csv",
+                    mime="text/csv",
+                    key="_cart_dl_csv_btn"
+                )
+            else:
+                st.info("현재 장바구니가 비어 있습니다. 위의 [➕ 현재 타겟 공고 담기] 또는 [⚡ 이번 주 샘플 3개 공고 일괄 생성 비교] 버튼을 눌러보세요.")
     # === [END SNIPER-X SECRET WEAPON CONSOLE] ===
 
     st.markdown("""<!-- NEXUS_ZONE_DIVIDER --><div style="display:flex;align-items:center;gap:10px;margin:6px 0 4px 0;padding:5px 12px;background:linear-gradient(90deg,rgba(14,165,233,0.16) 0%,rgba(15,23,42,0.4) 60%,transparent 100%);border-left:3px solid #38BDF8;border-radius:4px;"><span style="font-size:0.70rem;font-weight:900;letter-spacing:1.2px;color:#38BDF8;background:rgba(56,189,248,0.14);padding:2px 7px;border-radius:3px;border:1px solid rgba(56,189,248,0.35);">PIPELINE 01</span><span style="font-size:0.80rem;font-weight:700;color:#E2E8F0;letter-spacing:-0.2px;">타겟 공고 브리핑 & 5대 다차원 조건 컨트롤러 (STEP 0 · STEP 1)</span><div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(56,189,248,0.4),transparent);"></div></div>""", unsafe_allow_html=True)
