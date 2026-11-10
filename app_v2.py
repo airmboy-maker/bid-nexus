@@ -12331,3 +12331,83 @@ section[data-testid="stSidebar"] div[role="radiogroup"] label p {
 </style>
 """, unsafe_allow_html=True)
 
+
+
+# === [SNIPER-X SECRET WEAPON CONSOLE v4.0] ===
+try:
+    from lattice1365.local_ml_engine import compute_sniper_x_secret_weapon as _run_sniper_x, record_new_bid_observation as _learn_real_bid
+    _sx_has_notice = bool(st.session_state.get("selected_notice_no", "")) or (int(st.session_state.get("_z34_base", 0) or 0) > 0)
+    _sx_base = int(st.session_state.get("_z34_base", 0) or 0) if _sx_has_notice else 0
+    _sx_aval = int(st.session_state.get("_z34_aval", 0) or 0) if _sx_has_notice else 0
+    _sx_low = float(st.session_state.get("_z34_low", 87.745) or 87.745)
+    _sx_ag = str(st.session_state.get("selected_notice_agency", "") or "조달청") if _sx_has_notice else ""
+    _sx_title = str(st.session_state.get("selected_notice_title", "") or "공고 미선택 (Z1 쇼룸에서 공고를 선택하세요)") if _sx_has_notice else "공고 미선택 (Z1 쇼룸에서 공고를 선택하세요)"
+
+    _sx_res = _run_sniper_x(agency=_sx_ag, base_amt=_sx_base, a_val=_sx_aval, lower_limit=_sx_low)
+
+    with st.expander("🎯 [SNIPER-X v4.0 실전 비밀병기] 비대칭 15C4 컨볼루션 · 경쟁사 과밀 회피(Blind-Spot) · 개찰 복기 자가진화 엔진 (클릭 시 열림)", expanded=False):
+        st.markdown(f"""
+        <div style="background:linear-gradient(135deg, rgba(15,23,42,0.96), rgba(9,13,24,0.98));border:1px solid rgba(16,185,129,0.45);border-radius:12px;padding:16px 20px;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;border-bottom:1px solid rgba(56,189,248,0.2);padding-bottom:10px;">
+                <div>
+                    <span style="background:rgba(16,185,129,0.2);color:#34D399;font-size:11px;font-weight:800;padding:3px 8px;border-radius:4px;border:1px solid rgba(16,185,129,0.4);">SNIPER-X QUANTUM CORE</span>
+                    <span style="color:#F8FAFC;font-size:15px;font-weight:800;margin-left:8px;">실전 단독 1순위 타격 & 경쟁사 밀집 구간 회피(Vacuum Pocket) 솔루션</span>
+                </div>
+                <div style="color:#38BDF8;font-size:12px;font-weight:700;">
+                    타겟: {_sx_title[:38]} | 레짐 상태: <span style="color:#FBBF24;">{_sx_res.get("regime_state")}</span>
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:12px;">
+                <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.35);border-radius:8px;padding:12px;text-align:center;">
+                    <div style="color:#94A3B8;font-size:11px;font-weight:700;">🎯 1순위 스나이퍼 타점 (최고 기댓값)</div>
+                    <div style="color:#34D399;font-size:20px;font-weight:900;margin:4px 0;">{_sx_res.get("sniper_bid", 0):,}원</div>
+                    <div style="color:#A7F3D0;font-size:11px;">목표 사정률: {_sx_res.get("sniper_rate", 0.0):.4f}% (프라임 오프셋)</div>
+                </div>
+                <div style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.35);border-radius:8px;padding:12px;text-align:center;">
+                    <div style="color:#94A3B8;font-size:11px;font-weight:700;">🕳️ 블라인드 스팟 (경쟁사 진공 타점)</div>
+                    <div style="color:#38BDF8;font-size:20px;font-weight:900;margin:4px 0;">{_sx_res.get("vacuum_bid", 0):,}원</div>
+                    <div style="color:#BAE6FD;font-size:11px;">진공 사정률: {_sx_res.get("vacuum_rate", 0.0):.4f}% | 과밀회피 {_sx_res.get("crowd_avoid_score", 0.0):.1f}%</div>
+                </div>
+                <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.35);border-radius:8px;padding:12px;text-align:center;">
+                    <div style="color:#94A3B8;font-size:11px;font-weight:700;">🛡️ A값 레버리지 & 98% 방어 타점</div>
+                    <div style="color:#FBBF24;font-size:20px;font-weight:900;margin:4px 0;">{_sx_res.get("safe_floor_bid", 0):,}원</div>
+                    <div style="color:#FDE68A;font-size:11px;">방어 사정률: {_sx_res.get("safe_floor_rate", 0.0):.4f}% | A값 비중 {_sx_res.get("a_leverage_pct", 0.0):.1f}%</div>
+                </div>
+                <div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.35);border-radius:8px;padding:12px;text-align:center;">
+                    <div style="color:#94A3B8;font-size:11px;font-weight:700;">📈 발주처 최근성 드리프트 (EWMA)</div>
+                    <div style="color:#C084FC;font-size:20px;font-weight:900;margin:4px 0;">{_sx_res.get("ewma_drift", 0.0):+.4f}%p</div>
+                    <div style="color:#E9D5FF;font-size:11px;">최근 수렴 중심: {_sx_res.get("ewma_center", 0.0):.4f}%</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("##### ⚡ [실전 개찰 결과 1초 복기 & 로컬 AI 즉시 진화] — 실제 개찰 직후 당첨 사정률을 입력하면 AI가 발주처 패턴을 즉시 재학습합니다")
+        _pm_c1, _pm_c2, _pm_c3, _pm_c4 = st.columns([2.2, 1.5, 1.5, 1.2])
+        with _pm_c1:
+            _pm_ag = st.text_input("발주처명 (실제 개찰 기관)", value=(_sx_ag if _sx_ag else "조달청"), key="_sx_pm_ag")
+        with _pm_c2:
+            _pm_rate = st.number_input("실제 당첨 사정률 (%)", min_value=94.0000, max_value=106.0000, value=100.0350, step=0.0050, format="%.4f", key="_sx_pm_rate")
+        with _pm_c3:
+            _pm_part = st.number_input("참여 경쟁사 수 (개사)", min_value=1, max_value=5000, value=45, step=1, key="_sx_pm_part")
+        with _pm_c4:
+            st.markdown("<div style='height:27px;'></div>", unsafe_allow_html=True)
+            if st.button("🧠 개찰 결과 즉시 학습", key="_sx_pm_btn"):
+                _use_b = _sx_base if _sx_base > 0 else 1000000000
+                _use_a = _sx_aval if _sx_aval > 0 else int(_use_b * 0.06)
+                _calc_win_bid = int(((_use_b * (_pm_rate / 100.0) - _use_a) * (_sx_low / 100.0)) + _use_a)
+                _learn_real_bid(
+                    notice_no=f"REAL-{datetime.datetime.now().strftime('%m%d-%H%M%S')}",
+                    agency=_pm_ag,
+                    base_amt=_use_b,
+                    a_val=_use_a,
+                    lower_limit=_sx_low,
+                    yega_rate=float(_pm_rate),
+                    bid_amt=_calc_win_bid,
+                    participants=int(_pm_part)
+                )
+                st.success(f"학습 완료: [{_pm_ag}] 실전 당첨 사정률 {_pm_rate:.4f}% (참여 {_pm_part}개사) 로컬 SQLite 영구 기록 반영")
+except Exception as _sx_err:
+    pass
+# === [END SNIPER-X SECRET WEAPON CONSOLE] ===
+

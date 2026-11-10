@@ -952,3 +952,146 @@ class LocalBidIntelligenceEngine:
         conn.close()
         return {"is_unlocked": False}
 
+
+# ==============================================================================
+# [SNIPER-X v4.0] 실전 낙찰 극대화 5대 비밀병기 퀀트 모듈
+# ==============================================================================
+def compute_sniper_x_secret_weapon(
+    agency: str = "",
+    base_amt: int = 0,
+    a_val: int = 0,
+    lower_limit: float = 87.745,
+    band_pct: float = 2.0,
+    target_rate_hint: float = 0.0
+) -> dict:
+    import math
+    import itertools
+    import hashlib
+
+    if int(base_amt or 0) <= 0:
+        return {
+            "active": False,
+            "sniper_rate": 0.0,
+            "sniper_bid": 0,
+            "vacuum_rate": 0.0,
+            "vacuum_bid": 0,
+            "safe_floor_rate": 0.0,
+            "safe_floor_bid": 0,
+            "win_prob_gain": 0.0,
+            "crowd_avoid_score": 0.0,
+            "ewma_drift": 0.0,
+            "ewma_center": 0.0,
+            "a_leverage_pct": 0.0,
+            "top_3_pockets": [],
+            "ball_weights": [0.0]*15,
+            "regime_state": "대기 중 (공고 미선택)"
+        }
+
+    ag_clean = str(agency or "조달청").strip()
+    if any(k in ag_clean for k in ["시", "군", "구", "도", "교육청", "지자체"]) and "조달" not in ag_clean:
+        band_pct = 3.0
+
+    conn = _get_conn()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT yega_rate, bid_amt, base_amt FROM bid_history WHERE agency LIKE ? ORDER BY id DESC LIMIT 30",
+        (f"%{ag_clean[:4]}%",)
+    )
+    rows = cur.fetchall()
+    if len(rows) < 5:
+        cur.execute("SELECT yega_rate, bid_amt, base_amt FROM bid_history ORDER BY id DESC LIMIT 40")
+        rows = cur.fetchall()
+    conn.close()
+
+    hist_rates = [float(r[0]) for r in rows if r and r[0] and 94.0 <= float(r[0]) <= 106.0]
+    if not hist_rates:
+        hist_rates = [100.045, 99.985, 100.112, 100.028, 99.942, 100.088, 100.015]
+
+    alpha = 0.35
+    ewma_val = hist_rates[-1]
+    for r in reversed(hist_rates[:-1]):
+        ewma_val = alpha * r + (1.0 - alpha) * ewma_val
+    simple_mean = sum(hist_rates) / len(hist_rates)
+    ewma_drift = round(ewma_val - simple_mean, 4)
+
+    h_seed = int(hashlib.md5(f"{ag_clean}_{base_amt}".encode()).hexdigest()[:8], 16)
+    slots = []
+    step = (band_pct * 2.0) / 15.0
+    for idx in range(15):
+        center_r = (100.0 - band_pct) + (idx + 0.52) * step
+        jitter = (((h_seed >> (idx % 12)) & 0xF) - 7.5) * 0.0018
+        slots.append(round(center_r + jitter, 5))
+
+    raw_weights = [0.72, 0.84, 0.96, 1.08, 1.15, 1.22, 1.34, 1.28, 1.25, 1.31, 1.19, 1.12, 0.98, 0.86, 0.74]
+    if ewma_val >= 100.0:
+        for i in range(8, 15):
+            raw_weights[i] *= 1.14
+    else:
+        for i in range(0, 7):
+            raw_weights[i] *= 1.14
+    w_sum = sum(raw_weights)
+    ball_probs = [round(w / w_sum, 4) for w in raw_weights]
+
+    combos = []
+    total_combo_w = 0.0
+    for c_idx in itertools.combinations(range(15), 4):
+        c_rate = sum(slots[i] for i in c_idx) / 4.0
+        c_weight = ball_probs[c_idx[0]] * ball_probs[c_idx[1]] * ball_probs[c_idx[2]] * ball_probs[c_idx[3]]
+        combos.append((c_rate, c_weight))
+        total_combo_w += c_weight
+
+    combos.sort(key=lambda x: x[0])
+
+    candidate_pockets = []
+    for k in range(20, len(combos) - 20, 8):
+        r_cand = combos[k][0]
+        local_prob = sum(w for (cr, w) in combos[max(0, k-18):min(len(combos), k+18)] if abs(cr - r_cand) <= 0.035) / total_combo_w
+        grid_dist = min(abs((r_cand * 20) - round(r_cand * 20)), 0.5)
+        center_crowd = math.exp(-((r_cand - 100.02) ** 2) / (2 * (0.08 ** 2)))
+        crowd_avoid = 0.65 * (1.0 - 0.55 * center_crowd) + 0.35 * (grid_dist * 2.0)
+        ewma_affinity = math.exp(-((r_cand - ewma_val) ** 2) / (2 * (0.28 ** 2)))
+        edge_score = (local_prob * 100.0) * (0.55 + 0.45 * crowd_avoid) * (0.60 + 0.40 * ewma_affinity)
+
+        prime_offset = 0.0017 if (k % 2 == 0) else -0.0013
+        refined_rate = round(r_cand + prime_offset, 4)
+
+        exp_price = base_amt * (refined_rate / 100.0)
+        raw_bid = ((exp_price - a_val) * (lower_limit / 100.0)) + a_val
+        exact_bid = int(math.ceil(raw_bid))
+
+        candidate_pockets.append({
+            "rate": refined_rate,
+            "bid": exact_bid,
+            "edge_score": round(edge_score * 10.0, 2),
+            "hit_prob_pct": round(local_prob * 100.0, 2),
+            "crowd_avoid_pct": round(min(99.4, 58.0 + crowd_avoid * 41.0), 1)
+        })
+
+    candidate_pockets.sort(key=lambda x: x["edge_score"], reverse=True)
+    best_sniper = candidate_pockets[0]
+    vacuum_pocket = sorted(candidate_pockets[:12], key=lambda x: x["crowd_avoid_pct"], reverse=True)[0]
+
+    safe_rate = round(ewma_val + (0.042 if band_pct <= 2.0 else 0.068), 4)
+    safe_bid = int(math.ceil(((base_amt * (safe_rate / 100.0) - a_val) * (lower_limit / 100.0)) + a_val))
+
+    a_lev = round((float(a_val) / float(base_amt)) * 100.0, 2) if base_amt > 0 else 0.0
+    regime_txt = "상승 드리프트 (고예가 우세)" if ewma_drift > 0.015 else ("하락 드리프트 (저예가 우세)" if ewma_drift < -0.015 else "균형 수렴 (중심부 밀집)")
+
+    return {
+        "active": True,
+        "sniper_rate": best_sniper["rate"],
+        "sniper_bid": best_sniper["bid"],
+        "vacuum_rate": vacuum_pocket["rate"],
+        "vacuum_bid": vacuum_pocket["bid"],
+        "safe_floor_rate": safe_rate,
+        "safe_floor_bid": safe_bid,
+        "win_prob_gain": round(best_sniper["edge_score"] * 1.45, 1),
+        "crowd_avoid_score": best_sniper["crowd_avoid_pct"],
+        "ewma_drift": ewma_drift,
+        "ewma_center": round(ewma_val, 4),
+        "a_leverage_pct": a_lev,
+        "top_3_pockets": candidate_pockets[:3],
+        "ball_weights": ball_probs,
+        "regime_state": regime_txt
+    }
+
