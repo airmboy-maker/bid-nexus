@@ -1,4 +1,15 @@
 import streamlit as st
+
+def _clean_z4_box(_raw_html: str) -> str:
+    import re as _re_c
+    _active = bool(st.session_state.get("selected_notice_no", "")) or (int(st.session_state.get("_z34_base", 0) or 0) > 0)
+    if not _active and isinstance(_raw_html, str):
+        _raw_html = _re_c.sub(r'[+-]?\s*\d[\d,]*\s*원', lambda m: '+0원' if '+' in m.group(0) else '0원', _raw_html)
+        _raw_html = _re_c.sub(r'사정률\s*[\d.]+%\s*(?:적용|대기)', '사정률 0.000% 대기', _raw_html)
+        _raw_html = _re_c.sub(r'실행\s*마진율\s*[+-]?[\d.]+%', '실행 마진율 0.00%', _raw_html)
+        _raw_html = _raw_html.replace('총 투찰가 100.0%', '총 투찰가 0.0%')
+    return _raw_html
+
 def _z4_clean_zero_html(_html_str: str) -> str:
     import re as _re_z4
     _has_notice = bool(st.session_state.get("selected_notice_no", "")) or (int(st.session_state.get("_z34_base", 0) or 0) > 0)
@@ -480,40 +491,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 st.markdown("""
-<style>
-/* === [SAFARI SIDEBAR SLIM WIDTH & CLEAN KOREAN BOX v20.0] === */
-section[data-testid="stSidebar"] {
-    width: 268px !important;
-    min-width: 268px !important;
-    max-width: 268px !important;
-}
-section[data-testid="stSidebar"] > div:first-child {
-    width: 268px !important;
-    padding-left: 10px !important;
-    padding-right: 10px !important;
-}
-/* 사이드바 내부 알림/경고 박스 여백 및 한글 줄바꿈 정밀 교정 */
-section[data-testid="stSidebar"] div[data-testid="stNotification"],
-section[data-testid="stSidebar"] div[role="alert"] {
-    padding: 8px 10px !important;
-    font-size: 0.76rem !important;
-    line-height: 1.42 !important;
-    text-align: center !important;
-}
-section[data-testid="stSidebar"] p,
-section[data-testid="stSidebar"] span,
-section[data-testid="stSidebar"] div {
-    word-break: keep-all !important;
-}
-/* 좌측 메뉴 라디오 버튼 글자 크기 슬림화 (268px 폭에 쏙 들어가도록 조정) */
-section[data-testid="stSidebar"] div[role="radiogroup"] label p {
-    font-size: 0.75rem !important;
-    letter-spacing: -0.04em !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-}
-</style>
+
 """, unsafe_allow_html=True)
 
 st.markdown("""
@@ -5104,168 +5082,6 @@ with tab_quantum_ai:
     st.dataframe((real_df[[c for c in [c for c in ["공고번호", "공고명", "기초금액", "실제예가사정률", "1순위투찰률", "1-2위 격차", "결과"] if c in real_df.columns] if c in real_df.columns]] if hasattr(real_df, "columns") and len([c for c in [c for c in ["공고번호", "공고명", "기초금액", "실제예가사정률", "1순위투찰률", "1-2위 격차", "결과"] if c in real_df.columns] if c in real_df.columns]) > 0 else real_df) if hasattr(real_df, "columns") and any(c in real_df.columns for c in ["공고번호", "공고명", "기초금액", "실제예가사정률", "1순위투찰률", "1-2위 격차", "결과"]) else real_df, use_container_width=True, hide_index=True)
 
 with tab_sim:
-    # === [Z4 STRICT ZERO FORCE] ===
-    if not st.session_state.get('selected_notice_no') and int(st.session_state.get('_z34_base', 0) or 0) == 0:
-        _z4_bid_p = 0
-        _z4_delta_001 = 0
-        _z4_exec_cost = 0
-        _z4_exec_pct = 0
-        _z4_net98 = 0
-        _z4_profit = 0
-        _z4_rate = 0
-    st.subheader("🎛️ 0.001% 정밀 감도 & 공사 비목별 원가 분석")
-    # === [Z4 QUANTUM SENSITIVITY & COST BREAKDOWN HUD] ===
-    try:
-        import streamlit.components.v1 as _stc_z4
-        _z4_base = float(st.session_state.get("base_amount", 0) or 0)
-        _z4_a = float(st.session_state.get("a_value", 0) or 0)
-        _z4_net = float(st.session_state.get("net_cost", 0) or 0)
-        _z4_lim = float(st.session_state.get("lower_limit_rate", 88.745) or 88.745)
-        _z4_rate = 100.050
-        _z4_exec_pct = 88.5
-        for _zk, _zv in st.session_state.items():
-            if isinstance(_zv, (int, float)) and not isinstance(_zv, bool):
-                if 97.0 <= float(_zv) <= 103.0 and ("rate" in str(_zk).lower() or "sajung" in str(_zk).lower() or "sim" in str(_zk).lower()):
-                    _z4_rate = float(_zv)
-                elif 70.0 <= float(_zv) <= 96.0 and ("cost" in str(_zk).lower() or "exec" in str(_zk).lower() or "margin" in str(_zk).lower()):
-                    _z4_exec_pct = float(_zv)
-        _z4_est_p = _z4_base * (_z4_rate / 100.0)
-        _z4_bid_p = round(((_z4_est_p - _z4_a) * (_z4_lim / 100.0)) + _z4_a + 19)
-        _z4_net98 = round(_z4_net * 0.98 * (_z4_rate / 100.0))
-        _z4_exec_cost = round(_z4_base * (_z4_exec_pct / 100.0))
-        _z4_profit = max(0, _z4_bid_p - _z4_exec_cost) if _z4_bid_p > _z4_exec_cost else round(_z4_bid_p * (100.0 - _z4_exec_pct) / 100.0 * 0.65)
-        _z4_prof_rate = (_z4_profit / _z4_bid_p) * 100.0 if _z4_bid_p > 0 else 8.2
-        _z4_delta_001 = round((_z4_base * 0.00001) * (_z4_lim / 100.0))
-        _c_mat = round(_z4_bid_p * 0.42)
-        _c_lab = round(_z4_bid_p * 0.31)
-        _c_exp = round(_z4_bid_p * 0.15)
-        _c_adm = round(_z4_bid_p * 0.06)
-        _c_prf = _z4_bid_p - (_c_mat + _c_lab + _c_exp + _c_adm)
-        _z4_html = """<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><style>
-            * { box-sizing:border-box; font-family:'Pretendard','Apple SD Gothic Neo',sans-serif; }
-            body { margin:0; padding:4px 4px 16px 4px; background:transparent; color:#f8fafc; }
-            .q-cockpit {
-                background: radial-gradient(circle at 12% 18%, rgba(56,189,248,0.18), rgba(15,23,42,0.97) 68%);
-                border: 1px solid rgba(56,189,248,0.48);
-                border-radius: 16px; padding: 18px 20px;
-                box-shadow: 0 14px 34px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.12);
-            }
-            .q-top { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(148,163,184,0.2); padding-bottom:10px; margin-bottom:14px; }
-            .q-title { font-size:15.5px; font-weight:900; color:#f8fafc; display:flex; align-items:center; gap:9px; }
-            .q-tag { background:linear-gradient(135deg,#0284c7,#38bdf8); color:#0f172a; font-size:11px; font-weight:900; padding:3px 10px; border-radius:999px; box-shadow:0 0 12px rgba(56,189,248,0.5); }
-            .q-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
-            .q-card {
-                background:linear-gradient(145deg,rgba(30,41,59,0.88),rgba(15,23,42,0.95));
-                border:1px solid rgba(148,163,184,0.24); border-top:3px solid #38bdf8;
-                border-radius:12px; padding:12px 12px; text-align:center;
-            }
-            .q-lbl { font-size:11.5px; color:#94a3b8; font-weight:800; margin-bottom:5px; }
-            .q-val { font-size:19px; font-weight:900; color:#38bdf8; font-variant-numeric:tabular-nums; margin-bottom:4px; }
-            .q-sub { font-size:11px; font-weight:800; color:#6ee7b7; background:rgba(16,185,129,0.16); display:inline-block; padding:2px 9px; border-radius:999px; }
-            .cost-bar-wrap { background:rgba(15,23,42,0.88); border:1px solid rgba(56,189,248,0.28); border-radius:12px; padding:13px 16px; }
-            .cb-head { display:flex; justify-content:space-between; font-size:12.5px; font-weight:800; color:#e2e8f0; margin-bottom:9px; }
-            .stack-track { display:flex; height:22px; width:100%; border-radius:999px; overflow:hidden; box-shadow:0 0 16px rgba(56,189,248,0.25); margin-bottom:11px; border:1px solid rgba(255,255,255,0.12); }
-            .seg { display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:900; color:#0f172a; white-space:nowrap; }
-            .legend-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
-            .leg-item { background:rgba(30,41,59,0.65); border:1px solid rgba(148,163,184,0.18); border-radius:8px; padding:7px 8px; text-align:center; }
-            .leg-name { font-size:11px; font-weight:800; color:#cbd5e1; margin-bottom:2px; }
-            .leg-amt { font-size:12px; font-weight:900; font-variant-numeric:tabular-nums; }
-        </style></head><body>
-            <div class="q-cockpit">
-                <div class="q-top">
-                    <div class="q-title"><span class="q-tag">QUANTUM TELEMETRY</span> 🎛️ 0.001% 초정밀 감도 타점 & 5대 공사 비목별 원가 실시간 분해 콘솔</div>
-                    <span style="font-size:11.5px; font-weight:800; color:#fbbf24;">⚡ 사정률 0.001% 변동 시 투찰가 ±__DELTA__원 정밀 이동</span>
-                </div>
-                <div class="q-grid">
-                    <div class="q-card">
-                        <div class="q-lbl">🎯 현재 사정률 연동 투찰가</div>
-                        <div class="q-val">__BID_P__원</div>
-                        <div class="q-sub">사정률 __RATE__% 적용</div>
-                    </div>
-                    <div class="q-card" style="border-top-color:#10b981;">
-                        <div class="q-lbl">🛡️ 순공사원가 98% 방어선</div>
-                        <div class="q-val" style="color:#34d399;">__NET98__원</div>
-                        <div class="q-sub">부당감액 낙찰배제 완벽 방어</div>
-                    </div>
-                    <div class="q-card" style="border-top-color:#f59e0b;">
-                        <div class="q-lbl">⚙️ 현장 실행원가 (__EXEC_PCT__%)</div>
-                        <div class="q-val" style="color:#fbbf24;">__EXEC_COST__원</div>
-                        <div class="q-sub">직접시공 원가 한도선</div>
-                    </div>
-                    <div class="q-card" style="border-top-color:#a78bfa;">
-                        <div class="q-lbl">💎 예상 실행 순이익 (마진)</div>
-                        <div class="q-val" style="color:#c4b5fd;">+__PROFIT__원</div>
-                        <div class="q-sub" style="color:#fde68a; background:rgba(245,158,11,0.2);">실행 마진율 +__PROF_RATE__%</div>
-                    </div>
-                </div>
-                <div class="cost-bar-wrap">
-                    <div class="cb-head">
-                        <span>📊 [공사 비목별 원가 구성 스펙트럼] 국가계약법 예정가격 작성기준 5대 비목 자동 배분</span>
-                        <span style="color:#38bdf8;">총 투찰가 100.0% (__BID_P__원)</span>
-                    </div>
-                    <div class="stack-track">
-                        <div class="seg" style="width:42%; background:linear-gradient(90deg,#38bdf8,#0284c7);">재료비 42%</div>
-                        <div class="seg" style="width:31%; background:linear-gradient(90deg,#34d399,#059669);">직접노무비 31%</div>
-                        <div class="seg" style="width:15%; background:linear-gradient(90deg,#fbbf24,#d97706);">경비 15%</div>
-                        <div class="seg" style="width:6%; background:linear-gradient(90deg,#a78bfa,#7c3aed); color:#fff;">관리 6%</div>
-                        <div class="seg" style="width:6%; background:linear-gradient(90deg,#f43f5e,#e11d48); color:#fff;">이윤 6%</div>
-                    </div>
-                    <div class="legend-grid">
-                        <div class="leg-item"><div class="leg-name">🧱 직접·간접 재료비 (42%)</div><div class="leg-amt" style="color:#38bdf8;">__CMAT__원</div></div>
-                        <div class="leg-item"><div class="leg-name">👷 노무비 (퇴직·법정 31%)</div><div class="leg-amt" style="color:#34d399;">__CLAB__원</div></div>
-                        <div class="leg-item"><div class="leg-name">🚜 산출경비·안전비 (15%)</div><div class="leg-amt" style="color:#fbbf24;">__CEXP__원</div></div>
-                        <div class="leg-item"><div class="leg-name">🏢 일반관리비 (6%)</div><div class="leg-amt" style="color:#c4b5fd;">__CADM__원</div></div>
-                        <div class="leg-item"><div class="leg-name">💰 기업 법정이윤 (6%)</div><div class="leg-amt" style="color:#fda4af;">__CPRF__원</div></div>
-                    </div>
-                </div>
-            </div>
-        </body></html>"""
-        for _tk, _tv in [
-            ("__DELTA__", f"{_z4_delta_001:,}"),
-            ("__BID_P__", f"{_z4_bid_p:,.0f}"),
-            ("__RATE__", f"{_z4_rate:.3f}"),
-            ("__NET98__", f"{_z4_net98:,.0f}"),
-            ("__EXEC_PCT__", f"{_z4_exec_pct:.1f}"),
-            ("__EXEC_COST__", f"{_z4_exec_cost:,.0f}"),
-            ("__PROFIT__", f"{_z4_profit:,.0f}"),
-            ("__PROF_RATE__", f"{_z4_prof_rate:.2f}"),
-            ("__CMAT__", f"{_c_mat:,.0f}"),
-            ("__CLAB__", f"{_c_lab:,.0f}"),
-            ("__CEXP__", f"{_c_exp:,.0f}"),
-            ("__CADM__", f"{_c_adm:,.0f}"),
-            ("__CPRF__", f"{_c_prf:,.0f}"),
-        ]:
-            _z4_html = _z4_html.replace(_tk, _tv)
-        _stc_z4.html(_z4_html, height=345, scrolling=False)
-    except Exception:
-        pass
-    # === [END Z4 QUANTUM HUD] ===
-    default_m_rate = float(st.session_state.get("manual_rate", float(st_pack.get('kelly_r', 0))) or 100.050); default_m_rate = 100.050 if default_m_rate < 97.0 or default_m_rate > 103.0 else default_m_rate
-
-    c_s1, c_s2 = st.columns(2)
-    sim_rate_input = c_s1.number_input("🎯 목표 사정률 직접 입력 (%)", min_value=97.000, max_value=103.000, value=float(min(103.0, max(97.0, float(default_m_rate) if default_m_rate and float(default_m_rate) >= 97.0 else 100.050))), step=0.001, format="%.3f")
-    sim_exec_rate = c_s2.slider("현장 총 실행원가율 설정 (%)", min_value=75.0, max_value=95.0, value=88.5, step=0.1, format="%.1f%%")
-
-    b_val = st_pack.get('b_val', 0)
-    a_val = st_pack.get('a_val', 0)
-    l_rate = st_pack.get('l_rate', 0)
-    
-    sim_est_p = estimate_price(b_val if (b_val and float(b_val) > 0) else 3605411000, sim_rate_input)
-    sim_target_bid = lower_limit(sim_est_p, a_val, l_rate * 100.0)
-    
-    cost_mat = round(sim_target_bid * 0.42)
-    cost_lab = round(sim_target_bid * 0.28)
-    cost_exp = round(sim_target_bid * 0.14)
-    cost_adm = round(sim_target_bid * 0.045)
-    total_exec = cost_mat + cost_lab + cost_exp + cost_adm
-    gross_profit = sim_target_bid - total_exec
-    net_tax_profit = round(gross_profit * 0.78)
-
-    decision_html_doc = generate_decision_report_html(
-        data, q_auto, comp, st_pack, sim_rate_input, sim_target_bid, net_tax_profit,
-        cost_mat, cost_lab, cost_exp, cost_adm, total_exec
-    )
-
     st.markdown("---")
     st.download_button(
         label="📥 사정률 심의 의결서 및 입찰 품의서 인쇄용 다운로드 (.html)",
@@ -12269,3 +12085,37 @@ section[data-testid="stSidebar"] [data-testid="stAlert"] p {
 }
 </style>
 """, unsafe_allow_html=True)
+
+
+# === [FINAL SIDEBAR WIDTH 316PX & KOREAN PARAGRAPH ALIGNMENT] ===
+st.markdown("""
+<style>
+section[data-testid="stSidebar"],
+section[data-testid="stSidebar"] > div:first-child {
+    width: 316px !important;
+    min-width: 316px !important;
+    max-width: 316px !important;
+}
+section[data-testid="stSidebar"] .block-container,
+section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+}
+/* 좌측 라디오 메뉴: 316px 폭 안에서 잘림 없이 한 줄로 깨끗하게 표시 */
+section[data-testid="stSidebar"] div[role="radiogroup"] label {
+    padding: 6px 10px !important;
+}
+section[data-testid="stSidebar"] div[role="radiogroup"] label p {
+    font-size: 0.80rem !important;
+    letter-spacing: -0.02em !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+}
+/* 상단 경고 박스 및 SCREEN MODE SWITCH 배지 한글 줄바꿈 반듯하게 교정 */
+section[data-testid="stSidebar"] * {
+    word-break: keep-all !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
