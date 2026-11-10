@@ -3289,7 +3289,10 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
         record_new_bid_observation as _learn_real_bid,
         run_monte_carlo_wargame_v5 as _run_wargame_v5,
         bulk_ingest_bid_records as _bulk_learn_v6,
-        compute_kelly_portfolio_and_rival_v7 as _run_kelly_v7
+        compute_kelly_portfolio_and_rival_v7 as _run_kelly_v7,
+        get_rival_bookmarks_v8 as _get_rivals_v8,
+        upsert_rival_bookmark_v8 as _save_rival_v8,
+        compute_surge_calibrated_strike_v8 as _run_surge_v8
     )
 
     _sx_has_notice = bool(st.session_state.get("selected_notice_no", "")) or (int(st.session_state.get("_z34_base", 0) or 0) > 0)
@@ -3300,16 +3303,32 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
     _sx_title = str(st.session_state.get("selected_notice_title", "") or "공고 미선택 (Z1 쇼룸에서 공고를 선택하세요)") if _sx_has_notice else "공고 미선택 (Z1 쇼룸에서 공고를 선택하세요)"
 
     _sx_res = _run_sniper_x(agency=_sx_ag, base_amt=_sx_base, a_val=_sx_aval, lower_limit=_sx_low)
+    _rival_list_v8 = _get_rival_bookmarks_v8()
 
-    with st.expander("🎯 [SNIPER-X v7.0 최종 비밀병기] 15C4 진공 타점 · 몬테카를로 워게임 · 라이벌 핀셋 저격 & 켈리 포트폴리오 — [클릭 시 열림]", expanded=False):
-        _wg_rivals = int(st.session_state.get("_sx_pm_part", 45) or 45)
-        _riv_hab = float(st.session_state.get("_sx_rival_hab", 100.0450) or 100.0450)
+    with st.expander("🎯 [SNIPER-X v8.0 궁극 비밀병기] 15C4 진공 타점 · 몬테카를로 워게임 · 라이벌 DNA 북마크 · 마감 과열도 보정기 — [클릭 시 열림]", expanded=False):
+        # 상단 컨트롤 바: 라이벌 북마크 선택 & 마감 직전 과열도 선택
+        _top_c1, _top_c2, _top_c3 = st.columns([2.4, 2.0, 1.6])
+        with _top_c1:
+            _rival_options = [f"{r['rival_name']} | 평균 {r['avg_rate']:.4f}% ({r['style_tag']}, {r['sample_cnt']}회)" for r in _rival_list_v8]
+            _sel_rival_str = st.selectbox("🦅 [라이벌 DNA 북마크] 타겟 경쟁사 선택", options=_rival_options, key="_sx_v8_rival_sel")
+            _sel_rival_idx = _rival_options.index(_sel_rival_str) if _sel_rival_str in _rival_options else 0
+            _active_rival = _rival_list_v8[_sel_rival_idx] if _rival_list_v8 else {"rival_name": "기본경쟁사", "avg_rate": 100.045, "style_tag": "표준형", "sample_cnt": 1}
+        with _top_c2:
+            _surge_lvl = st.selectbox(
+                "🔥 [마감 1시간 전 경쟁 과열도] 동적 영점 스위치",
+                options=["보통 (표준 경쟁)", "평온 (단독·저경쟁 마진극대화)", "과열 (관내·인기공고 밀집)", "초극한 혈투 (100개사+ 하한선 압축)"],
+                key="_sx_v8_surge_sel"
+            )
+        with _top_c3:
+            _wg_rivals = st.number_input("⚔️ 예상 참여 경쟁사 수 (개사)", min_value=1, max_value=5000, value=45, step=5, key="_sx_pm_part")
+
+        _riv_hab = float(_active_rival.get("avg_rate", 100.045))
         _wg_res = _run_wargame_v5(
             agency=_sx_ag,
             base_amt=_sx_base,
             a_val=_sx_aval,
             lower_limit=_sx_low,
-            est_rivals=_wg_rivals,
+            est_rivals=int(_wg_rivals),
             my_target_rate=float(_sx_res.get("sniper_rate", 0.0) or 0.0)
         )
         _kv7_res = _run_kelly_v7(
@@ -3320,23 +3339,31 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             rival_habit_rate=_riv_hab,
             margin_pct=8.5
         )
+        _sg8_res = _run_surge_v8(
+            base_amt=_sx_base,
+            a_val=_sx_aval,
+            lower_limit=_sx_low,
+            base_sniper_rate=float(_sx_res.get("sniper_rate", 0.0) or 0.0),
+            surge_level=_surge_lvl,
+            est_rivals=int(_wg_rivals)
+        )
 
         st.markdown(f"""
-        <div style="background:linear-gradient(135deg, rgba(15,23,42,0.96), rgba(9,13,24,0.98));border:1px solid rgba(16,185,129,0.55);border-radius:12px;padding:14px 18px;margin-bottom:10px;">
+        <div style="background:linear-gradient(135deg, rgba(15,23,42,0.96), rgba(9,13,24,0.98));border:1.5px solid rgba(16,185,129,0.60);border-radius:12px;padding:14px 18px;margin:8px 0 12px 0;">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;border-bottom:1px solid rgba(56,189,248,0.2);padding-bottom:8px;">
                 <div>
-                    <span style="background:rgba(16,185,129,0.22);color:#34D399;font-size:11px;font-weight:800;padding:3px 8px;border-radius:4px;border:1px solid rgba(16,185,129,0.45);">SNIPER-X v7.0 SUPREME COMMAND</span>
-                    <span style="color:#F8FAFC;font-size:14px;font-weight:800;margin-left:8px;">{_kv7_res.get("tactical_stance")} (켈리 비중 {_kv7_res.get("kelly_fraction_pct", 0.0):.1f}%)</span>
+                    <span style="background:rgba(16,185,129,0.25);color:#34D399;font-size:11px;font-weight:900;padding:3px 8px;border-radius:4px;border:1px solid rgba(16,185,129,0.5);">SNIPER-X v8.0 ULTIMATE</span>
+                    <span style="color:#F8FAFC;font-size:13.5px;font-weight:800;margin-left:8px;">{_kv7_res.get("tactical_stance")} (켈리 비중 {_kv7_res.get("kelly_fraction_pct", 0.0):.1f}%) | {_sg8_res.get("surge_badge")}</span>
                 </div>
                 <div style="color:#38BDF8;font-size:12px;font-weight:700;">
-                    타겟: {_sx_title[:30]} | 레짐: <span style="color:#FBBF24;">{_sx_res.get("regime_state")}</span>
+                    타겟: {_sx_title[:28]} | 마크 중인 라이벌: <span style="color:#F87171;">{_active_rival.get("rival_name")}</span>
                 </div>
             </div>
             <div style="display:grid;grid-template-columns:repeat(6, 1fr);gap:8px;">
-                <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.35);border-radius:8px;padding:9px;text-align:center;">
-                    <div style="color:#94A3B8;font-size:10.5px;font-weight:700;">🎯 1순위 스나이퍼 타점</div>
-                    <div style="color:#34D399;font-size:15.5px;font-weight:900;margin:4px 0;">{_sx_res.get("sniper_bid", 0):,}원</div>
-                    <div style="color:#A7F3D0;font-size:10.5px;">사정률: {_sx_res.get("sniper_rate", 0.0):.4f}%</div>
+                <div style="background:rgba(16,185,129,0.10);border:1.5px solid rgba(16,185,129,0.55);border-radius:8px;padding:9px;text-align:center;">
+                    <div style="color:#A7F3D0;font-size:10.5px;font-weight:800;">⚡ 마감 과열 보정 최종타점</div>
+                    <div style="color:#34D399;font-size:15.5px;font-weight:900;margin:4px 0;">{_sg8_res.get("final_trigger_bid", 0):,}원</div>
+                    <div style="color:#6EE7B7;font-size:10.5px;">사정률: {_sg8_res.get("final_trigger_rate", 0.0):.4f}% ({_sg8_res.get("surge_shift_bp", 0.0):+.4f}%p)</div>
                 </div>
                 <div style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.35);border-radius:8px;padding:9px;text-align:center;">
                     <div style="color:#94A3B8;font-size:10.5px;font-weight:700;">🕳️ 블라인드 스팟 (진공)</div>
@@ -3344,7 +3371,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                     <div style="color:#BAE6FD;font-size:10.5px;">사정률: {_sx_res.get("vacuum_rate", 0.0):.4f}% (회피 {_sx_res.get("crowd_avoid_score", 0.0):.0f}%)</div>
                 </div>
                 <div style="background:rgba(236,72,153,0.08);border:1px solid rgba(236,72,153,0.40);border-radius:8px;padding:9px;text-align:center;">
-                    <div style="color:#94A3B8;font-size:10.5px;font-weight:700;">⚔️ 워게임 타점 ({_wg_rivals}개사)</div>
+                    <div style="color:#94A3B8;font-size:10.5px;font-weight:700;">⚔️ 워게임 타점 ({int(_wg_rivals)}개사)</div>
                     <div style="color:#F472B6;font-size:15.5px;font-weight:900;margin:4px 0;">{_wg_res.get("optimal_war_bid", 0):,}원</div>
                     <div style="color:#FBCFE8;font-size:10.5px;">{_wg_res.get("optimal_war_rate", 0.0):.4f}% | TOP3 {_wg_res.get("top3_zone_prob", 0.0):.1f}%</div>
                 </div>
@@ -3367,18 +3394,19 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
         </div>
         """, unsafe_allow_html=True)
 
-        _pm_c1, _pm_c2, _pm_c3, _pm_c4, _pm_c5 = st.columns([1.8, 1.3, 1.3, 1.3, 1.1])
+        # 하단 입력기: (1) 개찰 결과 복기 + (2) 신규/기존 라이벌 투찰 DNA 북마크 저장
+        _pm_c1, _pm_c2, _pm_c3, _pm_c4, _pm_c5 = st.columns([1.6, 1.3, 1.6, 1.3, 1.4])
         with _pm_c1:
             _pm_ag = st.text_input("발주처명 (개찰 기관)", value=(_sx_ag if _sx_ag else "조달청"), key="_sx_pm_ag")
         with _pm_c2:
             _pm_rate = st.number_input("실제 당첨 사정률 (%)", min_value=94.0000, max_value=106.0000, value=100.0350, step=0.0050, format="%.4f", key="_sx_pm_rate")
         with _pm_c3:
-            _pm_part = st.number_input("예상 경쟁사 수 (워게임)", min_value=1, max_value=5000, value=45, step=5, key="_sx_pm_part")
+            _new_riv_name = st.text_input("경쟁사명 (라이벌 북마크 등록/갱신)", value=_active_rival.get("rival_name", "일진기공(주)"), key="_sx_v8_riv_name")
         with _pm_c4:
-            _riv_in = st.number_input("타겟 경쟁사 선호 사정률 (%)", min_value=94.0000, max_value=106.0000, value=100.0450, step=0.0050, format="%.4f", key="_sx_rival_hab")
+            _riv_in = st.number_input("경쟁사 투찰 사정률 (%)", min_value=94.0000, max_value=106.0000, value=float(_active_rival.get("avg_rate", 100.0450)), step=0.0050, format="%.4f", key="_sx_rival_hab")
         with _pm_c5:
             st.markdown("<div style='height:27px;'></div>", unsafe_allow_html=True)
-            if st.button("🧠 개찰 즉시 학습", key="_sx_pm_btn"):
+            if st.button("🧠 개찰 & 라이벌 동시 학습", key="_sx_pm_btn"):
                 _use_b = _sx_base if _sx_base > 0 else 1000000000
                 _use_a = _sx_aval if _sx_aval > 0 else int(_use_b * 0.06)
                 _calc_win_bid = int(((_use_b * (_pm_rate / 100.0) - _use_a) * (_sx_low / 100.0)) + _use_a)
@@ -3390,9 +3418,10 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                     lower_limit=_sx_low,
                     yega_rate=float(_pm_rate),
                     bid_amt=_calc_win_bid,
-                    participants=int(_pm_part)
+                    participants=int(_wg_rivals)
                 )
-                st.success(f"학습 완료: [{_pm_ag}] 당첨 사정률 {_pm_rate:.4f}% (참여 {_pm_part}개사) 로컬 SQLite 영구 반영")
+                _rv_saved = _save_rival_v8(rival_name=_new_riv_name, agency=_pm_ag, observed_rate=float(_riv_in))
+                st.success(f"학습 완료: [{_pm_ag}] 당첨 {_pm_rate:.4f}% & 라이벌 [{_rv_saved['rival_name']}] 평균 {_rv_saved['avg_rate']:.4f}% ({_rv_saved['sample_cnt']}회 누적) 영구 저장!")
 
         _csv_file = st.file_uploader("📂 [대량 학습] 과거 개찰 결과 CSV 파일 업로드 (발주처/사정률/기초금액/참여업체수 자동 인식)", type=["csv"], key="_sx_bulk_csv")
         if _csv_file is not None:

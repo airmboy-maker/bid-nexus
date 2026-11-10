@@ -1512,3 +1512,162 @@ def safe_auto_harvest_v4(batch_n: int = 300, agency_hint: str = "") -> dict:
         "recent": recent
     }
 
+
+# ==============================================================================
+# [SNIPER-X v8.0] 라이벌 업체별 투찰 DNA 북마크 DB & 마감 직전 과열도(Surge) 동적 보정기
+# ==============================================================================
+def _ensure_rival_db():
+    import os
+    import sqlite3
+    db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bid_history.db")
+    conn = sqlite3.connect(db_path)
+    cur = conn.cursor()
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS rival_profiles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            rival_name TEXT UNIQUE,
+            main_agency TEXT,
+            avg_rate REAL,
+            std_rate REAL,
+            sample_cnt INTEGER,
+            style_tag TEXT,
+            updated_at TEXT
+        )
+        """
+    )
+    cur.execute("SELECT COUNT(*) FROM rival_profiles")
+    if int(cur.fetchone()[0] or 0) == 0:
+        seeds = [
+            ("일진기공(주) [관내 강자]", "조달청", 100.0680, 0.042, 18, "공격적 중상단 타격형", "2026-11-10"),
+            ("(주)대성종합건설 [저가 수비형]", "경기도", 99.9620, 0.055, 24, "하한선 근접 매복형", "2026-11-10"),
+            ("한빛전력공사 [정중앙 집중형]", "한국전력공사", 100.0150, 0.028, 31, "100.0% 정중앙 고집형", "2026-11-10"),
+            ("태백토건(주) [고예가 승부사]", "한국토지주택공사", 100.1450, 0.064, 15, "고마진 상위예가 노림형", "2026-11-10")
+        ]
+        cur.executemany(
+            "INSERT OR IGNORE INTO rival_profiles (rival_name, main_agency, avg_rate, std_rate, sample_cnt, style_tag, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            seeds
+        )
+        conn.commit()
+    conn.close()
+
+def get_rival_bookmarks_v8() -> list:
+    import os
+    import sqlite3
+    _ensure_rival_db()
+    db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bid_history.db")
+    conn = sqlite3.connect(db_path)
+    cur = conn.cursor()
+    cur.execute("SELECT rival_name, main_agency, avg_rate, std_rate, sample_cnt, style_tag FROM rival_profiles ORDER BY id DESC")
+    rows = cur.fetchall()
+    conn.close()
+    return [
+        {
+            "rival_name": r[0],
+            "main_agency": r[1],
+            "avg_rate": float(r[2] or 100.045),
+            "std_rate": float(r[3] or 0.04),
+            "sample_cnt": int(r[4] or 1),
+            "style_tag": r[5]
+        }
+        for r in rows
+    ]
+
+def upsert_rival_bookmark_v8(rival_name: str, agency: str, observed_rate: float) -> dict:
+    import os
+    import sqlite3
+    import datetime
+    _ensure_rival_db()
+    r_name = str(rival_name or "").strip()
+    if not r_name:
+        r_name = "신규경쟁사(주)"
+    ag = str(agency or "조달청").strip()
+    rate = float(observed_rate or 100.045)
+
+    if rate >= 100.10:
+        tag = "고마진 상위예가 노림형"
+    elif rate >= 100.03:
+        tag = "공격적 중상단 타격형"
+    elif rate >= 99.98:
+        tag = "100.0% 정중앙 집중형"
+    else:
+        tag = "하한선 근접 매복형"
+
+    db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bid_history.db")
+    conn = sqlite3.connect(db_path)
+    cur = conn.cursor()
+    cur.execute("SELECT avg_rate, std_rate, sample_cnt FROM rival_profiles WHERE rival_name = ?", (r_name,))
+    row = cur.fetchone()
+    now_s = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    if row:
+        old_avg, old_std, old_cnt = float(row[0]), float(row[1]), int(row[2])
+        new_cnt = old_cnt + 1
+        new_avg = round((old_avg * old_cnt + rate) / new_cnt, 4)
+        new_std = round(max(0.015, (old_std * 0.8) + abs(rate - old_avg) * 0.2), 4)
+        cur.execute(
+            "UPDATE rival_profiles SET main_agency=?, avg_rate=?, std_rate=?, sample_cnt=?, style_tag=?, updated_at=? WHERE rival_name=?",
+            (ag, new_avg, new_std, new_cnt, tag, now_s, r_name)
+        )
+    else:
+        new_avg = round(rate, 4)
+        new_cnt = 1
+        cur.execute(
+            "INSERT INTO rival_profiles (rival_name, main_agency, avg_rate, std_rate, sample_cnt, style_tag, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (r_name, ag, new_avg, 0.035, new_cnt, tag, now_s)
+        )
+    conn.commit()
+    conn.close()
+    return {"rival_name": r_name, "avg_rate": new_avg, "sample_cnt": new_cnt, "style_tag": tag}
+
+def compute_surge_calibrated_strike_v8(
+    base_amt: int = 0,
+    a_val: int = 0,
+    lower_limit: float = 87.745,
+    base_sniper_rate: float = 100.0317,
+    surge_level: str = "보통 (표준 경쟁)",
+    est_rivals: int = 45
+) -> dict:
+    """
+    [마감 직전 과열도 동적 영점 보정기]
+    마감 임박 시점의 과열 단계(평온 / 보통 / 과열 / 초극한 혈투) 및 참여업체 수를 기반으로
+    하한선 압축(Compression Shift)을 역산해 최종 1초 방아쇠 타점을 산출
+    """
+    import math
+    if int(base_amt or 0) <= 0:
+        return {
+            "active": False,
+            "final_trigger_rate": 0.0,
+            "final_trigger_bid": 0,
+            "surge_shift_bp": 0.0,
+            "surge_badge": "대기 중 (0원)"
+        }
+
+    s_lvl = str(surge_level or "보통")
+    if "초극한" in s_lvl:
+        shift = -0.0143
+        badge = "🔥 초극한 혈투 (-0.0143%p 하한 밀착)"
+    elif "과열" in s_lvl:
+        shift = -0.0079
+        badge = "⚡ 마감 과열 (-0.0079%p 핀셋 압축)"
+    elif "평온" in s_lvl:
+        shift = +0.0117
+        badge = "🌿 단독/저경쟁 (+0.0117%p 마진 극대화)"
+    else:
+        shift = -0.0019
+        badge = "🎯 표준 영점 (-0.0019%p 프라임 보정)"
+
+    # 경쟁사 수 로그 스케일 미세 반영
+    rival_adj = min(0.0045, math.log10(max(10, int(est_rivals or 45))) * 0.0014) - 0.0023
+    final_rate = round(float(base_sniper_rate) + shift + rival_adj, 4)
+
+    exp_p = base_amt * (final_rate / 100.0)
+    final_bid = int(math.ceil(((exp_p - a_val) * (lower_limit / 100.0)) + a_val))
+
+    return {
+        "active": True,
+        "final_trigger_rate": final_rate,
+        "final_trigger_bid": final_bid,
+        "surge_shift_bp": round((shift + rival_adj), 4),
+        "surge_badge": badge
+    }
+
