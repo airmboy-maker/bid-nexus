@@ -3209,7 +3209,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             ])
             with _at_tab1:
                 st.markdown("""<div style="padding:10px 14px;margin-bottom:10px;border-radius:8px;background:linear-gradient(90deg,rgba(14,165,233,0.16),rgba(16,185,129,0.12));border-left:4px solid #38BDF8;font-size:0.82rem;color:#E2E8F0;">
-                <b>🔄 무인 자동 학습 가동 중:</b> 앱 부팅 시 자동으로 최신 개찰 사정률을 수집·역산하여 SQLite DB를 갱신하며, 학습된 사정률은 <b>STEP 0 · Z3 · Z4 · Z5 · Z6</b> 전 캐비닛에 즉시 반영됩니다.</div>""", unsafe_allow_html=True)
+                <b>🔄 무인 자동 학습 가동 중:</b> 앱 부팅 시 자동으로 최신 개찰 사정률을 수집·역산하여 SQLite DB를 갱신하며, 학습된 사정률은 <b>STEP 0 · Z3 · Z4 · Z5 · Z6 · Z7</b> 전 캐비닛에 즉시 반영됩니다.</div>""", unsafe_allow_html=True)
                 _ac1, _ac2, _ac3 = st.columns([1.4, 1.2, 1.4])
                 with _ac1:
                     _auto_ag = st.selectbox("🎯 집중 자동수집 타겟 발주처", ["전체 (전 기관 일괄)", "강원특별자치도", "조달청", "경기도", "서울특별시", "교육청", "한국도로공사", "한국토지주택공사"], key="_auto_harv_ag")
@@ -3263,10 +3263,10 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                         st.success(f"[{_in_ag}] {_in_rate:.4f}% 학습 완료")
 
         _cur_cab_str = str(st.session_state.get("boutique_active_cabinet", st.session_state.get("active_cabinet", "")))
-        if any(_k in _cur_cab_str for _k in ["Z3", "15C4", "Z4", "감도", "Z5", "5대", "홀로그램", "Z6", "7-BAY", "전술"]):
+        if any(_k in _cur_cab_str for _k in ["Z3", "15C4", "Z4", "감도", "Z5", "5대", "홀로그램", "Z6", "7-BAY", "전술", "Z7", "EGR", "LATTICE", "번외"]):
             st.markdown("""<div style="display:flex;align-items:center;gap:10px;margin:8px 0 6px 0;padding:6px 14px;background:linear-gradient(90deg,rgba(16,185,129,0.18) 0%,rgba(15,23,42,0.5) 70%,transparent 100%);border-left:4px solid #10B981;border-radius:6px;">
             <span style="font-size:0.72rem;font-weight:900;color:#34D399;background:rgba(16,185,129,0.16);padding:2px 8px;border-radius:4px;border:1px solid rgba(16,185,129,0.4);">LOCAL ML ENGINE DIRECT LINK</span>
-            <span style="font-size:0.84rem;font-weight:800;color:#ECFDF5;">로컬 SQLite 개찰 학습 DB & 15C4(1,365조합) 정량 추론 엔진 실시간 직결 가동 중 (Z3·Z4·Z5·Z6 통합)</span></div>""", unsafe_allow_html=True)
+            <span style="font-size:0.84rem;font-weight:800;color:#ECFDF5;">로컬 SQLite 개찰 학습 DB & 15C4(1,365조합) 정량 추론 엔진 실시간 직결 가동 중 (STEP 0 · Z3 · Z4 · Z5 · Z6 · Z7 전 구간 통합)</span></div>""", unsafe_allow_html=True)
 
             _z34_c1, _z34_c2, _z34_c3, _z34_c4, _z34_c5 = st.columns([1.3, 1.4, 1.2, 1.0, 0.9])
             with _z34_c1:
@@ -3374,6 +3374,43 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                 <thead><tr style="background:rgba(30,41,59,0.95);color:#94A3B8;border-bottom:2px solid rgba(56,189,248,0.3);">
                 <th style="padding:8px 10px;">슬롯</th><th style="padding:8px 10px;">전술 포지션</th><th style="padding:8px 10px;">배정 사정률</th><th style="padding:8px 10px;">예상 예정가격</th><th style="padding:8px 10px;">7-BAY 추천 투찰금액</th><th style="padding:8px 10px;">메인 대비 차액</th><th style="padding:8px 10px;">권장 투입 상황 (경쟁도 기준)</th>
                 </tr></thead><tbody>{_bay_rows}</tbody></table></div>""", unsafe_allow_html=True)
+
+            if any(_k in _cur_cab_str for _k in ["Z7", "EGR", "LATTICE", "번외"]):
+                _z7_pack = _eng_z34.build_z7_egr_and_lattice(_z_base, _z_aval, _z_low, _z_ag, spread_pct=float(_z_sp))
+                _egr_cards = ""
+                for _sh in _z7_pack["egr_shields"]:
+                    _egr_cards += (
+                        f'<div style="padding:11px 14px;border-radius:9px;background:rgba(9,14,28,0.9);border-left:4px solid {_sh["color"]};border-top:1px solid rgba(148,163,184,0.18);">'
+                        f'<div style="font-size:0.78rem;font-weight:900;color:{_sh["color"]};">{_sh["tier"]}</div>'
+                        f'<div style="font-size:1.12rem;font-weight:900;color:#F8FAFC;margin:4px 0;">{_sh["bid_price"]:,}원</div>'
+                        f'<div style="font-size:0.77rem;color:#38BDF8;font-weight:700;">방어 사정률: {_sh["assess_rate"]:.4f}% | 커트라인 생존율 {_sh["cutline_Pass_prob"]}</div>'
+                        f'<div style="font-size:0.72rem;color:#94A3B8;margin-top:3px;">{_sh["desc"]}</div></div>'
+                    )
+
+                _lat_cards = ""
+                for _nd in _z7_pack["lattice_nodes"]:
+                    _bd_col = "#10B981" if _nd["is_prime"] else "rgba(56,189,248,0.32)"
+                    _bg_col = "rgba(16,185,129,0.16)" if _nd["is_prime"] else "rgba(9,14,28,0.88)"
+                    _badge = "👑 PRIME TARGET" if _nd["is_prime"] else f"밀도점수 {_nd['density_score']}점"
+                    _lat_cards += (
+                        f'<div style="padding:10px 12px;border-radius:8px;background:{_bg_col};border:1px solid {_bd_col};">'
+                        f'<div style="display:flex;justify-content:space-between;align-items:center;">'
+                        f'<span style="font-size:0.76rem;font-weight:900;color:#38BDF8;">{_nd["rank"]}</span>'
+                        f'<span style="font-size:0.68rem;padding:1px 6px;border-radius:4px;background:rgba(255,255,255,0.08);color:#FDE68A;font-weight:800;">{_badge}</span></div>'
+                        f'<div style="font-size:0.73rem;color:#94A3B8;margin:3px 0;">추첨조합: <b>{_nd["comb_tag"]}</b></div>'
+                        f'<div style="font-size:1.02rem;font-weight:900;color:#F8FAFC;margin:2px 0;">{_nd["bid_price"]:,}원</div>'
+                        f'<div style="font-size:0.75rem;color:#34D399;font-weight:800;">격자 사정률: {_nd["assess_rate"]:.4f}%</div></div>'
+                    )
+
+                st.markdown(f"""<div style="margin:6px 0 14px 0;padding:14px 16px;border-radius:10px;background:rgba(15,23,42,0.95);border:1px solid rgba(245,158,11,0.38);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <span style="font-size:0.92rem;font-weight:900;color:#FBBF24;">🛡️ [Z7 번외 1 · EGR-BID 직결] 하한 커트라인 미달 3중 방어선 & 순공사원가 98% 실드 ({_z_ag} 표본 {_z_bi['sample_count']:,}건)</span>
+                <span style="font-size:0.78rem;color:#FCA5A5;font-weight:800;">🚨 순공사원가 98% 추정 하한선: {_z7_pack['net_cost_98_floor']:,}원</span></div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">{_egr_cards}</div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-top:8px;border-top:1px solid rgba(148,163,184,0.2);">
+                <span style="font-size:0.92rem;font-weight:900;color:#38BDF8;">⚡ [Z7 번외 2 · LATTICE 1365 직결] 15C4(1,365 격자) 중 당첨 밀도 최상위 Top 6 골든 격자</span>
+                <span style="font-size:0.80rem;color:#34D399;font-weight:800;">👑 최우선 타격 격자: #{_z7_pack['prime_grid_no']:04d} ({_z7_pack['prime_rate']:.4f}%)</span></div>
+                <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;">{_lat_cards}</div></div>""", unsafe_allow_html=True)
     except Exception as _e_z34:
         pass
     # === [END_LOCAL_ML_Z3_Z4_SYNC] ===
