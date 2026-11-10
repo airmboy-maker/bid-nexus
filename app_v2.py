@@ -3199,6 +3199,35 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             st.session_state["_auto_ml_boot_harvested"] = True
             st.session_state["_last_auto_harvest_info"] = _boot_harv
 
+        # [Z9 기업 마스터 프로필 로드 및 세션/사이드바 잠금 해제 동기화]
+        _comp_prof = _eng_z34.load_company_master_profile()
+        if _comp_prof.get("is_unlocked", False):
+            st.session_state["gatekeeper_unlocked"] = True
+            st.session_state["master_spec_registered"] = True
+            st.session_state["company_master_unlocked"] = True
+            st.session_state["_z2_perf_saved"] = _comp_prof["perf_score"]
+            st.session_state["_z2_fin_saved"] = _comp_prof["fin_score"]
+            st.session_state["_z2_cred_saved"] = _comp_prof["cred_score"]
+            # 좌측 사이드바 상단의 '적격 마스터 미등록 (잠김)' 경고 박스를 초록색 인증 완료 배지로 실시간 교체하는 CSS/DOM 주입
+            _tot_non_p = round(min(30.0, _comp_prof["perf_score"] + _comp_prof["fin_score"] + _comp_prof["cred_score"]), 2)
+            st.markdown(f"""
+            <style>
+            /* 기존 붉은색 미등록/잠김 박스 숨김 처리 및 초록색 마스터 가동 배지 오버레이 */
+            section[data-testid="stSidebar"] div[style*="rgba(127, 29, 29"],
+            section[data-testid="stSidebar"] div[style*="rgba(239, 68, 68"],
+            section[data-testid="stSidebar"] div[style*="rgba(244, 63, 94"] {{
+                background: linear-gradient(135deg, rgba(6, 78, 59, 0.92), rgba(15, 23, 42, 0.95)) !important;
+                border: 1px solid rgba(16, 185, 129, 0.65) !important;
+                color: #ECFDF5 !important;
+            }}
+            </style>
+            """, unsafe_allow_html=True)
+            with st.sidebar:
+                st.markdown(f"""<div style="padding:10px 12px;margin-bottom:8px;border-radius:9px;background:linear-gradient(135deg,rgba(16,185,129,0.22),rgba(6,78,59,0.45));border:1px solid rgba(16,185,129,0.6);text-align:center;">
+                <div style="font-size:0.80rem;font-weight:900;color:#34D399;">🔓 적격 마스터 가동중 ({_comp_prof['company_name']})</div>
+                <div style="font-size:0.73rem;color:#A7F3D0;margin-top:3px;">{_comp_prof['main_license']} · {_comp_prof['region']} | 수행능력 <b>{_tot_non_p:.1f}/30.0점</b> 직결</div>
+                </div>""", unsafe_allow_html=True)
+
         _last_info = st.session_state.get("_last_auto_harvest_info", {"added_count": 150, "after_total": 800})
 
         with st.expander(f"🤖 [완전 자동화 개찰 학습 & Ridge · Gradient Boosting 엔진] — 누적 {_last_info.get('after_total', 800):,}건 학습 완료 (클릭 시 열림)", expanded=False):
@@ -3209,7 +3238,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             ])
             with _at_tab1:
                 st.markdown("""<div style="padding:10px 14px;margin-bottom:10px;border-radius:8px;background:linear-gradient(90deg,rgba(14,165,233,0.16),rgba(16,185,129,0.12));border-left:4px solid #38BDF8;font-size:0.82rem;color:#E2E8F0;">
-                <b>🔄 베이지안 + Ridge(L2) + Gradient Boosting 트리 3중 결합 가동 중:</b> 누적 학습된 개찰 표본은 <b>STEP 0 · Z2(적격심사) · Z3 · Z4 · Z5 · Z6 · Z7 · Z8(통합보고서)</b> 전 구간에 실시간 반영됩니다.</div>""", unsafe_allow_html=True)
+                <b>🔄 베이지안 + Ridge(L2) + Gradient Boosting 트리 3중 결합 가동 중:</b> 누적 학습된 개찰 표본은 <b>STEP 0 · Z2 · Z3 · Z4 · Z5 · Z6 · Z7 · Z8 · Z9</b> 전 구간에 실시간 반영됩니다.</div>""", unsafe_allow_html=True)
                 _ac1, _ac2, _ac3 = st.columns([1.4, 1.2, 1.4])
                 with _ac1:
                     _auto_ag = st.selectbox("🎯 집중 자동수집 타겟 발주처", ["전체 (전 기관 일괄)", "강원특별자치도", "조달청", "경기도", "서울특별시", "교육청", "한국도로공사", "한국토지주택공사"], key="_auto_harv_ag")
@@ -3263,10 +3292,67 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                         st.success(f"[{_in_ag}] {_in_rate:.4f}% 학습 완료")
 
         _cur_cab_str = str(st.session_state.get("boutique_active_cabinet", st.session_state.get("active_cabinet", "")))
+
+        # [Z9 기업 마스터 스펙 & OCR 캐비닛 전용 원클릭 등록/잠금해제 패널]
+        if any(_k in _cur_cab_str for _k in ["Z9", "마스터", "OCR"]):
+            _def_c_name = _comp_prof.get("company_name", "양희철건설(주)")
+            _def_lic = _comp_prof.get("main_license", "건축공사업")
+            _def_reg = _comp_prof.get("region", "강원특별자치도")
+            _def_cap = _comp_prof.get("capacity_amt", 8500000000)
+            _def_p5 = _comp_prof.get("perf_5yr_amt", 12000000000)
+            _def_debt = _comp_prof.get("debt_ratio", 68.5)
+            _def_curr = _comp_prof.get("current_ratio", 165.0)
+            _def_ps = _comp_prof.get("perf_score", 15.0)
+            _def_fs = _comp_prof.get("fin_score", 15.0)
+            _def_cs = _comp_prof.get("cred_score", 1.5)
+
+            st.markdown("""<div style="margin:6px 0 12px 0;padding:14px 18px;border-radius:10px;background:linear-gradient(90deg,rgba(16,185,129,0.20),rgba(15,23,42,0.92));border-left:5px solid #10B981;border:1px solid rgba(16,185,129,0.4);">
+            <div style="font-size:0.95rem;font-weight:900;color:#34D399;">🏢 [Z9 기업 마스터 스펙 영구 등록 & 게이트키퍼 잠금 즉시 해제 센터]</div>
+            <div style="font-size:0.80rem;color:#E2E8F0;margin-top:3px;">아래 기업 적격 스펙을 한 번만 저장하면 좌측 상단의 <b>'적격 마스터 미등록(잠김)' 경고가 즉시 해제</b>되고, <b>[Z2] 적격심사 평점 계산기</b>에 우리 회사 점수가 자동 직결됩니다.</div></div>""", unsafe_allow_html=True)
+
+            _z9_r1c1, _z9_r1c2, _z9_r1c3, _z9_r1c4 = st.columns([1.3, 1.2, 1.2, 1.5])
+            with _z9_r1c1:
+                _in_cname = st.text_input("🏢 기업명 (상호)", value=_def_c_name, key="_z9_cname")
+            with _z9_r1c2:
+                _lic_opts = ["건축공사업", "토목공사업", "토목건축공사업", "조경공사업", "실내건축공사업", "전기공사업"]
+                _in_clic = st.selectbox("🪪 주력 면허", _lic_opts, index=_lic_opts.index(_def_lic) if _def_lic in _lic_opts else 0, key="_z9_clic")
+            with _z9_r1c3:
+                _reg_opts = ["강원특별자치도", "서울특별시", "경기도", "인천광역시", "충청북도", "충청남도", "경상북도", "전라북도"]
+                _in_creg = st.selectbox("📍 본사 소재지", _reg_opts, index=_reg_opts.index(_def_reg) if _def_reg in _reg_opts else 0, key="_z9_creg")
+            with _z9_r1c4:
+                _in_ccap = st.number_input("💎 시공능력평가액 (원)", min_value=100000000, value=int(_def_cap), step=500000000, key="_z9_ccap")
+
+            _z9_r2c1, _z9_r2c2, _z9_r2c3, _z9_r2c4, _z9_r2c5, _z9_r2c6 = st.columns(6)
+            with _z9_r2c1:
+                _in_cp5 = st.number_input("📈 최근 5년 실적합계 (원)", min_value=0, value=int(_def_p5), step=500000000, key="_z9_cp5")
+            with _z9_r2c2:
+                _in_cdebt = st.number_input("📊 부채비율 (%)", min_value=0.0, max_value=500.0, value=float(_def_debt), step=1.0, format="%.1f", key="_z9_cdebt")
+            with _z9_r2c3:
+                _in_ccurr = st.number_input("💧 유동비율 (%)", min_value=0.0, max_value=999.0, value=float(_def_curr), step=1.0, format="%.1f", key="_z9_ccurr")
+            with _z9_r2c4:
+                _in_cps = st.number_input("🏗️ 시공경험 평점 (15점)", min_value=0.0, max_value=15.0, value=float(_def_ps), step=0.1, format="%.2f", key="_z9_cps")
+            with _z9_r2c5:
+                _in_cfs = st.number_input("🏦 경영상태 평점 (15점)", min_value=0.0, max_value=15.0, value=float(_def_fs), step=0.1, format="%.2f", key="_z9_cfs")
+            with _z9_r2c6:
+                _in_ccs = st.number_input("🎖️ 신인도 가점 (+점)", min_value=-5.0, max_value=5.0, value=float(_def_cs), step=0.25, format="%.2f", key="_z9_ccs")
+
+            if st.button("🔓 [원클릭 마스터 등록] 기업 적격 스펙 SQLite 영구 저장 & 전 구간 파이프라인 잠금 즉시 해제", key="_z9_btn_unlock_all", use_container_width=True):
+                _saved_p = _eng_z34.save_company_master_profile(
+                    _in_cname, _in_clic, _in_creg, _in_ccap, _in_cp5, _in_cdebt, _in_ccurr, _in_cps, _in_cfs, _in_ccs
+                )
+                st.session_state["gatekeeper_unlocked"] = True
+                st.session_state["master_spec_registered"] = True
+                st.session_state["company_master_unlocked"] = True
+                st.session_state["_z2_perf_saved"] = _saved_p["perf_score"]
+                st.session_state["_z2_fin_saved"] = _saved_p["fin_score"]
+                st.session_state["_z2_cred_saved"] = _saved_p["cred_score"]
+                st.success(f"🎉 [{_in_cname}] 마스터 스펙 등록 완료! 좌측 상단 게이트키퍼 잠금이 해제되었으며 [Z2] 적격심사 평점(시공 {_in_cps:.1f} + 경영 {_in_cfs:.1f} + 신인도 {_in_ccs:+.2f})이 전 구간에 자동 반영되었습니다.")
+                st.rerun()
+
         if any(_k in _cur_cab_str for _k in ["Z2", "적격", "산출물", "Z3", "15C4", "Z4", "감도", "Z5", "5대", "홀로그램", "Z6", "7-BAY", "전술", "Z7", "EGR", "LATTICE", "번외", "Z8", "증빙", "출력"]):
             st.markdown("""<div style="display:flex;align-items:center;gap:10px;margin:8px 0 6px 0;padding:6px 14px;background:linear-gradient(90deg,rgba(16,185,129,0.18) 0%,rgba(15,23,42,0.5) 70%,transparent 100%);border-left:4px solid #10B981;border-radius:6px;">
             <span style="font-size:0.72rem;font-weight:900;color:#34D399;background:rgba(16,185,129,0.16);padding:2px 8px;border-radius:4px;border:1px solid rgba(16,185,129,0.4);">BAYESIAN + RIDGE + GRADIENT BOOSTING LIVE</span>
-            <span style="font-size:0.84rem;font-weight:800;color:#ECFDF5;">로컬 SQLite DB & 15C4 베이즈 + Ridge/GBM 회귀 엔진 실시간 직결 가동 중 (Z2 ~ Z8 전 구간 통합)</span></div>""", unsafe_allow_html=True)
+            <span style="font-size:0.84rem;font-weight:800;color:#ECFDF5;">로컬 SQLite DB & 15C4 베이즈 + Ridge/GBM 회귀 엔진 실시간 직결 가동 중 (Z2 ~ Z9 전 구간 통합)</span></div>""", unsafe_allow_html=True)
 
             _z34_c1, _z34_c2, _z34_c3, _z34_c4, _z34_c5 = st.columns([1.3, 1.4, 1.2, 1.0, 0.9])
             with _z34_c1:
@@ -3299,13 +3385,16 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             </div>""", unsafe_allow_html=True)
 
             if any(_k in _cur_cab_str for _k in ["Z2", "적격", "산출물"]):
+                _saved_ps = float(st.session_state.get("_z2_perf_saved", _comp_prof.get("perf_score", 15.0)))
+                _saved_fs = float(st.session_state.get("_z2_fin_saved", _comp_prof.get("fin_score", 15.0)))
+                _saved_cs = float(st.session_state.get("_z2_cred_saved", _comp_prof.get("cred_score", 0.0)))
                 _z2_sc1, _z2_sc2, _z2_sc3 = st.columns(3)
                 with _z2_sc1:
-                    _z2_perf = st.number_input("🏗️ 시공경험 평점 (만점 15.0)", min_value=0.0, max_value=15.0, value=15.0, step=0.1, format="%.2f", key="_z2_perf_in")
+                    _z2_perf = st.number_input("🏗️ 시공경험 평점 (만점 15.0 · Z9 마스터 연동)", min_value=0.0, max_value=15.0, value=_saved_ps, step=0.1, format="%.2f", key="_z2_perf_in")
                 with _z2_sc2:
-                    _z2_fin = st.number_input("🏦 경영상태 평점 (만점 15.0)", min_value=0.0, max_value=15.0, value=15.0, step=0.1, format="%.2f", key="_z2_fin_in")
+                    _z2_fin = st.number_input("🏦 경영상태 평점 (만점 15.0 · Z9 마스터 연동)", min_value=0.0, max_value=15.0, value=_saved_fs, step=0.1, format="%.2f", key="_z2_fin_in")
                 with _z2_sc3:
-                    _z2_cred = st.number_input("🎖️ 신인도 가점 (보정점수)", min_value=-5.0, max_value=5.0, value=0.0, step=0.25, format="%.2f", key="_z2_cred_in")
+                    _z2_cred = st.number_input("🎖️ 신인도 가점 (보정점수 · Z9 마스터 연동)", min_value=-5.0, max_value=5.0, value=_saved_cs, step=0.25, format="%.2f", key="_z2_cred_in")
 
                 _z2_pack = _eng_z34.build_z2_qualification_scorecard(_z_base, _z_aval, _z_low, _z_ag, spread_pct=float(_z_sp), perf_score=_z2_perf, fin_score=_z2_fin, cred_score=_z2_cred)
                 _z2_tr = ""
@@ -3326,7 +3415,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
 
                 st.markdown(f"""<div style="margin:6px 0 14px 0;padding:14px 16px;border-radius:10px;background:rgba(15,23,42,0.95);border:1px solid rgba(16,185,129,0.38);">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                <span style="font-size:0.92rem;font-weight:900;color:#34D399;">🎯 [Z2 로컬 ML 직결] 추천 투찰금액별 입찰가격 평점(70점 만점) & 적격심사 95.0점 통과 자동 시뮬레이션</span>
+                <span style="font-size:0.92rem;font-weight:900;color:#34D399;">🎯 [Z2 로컬 ML & Z9 마스터 직결] 추천 투찰금액별 입찰가격 평점(70점 만점) & 적격심사 95.0점 통과 자동 시뮬레이션</span>
                 <span style="font-size:0.78rem;color:#FBBF24;font-weight:800;">ML 부스팅 기준 예정가격: {_z2_pack['expected_est_price']:,}원 | 낙찰하한선: {_z2_pack['cutline_bid']:,}원</span></div>
                 <table style="width:100%;border-collapse:collapse;font-size:0.80rem;text-align:left;">
                 <thead><tr style="background:rgba(30,41,59,0.95);color:#94A3B8;border-bottom:2px solid rgba(16,185,129,0.35);">

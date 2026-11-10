@@ -867,3 +867,79 @@ class LocalBidIntelligenceEngine:
             "eval_rows": eval_rows
         }
 
+    def _ensure_company_profile_table(self):
+        conn = sqlite3.connect(self.db_path)
+        cur = conn.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS company_master_profile (
+                id INTEGER PRIMARY KEY CHECK (id = 1),
+                company_name TEXT,
+                main_license TEXT,
+                region TEXT,
+                capacity_amt INTEGER,
+                perf_5yr_amt INTEGER,
+                debt_ratio REAL,
+                current_ratio REAL,
+                perf_score REAL,
+                fin_score REAL,
+                cred_score REAL,
+                is_unlocked INTEGER DEFAULT 1,
+                updated_at TEXT
+            )
+        """)
+        conn.commit()
+        conn.close()
+
+    def save_company_master_profile(self, company_name: str, main_license: str, region: str, capacity_amt: int, perf_5yr_amt: int, debt_ratio: float, current_ratio: float, perf_score: float, fin_score: float, cred_score: float) -> dict:
+        self._ensure_company_profile_table()
+        conn = sqlite3.connect(self.db_path)
+        cur = conn.cursor()
+        cur.execute("""
+            INSERT INTO company_master_profile
+            (id, company_name, main_license, region, capacity_amt, perf_5yr_amt, debt_ratio, current_ratio, perf_score, fin_score, cred_score, is_unlocked, updated_at)
+            VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, datetime('now'))
+            ON CONFLICT(id) DO UPDATE SET
+                company_name=excluded.company_name,
+                main_license=excluded.main_license,
+                region=excluded.region,
+                capacity_amt=excluded.capacity_amt,
+                perf_5yr_amt=excluded.perf_5yr_amt,
+                debt_ratio=excluded.debt_ratio,
+                current_ratio=excluded.current_ratio,
+                perf_score=excluded.perf_score,
+                fin_score=excluded.fin_score,
+                cred_score=excluded.cred_score,
+                is_unlocked=1,
+                updated_at=datetime('now')
+        """, (company_name, main_license, region, int(capacity_amt), int(perf_5yr_amt), float(debt_ratio), float(current_ratio), float(perf_score), float(fin_score), float(cred_score)))
+        conn.commit()
+        conn.close()
+        return self.load_company_master_profile()
+
+    def load_company_master_profile(self) -> dict:
+        self._ensure_company_profile_table()
+        conn = sqlite3.connect(self.db_path)
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT company_name, main_license, region, capacity_amt, perf_5yr_amt, debt_ratio, current_ratio, perf_score, fin_score, cred_score, is_unlocked, updated_at
+            FROM company_master_profile WHERE id = 1
+        """)
+        row = cur.fetchone()
+        conn.close()
+        if not row:
+            return {"is_unlocked": False}
+        return {
+            "company_name": row[0],
+            "main_license": row[1],
+            "region": row[2],
+            "capacity_amt": int(row[3]),
+            "perf_5yr_amt": int(row[4]),
+            "debt_ratio": float(row[5]),
+            "current_ratio": float(row[6]),
+            "perf_score": float(row[7]),
+            "fin_score": float(row[8]),
+            "cred_score": float(row[9]),
+            "is_unlocked": bool(row[10]),
+            "updated_at": row[11]
+        }
+
