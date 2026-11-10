@@ -1136,3 +1136,90 @@ def record_new_bid_observation(
     conn.close()
     return {"status": "ok", "total_learned": total_cnt, "recorded_rate": yega_rate}
 
+
+def run_monte_carlo_wargame_v5(
+    agency: str = "조달청",
+    base_amt: int = 0,
+    a_val: int = 0,
+    lower_limit: float = 87.745,
+    est_rivals: int = 45,
+    my_target_rate: float = 100.0317
+) -> dict:
+    """
+    [SNIPER-X v5.0] 2,000~10,000회 몬테카를로 가상 개찰 워게임 엔진
+    - 발주처 15C4 비대칭 예가 추첨과 경쟁사(est_rivals개사) 투찰 군집을 동시에 시뮬레이션하여
+      '단독 1순위 낙찰 확률', '예가 미달(하한선 탈락) 위험도', '최적 경쟁률 보정 타점'을 산출
+    """
+    import math
+    import random
+
+    if int(base_amt or 0) <= 0:
+        return {
+            "active": False,
+            "win_1st_prob": 0.0,
+            "under_cut_risk": 0.0,
+            "top3_zone_prob": 0.0,
+            "optimal_war_rate": 0.0,
+            "optimal_war_bid": 0,
+            "rival_crowd_peak": 0.0,
+            "trials": 0
+        }
+
+    ag_clean = str(agency or "조달청").strip()
+    band = 3.0 if (any(k in ag_clean for k in ["시", "군", "구", "도", "교육청", "지자체"]) and "조달" not in ag_clean) else 2.0
+
+    # 발주처 학습 중심값 조회
+    sx_base = compute_sniper_x_secret_weapon(agency=ag_clean, base_amt=base_amt, a_val=a_val, lower_limit=lower_limit)
+    center_mu = float(sx_base.get("ewma_center", 100.025) or 100.025)
+    sigma_yega = 0.42 if band <= 2.0 else 0.64
+
+    # 경쟁사 수(est_rivals)가 많을수록 낙찰하한선 바로 위로 촘촘히 붙는 극한값 통계(Extreme Value Theory) 반영
+    rivals = max(3, min(int(est_rivals or 45), 1500))
+    crowd_shift = min(0.085, math.log10(rivals) * 0.028)
+    optimal_war_rate = round(center_mu - (0.045 * (band / 2.0)) + crowd_shift + 0.0019, 4)
+
+    use_rate = float(my_target_rate) if float(my_target_rate or 0) > 90.0 else optimal_war_rate
+
+    # 결정론적 시드 고정 (동일 조건에서 일관된 워게임 결과 보장)
+    rng = random.Random(int(base_amt) + rivals * 137 + int(round(use_rate * 10000)))
+    trials = 2500
+    win_1st = 0
+    top3_cnt = 0
+    under_cut = 0
+
+    for _ in range(trials):
+        # 1) 실제 개찰 예정가격 사정률 생성 (15C4 중심극한 + 비대칭 왜도 반영)
+        true_yega = rng.gauss(center_mu, sigma_yega * 0.52)
+        if true_yega < use_rate:
+            # 내 투찰 사정률이 실제 예정가격보다 낮으면 하한율 미달 탈락!
+            under_cut += 1
+            continue
+
+        # 내 투찰가와 하한선 사이의 거리 (작을수록 1순위에 가까움)
+        my_gap = use_rate - true_yega
+
+        # 2) 경쟁사 N개사의 최소 양수 갭(1순위 경쟁사 기록)을 지수분포(Order Statistics)로 고속 샘플링
+        # 경쟁사가 많을수록 누군가는 true_yega 바로 위(매우 작은 gap)에 위치할 확률이 커짐
+        effective_density = max(1.5, rivals * 0.38 / band)
+        best_rival_gap = rng.expovariate(effective_density)
+
+        if my_gap < best_rival_gap:
+            win_1st += 1
+            top3_cnt += 1
+        elif my_gap < best_rival_gap * 2.4:
+            top3_cnt += 1
+
+    exp_p = base_amt * (optimal_war_rate / 100.0)
+    opt_bid = int(math.ceil(((exp_p - a_val) * (lower_limit / 100.0)) + a_val))
+
+    return {
+        "active": True,
+        "win_1st_prob": round((win_1st / trials) * 100.0, 2),
+        "under_cut_risk": round((under_cut / trials) * 100.0, 1),
+        "top3_zone_prob": round((top3_cnt / trials) * 100.0, 1),
+        "optimal_war_rate": optimal_war_rate,
+        "optimal_war_bid": opt_bid,
+        "rival_crowd_peak": round(center_mu - 0.02, 4),
+        "trials": trials
+    }
+
