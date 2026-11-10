@@ -3,18 +3,54 @@
 import streamlit as _st_zboot
 import os as _os_zboot
 import glob as _glob_zboot
+
 for _zf in _glob_zboot.glob("*.json") + _glob_zboot.glob(".*.json") + _glob_zboot.glob(".streamlit/*.json") + _glob_zboot.glob("/tmp/*bid*"):
     if any(_k in _zf for _k in ["state", "cart", "pulled", "persistent", "cache"]):
         try:
             _os_zboot.remove(_zf)
         except Exception:
             pass
-if not _st_zboot.session_state.get("_user_explicitly_loaded_notices", False):
+
+# 앱 최초 시작(새 세션 부팅) 시 모든 데이터를 100% 초기 백지 상태로 강제 리셋
+if not _st_zboot.session_state.get("_strict_zero_boot_v15", False):
+    _st_zboot.session_state.clear()
+    _st_zboot.session_state["_strict_zero_boot_v15"] = True
+    _st_zboot.session_state["_cloud_fresh_boot_v3"] = True
     _st_zboot.session_state["_cabinet_cleared_empty"] = True
     _st_zboot.session_state["pulled_notices"] = []
     _st_zboot.session_state["notices"] = []
     _st_zboot.session_state["filtered_notices"] = []
+    _st_zboot.session_state["cart"] = []
+    _st_zboot.session_state["cart_notices"] = []
     _st_zboot.session_state["selected_notice_no"] = ""
+    _st_zboot.session_state["filter_license"] = "업종"
+    _st_zboot.session_state["filter_region"] = "지역"
+    _st_zboot.session_state["sel_license"] = "업종"
+    _st_zboot.session_state["sel_region"] = "지역"
+    _st_zboot.session_state["gatekeeper_unlocked"] = False
+    _st_zboot.session_state["master_spec_registered"] = False
+    _st_zboot.session_state["company_master_unlocked"] = False
+    _st_zboot.session_state["_ml_base_in"] = 0
+    _st_zboot.session_state["_z34_base"] = 0
+    _st_zboot.session_state["_z34_aval"] = 0
+    _st_zboot.session_state["_z9_cname"] = ""
+    _st_zboot.session_state["_z9_ccap"] = 0
+    _st_zboot.session_state["_z9_cp5"] = 0
+    _st_zboot.session_state["_z9_cdebt"] = 0.0
+    _st_zboot.session_state["_z9_ccurr"] = 0.0
+    _st_zboot.session_state["_z9_cps"] = 0.0
+    _st_zboot.session_state["_z9_cfs"] = 0.0
+    _st_zboot.session_state["_z9_ccs"] = 0.0
+    _st_zboot.session_state["_z2_perf_saved"] = 0.0
+    _st_zboot.session_state["_z2_fin_saved"] = 0.0
+    _st_zboot.session_state["_z2_cred_saved"] = 0.0
+    try:
+        from lattice1365.local_ml_engine import LocalBidIntelligenceEngine as _BootEng
+        _BootEng().reset_company_master_profile()
+    except Exception:
+        pass
+# === [END ZERO-BOOT ENFORCER] ===
+
 
 import streamlit as _st_init_guard
 import os as _os_init_guard
@@ -3216,7 +3252,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
         _ag_choices = ["강원특별자치도", "조달청", "경기도", "서울특별시", "교육청", "한국도로공사", "한국토지주택공사"]
         _auto_notice_title = "수동 시뮬레이션 모드 (Z1에서 공고 선택 시 자동 바인딩)"
         _auto_ag_mapped = "강원특별자치도"
-        _auto_base_val = int(st.session_state.get("_ml_base_in", 1500000000) or 1500000000)
+        _auto_base_val = int(st.session_state.get("_ml_base_in", 0) or 0)
         _auto_aval_val = int(_auto_base_val * 0.055)
         _auto_low_val = round(89.745 - 2.0, 3)
 
@@ -3363,16 +3399,16 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
 
         # [3] Z9 기업 마스터 스펙 & OCR 캐비닛: 원클릭 등록 + 초기 잠금(미등록) 리셋 버튼
         if any(_k in _cur_cab_str for _k in ["Z9", "마스터", "OCR"]):
-            _def_c_name = _comp_prof.get("company_name", "양희철건설(주)")
+            _def_c_name = _comp_prof.get("company_name", "")
             _def_lic = _comp_prof.get("main_license", "건축공사업")
             _def_reg = _comp_prof.get("region", "강원특별자치도")
-            _def_cap = _comp_prof.get("capacity_amt", 8500000000)
-            _def_p5 = _comp_prof.get("perf_5yr_amt", 12000000000)
-            _def_debt = _comp_prof.get("debt_ratio", 68.5)
-            _def_curr = _comp_prof.get("current_ratio", 165.0)
-            _def_ps = _comp_prof.get("perf_score", 15.0)
-            _def_fs = _comp_prof.get("fin_score", 15.0)
-            _def_cs = _comp_prof.get("cred_score", 1.5)
+            _def_cap = _comp_prof.get("capacity_amt", 0)
+            _def_p5 = _comp_prof.get("perf_5yr_amt", 0)
+            _def_debt = _comp_prof.get("debt_ratio", 0.0)
+            _def_curr = _comp_prof.get("current_ratio", 0.0)
+            _def_ps = _comp_prof.get("perf_score", 0.0)
+            _def_fs = _comp_prof.get("fin_score", 0.0)
+            _def_cs = _comp_prof.get("cred_score", 0.0)
             _status_badge = "🟢 현재 상태: 적격 마스터 등록 완료 (전 파이프라인 개방 중)" if _comp_prof.get("is_unlocked", False) else "🔴 현재 상태: 적격 마스터 미등록 (초기 잠금 상태)"
 
             st.markdown(f"""<div style="margin:6px 0 12px 0;padding:14px 18px;border-radius:10px;background:linear-gradient(90deg,rgba(16,185,129,0.20),rgba(15,23,42,0.92));border-left:5px solid #10B981;border:1px solid rgba(16,185,129,0.4);">
@@ -3391,7 +3427,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                 _reg_opts = ["강원특별자치도", "서울특별시", "경기도", "인천광역시", "충청북도", "충청남도", "경상북도", "전라북도"]
                 _in_creg = st.selectbox("📍 본사 소재지", _reg_opts, index=_reg_opts.index(_def_reg) if _def_reg in _reg_opts else 0, key="_z9_creg")
             with _z9_r1c4:
-                _in_ccap = st.number_input("💎 시공능력평가액 (원)", min_value=100000000, value=int(_def_cap), step=500000000, key="_z9_ccap")
+                _in_ccap = st.number_input("💎 시공능력평가액 (원)", min_value=0, value=int(_def_cap), step=500000000, key="_z9_ccap")
 
             _z9_r2c1, _z9_r2c2, _z9_r2c3, _z9_r2c4, _z9_r2c5, _z9_r2c6 = st.columns(6)
             with _z9_r2c1:
@@ -3441,7 +3477,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             with _z34_c1:
                 _z_ag = st.selectbox("🏛️ 발주처 학습 모델 (Z1 자동연동)", _ag_choices, index=_default_ag_idx, key="_z34_ag")
             with _z34_c2:
-                _z_base = st.number_input("💰 기초금액 (원 · Z1 자동연동)", min_value=10000000, value=int(_auto_base_val), step=10000000, key="_z34_base")
+                _z_base = st.number_input("💰 기초금액 (원 · Z1 자동연동)", min_value=0, value=int(_auto_base_val), step=10000000, key="_z34_base")
             with _z34_c3:
                 _z_aval = st.number_input("🛡️ A값 합산액 (원 · Z1 자동연동)", min_value=0, value=int(_auto_aval_val), step=1000000, key="_z34_aval")
             with _z34_c4:
@@ -3468,8 +3504,8 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             </div>""", unsafe_allow_html=True)
 
             if any(_k in _cur_cab_str for _k in ["Z2", "적격", "산출물"]):
-                _saved_ps = float(st.session_state.get("_z2_perf_saved", _comp_prof.get("perf_score", 15.0)))
-                _saved_fs = float(st.session_state.get("_z2_fin_saved", _comp_prof.get("fin_score", 15.0)))
+                _saved_ps = float(st.session_state.get("_z2_perf_saved", _comp_prof.get("perf_score", 0.0)))
+                _saved_fs = float(st.session_state.get("_z2_fin_saved", _comp_prof.get("fin_score", 0.0)))
                 _saved_cs = float(st.session_state.get("_z2_cred_saved", _comp_prof.get("cred_score", 0.0)))
                 _z2_sc1, _z2_sc2, _z2_sc3 = st.columns(3)
                 with _z2_sc1:
