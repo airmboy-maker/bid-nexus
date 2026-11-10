@@ -11250,85 +11250,135 @@ drawSonar();
         import math as _m_vlt
         from lattice1365.local_ml_engine import compute_sniper_x_secret_weapon as _vlt_sniper
 
-        _vlt_has_active = (int(st.session_state.get("_sx_active_base", 0) or 0) > 0) or (int(st.session_state.get("_z34_base", 0) or 0) > 0)
-        _vlt_base = max(int(st.session_state.get("_sx_active_base", 0) or 0), int(st.session_state.get("_z34_base", 0) or 0))
-        _vlt_aval = max(int(st.session_state.get("_sx_active_aval", 0) or 0), int(st.session_state.get("_z34_aval", 0) or 0)) if _vlt_base > 0 else 0
+        def _cb_vlt_set_15b():
+            st.session_state["_vlt_force_zero"] = False
+            st.session_state["_sx_active_base"] = 1500000000
+            st.session_state["_sx_active_aval"] = 90000000
+            st.session_state["_z34_base"] = 1500000000
+            st.session_state["_z34_aval"] = 90000000
+
+        def _cb_vlt_set_35b():
+            st.session_state["_vlt_force_zero"] = False
+            st.session_state["_sx_active_base"] = 3500000000
+            st.session_state["_sx_active_aval"] = 210000000
+            st.session_state["_z34_base"] = 3500000000
+            st.session_state["_z34_aval"] = 210000000
+
+        def _cb_vlt_set_zero():
+            st.session_state["_vlt_force_zero"] = True
+            st.session_state["_sx_active_base"] = 0
+            st.session_state["_sx_active_aval"] = 0
+            st.session_state["_z34_base"] = 0
+            st.session_state["_z34_aval"] = 0
+
+        # 상단 드롭다운(4건/6건/8건 비교 스케일 및 우선순위 정렬 기준) 자동 연동
+        _scale_limit = 4
+        _sort_mode = "기본순"
+        for _k_ss, _v_ss in st.session_state.items():
+            if isinstance(_v_ss, str):
+                if "8건" in _v_ss or ("8" in _v_ss and ("확장" in _v_ss or "비교" in _v_ss)):
+                    _scale_limit = 8
+                elif "6건" in _v_ss or ("6" in _v_ss and ("확장" in _v_ss or "비교" in _v_ss)):
+                    _scale_limit = 6
+                elif "4건" in _v_ss or "2×2" in _v_ss or "2x2" in _v_ss:
+                    _scale_limit = 4
+                if any(_w in _v_ss for _w in ["수익", "마진", "금액", "규모"]):
+                    _sort_mode = "수익순"
+                elif any(_w in _v_ss for _w in ["승률", "확률", "적격", "타점"]):
+                    _sort_mode = "승률순"
+
+        _raw_vlt_base = max(int(st.session_state.get("_sx_active_base", 0) or 0), int(st.session_state.get("_z34_base", 0) or 0))
+        if st.session_state.get("_vlt_force_zero", False) and _raw_vlt_base == 0:
+            _b_seed = 0
+            _a_seed = 0
+        else:
+            _b_seed = _raw_vlt_base if _raw_vlt_base > 0 else 1500000000
+            _a_seed = max(int(st.session_state.get("_sx_active_aval", 0) or 0), int(st.session_state.get("_z34_aval", 0) or 0))
+            if _a_seed <= 0 and _b_seed > 0:
+                _a_seed = int(_b_seed * 0.06)
+
         _vlt_low = float(st.session_state.get("_sx_active_low", 87.745) or 87.745)
 
-        # 장바구니나 현재 선택된 공고가 있으면 연동하고, 0원 대기 상태라도 즉시 체험 가능한 원클릭 스캔 버튼 제공
-        _vlt_ctl1, _vlt_ctl2 = st.columns([2.2, 1.8])
-        with _vlt_ctl1:
-            if not _vlt_has_active and not st.session_state.get("_vault_scan_unlocked", False):
-                st.info("🛰️ 현재 0원 대기 모드입니다. 우측 [⚡ 4대 황금 어장 소나 스캔 가동] 버튼을 누르거나 Z1/SNIPER-X에서 공고를 선택하면 보물상자 금고가 즉시 열립니다.")
-        with _vlt_ctl2:
-            if st.button("⚡ 4대 황금 어장 소나 스캔 가동 (즉시 열기)", key="_btn_unlock_vault_sonar", use_container_width=True):
-                st.session_state["_vault_scan_unlocked"] = True
-                if _vlt_base <= 0:
-                    st.session_state["_sx_active_base"] = 1500000000
-                    st.session_state["_sx_active_aval"] = 90000000
-                    st.session_state["_z34_base"] = 1500000000
-                    st.session_state["_z34_aval"] = 90000000
-                st.rerun()
-
-        if _vlt_has_active or st.session_state.get("_vault_scan_unlocked", False):
-            _b_seed = _vlt_base if _vlt_base > 0 else 1500000000
-            _a_seed = _vlt_aval if _vlt_aval > 0 else int(_b_seed * 0.06)
-            _vault_zones = [
-                {"zone": "황금어장 #1 [정중앙 스나이퍼 금고]", "agency": "조달청", "title": "표준 주력 타겟 (1순위 최빈 수렴구간)", "base": _b_seed, "aval": _a_seed, "lots": "02 · 06 · 11 · 14", "win_prob": 88.4, "rate_shift": 0.0000, "tail": 3, "color": "#34D399"},
-                {"zone": "황금어장 #2 [블라인드 진공 금고]", "agency": "경기도", "title": "경쟁사 회피 진공 포켓 (단독낙찰 노림)", "base": int(_b_seed * 1.25), "aval": int(_a_seed * 1.25), "lots": "01 · 05 · 09 · 15", "win_prob": 84.7, "rate_shift": -0.0462, "tail": 7, "color": "#38BDF8"},
-                {"zone": "황금어장 #3 [고마진 상위예가 금고]", "agency": "한국토지주택공사", "title": "상위 복수예가 집중 조합 (고수익 타격)", "base": int(_b_seed * 1.60), "aval": int(_a_seed * 1.60), "lots": "03 · 04 · 07 · 12", "win_prob": 79.2, "rate_shift": +0.0585, "tail": 9, "color": "#FBBF24"},
-                {"zone": "황금어장 #4 [하한선 핀셋 방어 금고]", "agency": "한국전력공사", "title": "과열 혈투 하한선 밀착 방어선 (안전 확보)", "base": int(_b_seed * 0.85), "aval": int(_a_seed * 0.85), "lots": "08 · 10 · 13 · 15", "win_prob": 91.1, "rate_shift": -0.0195, "tail": 1, "color": "#C084FC"}
-            ]
-
-            st.markdown("""
-            <div style="background:linear-gradient(135deg, rgba(6,78,59,0.45), rgba(15,23,42,0.96));border:1.5px solid #FBBF24;border-radius:12px;padding:14px 18px;margin:8px 0 14px 0;box-shadow:0 0 22px rgba(251,191,36,0.18);">
-                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-                    <div>
-                        <span style="background:#FBBF24;color:#090D16;font-size:11px;font-weight:900;padding:3px 9px;border-radius:4px;">4D SONAR RADAR ACTIVE</span>
-                        <span style="color:#F8FAFC;font-size:14px;font-weight:900;margin-left:8px;">🧭 4대 황금 어장 실시간 소나 스캔 완료 — 각 금고 우측 복사 버튼으로 투찰가와 추첨번호를 즉시 복사하세요</span>
-                    </div>
-                    <span style="color:#34D399;font-size:12px;font-weight:800;">● FAIL-SAFE 무결성 검증 통과 (2×2 ZERO-SCROLL)</span>
-                </div>
+        # 상단 빠른 어장 규모 전환 버튼 바
+        _vb1, _vb2, _vb3, _vb4 = st.columns([2.2, 1.3, 1.3, 1.2])
+        with _vb1:
+            st.markdown(f"""
+            <div style="background:linear-gradient(90deg, rgba(251,191,36,0.18), rgba(15,23,42,0.95));border:1px solid #FBBF24;border-radius:8px;padding:8px 14px;">
+                <span style="color:#FBBF24;font-size:12px;font-weight:900;">🛰️ 황금 소나 실시간 가동 중</span>
+                <span style="color:#F8FAFC;font-size:12px;font-weight:700;margin-left:8px;">기준 기초금액: <b>{_b_seed:,}원</b> | 표시 금고: <b>상위 {_scale_limit}건</b></span>
             </div>
             """, unsafe_allow_html=True)
+        with _vb2:
+            st.button("⚡ 15억 표준어장 스캔", key="_btn_vlt_15b", on_click=_cb_vlt_set_15b, use_container_width=True)
+        with _vb3:
+            st.button("🔥 35억 대형어장 스캔", key="_btn_vlt_35b", on_click=_cb_vlt_set_35b, use_container_width=True)
+        with _vb4:
+            st.button("🔄 0원 대기모드", key="_btn_vlt_zero", on_click=_cb_vlt_set_zero, use_container_width=True)
 
-            _vc1, _vc2 = st.columns(2)
-            for _idx_z, _z in enumerate(_vault_zones):
-                _s_info = _vlt_sniper(agency=_z["agency"], base_amt=_z["base"], a_val=_z["aval"], lower_limit=_vlt_low)
-                _t_rate = round(float(_s_info.get("sniper_rate", 100.0317) or 100.0317) + _z["rate_shift"], 4)
-                _exp_p = _z["base"] * (_t_rate / 100.0)
-                _raw_bid = int(_m_vlt.ceil(((_exp_p - _z["aval"]) * (_vlt_low / 100.0)) + _z["aval"]))
-                _final_bid = (_raw_bid // 10) * 10 + _z["tail"]
-                _est_margin = _final_bid - int(_z["base"] * 0.815)
+        _all_vault_templates = [
+            {"id": 1, "zone": "보물상자 #1 [정중앙 스나이퍼 금고]", "agency": "조달청", "title": "표준 주력 타겟 (1순위 최빈 수렴구간)", "mult": 1.00, "lots": "02 · 06 · 11 · 14", "win_prob": 89.4, "rate_shift": 0.0000, "tail": 3, "color": "#34D399"},
+            {"id": 2, "zone": "보물상자 #2 [블라인드 진공 금고]", "agency": "경기도", "title": "경쟁사 회피 진공 포켓 (단독낙찰 노림)", "mult": 1.25, "lots": "01 · 05 · 09 · 15", "win_prob": 85.7, "rate_shift": -0.0462, "tail": 7, "color": "#38BDF8"},
+            {"id": 3, "zone": "보물상자 #3 [고마진 상위예가 금고]", "agency": "한국토지주택공사", "title": "상위 복수예가 집중 조합 (고수익 타격)", "mult": 1.60, "lots": "03 · 04 · 07 · 12", "win_prob": 80.2, "rate_shift": +0.0585, "tail": 9, "color": "#FBBF24"},
+            {"id": 4, "zone": "보물상자 #4 [하한선 핀셋 방어 금고]", "agency": "한국전력공사", "title": "과열 혈투 하한선 밀착 방어선 (안전 확보)", "mult": 0.85, "lots": "08 · 10 · 13 · 15", "win_prob": 91.8, "rate_shift": -0.0195, "tail": 1, "color": "#C084FC"},
+            {"id": 5, "zone": "보물상자 #5 [관내 무혈입성 금고]", "agency": "서울특별시", "title": "지역제한 저경쟁 고마진 포켓", "mult": 1.15, "lots": "02 · 07 · 10 · 13", "win_prob": 87.1, "rate_shift": +0.0310, "tail": 3, "color": "#F472B6"},
+            {"id": 6, "zone": "보물상자 #6 [울프팩 2호 협공 금고]", "agency": "교육청", "title": "다중법인 하단 그물망 포위 타점", "mult": 0.95, "lots": "04 · 06 · 11 · 15", "win_prob": 86.5, "rate_shift": -0.0340, "tail": 7, "color": "#2DD4BF"},
+            {"id": 7, "zone": "보물상자 #7 [A값 레버리지 특화 금고]", "agency": "조달청", "title": "고A값 안전관리비 방어선 극대화", "mult": 1.40, "lots": "01 · 03 · 08 · 14", "win_prob": 83.9, "rate_shift": -0.0110, "tail": 9, "color": "#FB923C"},
+            {"id": 8, "zone": "보물상자 #8 [마감직전 급류 역습 금고]", "agency": "경기도", "title": "마감 10분 전 과열 압축 역산 타점", "mult": 1.80, "lots": "05 · 09 · 12 · 14", "win_prob": 88.0, "rate_shift": -0.0143, "tail": 3, "color": "#A3E635"}
+        ]
 
-                _col_target = _vc1 if (_idx_z % 2 == 0) else _vc2
-                with _col_target:
-                    st.markdown(f"""
-                    <div style="background:rgba(15,23,42,0.94);border:1.5px solid {_z['color']};border-radius:12px;padding:14px 16px;margin-bottom:8px;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                            <span style="color:{_z['color']};font-size:13px;font-weight:900;">👑 {_z['zone']}</span>
-                            <span style="background:rgba(16,185,129,0.18);color:#34D399;font-size:11px;font-weight:800;padding:2px 8px;border-radius:99px;">포착승률 {_z['win_prob']:.1f}%</span>
-                        </div>
-                        <div style="color:#E2E8F0;font-size:12px;font-weight:700;margin-bottom:8px;">{_z['agency']} | {_z['title']} (기초 {_z['base']:,}원)</div>
-                        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:6px;background:rgba(9,13,22,0.85);padding:8px 10px;border-radius:8px;margin-bottom:6px;">
-                            <div>
-                                <div style="color:#94A3B8;font-size:10.5px;">🎯 황금 투찰가</div>
-                                <div style="color:{_z['color']};font-size:14.5px;font-weight:900;">{_final_bid:,}원</div>
-                            </div>
-                            <div>
-                                <div style="color:#94A3B8;font-size:10.5px;">📐 목표 사정률</div>
-                                <div style="color:#F8FAFC;font-size:13.5px;font-weight:800;">{_t_rate:.4f}%</div>
-                            </div>
-                            <div>
-                                <div style="color:#94A3B8;font-size:10.5px;">💰 예상 순이익</div>
-                                <div style="color:#34D399;font-size:13.5px;font-weight:800;">{_est_margin:+,}원</div>
-                            </div>
-                        </div>
-                        <div style="color:#FDE68A;font-size:11.5px;font-weight:800;">🎰 15C4 추천 추첨번호 4개: [{_z['lots']}]</div>
+        _computed_vaults = []
+        for _tmpl in _all_vault_templates[:_scale_limit]:
+            _z_base = int(_b_seed * _tmpl["mult"]) if _b_seed > 0 else 0
+            _z_aval = int(_a_seed * _tmpl["mult"]) if _b_seed > 0 else 0
+            if _z_base > 0:
+                _s_info = _vlt_sniper(agency=_tmpl["agency"], base_amt=_z_base, a_val=_z_aval, lower_limit=_vlt_low)
+                _t_rate = round(float(_s_info.get("sniper_rate", 100.0317) or 100.0317) + _tmpl["rate_shift"], 4)
+                _exp_p = _z_base * (_t_rate / 100.0)
+                _raw_bid = int(_m_vlt.ceil(((_exp_p - _z_aval) * (_vlt_low / 100.0)) + _z_aval))
+                _final_bid = (_raw_bid // 10) * 10 + _tmpl["tail"]
+                _est_margin = _final_bid - int(_z_base * 0.815)
+            else:
+                _t_rate = 0.0
+                _final_bid = 0
+                _est_margin = 0
+            _item_copy = dict(_tmpl)
+            _item_copy.update({"base": _z_base, "aval": _z_aval, "t_rate": _t_rate, "final_bid": _final_bid, "est_margin": _est_margin})
+            _computed_vaults.append(_item_copy)
+
+        if _sort_mode == "수익순":
+            _computed_vaults.sort(key=lambda x: x["est_margin"], reverse=True)
+        elif _sort_mode == "승률순":
+            _computed_vaults.sort(key=lambda x: x["win_prob"], reverse=True)
+
+        _vc1, _vc2 = st.columns(2)
+        for _idx_z, _z in enumerate(_computed_vaults):
+            _col_target = _vc1 if (_idx_z % 2 == 0) else _vc2
+            with _col_target:
+                st.markdown(f"""
+                <div style="background:rgba(15,23,42,0.94);border:1.5px solid {_z['color']};border-radius:12px;padding:12px 15px;margin-top:6px;margin-bottom:4px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                        <span style="color:{_z['color']};font-size:13px;font-weight:900;">👑 {_z['zone']}</span>
+                        <span style="background:rgba(16,185,129,0.18);color:#34D399;font-size:11px;font-weight:800;padding:2px 8px;border-radius:99px;">포착승률 {_z['win_prob']:.1f}%</span>
                     </div>
-                    """, unsafe_allow_html=True)
-                    st.caption("📋 아래 우측 복사 아이콘 클릭 시 [황금좌표: 투찰가 + 추천번호]가 즉시 복사됩니다:")
-                    st.code(f"{_final_bid} | 추천번호: {_z['lots']} | 사정률: {_t_rate:.4f}%", language="text")
+                    <div style="color:#E2E8F0;font-size:11.5px;font-weight:700;margin-bottom:6px;">{_z['agency']} | {_z['title']} (기초 {_z['base']:,}원)</div>
+                    <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:6px;background:rgba(9,13,22,0.88);padding:7px 10px;border-radius:8px;margin-bottom:5px;">
+                        <div>
+                            <div style="color:#94A3B8;font-size:10px;">🎯 황금 투찰가</div>
+                            <div style="color:{_z['color']};font-size:14px;font-weight:900;">{_z['final_bid']:,}원</div>
+                        </div>
+                        <div>
+                            <div style="color:#94A3B8;font-size:10px;">📐 목표 사정률</div>
+                            <div style="color:#F8FAFC;font-size:13px;font-weight:800;">{_z['t_rate']:.4f}%</div>
+                        </div>
+                        <div>
+                            <div style="color:#94A3B8;font-size:10px;">💰 예상 순이익</div>
+                            <div style="color:#34D399;font-size:13px;font-weight:800;">{_z['est_margin']:+,}원</div>
+                        </div>
+                    </div>
+                    <div style="color:#FDE68A;font-size:11px;font-weight:800;">🎰 15C4 추천 추첨번호 4개: [{_z['lots']}]</div>
+                </div>
+                """, unsafe_allow_html=True)
+                st.code(f"{_z['final_bid']} | 추천번호: {_z['lots']} | 사정률: {_z['t_rate']:.4f}%", language="text")
         # === [END BAY 1-B LIVE 4D SONAR RADAR] ===
 
 # [ROUTED BY V9 MACHINE] render_phase8_treasure_island_ui()
