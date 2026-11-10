@@ -1095,3 +1095,44 @@ def compute_sniper_x_secret_weapon(
         "regime_state": regime_txt
     }
 
+
+def record_new_bid_observation(
+    notice_no: str = "",
+    agency: str = "조달청",
+    base_amt: int = 1000000000,
+    a_val: int = 0,
+    lower_limit: float = 87.745,
+    yega_rate: float = 100.0,
+    bid_amt: int = 0,
+    participants: int = 45
+) -> dict:
+    """실전 개찰 결과를 로컬 SQLite DB(bid_history)에 영구 기록하고 즉시 학습에 반영"""
+    import datetime
+    conn = _get_conn()
+    cur = conn.cursor()
+    if int(bid_amt or 0) <= 0 and int(base_amt or 0) > 0:
+        exp_p = float(base_amt) * (float(yega_rate) / 100.0)
+        bid_amt = int(((exp_p - float(a_val)) * (float(lower_limit) / 100.0)) + float(a_val))
+    cur.execute(
+        """
+        INSERT INTO bid_history (notice_no, agency, base_amt, a_val, lower_limit, yega_rate, bid_amt, participants, opened_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            str(notice_no or f"REAL-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"),
+            str(agency or "조달청"),
+            int(base_amt or 0),
+            int(a_val or 0),
+            float(lower_limit or 87.745),
+            float(yega_rate or 100.0),
+            int(bid_amt or 0),
+            int(participants or 1),
+            datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        )
+    )
+    conn.commit()
+    cur.execute("SELECT COUNT(*) FROM bid_history")
+    total_cnt = cur.fetchone()[0]
+    conn.close()
+    return {"status": "ok", "total_learned": total_cnt, "recorded_rate": yega_rate}
+
