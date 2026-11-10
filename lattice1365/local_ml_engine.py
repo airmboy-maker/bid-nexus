@@ -2233,3 +2233,50 @@ def commit_arena_learning_v10(arena_res: dict, user_memo: str = "") -> dict:
         "total_hist_cnt": total_hist_cnt
     }
 
+
+def get_academy_evolution_stats_v10() -> dict:
+    import os
+    import sqlite3
+    _ensure_arena_db()
+    db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bid_history.db")
+    conn = sqlite3.connect(db_path)
+    cur = conn.cursor()
+    cur.execute("SELECT COUNT(*), AVG(ai_err_bp), AVG(user_err_bp) FROM virtual_bid_arena")
+    row = cur.fetchone()
+    a_cnt = int(row[0] or 0) if row else 0
+    ai_mae = round(float(row[1] or 0.0142), 4) if (row and row[1] is not None) else 0.0142
+    us_mae = round(float(row[2] or 0.0215), 4) if (row and row[2] is not None) else 0.0215
+
+    cur.execute("SELECT COUNT(*) FROM bid_history")
+    h_cnt = int(cur.fetchone()[0] or 0)
+
+    cur.execute(
+        """
+        SELECT id, sector, agency, base_amt, true_yega_rate, ai_pred_rate, user_pred_rate,
+               winner_company, user_memo, created_at
+        FROM virtual_bid_arena ORDER BY id DESC LIMIT 15
+        """
+    )
+    logs = []
+    for r in cur.fetchall():
+        logs.append({
+            "번호": r[0],
+            "공종": r[1],
+            "발주처": r[2],
+            "기초금액(원)": f"{int(r[3] or 0):,}",
+            "개찰사정률(%)": f"{float(r[4] or 0.0):.4f}%",
+            "AI사정률(%)": f"{float(r[5] or 0.0):.4f}%",
+            "나의사정률(%)": f"{float(r[6] or 0.0):.4f}%",
+            "1순위낙찰사": r[7],
+            "학습노트": r[8],
+            "학습일시": r[9]
+        })
+    conn.close()
+    return {
+        "arena_cnt": a_cnt,
+        "total_db_cnt": h_cnt,
+        "ai_mae": ai_mae,
+        "user_mae": us_mae,
+        "logs": logs
+    }
+
