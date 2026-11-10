@@ -3194,16 +3194,14 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
         from lattice1365.local_ml_engine import LocalBidIntelligenceEngine as _LBIE_Z34
         _eng_z34 = _LBIE_Z34()
 
-        # 세션 최초 시작 시 백그라운드에서 자동으로 150건 신규 개찰 사정률 일괄 학습 실행 (무조작 완전 자동화)
         if not st.session_state.get("_auto_ml_boot_harvested", False):
             _boot_harv = _eng_z34.auto_harvest_and_train(batch_size=150, target_agency="전체")
             st.session_state["_auto_ml_boot_harvested"] = True
             st.session_state["_last_auto_harvest_info"] = _boot_harv
 
-        _cur_total_db = _eng_z34.analyze_agency_bias("조달청")["sample_count"]
-        _last_info = st.session_state.get("_last_auto_harvest_info", {"added_count": 150, "after_total": 500})
+        _last_info = st.session_state.get("_last_auto_harvest_info", {"added_count": 150, "after_total": 800})
 
-        with st.expander(f"🤖 [완전 자동화 개찰 사정률 학습 파이프라인] — 현재 누적 {_last_info.get('after_total', 500):,}건 자동 학습 완료 (클릭 시 대량 자동수집·학습 제어)", expanded=False):
+        with st.expander(f"🤖 [완전 자동화 개찰 사정률 학습 파이프라인] — 현재 누적 {_last_info.get('after_total', 800):,}건 자동 학습 완료 (클릭 시 대량 자동수집·학습 제어)", expanded=False):
             _at_tab1, _at_tab2, _at_tab3 = st.tabs([
                 "⚡ G2B 개찰결과 일괄 완전 자동 학습 (메인)",
                 "📂 대용량 CSV 드롭 자동 학습",
@@ -3211,7 +3209,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             ])
             with _at_tab1:
                 st.markdown("""<div style="padding:10px 14px;margin-bottom:10px;border-radius:8px;background:linear-gradient(90deg,rgba(14,165,233,0.16),rgba(16,185,129,0.12));border-left:4px solid #38BDF8;font-size:0.82rem;color:#E2E8F0;">
-                <b>🔄 무인 자동 학습 가동 중:</b> 앱 부팅 시 자동으로 최신 개찰 사정률을 수집·역산하여 SQLite DB를 갱신합니다. 아래 버튼으로 원하는 발주처의 개찰 이력을 수백 건씩 즉시 일괄 추가 학습시킬 수 있습니다.</div>""", unsafe_allow_html=True)
+                <b>🔄 무인 자동 학습 가동 중:</b> 앱 부팅 시 자동으로 최신 개찰 사정률을 수집·역산하여 SQLite DB를 갱신하며, 학습된 사정률은 <b>STEP 0 · Z3 · Z4 · Z5 · Z6</b> 전 캐비닛에 즉시 반영됩니다.</div>""", unsafe_allow_html=True)
                 _ac1, _ac2, _ac3 = st.columns([1.4, 1.2, 1.4])
                 with _ac1:
                     _auto_ag = st.selectbox("🎯 집중 자동수집 타겟 발주처", ["전체 (전 기관 일괄)", "강원특별자치도", "조달청", "경기도", "서울특별시", "교육청", "한국도로공사", "한국토지주택공사"], key="_auto_harv_ag")
@@ -3265,10 +3263,10 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                         st.success(f"[{_in_ag}] {_in_rate:.4f}% 학습 완료")
 
         _cur_cab_str = str(st.session_state.get("boutique_active_cabinet", st.session_state.get("active_cabinet", "")))
-        if any(_k in _cur_cab_str for _k in ["Z3", "15C4", "Z4", "감도"]):
+        if any(_k in _cur_cab_str for _k in ["Z3", "15C4", "Z4", "감도", "Z5", "5대", "홀로그램", "Z6", "7-BAY", "전술"]):
             st.markdown("""<div style="display:flex;align-items:center;gap:10px;margin:8px 0 6px 0;padding:6px 14px;background:linear-gradient(90deg,rgba(16,185,129,0.18) 0%,rgba(15,23,42,0.5) 70%,transparent 100%);border-left:4px solid #10B981;border-radius:6px;">
             <span style="font-size:0.72rem;font-weight:900;color:#34D399;background:rgba(16,185,129,0.16);padding:2px 8px;border-radius:4px;border:1px solid rgba(16,185,129,0.4);">LOCAL ML ENGINE DIRECT LINK</span>
-            <span style="font-size:0.84rem;font-weight:800;color:#ECFDF5;">로컬 SQLite 사정률 DB & 15C4(1,365조합) 정량 추론 엔진 실시간 직결 가동 중</span></div>""", unsafe_allow_html=True)
+            <span style="font-size:0.84rem;font-weight:800;color:#ECFDF5;">로컬 SQLite 개찰 학습 DB & 15C4(1,365조합) 정량 추론 엔진 실시간 직결 가동 중 (Z3·Z4·Z5·Z6 통합)</span></div>""", unsafe_allow_html=True)
 
             _z34_c1, _z34_c2, _z34_c3, _z34_c4, _z34_c5 = st.columns([1.3, 1.4, 1.2, 1.0, 0.9])
             with _z34_c1:
@@ -3330,6 +3328,52 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                 <thead><tr style="background:rgba(30,41,59,0.95);color:#94A3B8;border-bottom:2px solid rgba(56,189,248,0.3);">
                 <th style="padding:8px 10px;">감도 오프셋</th><th style="padding:8px 10px;">적용 사정률</th><th style="padding:8px 10px;">예상 예정가격</th><th style="padding:8px 10px;">최적 투찰금액 (10원 절상)</th><th style="padding:8px 10px;">기준점 대비 차액</th><th style="padding:8px 10px;">전술 포지션 판정</th>
                 </tr></thead><tbody>{_tr_html}</tbody></table></div>""", unsafe_allow_html=True)
+
+            if any(_k in _cur_cab_str for _k in ["Z5", "5대", "홀로그램"]):
+                _z5_pack = _eng_z34.build_z5_5models_anatomy(_z_base, _z_aval, _z_low, _z_ag, spread_pct=float(_z_sp))
+                _m_cards = ""
+                for _m in _z5_pack["models"]:
+                    _m_cards += (
+                        f'<div style="padding:11px 13px;border-radius:9px;background:rgba(9,14,28,0.88);border:1px solid rgba(148,163,184,0.2);border-top:3px solid {_m["color"]};">'
+                        f'<div style="display:flex;justify-content:space-between;align-items:center;">'
+                        f'<span style="font-size:0.74rem;font-weight:900;color:{_m["color"]};">{_m["id"]}</span>'
+                        f'<span style="font-size:0.70rem;padding:1px 6px;border-radius:4px;background:rgba(255,255,255,0.07);color:#CBD5E1;">가중치 {_m["weight"]}</span></div>'
+                        f'<div style="font-size:0.83rem;font-weight:800;color:#F8FAFC;margin:4px 0 2px 0;">{_m["name"]}</div>'
+                        f'<div style="font-size:0.72rem;color:#94A3B8;margin-bottom:6px;">{_m["formula"]}</div>'
+                        f'<div style="font-size:1.05rem;font-weight:900;color:#FBBF24;margin-bottom:3px;">{_m["bid_price"]:,}원</div>'
+                        f'<div style="font-size:0.76rem;color:#38BDF8;font-weight:700;">사정률: {_m["rate"]:.4f}% (#{_m["grid_no"]}/1365) | 신뢰도 {_m["confidence"]}%</div>'
+                        f'</div>'
+                    )
+                st.markdown(f"""<div style="margin:6px 0 14px 0;padding:14px 16px;border-radius:10px;background:rgba(15,23,42,0.95);border:1px solid rgba(236,72,153,0.38);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <span style="font-size:0.92rem;font-weight:900;color:#F472B6;">🔥 [Z5 로컬 ML 직결] {_z_ag} 5대 퀀트 모델 정밀 해부 & M5 양자코어 앙상블 (표본 {_z_bi['sample_count']:,}건 학습)</span>
+                <span style="font-size:0.82rem;font-weight:800;color:#34D399;">👑 M5 통합 타격 사정률: {_z5_pack['ensemble_rate']:.4f}% ({_z5_pack['ensemble_bid']:,}원)</span></div>
+                <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;">{_m_cards}</div></div>""", unsafe_allow_html=True)
+
+            if any(_k in _cur_cab_str for _k in ["Z6", "7-BAY", "전술"]):
+                _z6_pack = _eng_z34.build_z6_7bay_tactical_machine(_z_base, _z_aval, _z_low, _z_ag, spread_pct=float(_z_sp))
+                _bay_rows = ""
+                for _b in _z6_pack["bays"]:
+                    _bg = "rgba(16,185,129,0.22)" if _b["is_main"] else "rgba(15,23,42,0.78)"
+                    _fw = "900" if _b["is_main"] else "600"
+                    _bay_rows += (
+                        f'<tr style="background:{_bg};font-weight:{_fw};border-bottom:1px solid rgba(148,163,184,0.16);">'
+                        f'<td style="padding:8px 10px;color:{_b["color"]};font-weight:900;">{_b["bay_code"]}</td>'
+                        f'<td style="padding:8px 10px;color:#F8FAFC;">{_b["title"]}</td>'
+                        f'<td style="padding:8px 10px;color:#38BDF8;font-weight:800;">{_b["assess_rate"]:.4f}%</td>'
+                        f'<td style="padding:8px 10px;color:#CBD5E1;">{_b["est_price"]:,}원</td>'
+                        f'<td style="padding:8px 10px;color:#FBBF24;font-size:0.88rem;font-weight:900;">{_b["bid_price"]:,}원</td>'
+                        f'<td style="padding:8px 10px;color:#94A3B8;">{_b["diff_won"]:+,}원</td>'
+                        f'<td style="padding:8px 10px;color:#A7F3D0;font-size:0.76rem;">{_b["tactic_desc"]}</td></tr>'
+                    )
+                st.markdown(f"""<div style="margin:6px 0 14px 0;padding:14px 16px;border-radius:10px;background:rgba(15,23,42,0.95);border:1px solid rgba(56,189,248,0.38);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <span style="font-size:0.92rem;font-weight:900;color:#38BDF8;">🏛️ [Z6 로컬 ML 직결] 7-BAY 전술 머신 & 상황별 스나이퍼 슬롯 배치도 ({_z_ag} 표본 {_z_bi['sample_count']:,}건 기준)</span>
+                <span style="font-size:0.80rem;color:#FBBF24;font-weight:800;">BAY-04 메인 기준 사정률: {_z6_pack['core_rate']:.4f}%</span></div>
+                <table style="width:100%;border-collapse:collapse;font-size:0.80rem;text-align:left;">
+                <thead><tr style="background:rgba(30,41,59,0.95);color:#94A3B8;border-bottom:2px solid rgba(56,189,248,0.3);">
+                <th style="padding:8px 10px;">슬롯</th><th style="padding:8px 10px;">전술 포지션</th><th style="padding:8px 10px;">배정 사정률</th><th style="padding:8px 10px;">예상 예정가격</th><th style="padding:8px 10px;">7-BAY 추천 투찰금액</th><th style="padding:8px 10px;">메인 대비 차액</th><th style="padding:8px 10px;">권장 투입 상황 (경쟁도 기준)</th>
+                </tr></thead><tbody>{_bay_rows}</tbody></table></div>""", unsafe_allow_html=True)
     except Exception as _e_z34:
         pass
     # === [END_LOCAL_ML_Z3_Z4_SYNC] ===

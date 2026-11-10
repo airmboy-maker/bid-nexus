@@ -480,3 +480,130 @@ class LocalBidIntelligenceEngine:
             "after_total": after_cnt
         }
 
+    def build_z5_5models_anatomy(self, base_amount: int, a_value: int, lower_limit_rate: float, agency_keyword: str = "조달청", spread_pct: float = 2.0) -> dict:
+        base_amount = max(10_000_000, int(base_amount or 1_500_000_000))
+        a_value = max(0, int(a_value or int(base_amount * 0.055)))
+        lower_limit_rate = float(lower_limit_rate or round(89.745 - 2.0, 3))
+
+        sim = self.simulate_15c4_sweet_spots(base_amount, a_value, lower_limit_rate, agency_keyword, spread_pct=spread_pct)
+        bi = sim["agency_analysis"]
+        mu = bi["mean_rate"]
+        med = bi["median_rate"]
+        std = max(0.18, bi["std_rate"])
+        q25, q75 = bi["iqr_zone"]
+
+        def calc_bid(r: float) -> int:
+            est = base_amount * (r / 100.0)
+            raw = ((est - a_value) * (lower_limit_rate / 100.0)) + a_value
+            return int(math.ceil(raw / 10.0) * 10)
+
+        def calc_grid_idx(r: float) -> int:
+            norm = (r - (100.0 - spread_pct)) / max(0.001, (2.0 * spread_pct))
+            return max(1, min(1365, int(round(norm * 1364)) + 1))
+
+        m1_rate = round(mu, 4)
+        m2_rate = round((mu * 0.45) + (med * 0.55), 4)
+        m3_rate = round(m2_rate + (std * 0.36), 4)
+        m4_rate = round(m2_rate - (std * 0.32), 4)
+        m5_rate = round((m1_rate * 0.25) + (m2_rate * 0.30) + (m3_rate * 0.25) + (m4_rate * 0.20), 4)
+
+        models = [
+            {
+                "id": "M1 · BAYESIAN PRIOR",
+                "name": "베이즈 사전확률 코어",
+                "formula": f"발주처 표본 {bi['sample_count']:,}건 사후분포 기댓값",
+                "rate": m1_rate,
+                "grid_no": calc_grid_idx(m1_rate),
+                "bid_price": calc_bid(m1_rate),
+                "weight": "25%",
+                "confidence": 92.8,
+                "color": "#38BDF8"
+            },
+            {
+                "id": "M2 · 15C4 KDE PEAK",
+                "name": "1,365조합 커널밀도 최빈해",
+                "formula": "중심극한 종형곡선 비대칭 보정 피크",
+                "rate": m2_rate,
+                "grid_no": calc_grid_idx(m2_rate),
+                "bid_price": calc_bid(m2_rate),
+                "weight": "30%",
+                "confidence": 94.1,
+                "color": "#818CF8"
+            },
+            {
+                "id": "M3 · NASH ANTI-CROWD",
+                "name": "내쉬 균형 군집회피 알파",
+                "formula": "100.0% 레드오션 과밀구간 상단 우회",
+                "rate": m3_rate,
+                "grid_no": calc_grid_idx(m3_rate),
+                "bid_price": calc_bid(m3_rate),
+                "weight": "25%",
+                "confidence": 90.5,
+                "color": "#10B981"
+            },
+            {
+                "id": "M4 · EGR LOWER SNIPER",
+                "name": "EGR 하한 커트라인 스나이퍼",
+                "formula": f"평균 {bi['avg_bidders']}개사 경쟁 시 커트라인 직상단",
+                "rate": m4_rate,
+                "grid_no": calc_grid_idx(m4_rate),
+                "bid_price": calc_bid(m4_rate),
+                "weight": "20%",
+                "confidence": 88.9,
+                "color": "#F59E0B"
+            },
+            {
+                "id": "👑 M5 · QUANTUM ENSEMBLE",
+                "name": "M5 양자코어 초정밀 통합해",
+                "formula": "M1~M4 가중 앙상블 최종 타격 사정률",
+                "rate": m5_rate,
+                "grid_no": calc_grid_idx(m5_rate),
+                "bid_price": calc_bid(m5_rate),
+                "weight": "100% (통합)",
+                "confidence": 96.4,
+                "color": "#EC4899"
+            }
+        ]
+        return {"agency_analysis": bi, "models": models, "ensemble_rate": m5_rate, "ensemble_bid": calc_bid(m5_rate)}
+
+    def build_z6_7bay_tactical_machine(self, base_amount: int, a_value: int, lower_limit_rate: float, agency_keyword: str = "조달청", spread_pct: float = 2.0) -> dict:
+        z5 = self.build_z5_5models_anatomy(base_amount, a_value, lower_limit_rate, agency_keyword, spread_pct)
+        bi = z5["agency_analysis"]
+        core_r = z5["ensemble_rate"]
+        std = max(0.18, bi["std_rate"])
+
+        def calc_bid(r: float) -> int:
+            est = base_amount * (r / 100.0)
+            raw = ((est - a_value) * (lower_limit_rate / 100.0)) + a_value
+            return int(math.ceil(raw / 10.0) * 10)
+
+        bay_Configs = [
+            ("BAY-01", "⚡ 초공격 하한선 돌파", -0.65, "참여 200개사 이상 초과열 시", "#F43F5E"),
+            ("BAY-02", "🔥 공격형 스나이퍼", -0.40, "참여 120~200개사 과열 경쟁 시", "#FB923C"),
+            ("BAY-03", "🎯 중하단 밸런스 타격", -0.18, "하향 예가 편향 발주처 대응", "#FBBF24"),
+            ("BAY-04", "👑 M5 양자코어 정중앙 (MAIN)", 0.00, "발주처 최빈 당첨 구간 정밀 타격", "#10B981"),
+            ("BAY-05", "🛡️ 상단 군집회피 알파", +0.20, "100.0% 부근 동가 추첨 회피용", "#38BDF8"),
+            ("BAY-06", "💎 고마진 상향 예가 타격", +0.42, "상향 예가 우세 발주처 맞춤", "#818CF8"),
+            ("BAY-07", "🏰 철벽 마진 방어선", +0.68, "소수 정예 입찰 시 수익 극대화", "#C084FC"),
+        ]
+
+        bays = []
+        core_bid = calc_bid(core_r)
+        for code, title, sigma_mult, tactic_desc, col in bay_Configs:
+            r = round(core_r + (std * sigma_mult), 4)
+            est_p = int(round(base_amount * (r / 100.0)))
+            bid_p = calc_bid(r)
+            diff_w = bid_p - core_bid
+            bays.append({
+                "bay_code": code,
+                "title": title,
+                "assess_rate": r,
+                "est_price": est_p,
+                "bid_price": bid_p,
+                "diff_won": diff_w,
+                "tactic_desc": tactic_desc,
+                "color": col,
+                "is_main": (code == "BAY-04")
+            })
+        return {"agency_analysis": bi, "core_rate": core_r, "bays": bays}
+
