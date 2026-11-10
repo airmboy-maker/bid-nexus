@@ -9,7 +9,6 @@ def _apply_strict_zero_mask(body):
         _sel_no = str(_st_root.session_state.get("selected_notice_no", "") or "").strip()
         _pulled = _st_root.session_state.get("pulled_notices", []) or []
         _manual_b = int(_st_root.session_state.get("_z34_base", 0) or 0)
-        # 공고가 실제로 선택되지 않은 초기 상태면 모든 원화 금액/비율 숫자를 100% 0원으로 강제 치환!
         if (not _sel_no and len(_pulled) == 0 and _manual_b == 0) and isinstance(body, str):
             body = _re_zmask.sub(r'[+-]?\s*\d{1,3}(?:,\d{3})+\s*원', '0원', body)
             body = _re_zmask.sub(r'[+-]?\s*\d+\s*원', '0원', body)
@@ -27,6 +26,7 @@ if not getattr(_DG_Core, "_dg_zero_hooked_v18", False):
     _DG_Core.markdown = _hooked_dg_markdown
     _DG_Core._dg_zero_hooked_v18 = True
 # === [END GLOBAL ZERO-MASK INTERCEPTOR] ===
+
 
 
 
