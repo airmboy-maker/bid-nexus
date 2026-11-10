@@ -3295,84 +3295,98 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
         compute_surge_calibrated_strike_v8 as _run_surge_v8
     )
 
+    def _cb_load_15b_preset():
+        st.session_state["_sx_qs_base_in"] = 1500000000
+        st.session_state["_sx_qs_aval_in"] = 90000000
+        st.session_state["_sx_qs_low_in"] = 87.745
+        st.session_state["_z34_base"] = 1500000000
+        st.session_state["_z34_aval"] = 90000000
+        st.session_state["_z34_low"] = 87.745
+        st.session_state["selected_notice_no"] = "QUICK-SIM-15B"
+        st.session_state["selected_notice_title"] = "[즉석모의타격] 조달청 표준 시설공사 (기초 15억 / A값 9천만)"
+        st.session_state["selected_notice_agency"] = "조달청"
+
+    def _cb_reset_zero_wait():
+        st.session_state["_sx_qs_base_in"] = 0
+        st.session_state["_sx_qs_aval_in"] = 0
+        st.session_state["_sx_qs_low_in"] = 87.745
+        st.session_state["_z34_base"] = 0
+        st.session_state["_z34_aval"] = 0
+        st.session_state["selected_notice_no"] = ""
+        st.session_state["selected_notice_title"] = ""
+        st.session_state["selected_notice_agency"] = ""
+
+    def _cb_sync_custom_qs():
+        _b_v = int(st.session_state.get("_sx_qs_base_in", 0) or 0)
+        _a_v = int(st.session_state.get("_sx_qs_aval_in", 0) or 0)
+        _l_v = float(st.session_state.get("_sx_qs_low_in", 87.745) or 87.745)
+        st.session_state["_z34_base"] = _b_v
+        st.session_state["_z34_aval"] = _a_v
+        st.session_state["_z34_low"] = _l_v
+        if _b_v > 0:
+            st.session_state["selected_notice_no"] = "QUICK-CUSTOM"
+            st.session_state["selected_notice_title"] = f"[즉석모의타격] 직접 입력 공고 (기초 {_b_v:,}원)"
+            st.session_state["selected_notice_agency"] = st.session_state.get("_sx_pm_ag", "조달청")
+        else:
+            st.session_state["selected_notice_no"] = ""
+            st.session_state["selected_notice_title"] = ""
+
+    if "_sx_qs_base_in" not in st.session_state:
+        st.session_state["_sx_qs_base_in"] = int(st.session_state.get("_z34_base", 0) or 0)
+    if "_sx_qs_aval_in" not in st.session_state:
+        st.session_state["_sx_qs_aval_in"] = int(st.session_state.get("_z34_aval", 0) or 0)
+    if "_sx_qs_low_in" not in st.session_state:
+        st.session_state["_sx_qs_low_in"] = float(st.session_state.get("_z34_low", 87.745) or 87.745)
+
     _rival_list_v8 = _get_rivals_v8()
 
     with st.expander("🎯 [SNIPER-X v8.0 궁극 비밀병기] 15C4 진공 타점 · 몬테카를로 워게임 · 라이벌 DNA 북마크 · 즉석 모의 타격기 — [클릭 시 열림]", expanded=False):
-        # [ROW 1] 즉석 모의 타격 금액 입력기 (Quick Strike Simulator) — 0원 초기 상태 유지 + 입력 즉시 전 구간(Z2~Z8) 연동!
         _qs_c1, _qs_c2, _qs_c3, _qs_c4, _qs_c5 = st.columns([2.0, 1.5, 1.3, 1.2, 1.2])
         with _qs_c1:
-            _cur_base_val = int(st.session_state.get("_z34_base", 0) or 0)
             _qs_base = st.number_input(
                 "💰 즉석 타격 기초금액 (원) — 0원이면 대기",
                 min_value=0,
                 max_value=500000000000,
-                value=_cur_base_val,
                 step=100000000,
                 format="%d",
-                key="_sx_qs_base_in"
+                key="_sx_qs_base_in",
+                on_change=_cb_sync_custom_qs
             )
         with _qs_c2:
-            _cur_aval_val = int(st.session_state.get("_z34_aval", 0) or 0)
             _qs_aval = st.number_input(
                 "🛡️ A값 (국민연금·건보·안전관리비 등)",
                 min_value=0,
                 max_value=100000000000,
-                value=_cur_aval_val,
                 step=10000000,
                 format="%d",
-                key="_sx_qs_aval_in"
+                key="_sx_qs_aval_in",
+                on_change=_cb_sync_custom_qs
             )
         with _qs_c3:
-            _cur_low_val = float(st.session_state.get("_z34_low", 87.745) or 87.745)
             _qs_low = st.number_input(
                 "📐 낙찰하한율 (%)",
                 min_value=70.000,
                 max_value=99.999,
-                value=_cur_low_val,
                 step=0.005,
                 format="%.3f",
-                key="_sx_qs_low_in"
+                key="_sx_qs_low_in",
+                on_change=_cb_sync_custom_qs
             )
         with _qs_c4:
             st.markdown("<div style='height:27px;'></div>", unsafe_allow_html=True)
-            if st.button("⚡ 15억 표준공고 즉시 로드", key="_sx_qs_preset_btn", use_container_width=True):
-                st.session_state["_z34_base"] = 1500000000
-                st.session_state["_z34_aval"] = 90000000
-                st.session_state["_z34_low"] = 87.745
-                st.session_state["selected_notice_no"] = "QUICK-SIM-15B"
-                st.session_state["selected_notice_title"] = "[즉석모의타격] 조달청 표준 시설공사 (기초 15억 / A값 9천만)"
-                st.session_state["selected_notice_agency"] = "조달청"
-                st.rerun()
+            st.button("⚡ 15억 표준공고 즉시 로드", key="_sx_qs_preset_btn", on_click=_cb_load_15b_preset, use_container_width=True)
         with _qs_c5:
             st.markdown("<div style='height:27px;'></div>", unsafe_allow_html=True)
-            if st.button("🔄 0원 초기화 (대기모드)", key="_sx_qs_reset_btn", use_container_width=True):
-                st.session_state["_z34_base"] = 0
-                st.session_state["_z34_aval"] = 0
-                st.session_state["selected_notice_no"] = ""
-                st.session_state["selected_notice_title"] = ""
-                st.session_state["selected_notice_agency"] = ""
-                st.rerun()
+            st.button("🔄 0원 초기화 (대기모드)", key="_sx_qs_reset_btn", on_click=_cb_reset_zero_wait, use_container_width=True)
 
-        # 사용자가 즉석 기초금액을 직접 올렸다면 세션(Z2~Z8 연동 키)에도 즉시 동기화
-        if int(_qs_base) != _cur_base_val or int(_qs_aval) != _cur_aval_val or abs(float(_qs_low) - _cur_low_val) > 1e-5:
-            st.session_state["_z34_base"] = int(_qs_base)
-            st.session_state["_z34_aval"] = int(_qs_aval)
-            st.session_state["_z34_low"] = float(_qs_low)
-            if int(_qs_base) > 0 and not st.session_state.get("selected_notice_no"):
-                st.session_state["selected_notice_no"] = "QUICK-CUSTOM"
-                st.session_state["selected_notice_title"] = f"[즉석모의타격] 직접 입력 공고 (기초 {int(_qs_base):,}원)"
-                st.session_state["selected_notice_agency"] = st.session_state.get("_sx_pm_ag", "조달청")
-
-        _sx_has_notice = bool(st.session_state.get("selected_notice_no", "")) or (int(st.session_state.get("_z34_base", 0) or 0) > 0)
-        _sx_base = int(st.session_state.get("_z34_base", 0) or 0) if _sx_has_notice else 0
-        _sx_aval = int(st.session_state.get("_z34_aval", 0) or 0) if _sx_has_notice else 0
-        _sx_low = float(st.session_state.get("_z34_low", 87.745) or 87.745)
-        _sx_ag = str(st.session_state.get("selected_notice_agency", "") or "조달청") if _sx_has_notice else ""
-        _sx_title = str(st.session_state.get("selected_notice_title", "") or "공고 미선택 (위 입력칸에 기초금액을 넣거나 ⚡15억 로드 버튼을 누르세요)") if _sx_has_notice else "공고 미선택 (위 입력칸에 기초금액을 넣거나 ⚡15억 로드 버튼을 누르세요)"
+        _sx_base = max(int(_qs_base or 0), int(st.session_state.get("_z34_base", 0) or 0))
+        _sx_aval = max(int(_qs_aval or 0), int(st.session_state.get("_z34_aval", 0) or 0)) if _sx_base > 0 else 0
+        _sx_low = float(_qs_low or 87.745)
+        _sx_ag = str(st.session_state.get("selected_notice_agency", "") or "조달청") if _sx_base > 0 else ""
+        _sx_title = str(st.session_state.get("selected_notice_title", "") or f"[즉석모의타격] 기초 {_sx_base:,}원") if _sx_base > 0 else "공고 미선택 (위 입력칸에 기초금액을 넣거나 ⚡15억 로드 버튼을 누르세요)"
 
         _sx_res = _run_sniper_x(agency=_sx_ag, base_amt=_sx_base, a_val=_sx_aval, lower_limit=_sx_low)
 
-        # [ROW 2] 라이벌 북마크 선택 & 마감 직전 과열도 선택
         _top_c1, _top_c2, _top_c3 = st.columns([2.4, 2.0, 1.6])
         with _top_c1:
             _rival_options = [f"{r['rival_name']} | 평균 {r['avg_rate']:.4f}% ({r['style_tag']}, {r['sample_cnt']}회)" for r in _rival_list_v8]
@@ -3460,7 +3474,6 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
         </div>
         """, unsafe_allow_html=True)
 
-        # [ROW 3] 하단 입력기: (1) 개찰 결과 복기 + (2) 신규/기존 라이벌 투찰 DNA 북마크 저장
         _pm_c1, _pm_c2, _pm_c3, _pm_c4, _pm_c5 = st.columns([1.6, 1.3, 1.6, 1.3, 1.4])
         with _pm_c1:
             _pm_ag = st.text_input("발주처명 (개찰 기관)", value=(_sx_ag if _sx_ag else "조달청"), key="_sx_pm_ag")

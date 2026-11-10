@@ -991,17 +991,24 @@ def compute_sniper_x_secret_weapon(
     if any(k in ag_clean for k in ["시", "군", "구", "도", "교육청", "지자체"]) and "조달" not in ag_clean:
         band_pct = 3.0
 
-    conn = _get_conn()
-    cur = conn.cursor()
-    cur.execute(
-        "SELECT yega_rate, bid_amt, base_amt FROM bid_history WHERE agency LIKE ? ORDER BY id DESC LIMIT 30",
-        (f"%{ag_clean[:4]}%",)
-    )
-    rows = cur.fetchall()
-    if len(rows) < 5:
-        cur.execute("SELECT yega_rate, bid_amt, base_amt FROM bid_history ORDER BY id DESC LIMIT 40")
+    rows = []
+    try:
+        import sqlite3 as _sq_sx
+        import os as _os_sx
+        _db_p = _os_sx.path.join(_os_sx.path.dirname(_os_sx.path.abspath(__file__)), "bid_history.db")
+        conn = _sq_sx.connect(_db_p)
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT yega_rate, bid_amt, base_amt FROM bid_history WHERE agency LIKE ? ORDER BY id DESC LIMIT 30",
+            (f"%{ag_clean[:4]}%",)
+        )
         rows = cur.fetchall()
-    conn.close()
+        if len(rows) < 5:
+            cur.execute("SELECT yega_rate, bid_amt, base_amt FROM bid_history ORDER BY id DESC LIMIT 40")
+            rows = cur.fetchall()
+        conn.close()
+    except Exception:
+        rows = []
 
     hist_rates = [float(r[0]) for r in rows if r and r[0] and 94.0 <= float(r[0]) <= 106.0]
     if not hist_rates:
