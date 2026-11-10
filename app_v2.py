@@ -1,3 +1,21 @@
+
+# === [CLOUD & LOCAL ABSOLUTE ZERO-BOOT ENFORCER v12.0] ===
+import streamlit as _st_zboot
+import os as _os_zboot
+import glob as _glob_zboot
+for _zf in _glob_zboot.glob("*.json") + _glob_zboot.glob(".*.json") + _glob_zboot.glob(".streamlit/*.json") + _glob_zboot.glob("/tmp/*bid*"):
+    if any(_k in _zf for _k in ["state", "cart", "pulled", "persistent", "cache"]):
+        try:
+            _os_zboot.remove(_zf)
+        except Exception:
+            pass
+if not _st_zboot.session_state.get("_user_explicitly_loaded_notices", False):
+    _st_zboot.session_state["_cabinet_cleared_empty"] = True
+    _st_zboot.session_state["pulled_notices"] = []
+    _st_zboot.session_state["notices"] = []
+    _st_zboot.session_state["filtered_notices"] = []
+    _st_zboot.session_state["selected_notice_no"] = ""
+
 import streamlit as _st_init_guard
 import os as _os_init_guard
 for _old_st_file in [".bid_nexus_persistent_state.json", ".streamlit/full_app_state.json", ".streamlit/pulled_notices_state.json", ".streamlit/cart_state.json"]:
