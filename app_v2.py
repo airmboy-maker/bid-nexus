@@ -3568,6 +3568,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
         </div>
         """, unsafe_allow_html=True)
 
+        from lattice1365.local_ml_engine import compute_wolfpack_and_backtest_v9 as _run_wolfpack_v9
         _wp9_res = _run_wolfpack_v9(
             agency=_sx_ag,
             base_amt=_sx_base,
