@@ -3191,10 +3191,44 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
     st.markdown("""<!-- NEXUS_ZONE_DIVIDER --><div style="display:flex;align-items:center;gap:10px;margin:6px 0 4px 0;padding:5px 12px;background:linear-gradient(90deg,rgba(14,165,233,0.16) 0%,rgba(15,23,42,0.4) 60%,transparent 100%);border-left:3px solid #38BDF8;border-radius:4px;"><span style="font-size:0.70rem;font-weight:900;letter-spacing:1.2px;color:#38BDF8;background:rgba(56,189,248,0.14);padding:2px 7px;border-radius:3px;border:1px solid rgba(56,189,248,0.35);">PIPELINE 01</span><span style="font-size:0.80rem;font-weight:700;color:#E2E8F0;letter-spacing:-0.2px;">타겟 공고 브리핑 & 5대 다차원 조건 컨트롤러 (STEP 0 · STEP 1)</span><div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(56,189,248,0.4),transparent);"></div></div>""", unsafe_allow_html=True)
     # === [START_LOCAL_ML_Z3_Z4_SYNC] ===
     try:
+        from lattice1365.local_ml_engine import LocalBidIntelligenceEngine as _LBIE_Z34
+        _eng_z34 = _LBIE_Z34()
+
+        # [공통 상단 서랍] 새로운 개찰 결과(사정률) 단건 입력 & CSV 업로드 누적 학습기
+        with st.expander("📥 [로컬 AI 사정률 누적 학습기] — 신규 개찰 결과(당첨 사정률) 즉시 입력 & 엑셀(CSV) 대량 학습 (클릭 시 열림)", expanded=False):
+            _tr_tab1, _tr_tab2 = st.tabs(["✍️ 단건 개찰 결과 즉시 학습", "📂 개찰 결과 CSV 일괄 업로드 학습"])
+            with _tr_tab1:
+                _tc1, _tc2, _tc3, _tc4, _tc5, _tc6 = st.columns([1.2, 1.1, 1.3, 1.1, 0.9, 0.9])
+                with _tc1:
+                    _in_ag = st.selectbox("발주처", ["강원특별자치도", "조달청", "경기도", "서울특별시", "교육청", "한국도로공사", "한국토지주택공사"], key="_tr_in_ag")
+                with _tc2:
+                    _in_lic = st.selectbox("업종/면허", ["건축공사업", "토목공사업", "조경공사업", "실내건축공사업", "전기공사업"], key="_tr_in_lic")
+                with _tc3:
+                    _in_base = st.number_input("기초금액(원)", min_value=10000000, value=1500000000, step=50000000, key="_tr_in_base")
+                with _tc4:
+                    _in_rate = st.number_input("실제 당첨 사정률(%)", min_value=97.0000, max_value=103.0000, value=100.1250, step=0.0050, format="%.4f", key="_tr_in_rate")
+                with _tc5:
+                    _in_bid_cnt = st.number_input("참여업체 수", min_value=1, max_value=5000, value=85, step=5, key="_tr_in_cnt")
+                with _tc6:
+                    st.markdown("<div style='height:18px;'></div>", unsafe_allow_html=True)
+                    if st.button("🧠 DB 즉시 학습", key="_tr_btn_save", use_container_width=True):
+                        _eng_z34.record_opening_result(_in_ag, _in_lic, _in_base, int(_in_base * 0.055), round(89.745 - 2.0, 3), _in_rate, _in_bid_cnt)
+                        st.success(f"[{_in_ag}] 당첨 사정률 {_in_rate:.4f}% 데이터가 로컬 SQLite DB에 누적 학습되었습니다.")
+            with _tr_tab2:
+                st.caption("CSV 컬럼 형식 예시: agency_name, license_name, base_amount, winning_assess_rate, bidder_count")
+                _up_csv = st.file_uploader("과거 개찰 결과 CSV 파일 선택", type=["csv"], key="_tr_csv_up")
+                if _up_csv is not None:
+                    import csv as _csv_mod
+                    import io as _io_mod
+                    _decoded = _up_csv.getvalue().decode("utf-8-sig", errors="ignore")
+                    _reader = _csv_mod.DictReader(_io_mod.StringIO(_decoded))
+                    _rows_to_add = list(_reader)
+                    if st.button(f"🚀 {len(_rows_to_add)}건 일괄 DB 학습 실행", key="_tr_csv_btn"):
+                        _added_n = _eng_z34.bulk_import_records(_rows_to_add)
+                        st.success(f"총 {_added_n}건의 과거 개찰 사정률 데이터가 로컬 ML 엔진에 학습 완료되었습니다.")
+
         _cur_cab_str = str(st.session_state.get("boutique_active_cabinet", st.session_state.get("active_cabinet", "")))
         if any(_k in _cur_cab_str for _k in ["Z3", "15C4", "Z4", "감도"]):
-            from lattice1365.local_ml_engine import LocalBidIntelligenceEngine as _LBIE_Z34
-            _eng_z34 = _LBIE_Z34()
             st.markdown("""<div style="display:flex;align-items:center;gap:10px;margin:8px 0 6px 0;padding:6px 14px;background:linear-gradient(90deg,rgba(16,185,129,0.18) 0%,rgba(15,23,42,0.5) 70%,transparent 100%);border-left:4px solid #10B981;border-radius:6px;">
             <span style="font-size:0.72rem;font-weight:900;color:#34D399;background:rgba(16,185,129,0.16);padding:2px 8px;border-radius:4px;border:1px solid rgba(16,185,129,0.4);">LOCAL ML ENGINE DIRECT LINK</span>
             <span style="font-size:0.84rem;font-weight:800;color:#ECFDF5;">로컬 SQLite 사정률 DB & 15C4(1,365조합) 정량 추론 엔진 실시간 직결 가동 중</span></div>""", unsafe_allow_html=True)
@@ -3227,7 +3261,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                 ])
                 _p15_tags = " ".join([f'<span style="display:inline-block;padding:2px 6px;margin:2px;border-radius:4px;background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.3);font-size:0.74rem;color:#E0F2FE;">P{i+1}: {v:.3f}%</span>' for i, v in enumerate(_z3_pack["prelim_15"])])
                 st.markdown(f"""<div style="margin:6px 0 14px 0;padding:14px 16px;border-radius:10px;background:rgba(15,23,42,0.92);border:1px solid rgba(56,189,248,0.32);">
-                <div style="font-size:0.90rem;font-weight:900;color:#38BDF8;margin-bottom:8px;">⚡ [Z3 로컬 ML 직결] {_z_ag} 15C4(1,365조합) 베이지안 확률 밀도 분포 & 15개 복수예가 배열</div>
+                <div style="font-size:0.90rem;font-weight:900;color:#38BDF8;margin-bottom:8px;">⚡ [Z3 로컬 ML 직결] {_z_ag} 15C4(1,365조합) 베이지안 확률 밀도 분포 & 15개 복수예가 배열 (학습 표본 {_z_bi['sample_count']}건)</div>
                 <div style="margin-bottom:10px;">{_p15_tags}</div>
                 <div style="padding:10px 12px;border-radius:8px;background:rgba(9,14,28,0.85);border:1px solid rgba(148,163,184,0.18);">{_bars_html}</div>
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px;">
