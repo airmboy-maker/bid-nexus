@@ -2118,7 +2118,7 @@ def run_virtual_bid_arena_v10(
 
     # 4) AI 수석 전략가의 1:1 입체 사정 해설 생성
     closer_who = "🤖 AI 사정가" if ai_err <= user_err else "👤 대표님(사용자)의 투찰가"
-     commentary = (
+    commentary = (
         f"이번 [{agency} · {sector}] 개찰에서 15개 복수예가 중 추첨된 4개 번호({', '.join(f'#{i+1}번' for i in picked_indices)})의 평균 사정률은 "
         f"**{true_yega_rate:.4f}%** (예정가격 {true_exp_price:,}원, 낙찰하한선 {cutline_bid:,}원)로 결정되었습니다. "
         f"기존 학습된 DB 표본 평균({hist_mean:.4f}%) 대비 **{true_yega_rate - hist_mean:+.4f}%p** 이동했으며, "
