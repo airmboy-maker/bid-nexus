@@ -481,36 +481,43 @@ st.set_page_config(
 )
 st.markdown("""
 <style>
-/* === [SAFARI SIDEBAR WIDTH & KOREAN TYPOGRAPHY FIX v19.0] === */
+/* === [SAFARI SIDEBAR SLIM WIDTH & CLEAN KOREAN BOX v20.0] === */
 section[data-testid="stSidebar"] {
-    width: 332px !important;
-    min-width: 332px !important;
-    max-width: 332px !important;
+    width: 268px !important;
+    min-width: 268px !important;
+    max-width: 268px !important;
 }
 section[data-testid="stSidebar"] > div:first-child {
-    width: 332px !important;
-    padding-left: 14px !important;
-    padding-right: 14px !important;
+    width: 268px !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
 }
-/* 좌측 사이드바 내부 모든 한글 문단 단어 단위 줄바꿈(글자 쪼개짐 방지) 및 라디오 메뉴 한 줄 표시 */
-section[data-testid="stSidebar"] * {
+/* 사이드바 내부 알림/경고 박스 여백 및 한글 줄바꿈 정밀 교정 */
+section[data-testid="stSidebar"] div[data-testid="stNotification"],
+section[data-testid="stSidebar"] div[role="alert"] {
+    padding: 8px 10px !important;
+    font-size: 0.76rem !important;
+    line-height: 1.42 !important;
+    text-align: center !important;
+}
+section[data-testid="stSidebar"] p,
+section[data-testid="stSidebar"] span,
+section[data-testid="stSidebar"] div {
     word-break: keep-all !important;
-    overflow-wrap: break-word !important;
 }
+/* 좌측 메뉴 라디오 버튼 글자 크기 슬림화 (268px 폭에 쏙 들어가도록 조정) */
 section[data-testid="stSidebar"] div[role="radiogroup"] label p {
-    font-size: 0.81rem !important;
+    font-size: 0.75rem !important;
+    letter-spacing: -0.04em !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
-    letter-spacing: -0.02em !important;
-}
-/* 우측 메인 컨텐츠 영역이 너무 넓어 퍼져 보이지 않도록 최대 폭 및 여백 균형 조정 */
-.main .block-container {
-    max-width: 1440px !important;
-    padding-left: 2.2rem !important;
-    padding-right: 2.2rem !important;
 }
 </style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+
 """, unsafe_allow_html=True)
 
 _boot_restore_full_state()  # AUTO-RESTORE ALL 7 ZONES
@@ -3225,7 +3232,7 @@ if is_profile_ready:
         st.rerun()
 else:
     st.sidebar.markdown('<span class="status-badge-locked">🔒 적격 마스터 미등록 (잠김)</span>', unsafe_allow_html=True)
-    st.sidebar.error("⚠️ 기업 마스터 적격 스펙 입력 시  \n결과 파이프라인이 즉시 열립니다.")
+    st.sidebar.error("⚠️ 기업 마스터 스펙 등록 시  \n전체 파이프라인이 열립니다.")
 
 # --- [CART TARGET OVERRIDE HOOK] ---
 if "active_cart_target" in st.session_state and isinstance(st.session_state["active_cart_target"], dict):
@@ -5097,6 +5104,15 @@ with tab_quantum_ai:
     st.dataframe((real_df[[c for c in [c for c in ["공고번호", "공고명", "기초금액", "실제예가사정률", "1순위투찰률", "1-2위 격차", "결과"] if c in real_df.columns] if c in real_df.columns]] if hasattr(real_df, "columns") and len([c for c in [c for c in ["공고번호", "공고명", "기초금액", "실제예가사정률", "1순위투찰률", "1-2위 격차", "결과"] if c in real_df.columns] if c in real_df.columns]) > 0 else real_df) if hasattr(real_df, "columns") and any(c in real_df.columns for c in ["공고번호", "공고명", "기초금액", "실제예가사정률", "1순위투찰률", "1-2위 격차", "결과"]) else real_df, use_container_width=True, hide_index=True)
 
 with tab_sim:
+    # === [Z4 STRICT ZERO FORCE] ===
+    if not st.session_state.get('selected_notice_no') and int(st.session_state.get('_z34_base', 0) or 0) == 0:
+        _z4_bid_p = 0
+        _z4_delta_001 = 0
+        _z4_exec_cost = 0
+        _z4_exec_pct = 0
+        _z4_net98 = 0
+        _z4_profit = 0
+        _z4_rate = 0
     st.subheader("🎛️ 0.001% 정밀 감도 & 공사 비목별 원가 분석")
     # === [Z4 QUANTUM SENSITIVITY & COST BREAKDOWN HUD] ===
     try:
