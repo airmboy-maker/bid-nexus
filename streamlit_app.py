@@ -3293,7 +3293,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
 
     _sx_res = _run_sniper_x(agency=_sx_ag, base_amt=_sx_base, a_val=_sx_aval, lower_limit=_sx_low)
 
-    with st.expander("🎯 [SNIPER-X v4.0 실전 비밀병기] 비대칭 15C4 컨볼루션 · 경쟁사 과밀 회피(Blind-Spot) · 개찰 복기 자가진화 엔진 — [클릭 시 열림]", expanded=True):
+    with st.expander("🎯 [SNIPER-X v4.0 실전 비밀병기] 비대칭 15C4 컨볼루션 · 경쟁사 과밀 회피(Blind-Spot) · 개찰 복기 자가진화 엔진 — [클릭 시 열림]", expanded=False):
         st.markdown(f"""
         <div style="background:linear-gradient(135deg, rgba(15,23,42,0.96), rgba(9,13,24,0.98));border:1px solid rgba(16,185,129,0.55);border-radius:12px;padding:14px 18px;margin-bottom:10px;">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;border-bottom:1px solid rgba(56,189,248,0.2);padding-bottom:8px;">
