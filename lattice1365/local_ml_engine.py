@@ -199,3 +199,73 @@ class LocalBidIntelligenceEngine:
                 return {"online": True, "models": models}
         except Exception:
             return {"online": False, "models": []}
+
+    def build_z3_15c4_distribution(self, base_amount: int, a_value: int, lower_limit_rate: float, agency_keyword: str = "조달청", spread_pct: float = 2.0) -> dict:
+        sim = self.simulate_15c4_sweet_spots(base_amount, a_value, lower_limit_rate, agency_keyword, spread_pct=spread_pct)
+        bias_info = sim["agency_analysis"]
+        prior_mu = bias_info["mean_rate"]
+        bias_shift = (prior_mu - 100.0) * 0.65
+        step = (2.0 * spread_pct) / 14.0
+        prelim_15 = [round(100.0 - spread_pct + (i * step) + bias_shift, 4) for i in range(15)]
+        combos = [sum(c) / 4.0 for c in combinations(prelim_15, 4)]
+
+        # 8개 핵심 구간(Bin)별 조합 수 및 확률 밀도 계산
+        bins = [
+            ("98.50% 이하", -999.0, 98.50),
+            ("98.50% ~ 99.20%", 98.50, 99.20),
+            ("99.20% ~ 99.70%", 99.20, 99.70),
+            ("99.70% ~ 100.00%", 99.70, 100.00),
+            ("100.00% ~ 100.30%", 100.00, 100.30),
+            ("100.30% ~ 100.80%", 100.30, 100.80),
+            ("100.80% ~ 101.50%", 100.80, 101.50),
+            ("101.50% 이상", 101.50, 999.0),
+        ]
+        hist = []
+        for label, b_min, b_max in bins:
+            cnt = sum(1 for x in combos if b_min <= x < b_max)
+            pct = round((cnt / 1365.0) * 100.0, 2)
+            hist.append({"label": label, "count": cnt, "pct": pct})
+
+        return {
+            "sim": sim,
+            "prelim_15": prelim_15,
+            "histogram": hist
+        }
+
+    def build_z4_micro_sensitivity_table(self, base_amount: int, a_value: int, lower_limit_rate: float, center_assess_rate: float) -> list:
+        base_amount = max(10_000_000, int(base_amount or 1_500_000_000))
+        a_value = max(0, int(a_value or 0))
+        lower_limit_rate = float(lower_limit_rate or round(89.745 - 2.0, 3))
+
+        def calc_bid(r: float) -> int:
+            est = base_amount * (r / 100.0)
+            raw = ((est - a_value) * (lower_limit_rate / 100.0)) + a_value
+            return int(math.ceil(raw / 10.0) * 10)
+
+        center_bid = calc_bid(center_assess_rate)
+        rows = []
+        for offset_milli in range(-5, 6):
+            delta_pct = offset_milli * 0.001
+            cur_rate = round(center_assess_rate + delta_pct, 4)
+            est_price = int(round(base_amount * (cur_rate / 100.0)))
+            bid_price = calc_bid(cur_rate)
+            diff_won = bid_price - center_bid
+            if offset_milli == 0:
+                zone_tag = "🎯 GOLDEN CORE (기준점)"
+            elif offset_milli in (2, 3):
+                zone_tag = "🛡️ 군집 회피 추천 (+마진)"
+            elif offset_milli in (-2, -3):
+                zone_tag = "⚡ 커트라인 돌파 추천"
+            else:
+                zone_tag = f"{delta_pct:+.3f}% 미세조정"
+            rows.append({
+                "step_label": f"{delta_pct:+.3f}%",
+                "assess_rate": f"{cur_rate:.4f}%",
+                "est_price": f"{est_price:,}원",
+                "bid_price": f"{bid_price:,}원",
+                "diff_won": f"{diff_won:+,}원",
+                "zone_tag": zone_tag,
+                "is_center": (offset_milli == 0)
+            })
+        return rows
+

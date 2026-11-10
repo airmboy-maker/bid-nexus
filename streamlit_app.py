@@ -3189,6 +3189,79 @@ _is_cab_mode, _cur_cab_zone = _ndc_mod.render_master_mode_and_zone_selector()
 _ndc_mod.render_top_cabinet_switcher_bar(_is_cab_mode, _cur_cab_zone)
 with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
     st.markdown("""<!-- NEXUS_ZONE_DIVIDER --><div style="display:flex;align-items:center;gap:10px;margin:6px 0 4px 0;padding:5px 12px;background:linear-gradient(90deg,rgba(14,165,233,0.16) 0%,rgba(15,23,42,0.4) 60%,transparent 100%);border-left:3px solid #38BDF8;border-radius:4px;"><span style="font-size:0.70rem;font-weight:900;letter-spacing:1.2px;color:#38BDF8;background:rgba(56,189,248,0.14);padding:2px 7px;border-radius:3px;border:1px solid rgba(56,189,248,0.35);">PIPELINE 01</span><span style="font-size:0.80rem;font-weight:700;color:#E2E8F0;letter-spacing:-0.2px;">타겟 공고 브리핑 & 5대 다차원 조건 컨트롤러 (STEP 0 · STEP 1)</span><div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(56,189,248,0.4),transparent);"></div></div>""", unsafe_allow_html=True)
+    # === [START_LOCAL_ML_Z3_Z4_SYNC] ===
+    try:
+        _cur_cab_str = str(st.session_state.get("boutique_active_cabinet", st.session_state.get("active_cabinet", "")))
+        if any(_k in _cur_cab_str for _k in ["Z3", "15C4", "Z4", "감도"]):
+            from lattice1365.local_ml_engine import LocalBidIntelligenceEngine as _LBIE_Z34
+            _eng_z34 = _LBIE_Z34()
+            st.markdown("""<div style="display:flex;align-items:center;gap:10px;margin:8px 0 6px 0;padding:6px 14px;background:linear-gradient(90deg,rgba(16,185,129,0.18) 0%,rgba(15,23,42,0.5) 70%,transparent 100%);border-left:4px solid #10B981;border-radius:6px;">
+            <span style="font-size:0.72rem;font-weight:900;color:#34D399;background:rgba(16,185,129,0.16);padding:2px 8px;border-radius:4px;border:1px solid rgba(16,185,129,0.4);">LOCAL ML ENGINE DIRECT LINK</span>
+            <span style="font-size:0.84rem;font-weight:800;color:#ECFDF5;">로컬 SQLite 사정률 DB & 15C4(1,365조합) 정량 추론 엔진 실시간 직결 가동 중</span></div>""", unsafe_allow_html=True)
+
+            _z34_c1, _z34_c2, _z34_c3, _z34_c4, _z34_c5 = st.columns([1.3, 1.4, 1.2, 1.0, 0.9])
+            with _z34_c1:
+                _z_ag = st.selectbox("🏛️ 발주처 학습 모델", ["강원특별자치도", "조달청", "경기도", "서울특별시", "교육청", "한국도로공사", "한국토지주택공사"], key="_z34_ag")
+            with _z34_c2:
+                _z_base = st.number_input("💰 기초금액 (원)", min_value=10000000, value=int(st.session_state.get("_ml_base_in", 1500000000) or 1500000000), step=10000000, key="_z34_base")
+            with _z34_c3:
+                _z_aval = st.number_input("🛡️ A값 합산액 (원)", min_value=0, value=int(_z_base * 0.055), step=1000000, key="_z34_aval")
+            with _z34_c4:
+                _z_low = st.number_input("📐 낙찰하한율 (%)", min_value=70.0, max_value=95.0, value=round(89.745 - 2.0, 3), step=0.005, format="%.3f", key="_z34_low")
+            with _z34_c5:
+                _z_sp = st.selectbox("📊 예가 범위", [2.0, 3.0], format_func=lambda x: f"±{x:.1f}%", key="_z34_sp")
+
+            _z3_pack = _eng_z34.build_z3_15c4_distribution(_z_base, _z_aval, _z_low, _z_ag, spread_pct=float(_z_sp))
+            _z_sim = _z3_pack["sim"]
+            _z_bi = _z_sim["agency_analysis"]
+            _zs1, _zs2, _zs3 = _z_sim["strategies"][0], _z_sim["strategies"][1], _z_sim["strategies"][2]
+
+            if "Z3" in _cur_cab_str or "15C4" in _cur_cab_str:
+                _bars_html = "".join([
+                    f'<div style="display:flex;align-items:center;gap:8px;margin:4px 0;font-size:0.78rem;">'
+                    f'<div style="width:135px;color:#CBD5E1;font-weight:700;">{b["label"]}</div>'
+                    f'<div style="flex:1;height:14px;background:rgba(30,41,59,0.9);border-radius:4px;overflow:hidden;">'
+                    f'<div style="width:{min(100.0, b["pct"]*2.6):.1f}%;height:100%;background:linear-gradient(90deg,#38BDF8,#818CF8);border-radius:4px;"></div></div>'
+                    f'<div style="width:110px;text-align:right;color:#F8FAFC;font-weight:800;">{b["count"]}조합 ({b["pct"]}%)</div></div>'
+                    for b in _z3_pack["histogram"]
+                ])
+                _p15_tags = " ".join([f'<span style="display:inline-block;padding:2px 6px;margin:2px;border-radius:4px;background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.3);font-size:0.74rem;color:#E0F2FE;">P{i+1}: {v:.3f}%</span>' for i, v in enumerate(_z3_pack["prelim_15"])])
+                st.markdown(f"""<div style="margin:6px 0 14px 0;padding:14px 16px;border-radius:10px;background:rgba(15,23,42,0.92);border:1px solid rgba(56,189,248,0.32);">
+                <div style="font-size:0.90rem;font-weight:900;color:#38BDF8;margin-bottom:8px;">⚡ [Z3 로컬 ML 직결] {_z_ag} 15C4(1,365조합) 베이지안 확률 밀도 분포 & 15개 복수예가 배열</div>
+                <div style="margin-bottom:10px;">{_p15_tags}</div>
+                <div style="padding:10px 12px;border-radius:8px;background:rgba(9,14,28,0.85);border:1px solid rgba(148,163,184,0.18);">{_bars_html}</div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px;">
+                <div style="padding:10px;border-radius:8px;background:rgba(14,165,233,0.14);border-left:4px solid #38BDF8;"><div style="font-size:0.75rem;color:#93C5FD;font-weight:800;">{_zs1['tier']}</div><div style="font-size:1.1rem;font-weight:900;color:#FFF;margin:3px 0;">{_zs1['recommended_bid_amount']:,}원</div><div style="font-size:0.76rem;color:#38BDF8;">타겟 사정률: {_zs1['target_assess_rate']:.4f}%</div></div>
+                <div style="padding:10px;border-radius:8px;background:rgba(16,185,129,0.14);border-left:4px solid #10B981;"><div style="font-size:0.75rem;color:#6EE7B7;font-weight:800;">{_zs2['tier']}</div><div style="font-size:1.1rem;font-weight:900;color:#FFF;margin:3px 0;">{_zs2['recommended_bid_amount']:,}원</div><div style="font-size:0.76rem;color:#34D399;">타겟 사정률: {_zs2['target_assess_rate']:.4f}%</div></div>
+                <div style="padding:10px;border-radius:8px;background:rgba(245,158,11,0.14);border-left:4px solid #F59E0B;"><div style="font-size:0.75rem;color:#FDE68A;font-weight:800;">{_zs3['tier']}</div><div style="font-size:1.1rem;font-weight:900;color:#FFF;margin:3px 0;">{_zs3['recommended_bid_amount']:,}원</div><div style="font-size:0.76rem;color:#FBBF24;">타겟 사정률: {_zs3['target_assess_rate']:.4f}%</div></div>
+                </div></div>""", unsafe_allow_html=True)
+
+            if "Z4" in _cur_cab_str or "감도" in _cur_cab_str:
+                _z4_center = st.slider("🎛️ 0.001% 감도 시뮬레이션 중심 사정률 (%)", min_value=98.000, max_value=102.000, value=float(_zs1["target_assess_rate"]), step=0.001, format="%.4f", key="_z4_center_sl")
+                _z4_rows = _eng_z34.build_z4_micro_sensitivity_table(_z_base, _z_aval, _z_low, _z4_center)
+                _tr_html = ""
+                for _r in _z4_rows:
+                    _bg = "rgba(16,185,129,0.22)" if _r["is_center"] else "rgba(15,23,42,0.75)"
+                    _fw = "900" if _r["is_center"] else "600"
+                    _col = "#34D399" if _r["is_center"] else "#E2E8F0"
+                    _tr_html += (
+                        f'<tr style="background:{_bg};font-weight:{_fw};color:{_col};border-bottom:1px solid rgba(148,163,184,0.15);">'
+                        f'<td style="padding:7px 10px;">{_r["step_label"]}</td>'
+                        f'<td style="padding:7px 10px;color:#38BDF8;">{_r["assess_rate"]}</td>'
+                        f'<td style="padding:7px 10px;">{_r["est_price"]}</td>'
+                        f'<td style="padding:7px 10px;color:#FBBF24;font-weight:800;">{_r["bid_price"]}</td>'
+                        f'<td style="padding:7px 10px;">{_r["diff_won"]}</td>'
+                        f'<td style="padding:7px 10px;">{_r["zone_tag"]}</td></tr>'
+                    )
+                st.markdown(f"""<div style="margin:6px 0 14px 0;padding:14px 16px;border-radius:10px;background:rgba(15,23,42,0.94);border:1px solid rgba(16,185,129,0.35);">
+                <div style="font-size:0.90rem;font-weight:900;color:#34D399;margin-bottom:8px;">🎛️ [Z4 로컬 ML 직결] 0.001% 초정밀 감도 매트릭스 (기준 사정률 {_z4_center:.4f}% 전후 11단계 원 단위 시뮬레이션)</div>
+                <table style="width:100%;border-collapse:collapse;font-size:0.80rem;text-align:left;">
+                <thead><tr style="background:rgba(30,41,59,0.95);color:#94A3B8;border-bottom:2px solid rgba(56,189,248,0.3);">
+                <th style="padding:8px 10px;">감도 오프셋</th><th style="padding:8px 10px;">적용 사정률</th><th style="padding:8px 10px;">예상 예정가격</th><th style="padding:8px 10px;">최적 투찰금액 (10원 절상)</th><th style="padding:8px 10px;">기준점 대비 차액</th><th style="padding:8px 10px;">전술 포지션 판정</th>
+                </tr></thead><tbody>{_tr_html}</tbody></table></div>""", unsafe_allow_html=True)
+    except Exception as _e_z34:
+        pass
+    # === [END_LOCAL_ML_Z3_Z4_SYNC] ===
     with st.expander('💠 STEP 0 · 📊 [타겟 공고 요약 & 마감 브리핑 서랍] — 기업 마스터 · 적격심사 판정(29.5점) · AI 최적 투찰가 요약 (클릭 시 열림)', expanded=not _is_cab_mode):
         # === [START_LOCAL_ML_STEP0_BLOCK] ===
         try:
