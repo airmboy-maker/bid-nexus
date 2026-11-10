@@ -1,3 +1,19 @@
+import streamlit as _st_init_guard
+import os as _os_init_guard
+for _old_st_file in [".bid_nexus_persistent_state.json", ".streamlit/full_app_state.json", ".streamlit/pulled_notices_state.json", ".streamlit/cart_state.json"]:
+    if _os_init_guard.path.exists(_old_st_file):
+        try:
+            _os_init_guard.remove(_old_st_file)
+        except Exception:
+            pass
+if "_cloud_fresh_boot_v3" not in _st_init_guard.session_state:
+    _st_init_guard.session_state["_cloud_fresh_boot_v3"] = True
+    _st_init_guard.session_state["_cabinet_cleared_empty"] = True
+    _st_init_guard.session_state["pulled_notices"] = []
+    _st_init_guard.session_state["selected_notice_no"] = ""
+    _st_init_guard.session_state["filter_license"] = "업종"
+    _st_init_guard.session_state["filter_region"] = "지역"
+
 import streamlit.components.v1 as _stc_z1doc
 _spec_html = ""
 _n_no = ""
