@@ -3280,6 +3280,330 @@ import lattice1365.native_deck_controller as _ndc_mod
 _is_cab_mode, _cur_cab_zone = _ndc_mod.render_master_mode_and_zone_selector()
 _ndc_mod.render_top_cabinet_switcher_bar(_is_cab_mode, _cur_cab_zone)
 with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
+    # === [STANDALONE AI BIDDING ACADEMY BAY v10.5] ===
+    from lattice1365.local_ml_engine import (
+        run_virtual_bid_arena_v10 as _run_arena_v10,
+        commit_arena_learning_v10 as _commit_arena_v10,
+        get_academy_evolution_stats_v10 as _get_acad_stats_v10,
+        upsert_rival_bookmark_v8 as _arena_save_rival,
+        bulk_ingest_bid_records as _acad_bulk_learn
+    )
+
+    if "_standalone_academy_mode" not in st.session_state:
+        st.session_state["_standalone_academy_mode"] = False
+
+    def _cb_enter_academy():
+        st.session_state["_standalone_academy_mode"] = True
+
+    def _cb_exit_academy():
+        st.session_state["_standalone_academy_mode"] = False
+
+    with st.sidebar:
+        st.markdown("<hr style='border:0;border-top:1px solid rgba(56,189,248,0.3);margin:8px 0;'>", unsafe_allow_html=True)
+        if st.session_state["_standalone_academy_mode"]:
+            st.button("🔙 기존 입찰 플랫폼(Z1~Z9)으로 복귀", key="_sb_exit_acad_btn", on_click=_cb_exit_academy, use_container_width=True)
+        else:
+            st.button("🎓 [독립 베이] AI 입찰·낙찰 학습소 열기", key="_sb_enter_acad_btn", on_click=_cb_enter_academy, use_container_width=True)
+
+    _sw_c1, _sw_c2 = st.columns([3.2, 1.8])
+    with _sw_c1:
+        if st.session_state["_standalone_academy_mode"]:
+            st.markdown("""
+            <div style="background:linear-gradient(90deg, rgba(6,78,59,0.85), rgba(15,23,42,0.98));border:2px solid #34D399;border-radius:10px;padding:8px 16px;">
+                <span style="background:#34D399;color:#052E16;font-size:11px;font-weight:900;padding:2px 8px;border-radius:4px;">독립 베이 가동 중</span>
+                <span style="color:#F8FAFC;font-size:13.5px;font-weight:900;margin-left:8px;">🎓 현재 [AI 입찰·낙찰 사정 전문 학습소] 단독 화면입니다 (기존 Z1~Z9 화면 완전 분리됨)</span>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown("""
+            <div style="background:linear-gradient(90deg, rgba(15,23,42,0.95), rgba(30,27,75,0.80));border:1.5px solid #38BDF8;border-radius:10px;padding:8px 16px;">
+                <span style="background:#38BDF8;color:#090D16;font-size:11px;font-weight:900;padding:2px 8px;border-radius:4px;">전용 학습 베이 분리 탑재</span>
+                <span style="color:#E2E8F0;font-size:13px;font-weight:800;margin-left:8px;">우측 버튼을 누르면 기존 플랫폼과 분리된 <b>[🎓 AI 입찰·낙찰 사정 전문 학습소]</b> 단독 화면으로 전환됩니다.</span>
+            </div>
+            """, unsafe_allow_html=True)
+    with _sw_c2:
+        if st.session_state["_standalone_academy_mode"]:
+            st.button("🔙 기존 입찰 플랫폼(Z1~Z9) 화면으로 돌아가기", key="_top_exit_acad_btn", on_click=_cb_exit_academy, use_container_width=True)
+        else:
+            st.button("🎓 [독립 베이] AI 입찰·낙찰 사정 전문 학습소 단독 진입", key="_top_enter_acad_btn", on_click=_cb_enter_academy, use_container_width=True)
+
+    if st.session_state["_standalone_academy_mode"]:
+        _ac_stats = _get_acad_stats_v10()
+        st.markdown(f"""
+        <div style="background:linear-gradient(135deg, rgba(9,13,24,0.98), rgba(6,78,59,0.45));border:2px solid #10B981;border-radius:14px;padding:18px 22px;margin:10px 0 16px 0;box-shadow:0 0 28px rgba(16,185,129,0.20);">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+                <div>
+                    <div style="color:#34D399;font-size:12px;font-weight:900;">독립형 AI 입찰·낙찰 사정 전문 아카데미</div>
+                    <div style="color:#F8FAFC;font-size:21px;font-weight:900;margin-top:2px;">🎓 AI 입찰·낙찰 사정 전문 학습소 (건설업 전 공종 1:1 사정 연구 & 자가진화 센터)</div>
+                </div>
+                <div style="text-align:right;">
+                    <span style="background:rgba(16,185,129,0.2);color:#6EE7B7;font-size:12px;font-weight:800;padding:5px 12px;border-radius:99px;border:1px solid #34D399;">
+                        🧬 누적 학습 DB: {_ac_stats['total_db_cnt']:,}건 | 1:1 심층 복기: {_ac_stats['arena_cnt']:,}회
+                    </span>
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:12px;">
+                <div style="background:rgba(15,23,42,0.90);border:1px solid rgba(56,189,248,0.4);border-radius:10px;padding:10px 14px;text-align:center;">
+                    <div style="color:#94A3B8;font-size:11px;">누적 개찰 학습 표본</div>
+                    <div style="color:#38BDF8;font-size:18px;font-weight:900;margin-top:3px;">{_ac_stats['total_db_cnt']:,}건</div>
+                </div>
+                <div style="background:rgba(15,23,42,0.90);border:1px solid rgba(52,211,153,0.4);border-radius:10px;padding:10px 14px;text-align:center;">
+                    <div style="color:#94A3B8;font-size:11px;">AI 사정 평균 영점오차 (MAE)</div>
+                    <div style="color:#34D399;font-size:18px;font-weight:900;margin-top:3px;">±{_ac_stats['ai_mae']:.4f}%p</div>
+                </div>
+                <div style="background:rgba(15,23,42,0.90);border:1px solid rgba(192,132,252,0.4);border-radius:10px;padding:10px 14px;text-align:center;">
+                    <div style="color:#94A3B8;font-size:11px;">나의 모의투찰 평균오차</div>
+                    <div style="color:#C084FC;font-size:18px;font-weight:900;margin-top:3px;">±{_ac_stats['user_mae']:.4f}%p</div>
+                </div>
+                <div style="background:rgba(15,23,42,0.90);border:1px solid rgba(251,191,36,0.4);border-radius:10px;padding:10px 14px;text-align:center;">
+                    <div style="color:#94A3B8;font-size:11px;">학습소 1:1 복기 누적</div>
+                    <div style="color:#FBBF24;font-size:18px;font-weight:900;margin-top:3px;">{_ac_stats['arena_cnt']:,}회 완료</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        _acad_t1, _acad_t2, _acad_t3 = st.tabs([
+            "⚔️ [제1학습실] 건설업 전 공종 모의투찰 & AI 1:1 사정 대조",
+            "📋 [제2학습실] 실제 나라장터 개찰결과 붙여넣기 & 응찰사 정밀 해부",
+            "📈 [제3학습실] 누적 학습 노트 & 신경망 진화 이력"
+        ])
+
+        with _acad_t1:
+            _ar_c1, _ar_c2, _ar_c3, _ar_c4 = st.columns([2.1, 1.5, 1.8, 1.4])
+            with _ar_c1:
+                _ar_sector = st.selectbox(
+                    "🏗️ 1. 건설업 공종 선택 (종합·전문·전통소·설비 전 공종)",
+                    options=[
+                        "종합공사 · 건축공사업",
+                        "종합공사 · 토목공사업",
+                        "종합공사 · 조경공사업",
+                        "전문공사 · 실내건축공사업",
+                        "전문공사 · 철근콘크리트공사업",
+                        "전문공사 · 기계설비·가스공사업",
+                        "전문공사 · 지반조성·포장공사업",
+                        "전문공사 · 금속창호·지붕건축물조립",
+                        "전문공사 · 도장·습식·방수·석공사업",
+                        "전문공사 · 상하수도설비공사업",
+                        "전통소 · 전기공사업",
+                        "전통소 · 정보통신공사업",
+                        "전통소 · 전문소방시설공사업",
+                        "기타 · 국가유산수리(문화재)공사업"
+                    ],
+                    key="_ar_sector_sel"
+                )
+            with _ar_c2:
+                _ar_agency = st.selectbox(
+                    "🏛️ 2. 발주처 (수요기관)",
+                    options=["조달청", "경기도", "서울특별시", "한국토지주택공사(LH)", "한국전력공사", "교육청", "행정안전부(지자체)", "국방부(방위사업청)", "한국도로공사"],
+                    key="_ar_agency_sel"
+                )
+            with _ar_c3:
+                _ar_law_preset = st.selectbox(
+                    "⚖️ 3. 적격심사 낙찰하한율 기준 (2026 개정 반영)",
+                    options=[
+                        "2026 개정: 10억~50억 미만 (88.745% · +2%p 상향)",
+                        "2026 개정: 10억 미만 소규모·수의 (89.745% · +2%p 상향)",
+                        "2026 개정: 50억~100억 미만 (87.495% · +2%p 상향)",
+                        "2026 개정: 100억~300억 간이종심 (81.995% · +2%p 상향)",
+                        "구 기준 (2026.1.30 이전 공고): 87.745%",
+                        "구 기준 (10억~50억 구형): 86.745%",
+                        "직접 수치 입력"
+                    ],
+                    key="_ar_law_sel"
+                )
+            with _ar_c4:
+                _default_low_ar = 88.745
+                if "89.745" in _ar_law_preset:
+                    _default_low_ar = 89.745
+                elif "87.495" in _ar_law_preset:
+                    _default_low_ar = 87.495
+                elif "81.995" in _ar_law_preset:
+                    _default_low_ar = 81.995
+                elif "87.745" in _ar_law_preset:
+                    _default_low_ar = 87.745
+                elif "86.745" in _ar_law_preset:
+                    _default_low_ar = 86.745
+                _ar_low = st.number_input("📐 적용 낙찰하한율 (%)", min_value=70.000, max_value=99.999, value=float(_default_low_ar), step=0.005, format="%.3f", key=f"_ar_low_num_{_default_low_ar}")
+
+            _ar_m1, _ar_m2, _ar_m3, _ar_m4, _ar_m5 = st.columns([1.7, 1.4, 1.5, 1.5, 1.1])
+            with _ar_m1:
+                _ar_base = st.number_input("💰 모의투찰 기초금액 (원)", min_value=50000000, max_value=500000000000, value=1500000000, step=100000000, format="%d", key="_ar_base_in")
+            with _ar_m2:
+                _ar_aval = st.number_input("🛡️ A값 (국민연금·건보·안전비)", min_value=0, max_value=100000000000, value=int(_ar_base * 0.06), step=10000000, format="%d", key="_ar_aval_in")
+            with _ar_m3:
+                _ar_user_rate = st.number_input("👤 나의 모의투찰 사정률 (%)", min_value=96.0000, max_value=104.0000, value=100.0250, step=0.0050, format="%.4f", key="_ar_user_rate_in")
+            with _ar_m4:
+                _ar_real_override = st.number_input("🎯 실제 개찰 사정률 (0=AI자동추첨)", min_value=0.0000, max_value=105.0000, value=0.0000, step=0.0100, format="%.4f", key="_ar_real_override_in")
+            with _ar_m5:
+                _ar_rivals_cnt = st.number_input("⚔️ 응찰사 수", min_value=5, max_value=2000, value=55, step=5, key="_ar_rivals_in")
+
+            _ar_btn1, _ar_btn2, _ar_btn3 = st.columns([2.2, 2.0, 1.8])
+            with _ar_btn1:
+                if st.button("🚀 [모의개찰 실행] AI 사정가 vs 나의 투찰가 1:1 개찰 & 응찰사 전수 해부", key="_ar_run_btn", use_container_width=True):
+                    st.session_state["_arena_last_result"] = _run_arena_v10(
+                        sector=_ar_sector,
+                        agency=_ar_agency.split("(")[0],
+                        base_amt=int(_ar_base),
+                        a_val=int(_ar_aval),
+                        lower_limit=float(_ar_low),
+                        user_rate=float(_ar_user_rate),
+                        est_rivals=int(_ar_rivals_cnt),
+                        real_win_rate_override=float(_ar_real_override)
+                    )
+            with _ar_btn2:
+                if st.button("🧬 [자가학습 각인] 이번 개찰 결과와 1순위 응찰사를 신경망 DB에 즉시 흡수", key="_ar_learn_btn", use_container_width=True):
+                    if "_arena_last_result" not in st.session_state:
+                        st.session_state["_arena_last_result"] = _run_arena_v10(
+                            sector=_ar_sector, agency=_ar_agency.split("(")[0], base_amt=int(_ar_base),
+                            a_val=int(_ar_aval), lower_limit=float(_ar_low), user_rate=float(_ar_user_rate),
+                            est_rivals=int(_ar_rivals_cnt), real_win_rate_override=float(_ar_real_override)
+                        )
+                    _lr_info = _commit_arena_v10(st.session_state["_arena_last_result"], user_memo=st.session_state.get("_ar_chat_in", "실전 모의개찰 자가학습"))
+                    _w_comp = st.session_state["_arena_last_result"].get("winner_company", "")
+                    _w_rt = float(st.session_state["_arena_last_result"].get("winner_rate", 100.03))
+                    if _w_comp and "AI" not in _w_comp and "나의" not in _w_comp:
+                        _arena_save_rival(rival_name=_w_comp, agency=_ar_agency.split("(")[0], observed_rate=_w_rt)
+                    st.success(f"🎉 플랫폼 자가학습 완료! 학습소 누적 복기 {_lr_info['total_arena_cnt']:,}건 & 메인 개찰 DB {_lr_info['total_hist_cnt']:,}건 반영!")
+            with _ar_btn3:
+                if st.button("🔄 새로운 15C4 복수예가 재추첨", key="_ar_redraw_btn", use_container_width=True):
+                    st.session_state["_arena_last_result"] = _run_arena_v10(
+                        sector=_ar_sector,
+                        agency=_ar_agency.split("(")[0],
+                        base_amt=int(_ar_base),
+                        a_val=int(_ar_aval),
+                        lower_limit=float(_ar_low),
+                        user_rate=float(_ar_user_rate),
+                        est_rivals=int(_ar_rivals_cnt),
+                        real_win_rate_override=float(_ar_real_override)
+                    )
+                    st.rerun()
+
+            if "_arena_last_result" not in st.session_state:
+                st.session_state["_arena_last_result"] = _run_arena_v10(
+                    sector=_ar_sector,
+                    agency=_ar_agency.split("(")[0],
+                    base_amt=int(_ar_base),
+                    a_val=int(_ar_aval),
+                    lower_limit=float(_ar_low),
+                    user_rate=float(_ar_user_rate),
+                    est_rivals=int(_ar_rivals_cnt),
+                    real_win_rate_override=float(_ar_real_override)
+                )
+
+            _ares = st.session_state["_arena_last_result"]
+
+            st.markdown(f"""
+            <div style="background:rgba(15,23,42,0.96);border:1.5px solid rgba(56,189,248,0.55);border-radius:12px;padding:14px 18px;margin:10px 0;">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;border-bottom:1px solid rgba(148,163,184,0.2);padding-bottom:8px;">
+                    <div>
+                        <span style="background:#10B981;color:#052E16;font-size:11px;font-weight:900;padding:2px 8px;border-radius:4px;">1:1 사정 대조 & 개찰 성적표</span>
+                        <span style="color:#F8FAFC;font-size:13.5px;font-weight:900;margin-left:8px;">{_ares['sector']} | {_ares['agency']} (기존 학습 평균 {_ares['hist_mean']:.4f}% · 표준편차 ±{_ares['hist_std']:.4f}%)</span>
+                    </div>
+                    <div style="color:#FDE68A;font-size:12px;font-weight:800;">
+                        🎰 추첨된 4개 복수예가: {' · '.join(_ares['picked_lots'])}
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:10px;">
+                    <div style="background:rgba(56,189,248,0.10);border:1.5px solid #38BDF8;border-radius:9px;padding:10px;text-align:center;">
+                        <div style="color:#7DD3FC;font-size:11px;font-weight:800;">🤖 AI 학습 기반 사정 타점</div>
+                        <div style="color:#38BDF8;font-size:16px;font-weight:900;margin:4px 0;">{_ares['ai_bid']:,}원</div>
+                        <div style="color:#E2E8F0;font-size:11.5px;font-weight:700;">사정률: {_ares['ai_rate']:.4f}%</div>
+                        <div style="color:#BAE6FD;font-size:10.5px;margin-top:3px;">{_ares['ai_rank_str']}</div>
+                    </div>
+                    <div style="background:rgba(168,85,247,0.10);border:1.5px solid #C084FC;border-radius:9px;padding:10px;text-align:center;">
+                        <div style="color:#E9D5FF;font-size:11px;font-weight:800;">👤 나의 모의투찰 타점</div>
+                        <div style="color:#C084FC;font-size:16px;font-weight:900;margin:4px 0;">{_ares['user_bid']:,}원</div>
+                        <div style="color:#E2E8F0;font-size:11.5px;font-weight:700;">사정률: {_ares['user_rate']:.4f}%</div>
+                        <div style="color:#F3E8FF;font-size:10.5px;margin-top:3px;">{_ares['user_rank_str']}</div>
+                    </div>
+                    <div style="background:rgba(245,158,11,0.10);border:1.5px solid #FBBF24;border-radius:9px;padding:10px;text-align:center;">
+                        <div style="color:#FDE68A;font-size:11px;font-weight:800;">🎯 개찰 예정가격 & 낙찰하한선</div>
+                        <div style="color:#FBBF24;font-size:16px;font-weight:900;margin:4px 0;">{_ares['cutline_bid']:,}원</div>
+                        <div style="color:#E2E8F0;font-size:11.5px;font-weight:700;">개찰 예가사정률: {_ares['true_yega_rate']:.4f}%</div>
+                        <div style="color:#FEF08A;font-size:10.5px;margin-top:3px;">예정가격: {_ares['true_exp_price']:,}원</div>
+                    </div>
+                    <div style="background:rgba(16,185,129,0.12);border:1.5px solid #34D399;border-radius:9px;padding:10px;text-align:center;">
+                        <div style="color:#A7F3D0;font-size:11px;font-weight:800;">🏆 실제 개찰 1순위 낙찰예정자</div>
+                        <div style="color:#34D399;font-size:16px;font-weight:900;margin:4px 0;">{_ares['winner_bid']:,}원</div>
+                        <div style="color:#E2E8F0;font-size:11.5px;font-weight:700;">{_ares['winner_company']} ({_ares['winner_rate']:.4f}%)</div>
+                        <div style="color:#6EE7B7;font-size:10.5px;margin-top:3px;">하한선 대비 +{_ares['winner_bid'] - _ares['cutline_bid']:,}원 밀착</div>
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            _deb_col1, _deb_col2 = st.columns([1.45, 1.55])
+            with _deb_col1:
+                st.markdown("##### 🗣️ AI 수석 사정관의 1:1 입체 복기 브리핑 & 전략 토론")
+                st.info(_ares["commentary"])
+
+                if "_arena_discussion_log" not in st.session_state:
+                    st.session_state["_arena_discussion_log"] = []
+
+                _user_q = st.text_input(
+                    "💬 AI 사정관에게 질문하거나 본인의 사정 근거(가설)를 입력해 토론하세요:",
+                    placeholder="예: 이 공종에서 A값 비중이 높을 때 사정률을 0.02%p 낮추면 어떨까?",
+                    key="_ar_chat_in"
+                )
+                if st.button("🗣️ AI와 1:1 사정 전략 토론 & 가중치 보정 제안 받기", key="_ar_chat_btn", use_container_width=True):
+                    _diff_au = _ares["user_rate"] - _ares["ai_rate"]
+                    _opt_blend = round(_ares["true_yega_rate"] * 0.5 + _ares["ai_rate"] * 0.3 + _ares["user_rate"] * 0.2, 4)
+                    _opt_bid = int(round(((_ares["base_amt"] * (_opt_blend / 100.0) - _ares["a_val"]) * (_ares["lower_limit"] / 100.0)) + _ares["a_val"]))
+                    _reply = (
+                        f"**[AI 1:1 심층 답변]** 말씀하신 내용(`{_user_q or '사정률 영점 토론'}`)을 반영해 기존 학습 DB({_ares['hist_mean']:.4f}%)와 대조했습니다. "
+                        f"현재 대표님 타점({_ares['user_rate']:.4f}%)은 AI 사정가({_ares['ai_rate']:.4f}%) 대비 **{_diff_au:+.4f}%p** 차이가 납니다. "
+                        f"이번 개찰 예가({_ares['true_yega_rate']:.4f}%)와 응찰사 상위 10% 밀집 구간을 결합한 **1:1 합의 최적 사정률은 `{_opt_blend:.4f}%` (권장 투찰가 `{_opt_bid:,}원`)**입니다. "
+                        f"위의 **[🧬 자가학습 각인]** 버튼을 누르시면 이 보정값이 다음 입찰부터 즉시 반영됩니다."
+                    )
+                    st.session_state["_arena_discussion_log"].insert(0, _reply)
+
+                for _msg_item in st.session_state["_arena_discussion_log"][:4]:
+                    st.success(_msg_item)
+
+            with _deb_col2:
+                st.markdown(f"##### 📊 개찰 응찰사 전체 내역 & 커트라인 분석표 (총 {len(_ares['ranked_board'])}개사)")
+                st.dataframe(_ares["ranked_board"], height=340, use_container_width=True)
+
+        with _acad_t2:
+            st.markdown("##### 📋 실제 나라장터(G2B) 개찰결과 응찰사 내역 복사·붙여넣기 즉시 해부 & 학습")
+            _paste_txt = st.text_area(
+                "나라장터 개찰결과 화면의 표(순위, 업체명, 입찰금액, 투찰률/사정률 등)를 드래그해 그대로 붙여넣으세요:",
+                height=140,
+                placeholder="예시: 1  동양기공(주)  1,341,250,000  100.0345%",
+                key="_acad_paste_area"
+            )
+            if st.button("🔍 붙여넣은 응찰사 내역 자동 파싱 & 라이벌 DB + 개찰 신경망 일괄 학습", key="_acad_parse_btn", use_container_width=True):
+                import re as _re_ac
+                _parsed_cnt = 0
+                for _pln in (_paste_txt or "").splitlines():
+                    _rates_found = _re_ac.findall(r"(9[6-9]\.\d{2,4}|10[0-3]\.\d{2,4})", _pln)
+                    if _rates_found:
+                        _r_val = float(_rates_found[-1])
+                        _tokens = [t.strip() for t in _re_ac.split(r"[\t,;]+|\s{2,}", _pln) if t.strip()]
+                        _comp_cand = "실전응찰사"
+                        for _tk in _tokens:
+                            if any(k in _tk for k in ["(주)", "주식회사", "건설", "기공", "전력", "전기", "산업", "토건", "엔지", "설비"]):
+                                _comp_cand = _tk
+                                break
+                        _arena_save_rival(rival_name=_comp_cand, agency=_ar_agency.split("(")[0], observed_rate=_r_val)
+                        _acad_bulk_learn([{"agency": _ar_agency.split("(")[0], "yega_rate": _r_val, "base_amt": int(_ar_base), "participants": int(_ar_rivals_cnt)}])
+                        _parsed_cnt += 1
+                if _parsed_cnt > 0:
+                    st.success(f"✅ 총 {_parsed_cnt}개 응찰사의 실전 투찰 사정률을 추출하여 라이벌 북마크 및 신경망 DB에 영구 학습했습니다!")
+                else:
+                    st.warning("사정률(예: 100.0345 등 96.0~103.99 사이 수치)이 포함된 줄을 찾지 못했습니다. 개찰 내역 텍스트를 확인해 주세요.")
+
+        with _acad_t3:
+            st.markdown("##### 📈 학습소 누적 1:1 복기 노트 & 신경망 진화 기록")
+            if _ac_stats["logs"]:
+                st.dataframe(_ac_stats["logs"], use_container_width=True)
+            else:
+                st.info("아직 저장된 1:1 복기 기록이 없습니다. [제1학습실]에서 [🧬 자가학습 각인] 버튼을 누르면 이곳에 누적 기록됩니다.")
+
+        st.stop()
+    # === [END STANDALONE AI BIDDING ACADEMY BAY] ===
+
     # === [SNIPER-X SECRET WEAPON CONSOLE v4.0] ===
     import datetime as _dt_sx
     import io as _io_sx
@@ -3900,224 +4224,6 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                 st.info("현재 장바구니가 비어 있습니다. 좌측에서 [당사 실행원가율(%)]을 설정한 뒤 [➕ 현재 타겟 공고 장바구니 담기] 또는 [⚡ 샘플 3개 공고 + 마진 비교 생성] 버튼을 눌러보세요.")
     # === [END SNIPER-X SECRET WEAPON CONSOLE] ===
 
-    # === [AI VIRTUAL BIDDING & 1:1 DEBRIEFING WORKSTATION v10.0] ===
-    from lattice1365.local_ml_engine import (
-        run_virtual_bid_arena_v10 as _run_arena_v10,
-        commit_arena_learning_v10 as _commit_arena_v10,
-        upsert_rival_bookmark_v8 as _arena_save_rival
-    )
-
-    with st.expander("⚔️ [AI 가상투찰 & 1:1 개찰 복기 워크스테이션] 건설업 전 공종 모의투찰 · 응찰사 입체분석 · AI 1:1 사정 토론 & 자가학습실 — [클릭 시 열림]", expanded=True):
-        st.markdown("""
-        <div style="background:linear-gradient(90deg, rgba(15,23,42,0.96), rgba(6,78,59,0.55));border:1.5px solid #38BDF8;border-radius:10px;padding:10px 16px;margin-bottom:10px;">
-            <span style="background:#38BDF8;color:#090D16;font-size:11px;font-weight:900;padding:2px 8px;border-radius:4px;">AI 실전 모의투찰 훈련소 v10.0</span>
-            <span style="color:#F8FAFC;font-size:13px;font-weight:800;margin-left:8px;">나라장터 건설업 전 공종 모의투찰 ➔ AI 사정가 vs 나의 투찰가 1:1 개찰 대조 ➔ 응찰사 군집 해부 & 플랫폼 신경망 자가학습</span>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # [1단계] 건설업 전 공종 & 발주처 & 2026 개정 낙찰하한율 프리셋 설정
-        _ar_c1, _ar_c2, _ar_c3, _ar_c4 = st.columns([2.1, 1.5, 1.8, 1.4])
-        with _ar_c1:
-            _ar_sector = st.selectbox(
-                "🏗️ 1. 건설업 공종 선택 (종합·전문·전통소·설비 전 공종)",
-                options=[
-                    "종합공사 · 건축공사업",
-                    "종합공사 · 토목공사업",
-                    "종합공사 · 조경공사업",
-                    "전문공사 · 실내건축공사업",
-                    "전문공사 · 철근콘크리트공사업",
-                    "전문공사 · 기계설비·가스공사업",
-                    "전문공사 · 지반조성·포장공사업",
-                    "전문공사 · 금속창호·지붕건축물조립",
-                    "전문공사 · 도장·습식·방수·석공사업",
-                    "전문공사 · 상하수도설비공사업",
-                    "전통소 · 전기공사업",
-                    "전통소 · 정보통신공사업",
-                    "전통소 · 전문소방시설공사업",
-                    "기타 · 국가유산수리(문화재)공사업"
-                ],
-                key="_ar_sector_sel"
-            )
-        with _ar_c2:
-            _ar_agency = st.selectbox(
-                "🏛️ 2. 발주처 (수요기관)",
-                options=["조달청", "경기도", "서울특별시", "한국토지주택공사(LH)", "한국전력공사", "교육청", "행정안전부(지자체)", "국방부(방위사업청)", "한국도로공사"],
-                key="_ar_agency_sel"
-            )
-        with _ar_c3:
-            _ar_law_preset = st.selectbox(
-                "⚖️ 3. 적격심사 낙찰하한율 기준 (2026 개정 반영)",
-                options=[
-                    "2026 개정: 10억~50억 미만 (88.745% · +2%p 상향)",
-                    "2026 개정: 10억 미만 소규모·수의 (89.745% · +2%p 상향)",
-                    "2026 개정: 50억~100억 미만 (87.495% · +2%p 상향)",
-                    "2026 개정: 100억~300억 간이종심 (81.995% · +2%p 상향)",
-                    "구 기준 (2026.1.30 이전 공고): 87.745%",
-                    "구 기준 (10억~50억 구형): 86.745%",
-                    "직접 수치 입력"
-                ],
-                key="_ar_law_sel"
-            )
-        with _ar_c4:
-            _default_low_ar = 88.745
-            if "89.745" in _ar_law_preset:
-                _default_low_ar = 89.745
-            elif "87.495" in _ar_law_preset:
-                _default_low_ar = 87.495
-            elif "81.995" in _ar_law_preset:
-                _default_low_ar = 81.995
-            elif "87.745" in _ar_law_preset:
-                _default_low_ar = 87.745
-            elif "86.745" in _ar_law_preset:
-                _default_low_ar = 86.745
-            _ar_low = st.number_input("📐 적용 낙찰하한율 (%)", min_value=70.000, max_value=99.999, value=float(_default_low_ar), step=0.005, format="%.3f", key=f"_ar_low_num_{_default_low_ar}")
-
-        # [2단계] 기초금액 · A값 · 나의 모의투찰 사정률 vs 실제 개찰 사정률 입력
-        _ar_m1, _ar_m2, _ar_m3, _ar_m4, _ar_m5 = st.columns([1.7, 1.4, 1.5, 1.5, 1.1])
-        with _ar_m1:
-            _init_b_ar = int(st.session_state.get("_sx_active_base", 0) or 1500000000)
-            if _init_b_ar <= 0:
-                _init_b_ar = 1500000000
-            _ar_base = st.number_input("💰 모의투찰 기초금액 (원)", min_value=50000000, max_value=500000000000, value=_init_b_ar, step=100000000, format="%d", key="_ar_base_in")
-        with _ar_m2:
-            _init_a_ar = int(st.session_state.get("_sx_active_aval", 0) or int(_ar_base * 0.06))
-            _ar_aval = st.number_input("🛡️ A값 (국민연금·건보·안전비)", min_value=0, max_value=100000000000, value=_init_a_ar, step=10000000, format="%d", key="_ar_aval_in")
-        with _ar_m3:
-            _ar_user_rate = st.number_input("👤 나의 모의투찰 사정률 (%)", min_value=96.0000, max_value=104.0000, value=100.0250, step=0.0050, format="%.4f", key="_ar_user_rate_in")
-        with _ar_m4:
-            _ar_real_override = st.number_input("🎯 실제 개찰 사정률 (0=AI자동추첨)", min_value=0.0000, max_value=105.0000, value=0.0000, step=0.0100, format="%.4f", key="_ar_real_override_in")
-        with _ar_m5:
-            _ar_rivals_cnt = st.number_input("⚔️ 응찰사 수", min_value=5, max_value=2000, value=55, step=5, key="_ar_rivals_in")
-
-        _ar_btn1, _ar_btn2, _ar_btn3 = st.columns([2.2, 2.0, 1.8])
-        with _ar_btn1:
-            if st.button("🚀 [모의개찰 실행] AI 사정가 vs 나의 투찰가 1:1 개찰 & 응찰사 전수 해부", key="_ar_run_btn", use_container_width=True):
-                st.session_state["_arena_last_result"] = _run_arena_v10(
-                    sector=_ar_sector,
-                    agency=_ar_agency.split("(")[0],
-                    base_amt=int(_ar_base),
-                    a_val=int(_ar_aval),
-                    lower_limit=float(_ar_low),
-                    user_rate=float(_ar_user_rate),
-                    est_rivals=int(_ar_rivals_cnt),
-                    real_win_rate_override=float(_ar_real_override)
-                )
-        with _ar_btn2:
-            if st.button("🧬 [자가학습 각인] 이번 개찰 결과와 1순위 응찰사를 신경망 DB에 즉시 흡수", key="_ar_learn_btn", use_container_width=True):
-                if "_arena_last_result" not in st.session_state:
-                    st.session_state["_arena_last_result"] = _run_arena_v10(
-                        sector=_ar_sector, agency=_ar_agency.split("(")[0], base_amt=int(_ar_base),
-                        a_val=int(_ar_aval), lower_limit=float(_ar_low), user_rate=float(_ar_user_rate),
-                        est_rivals=int(_ar_rivals_cnt), real_win_rate_override=float(_ar_real_override)
-                    )
-                _lr_info = _commit_arena_v10(st.session_state["_arena_last_result"], user_memo=st.session_state.get("_ar_chat_in", "실전 모의개찰 자가학습"))
-                _w_comp = st.session_state["_arena_last_result"].get("winner_company", "")
-                _w_rt = float(st.session_state["_arena_last_result"].get("winner_rate", 100.03))
-                if _w_comp and "AI" not in _w_comp and "나의" not in _w_comp:
-                    _arena_save_rival(rival_name=_w_comp, agency=_ar_agency.split("(")[0], observed_rate=_w_rt)
-                st.success(f"🎉 플랫폼 자가학습 완료! 아레나 누적 복기 {_lr_info['total_arena_cnt']:,}건 & 메인 개찰 DB {_lr_info['total_hist_cnt']:,}건 반영 (1순위 [{_w_comp}] 라이벌 북마크 동시 갱신!)")
-        with _ar_btn3:
-            if st.button("🔄 새로운 15C4 복수예가 재추첨", key="_ar_redraw_btn", use_container_width=True):
-                st.session_state["_arena_last_result"] = _run_arena_v10(
-                    sector=_ar_sector,
-                    agency=_ar_agency.split("(")[0],
-                    base_amt=int(_ar_base),
-                    a_val=int(_ar_aval),
-                    lower_limit=float(_ar_low),
-                    user_rate=float(_ar_user_rate),
-                    est_rivals=int(_ar_rivals_cnt),
-                    real_win_rate_override=float(_ar_real_override)
-                )
-                st.rerun()
-
-        if "_arena_last_result" not in st.session_state:
-            st.session_state["_arena_last_result"] = _run_arena_v10(
-                sector=_ar_sector,
-                agency=_ar_agency.split("(")[0],
-                base_amt=int(_ar_base),
-                a_val=int(_ar_aval),
-                lower_limit=float(_ar_low),
-                user_rate=float(_ar_user_rate),
-                est_rivals=int(_ar_rivals_cnt),
-                real_win_rate_override=float(_ar_real_override)
-            )
-
-        _ares = st.session_state["_arena_last_result"]
-
-        # [3단계] 1:1 사정 결과 대조 스코어보드 (AI 사정가 vs 나의 모의투찰가 vs 실제 개찰 1순위)
-        st.markdown(f"""
-        <div style="background:rgba(15,23,42,0.96);border:1.5px solid rgba(56,189,248,0.55);border-radius:12px;padding:14px 18px;margin:10px 0;">
-            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;border-bottom:1px solid rgba(148,163,184,0.2);padding-bottom:8px;">
-                <div>
-                    <span style="background:#10B981;color:#052E16;font-size:11px;font-weight:900;padding:2px 8px;border-radius:4px;">1:1 사정 대조 & 개찰 성적표</span>
-                    <span style="color:#F8FAFC;font-size:13.5px;font-weight:900;margin-left:8px;">{_ares['sector']} | {_ares['agency']} (학습 DB 평균 {_ares['hist_mean']:.4f}% · 표준편차 ±{_ares['hist_std']:.4f}%)</span>
-                </div>
-                <div style="color:#FDE68A;font-size:12px;font-weight:800;">
-                    🎰 추첨된 4개 복수예가: {' · '.join(_ares['picked_lots'])}
-                </div>
-            </div>
-            <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:10px;">
-                <div style="background:rgba(56,189,248,0.10);border:1.5px solid #38BDF8;border-radius:9px;padding:10px;text-align:center;">
-                    <div style="color:#7DD3FC;font-size:11px;font-weight:800;">🤖 AI 학습 기반 사정 타점</div>
-                    <div style="color:#38BDF8;font-size:16px;font-weight:900;margin:4px 0;">{_ares['ai_bid']:,}원</div>
-                    <div style="color:#E2E8F0;font-size:11.5px;font-weight:700;">사정률: {_ares['ai_rate']:.4f}%</div>
-                    <div style="color:#BAE6FD;font-size:10.5px;margin-top:3px;">{_ares['ai_rank_str']}</div>
-                </div>
-                <div style="background:rgba(168,85,247,0.10);border:1.5px solid #C084FC;border-radius:9px;padding:10px;text-align:center;">
-                    <div style="color:#E9D5FF;font-size:11px;font-weight:800;">👤 나의 모의투찰 타점</div>
-                    <div style="color:#C084FC;font-size:16px;font-weight:900;margin:4px 0;">{_ares['user_bid']:,}원</div>
-                    <div style="color:#E2E8F0;font-size:11.5px;font-weight:700;">사정률: {_ares['user_rate']:.4f}%</div>
-                    <div style="color:#F3E8FF;font-size:10.5px;margin-top:3px;">{_ares['user_rank_str']}</div>
-                </div>
-                <div style="background:rgba(245,158,11,0.10);border:1.5px solid #FBBF24;border-radius:9px;padding:10px;text-align:center;">
-                    <div style="color:#FDE68A;font-size:11px;font-weight:800;">🎯 개찰 예정가격 & 낙찰하한선</div>
-                    <div style="color:#FBBF24;font-size:16px;font-weight:900;margin:4px 0;">{_ares['cutline_bid']:,}원</div>
-                    <div style="color:#E2E8F0;font-size:11.5px;font-weight:700;">개찰 예가사정률: {_ares['true_yega_rate']:.4f}%</div>
-                    <div style="color:#FEF08A;font-size:10.5px;margin-top:3px;">예정가격: {_ares['true_exp_price']:,}원</div>
-                </div>
-                <div style="background:rgba(16,185,129,0.12);border:1.5px solid #34D399;border-radius:9px;padding:10px;text-align:center;">
-                    <div style="color:#A7F3D0;font-size:11px;font-weight:800;">🏆 실제 개찰 1순위 낙찰예정자</div>
-                    <div style="color:#34D399;font-size:16px;font-weight:900;margin:4px 0;">{_ares['winner_bid']:,}원</div>
-                    <div style="color:#E2E8F0;font-size:11.5px;font-weight:700;">{_ares['winner_company']} ({_ares['winner_rate']:.4f}%)</div>
-                    <div style="color:#6EE7B7;font-size:10.5px;margin-top:3px;">하한선 대비 +{_ares['winner_bid'] - _ares['cutline_bid']:,}원 밀착</div>
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # [4단계] AI 수석 전략가의 1:1 사정 분석 & 사용자 양방향 전략 토론실 + 응찰사 전수 개찰 내역표
-        _deb_col1, _deb_col2 = st.columns([1.45, 1.55])
-        with _deb_col1:
-            st.markdown("##### 🗣️ AI 수석 사정관의 1:1 입체 복기 브리핑 & 전략 토론")
-            st.info(_ares["commentary"])
-
-            if "_arena_discussion_log" not in st.session_state:
-                st.session_state["_arena_discussion_log"] = []
-
-            _user_q = st.text_input(
-                "💬 AI 사정관에게 질문하거나 본인의 사정 근거(가설)를 입력해 토론하세요 (Enter):",
-                placeholder="예: 이 공종에서 A값 비중이 높을 때 사정률을 0.02%p 낮추면 어떨까?",
-                key="_ar_chat_in"
-            )
-            if st.button("🗣️ AI와 1:1 사정 전략 토론 & 가중치 보정 제안 받기", key="_ar_chat_btn", use_container_width=True):
-                _diff_au = _ares["user_rate"] - _ares["ai_rate"]
-                _opt_blend = round(_ares["true_yega_rate"] * 0.5 + _ares["ai_rate"] * 0.3 + _ares["user_rate"] * 0.2, 4)
-                _opt_bid = int(round(((_ares["base_amt"] * (_opt_blend / 100.0) - _ares["a_val"]) * (_ares["lower_limit"] / 100.0)) + _ares["a_val"]))
-                _reply = (
-                    f"**[AI 1:1 심층 답변]** 말씀하신 내용(`{_user_q or '사정률 영점 토론'}`)을 반영해 기존 학습 DB({_ares['hist_mean']:.4f}%)와 대조했습니다. "
-                    f"현재 대표님 타점({_ares['user_rate']:.4f}%)은 AI 사정가({_ares['ai_rate']:.4f}%) 대비 **{_diff_au:+.4f}%p** 차이가 납니다. "
-                    f"이번 개찰 예가({_ares['true_yega_rate']:.4f}%)와 응찰사 상위 10% 밀집 구간을 결합한 **1:1 합의 최적 사정률은 `{_opt_blend:.4f}%` (권장 투찰가 `{_opt_bid:,}원`)**입니다. "
-                    f"위의 **[🧬 자가학습 각인]** 버튼을 누르시면 이 보정값이 다음 입찰부터 즉시 반영됩니다."
-                )
-                st.session_state["_arena_discussion_log"].insert(0, _reply)
-
-            for _msg_item in st.session_state["_arena_discussion_log"][:3]:
-                st.success(_msg_item)
-
-        with _deb_col2:
-            st.markdown(f"##### 📊 개찰 응찰사 전체 내역 & 커트라인 분석표 (총 {len(_ares['ranked_board'])}개사)")
-            st.dataframe(_ares["ranked_board"], height=290, use_container_width=True)
-    # === [END AI VIRTUAL BIDDING WORKSTATION] ===
 
     st.markdown("""<!-- NEXUS_ZONE_DIVIDER --><div style="display:flex;align-items:center;gap:10px;margin:6px 0 4px 0;padding:5px 12px;background:linear-gradient(90deg,rgba(14,165,233,0.16) 0%,rgba(15,23,42,0.4) 60%,transparent 100%);border-left:3px solid #38BDF8;border-radius:4px;"><span style="font-size:0.70rem;font-weight:900;letter-spacing:1.2px;color:#38BDF8;background:rgba(56,189,248,0.14);padding:2px 7px;border-radius:3px;border:1px solid rgba(56,189,248,0.35);">PIPELINE 01</span><span style="font-size:0.80rem;font-weight:700;color:#E2E8F0;letter-spacing:-0.2px;">타겟 공고 브리핑 & 5대 다차원 조건 컨트롤러 (STEP 0 · STEP 1)</span><div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(56,189,248,0.4),transparent);"></div></div>""", unsafe_allow_html=True)
     # === [START_LOCAL_ML_Z3_Z4_SYNC] ===
