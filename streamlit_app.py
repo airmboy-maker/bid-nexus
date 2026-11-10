@@ -3292,13 +3292,44 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
         compute_kelly_portfolio_and_rival_v7 as _run_kelly_v7,
         get_rival_bookmarks_v8 as _get_rivals_v8,
         upsert_rival_bookmark_v8 as _save_rival_v8,
+        delete_rival_bookmark_v8 as _del_rival_v8,
         compute_surge_calibrated_strike_v8 as _run_surge_v8
     )
 
-    def _cb_load_15b_preset():
-        st.session_state["_sx_qs_base_in"] = 1500000000
-        st.session_state["_sx_qs_aval_in"] = 90000000
-        st.session_state["_sx_qs_low_in"] = 87.745
+    # 전용 즉석 타격 세션 키 초기화 (상단 0원 가드에 의해 리셋되지 않도록 독립 유지)
+    if "_sx_active_base" not in st.session_state:
+        st.session_state["_sx_active_base"] = 0
+    if "_sx_active_aval" not in st.session_state:
+        st.session_state["_sx_active_aval"] = 0
+    if "_sx_active_low" not in st.session_state:
+        st.session_state["_sx_active_low"] = 87.745
+
+    # Z1 쇼룸에서 실제 공고를 선택한 경우 자동 연동
+    if int(st.session_state.get("_z34_base", 0) or 0) > 0 and st.session_state.get("_sx_active_base", 0) == 0:
+        st.session_state["_sx_active_base"] = int(st.session_state["_z34_base"])
+        st.session_state["_sx_active_aval"] = int(st.session_state.get("_z34_aval", 0) or 0)
+
+    def _cb_qs_input_changed():
+        _b = int(st.session_state.get("_sx_w_base", 0) or 0)
+        _a = int(st.session_state.get("_sx_w_aval", 0) or 0)
+        _l = float(st.session_state.get("_sx_w_low", 87.745) or 87.745)
+        st.session_state["_sx_active_base"] = _b
+        st.session_state["_sx_active_aval"] = _a
+        st.session_state["_sx_active_low"] = _l
+        st.session_state["_z34_base"] = _b
+        st.session_state["_z34_aval"] = _a
+        st.session_state["_z34_low"] = _l
+        if _b > 0:
+            st.session_state["selected_notice_no"] = "QUICK-CUSTOM"
+            st.session_state["selected_notice_title"] = f"[즉석모의타격] 기초 {_b:,}원"
+
+    def _cb_load_15b():
+        st.session_state["_sx_w_base"] = 1500000000
+        st.session_state["_sx_w_aval"] = 90000000
+        st.session_state["_sx_w_low"] = 87.745
+        st.session_state["_sx_active_base"] = 1500000000
+        st.session_state["_sx_active_aval"] = 90000000
+        st.session_state["_sx_active_low"] = 87.745
         st.session_state["_z34_base"] = 1500000000
         st.session_state["_z34_aval"] = 90000000
         st.session_state["_z34_low"] = 87.745
@@ -3306,93 +3337,129 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
         st.session_state["selected_notice_title"] = "[즉석모의타격] 조달청 표준 시설공사 (기초 15억 / A값 9천만)"
         st.session_state["selected_notice_agency"] = "조달청"
 
-    def _cb_reset_zero_wait():
-        st.session_state["_sx_qs_base_in"] = 0
-        st.session_state["_sx_qs_aval_in"] = 0
-        st.session_state["_sx_qs_low_in"] = 87.745
+    def _cb_reset_0():
+        st.session_state["_sx_w_base"] = 0
+        st.session_state["_sx_w_aval"] = 0
+        st.session_state["_sx_w_low"] = 87.745
+        st.session_state["_sx_active_base"] = 0
+        st.session_state["_sx_active_aval"] = 0
+        st.session_state["_sx_active_low"] = 87.745
         st.session_state["_z34_base"] = 0
         st.session_state["_z34_aval"] = 0
         st.session_state["selected_notice_no"] = ""
         st.session_state["selected_notice_title"] = ""
-        st.session_state["selected_notice_agency"] = ""
 
-    def _cb_sync_custom_qs():
-        _b_v = int(st.session_state.get("_sx_qs_base_in", 0) or 0)
-        _a_v = int(st.session_state.get("_sx_qs_aval_in", 0) or 0)
-        _l_v = float(st.session_state.get("_sx_qs_low_in", 87.745) or 87.745)
-        st.session_state["_z34_base"] = _b_v
-        st.session_state["_z34_aval"] = _a_v
-        st.session_state["_z34_low"] = _l_v
-        if _b_v > 0:
-            st.session_state["selected_notice_no"] = "QUICK-CUSTOM"
-            st.session_state["selected_notice_title"] = f"[즉석모의타격] 직접 입력 공고 (기초 {_b_v:,}원)"
-            st.session_state["selected_notice_agency"] = st.session_state.get("_sx_pm_ag", "조달청")
-        else:
-            st.session_state["selected_notice_no"] = ""
-            st.session_state["selected_notice_title"] = ""
+    # 라이벌 드롭다운 선택 변경 시 하단 직접입력 칸도 동기화
+    def _cb_on_select_rival_dropdown():
+        _sel = st.session_state.get("_sx_v8_rival_sel", "")
+        for _r in _get_rivals_v8():
+            if _sel.startswith(_r["rival_name"]):
+                st.session_state["_sx_v8_riv_name"] = _r["rival_name"]
+                st.session_state["_sx_rival_hab"] = float(_r["avg_rate"])
+                st.session_state["_sx_active_rival_name"] = _r["rival_name"]
+                st.session_state["_sx_active_rival_rate"] = float(_r["avg_rate"])
+                break
 
-    if "_sx_qs_base_in" not in st.session_state:
-        st.session_state["_sx_qs_base_in"] = int(st.session_state.get("_z34_base", 0) or 0)
-    if "_sx_qs_aval_in" not in st.session_state:
-        st.session_state["_sx_qs_aval_in"] = int(st.session_state.get("_z34_aval", 0) or 0)
-    if "_sx_qs_low_in" not in st.session_state:
-        st.session_state["_sx_qs_low_in"] = float(st.session_state.get("_z34_low", 87.745) or 87.745)
+    # 하단 경쟁사명 또는 사정률 입력 후 Enter 키를 쳤을 때 즉시 DB에 등록/갱신하고 타점에 반영!
+    def _cb_on_direct_rival_enter():
+        _nm = str(st.session_state.get("_sx_v8_riv_name", "") or "").strip()
+        _rt = float(st.session_state.get("_sx_rival_hab", 100.0450) or 100.0450)
+        _ag = str(st.session_state.get("_sx_pm_ag", "조달청") or "조달청").strip()
+        if _nm:
+            _saved = _save_rival_v8(rival_name=_nm, agency=_ag, observed_rate=_rt)
+            st.session_state["_sx_active_rival_name"] = _saved["rival_name"]
+            st.session_state["_sx_active_rival_rate"] = float(_saved["avg_rate"])
+            st.session_state["_sx_rival_just_saved_msg"] = f"✅ 라이벌 [{_saved['rival_name']}] (사정률 {_saved['avg_rate']:.4f}%, {_saved['style_tag']}) 북마크 즉시 등록 & 타점 반영 완료!"
 
     _rival_list_v8 = _get_rivals_v8()
+    if "_sx_active_rival_name" not in st.session_state:
+        st.session_state["_sx_active_rival_name"] = _rival_list_v8[0]["rival_name"] if _rival_list_v8 else "일진기공(주)"
+    if "_sx_active_rival_rate" not in st.session_state:
+        st.session_state["_sx_active_rival_rate"] = float(_rival_list_v8[0]["avg_rate"]) if _rival_list_v8 else 100.0450
+    if "_sx_v8_riv_name" not in st.session_state:
+        st.session_state["_sx_v8_riv_name"] = st.session_state["_sx_active_rival_name"]
+    if "_sx_rival_hab" not in st.session_state:
+        st.session_state["_sx_rival_hab"] = st.session_state["_sx_active_rival_rate"]
+    if "_sx_w_base" not in st.session_state:
+        st.session_state["_sx_w_base"] = int(st.session_state["_sx_active_base"])
+    if "_sx_w_aval" not in st.session_state:
+        st.session_state["_sx_w_aval"] = int(st.session_state["_sx_active_aval"])
+    if "_sx_w_low" not in st.session_state:
+        st.session_state["_sx_w_low"] = float(st.session_state["_sx_active_low"])
 
     with st.expander("🎯 [SNIPER-X v8.0 궁극 비밀병기] 15C4 진공 타점 · 몬테카를로 워게임 · 라이벌 DNA 북마크 · 즉석 모의 타격기 — [클릭 시 열림]", expanded=False):
+        # [ROW 1] 즉석 모의 타격 기초금액 입력기
         _qs_c1, _qs_c2, _qs_c3, _qs_c4, _qs_c5 = st.columns([2.0, 1.5, 1.3, 1.2, 1.2])
         with _qs_c1:
-            _qs_base = st.number_input(
-                "💰 즉석 타격 기초금액 (원) — 0원이면 대기",
+            st.number_input(
+                "💰 즉석 타격 기초금액 (원) — 입력 후 Enter",
                 min_value=0,
                 max_value=500000000000,
                 step=100000000,
                 format="%d",
-                key="_sx_qs_base_in",
-                on_change=_cb_sync_custom_qs
+                key="_sx_w_base",
+                on_change=_cb_qs_input_changed
             )
         with _qs_c2:
-            _qs_aval = st.number_input(
+            st.number_input(
                 "🛡️ A값 (국민연금·건보·안전관리비 등)",
                 min_value=0,
                 max_value=100000000000,
                 step=10000000,
                 format="%d",
-                key="_sx_qs_aval_in",
-                on_change=_cb_sync_custom_qs
+                key="_sx_w_aval",
+                on_change=_cb_qs_input_changed
             )
         with _qs_c3:
-            _qs_low = st.number_input(
+            st.number_input(
                 "📐 낙찰하한율 (%)",
                 min_value=70.000,
                 max_value=99.999,
                 step=0.005,
                 format="%.3f",
-                key="_sx_qs_low_in",
-                on_change=_cb_sync_custom_qs
+                key="_sx_w_low",
+                on_change=_cb_qs_input_changed
             )
         with _qs_c4:
             st.markdown("<div style='height:27px;'></div>", unsafe_allow_html=True)
-            st.button("⚡ 15억 표준공고 즉시 로드", key="_sx_qs_preset_btn", on_click=_cb_load_15b_preset, use_container_width=True)
+            st.button("⚡ 15억 표준공고 즉시 로드", key="_sx_qs_preset_btn", on_click=_cb_load_15b, use_container_width=True)
         with _qs_c5:
             st.markdown("<div style='height:27px;'></div>", unsafe_allow_html=True)
-            st.button("🔄 0원 초기화 (대기모드)", key="_sx_qs_reset_btn", on_click=_cb_reset_zero_wait, use_container_width=True)
+            st.button("🔄 0원 초기화 (대기모드)", key="_sx_qs_reset_btn", on_click=_cb_reset_0, use_container_width=True)
 
-        _sx_base = max(int(_qs_base or 0), int(st.session_state.get("_z34_base", 0) or 0))
-        _sx_aval = max(int(_qs_aval or 0), int(st.session_state.get("_z34_aval", 0) or 0)) if _sx_base > 0 else 0
-        _sx_low = float(_qs_low or 87.745)
-        _sx_ag = str(st.session_state.get("selected_notice_agency", "") or "조달청") if _sx_base > 0 else ""
-        _sx_title = str(st.session_state.get("selected_notice_title", "") or f"[즉석모의타격] 기초 {_sx_base:,}원") if _sx_base > 0 else "공고 미선택 (위 입력칸에 기초금액을 넣거나 ⚡15억 로드 버튼을 누르세요)"
-
-        _sx_res = _run_sniper_x(agency=_sx_ag, base_amt=_sx_base, a_val=_sx_aval, lower_limit=_sx_low)
-
-        _top_c1, _top_c2, _top_c3 = st.columns([2.4, 2.0, 1.6])
+        # [ROW 2] 라이벌 북마크 선택 / 삭제 & 마감 과열도 스위치
+        _rival_list_v8 = _get_rivals_v8()
+        _top_c1, _top_c_del, _top_c2, _top_c3 = st.columns([2.2, 0.7, 1.8, 1.3])
         with _top_c1:
             _rival_options = [f"{r['rival_name']} | 평균 {r['avg_rate']:.4f}% ({r['style_tag']}, {r['sample_cnt']}회)" for r in _rival_list_v8]
-            _sel_rival_str = st.selectbox("🦅 [라이벌 DNA 북마크] 타겟 경쟁사 선택", options=_rival_options, key="_sx_v8_rival_sel")
-            _sel_rival_idx = _rival_options.index(_sel_rival_str) if _sel_rival_str in _rival_options else 0
-            _active_rival = _rival_list_v8[_sel_rival_idx] if _rival_list_v8 else {"rival_name": "기본경쟁사", "avg_rate": 100.045, "style_tag": "표준형", "sample_cnt": 1}
+            if not _rival_options:
+                _rival_options = ["등록된 라이벌 없음 (아래에서 입력 후 Enter)"]
+            # 현재 활성화된 라이벌이 드롭다운 기본 선택이 되도록 매칭
+            _default_idx = 0
+            for _idx_r, _r_obj in enumerate(_rival_list_v8):
+                if _r_obj["rival_name"] == st.session_state.get("_sx_active_rival_name"):
+                    _default_idx = _idx_r
+                    break
+            st.selectbox(
+                f"🦅 [라이벌 DNA 북마크] 등록된 경쟁사 ({len(_rival_list_v8)}개사 무제한)",
+                options=_rival_options,
+                index=_default_idx,
+                key="_sx_v8_rival_sel",
+                on_change=_cb_on_select_rival_dropdown
+            )
+        with _top_c_del:
+            st.markdown("<div style='height:27px;'></div>", unsafe_allow_html=True)
+            if st.button("🗑️ 라이벌 삭제", key="_sx_del_riv_btn", use_container_width=True):
+                _target_del = st.session_state.get("_sx_active_rival_name", "")
+                if _target_del:
+                    _del_rival_v8(_target_del)
+                    _rem = _get_rivals_v8()
+                    if _rem:
+                        st.session_state["_sx_active_rival_name"] = _rem[0]["rival_name"]
+                        st.session_state["_sx_active_rival_rate"] = float(_rem[0]["avg_rate"])
+                        st.session_state["_sx_v8_riv_name"] = _rem[0]["rival_name"]
+                        st.session_state["_sx_rival_hab"] = float(_rem[0]["avg_rate"])
+                    st.rerun()
         with _top_c2:
             _surge_lvl = st.selectbox(
                 "🔥 [마감 1시간 전 경쟁 과열도] 동적 영점 스위치",
@@ -3400,9 +3467,19 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                 key="_sx_v8_surge_sel"
             )
         with _top_c3:
-            _wg_rivals = st.number_input("⚔️ 예상 참여 경쟁사 수 (개사)", min_value=1, max_value=5000, value=45, step=5, key="_sx_pm_part")
+            _wg_rivals = st.number_input("⚔️ 예상 경쟁사 수 (개사)", min_value=1, max_value=5000, value=45, step=5, key="_sx_pm_part")
 
-        _riv_hab = float(_active_rival.get("avg_rate", 100.045))
+        # 실시간 연산 파라미터 결정 (하단 직접 입력창에 친 라이벌명과 사정률이 즉시 1순위로 반영됨!)
+        _sx_base = max(int(st.session_state.get("_sx_w_base", 0) or 0), int(st.session_state.get("_sx_active_base", 0) or 0))
+        _sx_aval = int(st.session_state.get("_sx_w_aval", 0) or 0) if _sx_base > 0 else 0
+        _sx_low = float(st.session_state.get("_sx_w_low", 87.745) or 87.745)
+        _sx_ag = str(st.session_state.get("selected_notice_agency", "") or st.session_state.get("_sx_pm_ag", "조달청")) if _sx_base > 0 else ""
+        _sx_title = f"기초 {_sx_base:,}원 (A값 {_sx_aval:,}원)" if _sx_base > 0 else "공고 미선택 (위 기초금액 칸에 금액 입력 후 Enter 또는 ⚡15억 로드 클릭)"
+
+        _live_rival_name = str(st.session_state.get("_sx_v8_riv_name", st.session_state.get("_sx_active_rival_name", "일진기공(주)")) or "일진기공(주)").strip()
+        _live_rival_rate = float(st.session_state.get("_sx_rival_hab", st.session_state.get("_sx_active_rival_rate", 100.0450)) or 100.0450)
+
+        _sx_res = _run_sniper_x(agency=_sx_ag, base_amt=_sx_base, a_val=_sx_aval, lower_limit=_sx_low)
         _wg_res = _run_wargame_v5(
             agency=_sx_ag,
             base_amt=_sx_base,
@@ -3416,7 +3493,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             base_amt=_sx_base,
             a_val=_sx_aval,
             lower_limit=_sx_low,
-            rival_habit_rate=_riv_hab,
+            rival_habit_rate=_live_rival_rate,
             margin_pct=8.5
         )
         _sg8_res = _run_surge_v8(
@@ -3428,6 +3505,9 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             est_rivals=int(_wg_rivals)
         )
 
+        if st.session_state.get("_sx_rival_just_saved_msg"):
+            st.success(st.session_state.pop("_sx_rival_just_saved_msg"))
+
         st.markdown(f"""
         <div style="background:linear-gradient(135deg, rgba(15,23,42,0.96), rgba(9,13,24,0.98));border:1.5px solid rgba(16,185,129,0.60);border-radius:12px;padding:14px 18px;margin:8px 0 12px 0;">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;border-bottom:1px solid rgba(56,189,248,0.2);padding-bottom:8px;">
@@ -3436,7 +3516,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                     <span style="color:#F8FAFC;font-size:13.5px;font-weight:800;margin-left:8px;">{_kv7_res.get("tactical_stance")} (켈리 비중 {_kv7_res.get("kelly_fraction_pct", 0.0):.1f}%) | {_sg8_res.get("surge_badge")}</span>
                 </div>
                 <div style="color:#38BDF8;font-size:12px;font-weight:700;">
-                    타겟: {_sx_title[:32]} | 마크 중인 라이벌: <span style="color:#F87171;">{_active_rival.get("rival_name")}</span>
+                    타겟: {_sx_title} | 마크 중인 라이벌: <span style="color:#F87171;">{_live_rival_name} ({_live_rival_rate:.4f}%)</span>
                 </div>
             </div>
             <div style="display:grid;grid-template-columns:repeat(6, 1fr);gap:8px;">
@@ -3474,18 +3554,31 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
         </div>
         """, unsafe_allow_html=True)
 
-        _pm_c1, _pm_c2, _pm_c3, _pm_c4, _pm_c5 = st.columns([1.6, 1.3, 1.6, 1.3, 1.4])
+        # [ROW 3] 직접 입력 & 엔터(Enter) 즉시 등록/갱신 바
+        _pm_c1, _pm_c2, _pm_c3, _pm_c4, _pm_c5 = st.columns([1.4, 1.2, 1.9, 1.3, 1.4])
         with _pm_c1:
             _pm_ag = st.text_input("발주처명 (개찰 기관)", value=(_sx_ag if _sx_ag else "조달청"), key="_sx_pm_ag")
         with _pm_c2:
             _pm_rate = st.number_input("실제 당첨 사정률 (%)", min_value=94.0000, max_value=106.0000, value=100.0350, step=0.0050, format="%.4f", key="_sx_pm_rate")
         with _pm_c3:
-            _new_riv_name = st.text_input("경쟁사명 (라이벌 북마크 등록/갱신)", value=_active_rival.get("rival_name", "일진기공(주)"), key="_sx_v8_riv_name")
+            _new_riv_name = st.text_input(
+                "✍️ 경쟁사 직접 입력 (이름 입력 후 Enter 치면 즉시 등록!)",
+                key="_sx_v8_riv_name",
+                on_change=_cb_on_direct_rival_enter
+            )
         with _pm_c4:
-            _riv_in = st.number_input("경쟁사 투찰 사정률 (%)", min_value=94.0000, max_value=106.0000, value=float(_active_rival.get("avg_rate", 100.0450)), step=0.0050, format="%.4f", key="_sx_rival_hab")
+            _riv_in = st.number_input(
+                "🎯 경쟁사 투찰 사정률 (%, Enter 반영)",
+                min_value=94.0000,
+                max_value=106.0000,
+                step=0.0050,
+                format="%.4f",
+                key="_sx_rival_hab",
+                on_change=_cb_on_direct_rival_enter
+            )
         with _pm_c5:
             st.markdown("<div style='height:27px;'></div>", unsafe_allow_html=True)
-            if st.button("🧠 개찰 & 라이벌 동시 학습", key="_sx_pm_btn"):
+            if st.button("🧠 개찰 & 라이벌 동시 저장", key="_sx_pm_btn", use_container_width=True):
                 _use_b = _sx_base if _sx_base > 0 else 1000000000
                 _use_a = _sx_aval if _sx_aval > 0 else int(_use_b * 0.06)
                 _calc_win_bid = int(((_use_b * (_pm_rate / 100.0) - _use_a) * (_sx_low / 100.0)) + _use_a)
@@ -3500,7 +3593,10 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                     participants=int(_wg_rivals)
                 )
                 _rv_saved = _save_rival_v8(rival_name=_new_riv_name, agency=_pm_ag, observed_rate=float(_riv_in))
-                st.success(f"학습 완료: [{_pm_ag}] 당첨 {_pm_rate:.4f}% & 라이벌 [{_rv_saved['rival_name']}] 평균 {_rv_saved['avg_rate']:.4f}% ({_rv_saved['sample_cnt']}회 누적) 영구 저장!")
+                st.session_state["_sx_active_rival_name"] = _rv_saved["rival_name"]
+                st.session_state["_sx_active_rival_rate"] = float(_rv_saved["avg_rate"])
+                st.session_state["_sx_rival_just_saved_msg"] = f"학습 완료: [{_pm_ag}] 당첨 {_pm_rate:.4f}% & 라이벌 [{_rv_saved['rival_name']}] 평균 {_rv_saved['avg_rate']:.4f}% ({_rv_saved['sample_cnt']}회 누적) 영구 저장!"
+                st.rerun()
 
         _csv_file = st.file_uploader("📂 [대량 학습] 과거 개찰 결과 CSV 파일 업로드 (발주처/사정률/기초금액/참여업체수 자동 인식)", type=["csv"], key="_sx_bulk_csv")
         if _csv_file is not None:

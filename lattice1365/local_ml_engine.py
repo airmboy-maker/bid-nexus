@@ -1678,3 +1678,16 @@ def compute_surge_calibrated_strike_v8(
         "surge_badge": badge
     }
 
+
+def delete_rival_bookmark_v8(rival_name: str) -> bool:
+    import os
+    import sqlite3
+    _ensure_rival_db()
+    db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bid_history.db")
+    conn = sqlite3.connect(db_path)
+    cur = conn.cursor()
+    cur.execute("DELETE FROM rival_profiles WHERE rival_name = ?", (str(rival_name or "").strip(),))
+    conn.commit()
+    conn.close()
+    return True
+
