@@ -3140,7 +3140,7 @@ if is_profile_ready:
         st.rerun()
 else:
     st.sidebar.markdown('<span class="status-badge-locked">🔒 적격 마스터 미등록 (잠김)</span>', unsafe_allow_html=True)
-    st.sidebar.error("⚠️ 기업 마스터 적격 스펙 입력 시<br>결과 파이프라인이 즉시 열립니다.")
+    st.sidebar.error("⚠️ 기업 마스터 적격 스펙 입력 시  \n결과 파이프라인이 즉시 열립니다.")
 
 # --- [CART TARGET OVERRIDE HOOK] ---
 if "active_cart_target" in st.session_state and isinstance(st.session_state["active_cart_target"], dict):
