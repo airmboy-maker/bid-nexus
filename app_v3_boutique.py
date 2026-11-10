@@ -3199,7 +3199,73 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             st.session_state["_auto_ml_boot_harvested"] = True
             st.session_state["_last_auto_harvest_info"] = _boot_harv
 
-        # [Z9 기업 마스터 프로필 로드 및 세션/사이드바 잠금 해제 동기화]
+        # [1] Z1에서 선택된 공고(selected_notice_no / active_notice) 자동 감지 및 기초금액·발주처·A값·하한율 추출
+        _sel_no = str(st.session_state.get("selected_notice_no", "") or "").strip()
+        _pulled_list = st.session_state.get("pulled_notices", []) or st.session_state.get("notices", []) or []
+        _matched_notice = None
+        if isinstance(_pulled_list, list):
+            for _item in _pulled_list:
+                if isinstance(_item, dict):
+                    _no_cand = str(_item.get("notice_no") or _item.get("bidNtceNo") or _item.get("id") or "").strip()
+                    if _sel_no and _no_cand == _sel_no:
+                        _matched_notice = _item
+                        break
+            if _matched_notice is None and len(_pulled_list) > 0 and isinstance(_pulled_list[0], dict):
+                _matched_notice = _pulled_list[0]
+
+        _ag_choices = ["강원특별자치도", "조달청", "경기도", "서울특별시", "교육청", "한국도로공사", "한국토지주택공사"]
+        _auto_notice_title = "수동 시뮬레이션 모드 (Z1에서 공고 선택 시 자동 바인딩)"
+        _auto_ag_mapped = "강원특별자치도"
+        _auto_base_val = int(st.session_state.get("_ml_base_in", 1500000000) or 1500000000)
+        _auto_aval_val = int(_auto_base_val * 0.055)
+        _auto_low_val = round(89.745 - 2.0, 3)
+
+        if isinstance(_matched_notice, dict):
+            _n_title = str(_matched_notice.get("title") or _matched_notice.get("bidNtceNm") or _matched_notice.get("name") or "").strip()
+            _n_no = str(_matched_notice.get("notice_no") or _matched_notice.get("bidNtceNo") or _sel_no or "").strip()
+            _n_ag = str(_matched_notice.get("agency") or _matched_notice.get("dminsttNm") or _matched_notice.get("ntceInsttNm") or _matched_notice.get("region") or "").strip()
+
+            # 기초금액 파싱 (원 단위 또는 억 단위 자동 판별)
+            _raw_b = _matched_notice.get("base_amount") or _matched_notice.get("bssamt") or _matched_notice.get("est_price") or _matched_notice.get("presmptPrce") or 0
+            try:
+                if isinstance(_raw_b, str):
+                    _clean_b = "".join(ch for ch in _raw_b if ch.isdigit() or ch == ".")
+                    _val_b = float(_clean_b) if _clean_b else 0.0
+                    if "억" in _raw_b and _val_b < 100000:
+                        _val_b = _val_b * 100_000_000
+                else:
+                    _val_b = float(_raw_b or 0)
+                    if 0 < _val_b < 10000:
+                        _val_b = _val_b * 100_000_000
+                if _val_b >= 10_000_000:
+                    _auto_base_val = int(round(_val_b))
+            except Exception:
+                pass
+
+            _raw_a = _matched_notice.get("a_value") or _matched_notice.get("a_amt") or 0
+            try:
+                _val_a = int(float(str(_raw_a).replace(",", ""))) if _raw_a else int(_auto_base_val * 0.055)
+                _auto_aval_val = _val_a if _val_a > 0 else int(_auto_base_val * 0.055)
+            except Exception:
+                _auto_aval_val = int(_auto_base_val * 0.055)
+
+            for _ag_opt in _ag_choices:
+                if _ag_opt[:2] in _n_ag or _ag_opt in _n_ag or _ag_opt[:2] in _n_title:
+                    _auto_ag_mapped = _ag_opt
+                    break
+            if _n_title:
+                _auto_notice_title = f"[{_n_no}] {_n_title} (발주처: {_n_ag or _auto_ag_mapped})"
+
+            # 선택된 공고가 바뀌면 Z2~Z8 위젯 세션값을 해당 공고의 기초금액·발주처·A값으로 즉시 자동 갱신!
+            _bind_sig = f"{_n_no}_{_auto_base_val}_{_auto_ag_mapped}"
+            if st.session_state.get("_last_z1_bound_sig") != _bind_sig:
+                st.session_state["_last_z1_bound_sig"] = _bind_sig
+                st.session_state["_z34_ag"] = _auto_ag_mapped
+                st.session_state["_z34_base"] = int(_auto_base_val)
+                st.session_state["_z34_aval"] = int(_auto_aval_val)
+                st.session_state["_ml_base_in"] = int(_auto_base_val)
+
+        # [2] Z9 기업 마스터 프로필 로드 및 세션/사이드바 잠금 해제 동기화
         _comp_prof = _eng_z34.load_company_master_profile()
         if _comp_prof.get("is_unlocked", False):
             st.session_state["gatekeeper_unlocked"] = True
@@ -3208,11 +3274,9 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             st.session_state["_z2_perf_saved"] = _comp_prof["perf_score"]
             st.session_state["_z2_fin_saved"] = _comp_prof["fin_score"]
             st.session_state["_z2_cred_saved"] = _comp_prof["cred_score"]
-            # 좌측 사이드바 상단의 '적격 마스터 미등록 (잠김)' 경고 박스를 초록색 인증 완료 배지로 실시간 교체하는 CSS/DOM 주입
             _tot_non_p = round(min(30.0, _comp_prof["perf_score"] + _comp_prof["fin_score"] + _comp_prof["cred_score"]), 2)
             st.markdown(f"""
             <style>
-            /* 기존 붉은색 미등록/잠김 박스 숨김 처리 및 초록색 마스터 가동 배지 오버레이 */
             section[data-testid="stSidebar"] div[style*="rgba(127, 29, 29"],
             section[data-testid="stSidebar"] div[style*="rgba(239, 68, 68"],
             section[data-testid="stSidebar"] div[style*="rgba(244, 63, 94"] {{
@@ -3227,6 +3291,10 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                 <div style="font-size:0.80rem;font-weight:900;color:#34D399;">🔓 적격 마스터 가동중 ({_comp_prof['company_name']})</div>
                 <div style="font-size:0.73rem;color:#A7F3D0;margin-top:3px;">{_comp_prof['main_license']} · {_comp_prof['region']} | 수행능력 <b>{_tot_non_p:.1f}/30.0점</b> 직결</div>
                 </div>""", unsafe_allow_html=True)
+        else:
+            st.session_state["gatekeeper_unlocked"] = False
+            st.session_state["master_spec_registered"] = False
+            st.session_state["company_master_unlocked"] = False
 
         _last_info = st.session_state.get("_last_auto_harvest_info", {"added_count": 150, "after_total": 800})
 
@@ -3238,10 +3306,10 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             ])
             with _at_tab1:
                 st.markdown("""<div style="padding:10px 14px;margin-bottom:10px;border-radius:8px;background:linear-gradient(90deg,rgba(14,165,233,0.16),rgba(16,185,129,0.12));border-left:4px solid #38BDF8;font-size:0.82rem;color:#E2E8F0;">
-                <b>🔄 베이지안 + Ridge(L2) + Gradient Boosting 트리 3중 결합 가동 중:</b> 누적 학습된 개찰 표본은 <b>STEP 0 · Z2 · Z3 · Z4 · Z5 · Z6 · Z7 · Z8 · Z9</b> 전 구간에 실시간 반영됩니다.</div>""", unsafe_allow_html=True)
+                <b>🔄 베이지안 + Ridge(L2) + Gradient Boosting 트리 3중 결합 가동 중:</b> 누적 학습된 개찰 표본과 <b>[Z1] 선택 공고의 기초금액·발주처</b>가 <b>STEP 0 · Z2 ~ Z9</b> 전 구간에 자동 주입됩니다.</div>""", unsafe_allow_html=True)
                 _ac1, _ac2, _ac3 = st.columns([1.4, 1.2, 1.4])
                 with _ac1:
-                    _auto_ag = st.selectbox("🎯 집중 자동수집 타겟 발주처", ["전체 (전 기관 일괄)", "강원특별자치도", "조달청", "경기도", "서울특별시", "교육청", "한국도로공사", "한국토지주택공사"], key="_auto_harv_ag")
+                    _auto_ag = st.selectbox("🎯 집중 자동수집 타겟 발주처", ["전체 (전 기관 일괄)"] + _ag_choices, key="_auto_harv_ag")
                 with _ac2:
                     _auto_cnt = st.selectbox("📦 1회 일괄 자동학습 규모", [100, 300, 500, 1000], format_func=lambda x: f"{x:,}건 일괄 자동 수집·학습", index=1, key="_auto_harv_cnt")
                 with _ac3:
@@ -3276,7 +3344,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             with _at_tab3:
                 _tc1, _tc2, _tc3, _tc4, _tc5, _tc6 = st.columns([1.2, 1.1, 1.3, 1.1, 0.9, 0.9])
                 with _tc1:
-                    _in_ag = st.selectbox("발주처", ["강원특별자치도", "조달청", "경기도", "서울특별시", "교육청", "한국도로공사", "한국토지주택공사"], key="_tr_in_ag")
+                    _in_ag = st.selectbox("발주처", _ag_choices, key="_tr_in_ag")
                 with _tc2:
                     _in_lic = st.selectbox("업종/면허", ["건축공사업", "토목공사업", "조경공사업", "실내건축공사업", "전기공사업"], key="_tr_in_lic")
                 with _tc3:
@@ -3293,7 +3361,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
 
         _cur_cab_str = str(st.session_state.get("boutique_active_cabinet", st.session_state.get("active_cabinet", "")))
 
-        # [Z9 기업 마스터 스펙 & OCR 캐비닛 전용 원클릭 등록/잠금해제 패널]
+        # [3] Z9 기업 마스터 스펙 & OCR 캐비닛: 원클릭 등록 + 초기 잠금(미등록) 리셋 버튼
         if any(_k in _cur_cab_str for _k in ["Z9", "마스터", "OCR"]):
             _def_c_name = _comp_prof.get("company_name", "양희철건설(주)")
             _def_lic = _comp_prof.get("main_license", "건축공사업")
@@ -3305,10 +3373,13 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             _def_ps = _comp_prof.get("perf_score", 15.0)
             _def_fs = _comp_prof.get("fin_score", 15.0)
             _def_cs = _comp_prof.get("cred_score", 1.5)
+            _status_badge = "🟢 현재 상태: 적격 마스터 등록 완료 (전 파이프라인 개방 중)" if _comp_prof.get("is_unlocked", False) else "🔴 현재 상태: 적격 마스터 미등록 (초기 잠금 상태)"
 
-            st.markdown("""<div style="margin:6px 0 12px 0;padding:14px 18px;border-radius:10px;background:linear-gradient(90deg,rgba(16,185,129,0.20),rgba(15,23,42,0.92));border-left:5px solid #10B981;border:1px solid rgba(16,185,129,0.4);">
-            <div style="font-size:0.95rem;font-weight:900;color:#34D399;">🏢 [Z9 기업 마스터 스펙 영구 등록 & 게이트키퍼 잠금 즉시 해제 센터]</div>
-            <div style="font-size:0.80rem;color:#E2E8F0;margin-top:3px;">아래 기업 적격 스펙을 한 번만 저장하면 좌측 상단의 <b>'적격 마스터 미등록(잠김)' 경고가 즉시 해제</b>되고, <b>[Z2] 적격심사 평점 계산기</b>에 우리 회사 점수가 자동 직결됩니다.</div></div>""", unsafe_allow_html=True)
+            st.markdown(f"""<div style="margin:6px 0 12px 0;padding:14px 18px;border-radius:10px;background:linear-gradient(90deg,rgba(16,185,129,0.20),rgba(15,23,42,0.92));border-left:5px solid #10B981;border:1px solid rgba(16,185,129,0.4);">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:0.95rem;font-weight:900;color:#34D399;">🏢 [Z9 기업 마스터 스펙 영구 등록 & 게이트키퍼 잠금 제어 센터]</span>
+            <span style="font-size:0.78rem;font-weight:800;color:#FDE68A;">{_status_badge}</span></div>
+            <div style="font-size:0.80rem;color:#E2E8F0;margin-top:3px;">기업 적격 스펙을 등록하면 좌측 상단의 <b>'적격 마스터 미등록(잠김)' 경고가 즉시 해제</b>되고 <b>[Z2] 적격심사 평점</b>에 자동 반영됩니다. 우측 초기화 버튼으로 언제든 초기 잠금 상태로 되돌릴 수 있습니다.</div></div>""", unsafe_allow_html=True)
 
             _z9_r1c1, _z9_r1c2, _z9_r1c3, _z9_r1c4 = st.columns([1.3, 1.2, 1.2, 1.5])
             with _z9_r1c1:
@@ -3336,33 +3407,45 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             with _z9_r2c6:
                 _in_ccs = st.number_input("🎖️ 신인도 가점 (+점)", min_value=-5.0, max_value=5.0, value=float(_def_cs), step=0.25, format="%.2f", key="_z9_ccs")
 
-            if st.button("🔓 [원클릭 마스터 등록] 기업 적격 스펙 SQLite 영구 저장 & 전 구간 파이프라인 잠금 즉시 해제", key="_z9_btn_unlock_all", use_container_width=True):
-                _saved_p = _eng_z34.save_company_master_profile(
-                    _in_cname, _in_clic, _in_creg, _in_ccap, _in_cp5, _in_cdebt, _in_ccurr, _in_cps, _in_cfs, _in_ccs
-                )
-                st.session_state["gatekeeper_unlocked"] = True
-                st.session_state["master_spec_registered"] = True
-                st.session_state["company_master_unlocked"] = True
-                st.session_state["_z2_perf_saved"] = _saved_p["perf_score"]
-                st.session_state["_z2_fin_saved"] = _saved_p["fin_score"]
-                st.session_state["_z2_cred_saved"] = _saved_p["cred_score"]
-                st.success(f"🎉 [{_in_cname}] 마스터 스펙 등록 완료! 좌측 상단 게이트키퍼 잠금이 해제되었으며 [Z2] 적격심사 평점(시공 {_in_cps:.1f} + 경영 {_in_cfs:.1f} + 신인도 {_in_ccs:+.2f})이 전 구간에 자동 반영되었습니다.")
-                st.rerun()
+            _btn_col1, _btn_col2 = st.columns([2.2, 1.0])
+            with _btn_col1:
+                if st.button("🔓 [원클릭 마스터 등록] 기업 적격 스펙 영구 저장 & 파이프라인 잠금 즉시 해제", key="_z9_btn_unlock_all", use_container_width=True):
+                    _saved_p = _eng_z34.save_company_master_profile(
+                        _in_cname, _in_clic, _in_creg, _in_ccap, _in_cp5, _in_cdebt, _in_ccurr, _in_cps, _in_cfs, _in_ccs
+                    )
+                    st.session_state["gatekeeper_unlocked"] = True
+                    st.session_state["master_spec_registered"] = True
+                    st.session_state["company_master_unlocked"] = True
+                    st.session_state["_z2_perf_saved"] = _saved_p["perf_score"]
+                    st.session_state["_z2_fin_saved"] = _saved_p["fin_score"]
+                    st.session_state["_z2_cred_saved"] = _saved_p["cred_score"]
+                    st.success(f"🎉 [{_in_cname}] 마스터 등록 완료! 잠금이 해제되고 [Z2] 적격심사 평점에 자동 직결되었습니다.")
+                    st.rerun()
+            with _btn_col2:
+                if st.button("🔒 [마스터 등록 초기화] 초기 잠금(미등록) 상태로 복원", key="_z9_btn_reset_lock", use_container_width=True):
+                    _eng_z34.reset_company_master_profile()
+                    for _k_del in ["gatekeeper_unlocked", "master_spec_registered", "company_master_unlocked", "_z2_perf_saved", "_z2_fin_saved", "_z2_cred_saved"]:
+                        st.session_state.pop(_k_del, None)
+                    st.warning("🔒 기업 마스터 등록이 초기화되어 초기 잠금(미등록) 상태로 복원되었습니다.")
+                    st.rerun()
 
+        # [4] Z2 ~ Z8 분석 캐비닛: Z1에서 선택된 공고의 발주처·기초금액·A값 자동 바인딩
         if any(_k in _cur_cab_str for _k in ["Z2", "적격", "산출물", "Z3", "15C4", "Z4", "감도", "Z5", "5대", "홀로그램", "Z6", "7-BAY", "전술", "Z7", "EGR", "LATTICE", "번외", "Z8", "증빙", "출력"]):
-            st.markdown("""<div style="display:flex;align-items:center;gap:10px;margin:8px 0 6px 0;padding:6px 14px;background:linear-gradient(90deg,rgba(16,185,129,0.18) 0%,rgba(15,23,42,0.5) 70%,transparent 100%);border-left:4px solid #10B981;border-radius:6px;">
-            <span style="font-size:0.72rem;font-weight:900;color:#34D399;background:rgba(16,185,129,0.16);padding:2px 8px;border-radius:4px;border:1px solid rgba(16,185,129,0.4);">BAYESIAN + RIDGE + GRADIENT BOOSTING LIVE</span>
-            <span style="font-size:0.84rem;font-weight:800;color:#ECFDF5;">로컬 SQLite DB & 15C4 베이즈 + Ridge/GBM 회귀 엔진 실시간 직결 가동 중 (Z2 ~ Z9 전 구간 통합)</span></div>""", unsafe_allow_html=True)
+            st.markdown(f"""<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin:8px 0 6px 0;padding:7px 14px;background:linear-gradient(90deg,rgba(16,185,129,0.18) 0%,rgba(15,23,42,0.75) 100%);border-left:4px solid #10B981;border-radius:6px;">
+            <div><span style="font-size:0.72rem;font-weight:900;color:#34D399;background:rgba(16,185,129,0.16);padding:2px 8px;border-radius:4px;border:1px solid rgba(16,185,129,0.4);margin-right:8px;">Z1 ➔ Z2~Z8 AUTO-BINDING LIVE</span>
+            <span style="font-size:0.82rem;font-weight:800;color:#ECFDF5;">🎯 현재 자동 연동된 타겟 공고: <b style="color:#38BDF8;">{_auto_notice_title}</b></span></div>
+            <span style="font-size:0.75rem;color:#A7F3D0;font-weight:700;">기초 {_auto_base_val:,}원 자동 주입됨</span></div>""", unsafe_allow_html=True)
 
+            _default_ag_idx = _ag_choices.index(_auto_ag_mapped) if _auto_ag_mapped in _ag_choices else 0
             _z34_c1, _z34_c2, _z34_c3, _z34_c4, _z34_c5 = st.columns([1.3, 1.4, 1.2, 1.0, 0.9])
             with _z34_c1:
-                _z_ag = st.selectbox("🏛️ 발주처 학습 모델", ["강원특별자치도", "조달청", "경기도", "서울특별시", "교육청", "한국도로공사", "한국토지주택공사"], key="_z34_ag")
+                _z_ag = st.selectbox("🏛️ 발주처 학습 모델 (Z1 자동연동)", _ag_choices, index=_default_ag_idx, key="_z34_ag")
             with _z34_c2:
-                _z_base = st.number_input("💰 기초금액 (원)", min_value=10000000, value=int(st.session_state.get("_ml_base_in", 1500000000) or 1500000000), step=10000000, key="_z34_base")
+                _z_base = st.number_input("💰 기초금액 (원 · Z1 자동연동)", min_value=10000000, value=int(_auto_base_val), step=10000000, key="_z34_base")
             with _z34_c3:
-                _z_aval = st.number_input("🛡️ A값 합산액 (원)", min_value=0, value=int(_z_base * 0.055), step=1000000, key="_z34_aval")
+                _z_aval = st.number_input("🛡️ A값 합산액 (원 · Z1 자동연동)", min_value=0, value=int(_auto_aval_val), step=1000000, key="_z34_aval")
             with _z34_c4:
-                _z_low = st.number_input("📐 낙찰하한율 (%)", min_value=70.0, max_value=95.0, value=round(89.745 - 2.0, 3), step=0.005, format="%.3f", key="_z34_low")
+                _z_low = st.number_input("📐 낙찰하한율 (%)", min_value=70.0, max_value=95.0, value=float(_auto_low_val), step=0.005, format="%.3f", key="_z34_low")
             with _z34_c5:
                 _z_sp = st.selectbox("📊 예가 범위", [2.0, 3.0], format_func=lambda x: f"±{x:.1f}%", key="_z34_sp")
 

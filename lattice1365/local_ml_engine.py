@@ -943,3 +943,12 @@ class LocalBidIntelligenceEngine:
             "updated_at": row[11]
         }
 
+    def reset_company_master_profile(self) -> dict:
+        self._ensure_company_profile_table()
+        conn = sqlite3.connect(self.db_path)
+        cur = conn.cursor()
+        cur.execute("DELETE FROM company_master_profile WHERE id = 1")
+        conn.commit()
+        conn.close()
+        return {"is_unlocked": False}
+
