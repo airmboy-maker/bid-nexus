@@ -1321,3 +1321,78 @@ def safe_auto_harvest_v2(batch_n: int = 300, agency_hint: str = "") -> dict:
         "recent": recent
     }
 
+
+def compute_kelly_portfolio_and_rival_v7(
+    agency: str = "조달청",
+    base_amt: int = 0,
+    a_val: int = 0,
+    lower_limit: float = 87.745,
+    rival_habit_rate: float = 100.0500,
+    margin_pct: float = 8.5
+) -> dict:
+    """
+    [SNIPER-X v7.0] 켈리 공식(Kelly Criterion) 전술 배분 & 라이벌 핀셋 추월(Front-Running) 엔진
+    - 특정 경쟁사의 선호 사정률(rival_habit_rate) 대비 +10~100원 우위이면서 하한 미달을 피하는 핀셋 타점 산출
+    - 켈리 비중(f*)을 계산하여 현재 공고에 투입할 최적 전술 모드(초공격/진공기습/고마진매복)를 판정
+    """
+    import math
+
+    if int(base_amt or 0) <= 0:
+        return {
+            "active": False,
+            "kelly_fraction_pct": 0.0,
+            "tactical_stance": "대기 중 (공고 미선택)",
+            "front_run_rate": 0.0,
+            "front_run_bid": 0,
+            "rival_est_bid": 0,
+            "win_edge_krw": 0,
+            "expected_profit_krw": 0
+        }
+
+    sx = compute_sniper_x_secret_weapon(agency=agency, base_amt=base_amt, a_val=a_val, lower_limit=lower_limit)
+    center_r = float(sx.get("ewma_center", 100.025) or 100.025)
+
+    # 1. 라이벌 예상 투찰가 및 핀셋 추월 타점 (Rival Pinpoint Front-Runner)
+    # 경쟁사가 습관적으로 찍는 사정률(rival_habit_rate)과 AI 수렴 중심을 가중 결합해 핀셋 추월 사정률 도출
+    r_hab = float(rival_habit_rate or 100.05)
+    rival_exp = base_amt * (r_hab / 100.0)
+    rival_bid = int(math.ceil(((rival_exp - a_val) * (lower_limit / 100.0)) + a_val))
+
+    # 경쟁사보다 미세하게 유리한 비대칭 프라임 타점 (경쟁사가 너무 낮게 찍으면 하한 방어선 위로 자동 회피)
+    if r_hab < center_r - 0.03:
+        front_rate = round(center_r - 0.0083, 4)
+    else:
+        front_rate = round(r_hab - 0.0029, 4)
+
+    my_exp = base_amt * (front_rate / 100.0)
+    front_bid = int(math.ceil(((my_exp - a_val) * (lower_limit / 100.0)) + a_val))
+    edge_krw = abs(rival_bid - front_bid)
+
+    # 2. 켈리 공식(Kelly Criterion) 기반 최적 전술 포지션 판정
+    # b = 순수익 배당비, p = 유효 타격 확률
+    p_win = min(0.45, max(0.08, float(sx.get("win_prob_gain", 18.0)) / 100.0))
+    b_odds = max(1.2, float(margin_pct or 8.5) / 2.2)
+    q_lose = 1.0 - p_win
+    kelly_f = max(0.05, min(0.95, (b_odds * p_win - q_lose) / b_odds))
+    kelly_pct = round(kelly_f * 100.0, 1)
+
+    if kelly_pct >= 35.0:
+        stance = "🔥 [제1타겟: 주력 결전] 1순위 스나이퍼 정밀 타격"
+    elif kelly_pct >= 20.0:
+        stance = "🕳️ [제2타겟: 진공 기습] 과밀 회피 블라인드 스팟 타격"
+    else:
+        stance = "🛡️ [제3타겟: 고마진 매복] 원가 방어 & 상위예가 매복"
+
+    est_profit = int(front_bid * (float(margin_pct or 8.5) / 100.0))
+
+    return {
+        "active": True,
+        "kelly_fraction_pct": kelly_pct,
+        "tactical_stance": stance,
+        "front_run_rate": front_rate,
+        "front_run_bid": front_bid,
+        "rival_est_bid": rival_bid,
+        "win_edge_krw": edge_krw,
+        "expected_profit_krw": est_profit
+    }
+
