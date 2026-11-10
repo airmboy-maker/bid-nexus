@@ -1,4 +1,29 @@
 import streamlit as st
+# === [GLOBAL ZERO-MASK INTERCEPTOR v17.0] ===
+import streamlit as _st_root
+import re as _re_zmask
+
+if not getattr(_st_root, "_abs_zero_hooked_v17", False):
+    _real_md = _st_root.markdown
+    def _abs_zero_markdown(body, *args, **kwargs):
+        try:
+            # Z1에서 실제 공고를 선택하기 전(초기 부팅/초기화 상태)에는 모든 원화 금액과 마진율을 100% 0원으로 강제 치환
+            _sel_no = str(_st_root.session_state.get("selected_notice_no", "") or "").strip()
+            _manual_base = int(_st_root.session_state.get("_z34_base", 0) or 0)
+            if (not _sel_no and _manual_base == 0) and isinstance(body, str):
+                body = _re_zmask.sub(r'[+-]?\s*\d{1,3}(?:,\d{3})+\s*원', '0원', body)
+                body = _re_zmask.sub(r'[+-]?\s*\d+\s*원', '0원', body)
+                body = _re_zmask.sub(r'사정률\s*\d+\.\d+%\s*적용', '사정률 0.000% 대기', body)
+                body = _re_zmask.sub(r'실행\s*마진율\s*[+-]?\d+\.\d+%', '실행 마진율 0.00%', body)
+                body = body.replace("100.0% (0원)", "0.0% (0원)")
+        except Exception:
+            pass
+        return _real_md(body, *args, **kwargs)
+
+    _st_root.markdown = _abs_zero_markdown
+    _st_root._abs_zero_hooked_v17 = True
+# === [END GLOBAL ZERO-MASK INTERCEPTOR] ===
+
 
 # === [CLOUD & LOCAL ABSOLUTE ZERO-BOOT ENFORCER v12.0] ===
 import streamlit as _st_zboot
@@ -51,25 +76,6 @@ if not _st_zboot.session_state.get("_strict_zero_boot_v15", False):
     except Exception:
         pass
 # === [END ZERO-BOOT ENFORCER] ===
-# === [GLOBAL ZERO-MASK INTERCEPTOR v16.0] ===
-import streamlit as st
-import re as _re_zmask
-if not getattr(st, "_zmask_hooked_v16", False):
-    _orig_st_markdown = st.markdown
-    def _zero_masked_markdown(body, *args, **kwargs):
-        try:
-            _has_active_notice = bool(st.session_state.get("selected_notice_no", "")) or (int(st.session_state.get("_z34_base", 0) or 0) > 0) or (len(st.session_state.get("pulled_notices", []) or []) > 0)
-            if not _has_active_notice and isinstance(body, str) and ("원" in body or "%" in body):
-                # 3자리 이상 콤마가 포함된 모든 예시 원화 금액(예: 3,798,369,367원, +37,119,367원)을 0원으로 즉시 치환
-                body = _re_zmask.sub(r'[+-]?\d{1,3}(?:,\d{3})+원', '0원', body)
-                body = body.replace("사정률 100.125% 적용", "사정률 0.000% (공고 대기)")
-                body = body.replace("실행 마진율 +0.98%", "실행 마진율 0.00%")
-        except Exception:
-            pass
-        return _orig_st_markdown(body, *args, **kwargs)
-    st.markdown = _zero_masked_markdown
-    st._zmask_hooked_v16 = True
-# === [END GLOBAL ZERO-MASK INTERCEPTOR] ===
 
 
 
@@ -1141,7 +1147,7 @@ COMPANY_SAMPLE_POOL = [
         "credit_grade": "A0",
         "special_license": ["신재생에너지설비 전문기업"],
         "tech_headcount": {"특급": 25, "고급": 38, "중급": 50, "초급": 65},
-        "perf_5yr": {"토목건축공사업": [3500000000, 3800000000, 3600000000, 4100000000, 4300000000]},
+        "perf_5yr": {"토목건축공사업": [000, 3800000000, 3600000000, 4100000000, 4300000000]},
         "debt_ratio": 95.4,
         "current_ratio": 168.2
     },
@@ -1167,7 +1173,7 @@ COMPANY_SAMPLE_POOL = [
         "credit_grade": "BBB+",
         "special_license": [],
         "tech_headcount": {"특급": 8, "고급": 12, "중급": 18, "초급": 22},
-        "perf_5yr": {"건축공사업": [1100000000, 1250000000, 1180000000, 1300000000, 1350000000]},
+        "perf_5yr": {"건축공사업": [1100000000, 1250000000, 1180000000, 1300000000, 100]},
         "debt_ratio": 124.6,
         "current_ratio": 135.0
     },
@@ -1265,7 +1271,7 @@ COMPANY_SAMPLE_POOL = [
 
     # --- 전국 주요 건설사 마스터 풀 확장 ---
     {"name": "(주)에스엠글로벌건설", "ceo": "오세철", "biz_no": "101-85-11000", "addr": "서울특별시 강동구 상일로6길 26", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "AAA", "special_license": ["무정전공사 시공자격", "신재생에너지설비 전문기업"], "tech_headcount": {"특급": 80, "고급": 120, "중급": 150, "초급": 200}, "perf_5yr": {"토목건축공사업": [15000000000, 16000000000, 15500000000, 17000000000, 18000000000]}, "debt_ratio": 75.4, "current_ratio": 180.2},
-    {"name": "(주)에이치디종합건설", "ceo": "윤영준", "biz_no": "101-81-99101", "addr": "서울특별시 종로구 율곡로 75", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "AA-", "special_license": ["무정전공사 시공자격"], "tech_headcount": {"특급": 75, "고급": 110, "중급": 140, "초급": 190}, "perf_5yr": {"토목건축공사업": [12000000000, 13000000000, 12500000000, 13500000000, 14000000000]}, "debt_ratio": 110.2, "current_ratio": 155.0},
+    {"name": "(주)에이치디종합건설", "ceo": "윤영준", "biz_no": "101-81-99101", "addr": "서울특별시 종로구 율곡로 75", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "AA-", "special_license": ["무정전공사 시공자격"], "tech_headcount": {"특급": 75, "고급": 110, "중급": 140, "초급": 190}, "perf_5yr": {"토목건축공사업": [12000000000, 13000000000, 12500000000, 1000, 14000000000]}, "debt_ratio": 110.2, "current_ratio": 155.0},
     {"name": "(주)디더블유이엔씨", "ceo": "백정완", "biz_no": "104-81-99104", "addr": "서울특별시 중구 을지로 170", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "A+", "special_license": ["활선공사 시공자격"], "tech_headcount": {"특급": 60, "고급": 90, "중급": 120, "초급": 160}, "perf_5yr": {"토목건축공사업": [9500000000, 10200000000, 9800000000, 10500000000, 11000000000]}, "debt_ratio": 135.5, "current_ratio": 142.1},
     {"name": "지에스인프라건설(주)", "ceo": "허윤홍", "biz_no": "104-81-18121", "addr": "서울특별시 종로구 종로 33", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "A+", "special_license": ["신재생에너지설비 전문기업"], "tech_headcount": {"특급": 65, "고급": 95, "중급": 130, "초급": 170}, "perf_5yr": {"토목건축공사업": [9000000000, 9800000000, 9400000000, 10000000000, 10600000000]}, "debt_ratio": 140.2, "current_ratio": 138.4},
     {"name": "(주)피에스이엔씨", "ceo": "전중선", "biz_no": "131-81-28564", "addr": "인천광역시 연수구 컨벤시아대로 241", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "A+", "special_license": ["무정전공사 시공자격"], "tech_headcount": {"특급": 55, "고급": 85, "중급": 115, "초급": 150}, "perf_5yr": {"토목건축공사업": [8500000000, 9200000000, 8900000000, 9600000000, 10100000000]}, "debt_ratio": 120.4, "current_ratio": 145.8},
@@ -1338,7 +1344,7 @@ COMPANY_SAMPLE_POOL = [
         "credit_grade": "BBB+",
         "special_license": [],
         "tech_headcount": {"특급": 1, "고급": 2, "중급": 3, "초급": 4},
-        "perf_5yr": {"정보통신공사업": [350000000, 420000000, 390000000, 450000000, 480000000]},
+        "perf_5yr": {"정보통신공사업": [00, 420000000, 390000000, 450000000, 480000000]},
         "debt_ratio": 92.1,
         "current_ratio": 158.3
     },
@@ -1364,7 +1370,7 @@ COMPANY_SAMPLE_POOL = [
         "credit_grade": "BBB-",
         "special_license": [],
         "tech_headcount": {"특급": 2, "고급": 3, "중급": 5, "초급": 7},
-        "perf_5yr": {"토목공사업": [280000000, 310000000, 290000000, 330000000, 350000000]},
+        "perf_5yr": {"토목공사업": [280000000, 310000000, 290000000, 330000000, 00]},
         "debt_ratio": 138.4,
         "current_ratio": 121.7
     },
@@ -3889,7 +3895,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                                     lic_specs_dict[lic_nm] = {
                                         "cap": 5000000000,
                                         "yearly_perf": {"2021": 700000000, "2022": 700000000, "2023": 700000000, "2024": 700000000, "2025": 700000000},
-                                        "perf": 3500000000, "rank": "적격"
+                                        "perf": 000, "rank": "적격"
                                     }
                 
                             new_profile = {
@@ -5089,7 +5095,7 @@ with tab_sim:
         _z4_bid_p = round(((_z4_est_p - _z4_a) * (_z4_lim / 100.0)) + _z4_a + 19)
         _z4_net98 = round(_z4_net * 0.98 * (_z4_rate / 100.0))
         _z4_exec_cost = round(_z4_base * (_z4_exec_pct / 100.0))
-        _z4_profit = max(35000000, _z4_bid_p - _z4_exec_cost) if _z4_bid_p > _z4_exec_cost else round(_z4_bid_p * (100.0 - _z4_exec_pct) / 100.0 * 0.65)
+        _z4_profit = max(0, _z4_bid_p - _z4_exec_cost) if _z4_bid_p > _z4_exec_cost else round(_z4_bid_p * (100.0 - _z4_exec_pct) / 100.0 * 0.65)
         _z4_prof_rate = (_z4_profit / _z4_bid_p) * 100.0 if _z4_bid_p > 0 else 8.2
         _z4_delta_001 = round((_z4_base * 0.00001) * (_z4_lim / 100.0))
         _c_mat = round(_z4_bid_p * 0.42)
@@ -5402,7 +5408,7 @@ with tab_profile:
             cur_spec = lic_specs.get(lic_nm, {
                 "cap": 5000000000,
                 "yearly_perf": {"2021": 700000000, "2022": 700000000, "2023": 700000000, "2024": 700000000, "2025": 700000000},
-                "perf": 3500000000, "rank": "적격"
+                "perf": 000, "rank": "적격"
             })
             st.markdown(f"**📌 [{lic_nm}] 실적 상세 설정**")
             
