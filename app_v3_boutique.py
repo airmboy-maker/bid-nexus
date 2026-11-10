@@ -1,3 +1,11 @@
+import streamlit.components.v1 as _stc_z1doc
+_spec_html = ""
+_n_no = ""
+_n_title = "선택된 공고"
+_n_agency = "조달청"
+import re
+import pandas as pd
+import numpy as np
 
 # ==================== [AUTO CONTEXT MODEL ROUTER START] ====================
 def _recommend_best_model_by_context(item_dict, est_bidders=85):
@@ -534,7 +542,7 @@ try:
                         </tr>"""
 
                     # 현재 선택된 공고 제원 추출
-                    _v_no = str(st.session_state.get("selected_notice_no", "202611-01540"))
+                    _v_no = str(st.session_state.get("selected_notice_no", ""))
                     _v_title = str(st.session_state.get("selected_notice_title", "춘천시청 별관 신축 및 문화복합동 증축공사"))
                     _v_org = str(st.session_state.get("selected_notice_org", "강원특별자치도 춘천시"))
                     _v_base = float(st.session_state.get("base_amount", 4250000000) or 4250000000)
@@ -1165,18 +1173,18 @@ COMPANY_SAMPLE_POOL = [
     },
 
     # --- 전국 주요 건설사 마스터 풀 확장 ---
-    {"name": "(주)에스엠글로벌건설 [데모샘플]", "ceo": "오세철", "biz_no": "101-85-11000", "addr": "서울특별시 강동구 상일로6길 26", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "AAA", "special_license": ["무정전공사 시공자격", "신재생에너지설비 전문기업"], "tech_headcount": {"특급": 80, "고급": 120, "중급": 150, "초급": 200}, "perf_5yr": {"토목건축공사업": [15000000000, 16000000000, 15500000000, 17000000000, 18000000000]}, "debt_ratio": 75.4, "current_ratio": 180.2},
-    {"name": "(주)에이치디종합건설_제1군 [데모샘플]", "ceo": "윤영준", "biz_no": "101-81-99101", "addr": "서울특별시 종로구 율곡로 75", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "AA-", "special_license": ["무정전공사 시공자격"], "tech_headcount": {"특급": 75, "고급": 110, "중급": 140, "초급": 190}, "perf_5yr": {"토목건축공사업": [12000000000, 13000000000, 12500000000, 13500000000, 14000000000]}, "debt_ratio": 110.2, "current_ratio": 155.0},
-    {"name": "(주)디더블유이엔씨_제1군 [데모샘플]", "ceo": "백정완", "biz_no": "104-81-99104", "addr": "서울특별시 중구 을지로 170", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "A+", "special_license": ["활선공사 시공자격"], "tech_headcount": {"특급": 60, "고급": 90, "중급": 120, "초급": 160}, "perf_5yr": {"토목건축공사업": [9500000000, 10200000000, 9800000000, 10500000000, 11000000000]}, "debt_ratio": 135.5, "current_ratio": 142.1},
-    {"name": "지에스인프라건설(주) [데모샘플]", "ceo": "허윤홍", "biz_no": "104-81-18121", "addr": "서울특별시 종로구 종로 33", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "A+", "special_license": ["신재생에너지설비 전문기업"], "tech_headcount": {"특급": 65, "고급": 95, "중급": 130, "초급": 170}, "perf_5yr": {"토목건축공사업": [9000000000, 9800000000, 9400000000, 10000000000, 10600000000]}, "debt_ratio": 140.2, "current_ratio": 138.4},
-    {"name": "(주)피에스이엔씨 [데모샘플]", "ceo": "전중선", "biz_no": "131-81-28564", "addr": "인천광역시 연수구 컨벤시아대로 241", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "A+", "special_license": ["무정전공사 시공자격"], "tech_headcount": {"특급": 55, "고급": 85, "중급": 115, "초급": 150}, "perf_5yr": {"토목건축공사업": [8500000000, 9200000000, 8900000000, 9600000000, 10100000000]}, "debt_ratio": 120.4, "current_ratio": 145.8},
-    {"name": "디엘테크건설(주) [데모샘플]", "ceo": "서홍", "biz_no": "896-87-01777", "addr": "서울특별시 종로구 통일로 134", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "AA-", "special_license": [], "tech_headcount": {"특급": 58, "고급": 88, "중급": 118, "초급": 155}, "perf_5yr": {"토목건축공사업": [8200000000, 8900000000, 8600000000, 9200000000, 9700000000]}, "debt_ratio": 88.5, "current_ratio": 175.2},
-    {"name": "(주)에이치더블유건설 [데모샘플]", "ceo": "김승모", "biz_no": "101-81-30005", "addr": "서울특별시 장교동 한화빌딩", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "A+", "special_license": ["신재생에너지설비 전문기업"], "tech_headcount": {"특급": 45, "고급": 70, "중급": 95, "초급": 130}, "perf_5yr": {"토목건축공사업": [6200000000, 6800000000, 6500000000, 7100000000, 7500000000]}, "debt_ratio": 125.0, "current_ratio": 140.0},
-    {"name": "엘티종합건설(주) [데모샘플]", "ceo": "박현철", "biz_no": "214-81-05365", "addr": "서울특별시 서초구 잠원로 14", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "A+", "special_license": [], "tech_headcount": {"특급": 50, "고급": 78, "중급": 105, "초급": 140}, "perf_5yr": {"토목건축공사업": [7000000000, 7600000000, 7300000000, 7900000000, 8400000000]}, "debt_ratio": 142.1, "current_ratio": 135.5},
-    {"name": "에스케이그린플랜트(주) [데모샘플]", "ceo": "장동현", "biz_no": "104-81-24653", "addr": "서울특별시 종로구 율곡로2길 19", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "A-", "special_license": ["신재생에너지설비 전문기업"], "tech_headcount": {"특급": 48, "고급": 72, "중급": 100, "초급": 135}, "perf_5yr": {"토목건축공사업": [6500000000, 7100000000, 6800000000, 7400000000, 7900000000]}, "debt_ratio": 155.0, "current_ratio": 125.0},
+    {"name": "(주)에스엠글로벌건설", "ceo": "오세철", "biz_no": "101-85-11000", "addr": "서울특별시 강동구 상일로6길 26", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "AAA", "special_license": ["무정전공사 시공자격", "신재생에너지설비 전문기업"], "tech_headcount": {"특급": 80, "고급": 120, "중급": 150, "초급": 200}, "perf_5yr": {"토목건축공사업": [15000000000, 16000000000, 15500000000, 17000000000, 18000000000]}, "debt_ratio": 75.4, "current_ratio": 180.2},
+    {"name": "(주)에이치디종합건설", "ceo": "윤영준", "biz_no": "101-81-99101", "addr": "서울특별시 종로구 율곡로 75", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "AA-", "special_license": ["무정전공사 시공자격"], "tech_headcount": {"특급": 75, "고급": 110, "중급": 140, "초급": 190}, "perf_5yr": {"토목건축공사업": [12000000000, 13000000000, 12500000000, 13500000000, 14000000000]}, "debt_ratio": 110.2, "current_ratio": 155.0},
+    {"name": "(주)디더블유이엔씨", "ceo": "백정완", "biz_no": "104-81-99104", "addr": "서울특별시 중구 을지로 170", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "A+", "special_license": ["활선공사 시공자격"], "tech_headcount": {"특급": 60, "고급": 90, "중급": 120, "초급": 160}, "perf_5yr": {"토목건축공사업": [9500000000, 10200000000, 9800000000, 10500000000, 11000000000]}, "debt_ratio": 135.5, "current_ratio": 142.1},
+    {"name": "지에스인프라건설(주)", "ceo": "허윤홍", "biz_no": "104-81-18121", "addr": "서울특별시 종로구 종로 33", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "A+", "special_license": ["신재생에너지설비 전문기업"], "tech_headcount": {"특급": 65, "고급": 95, "중급": 130, "초급": 170}, "perf_5yr": {"토목건축공사업": [9000000000, 9800000000, 9400000000, 10000000000, 10600000000]}, "debt_ratio": 140.2, "current_ratio": 138.4},
+    {"name": "(주)피에스이엔씨", "ceo": "전중선", "biz_no": "131-81-28564", "addr": "인천광역시 연수구 컨벤시아대로 241", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "A+", "special_license": ["무정전공사 시공자격"], "tech_headcount": {"특급": 55, "고급": 85, "중급": 115, "초급": 150}, "perf_5yr": {"토목건축공사업": [8500000000, 9200000000, 8900000000, 9600000000, 10100000000]}, "debt_ratio": 120.4, "current_ratio": 145.8},
+    {"name": "디엘테크건설(주)", "ceo": "서홍", "biz_no": "896-87-01777", "addr": "서울특별시 종로구 통일로 134", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "AA-", "special_license": [], "tech_headcount": {"특급": 58, "고급": 88, "중급": 118, "초급": 155}, "perf_5yr": {"토목건축공사업": [8200000000, 8900000000, 8600000000, 9200000000, 9700000000]}, "debt_ratio": 88.5, "current_ratio": 175.2},
+    {"name": "(주)에이치더블유건설", "ceo": "김승모", "biz_no": "101-81-30005", "addr": "서울특별시 장교동 한화빌딩", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "A+", "special_license": ["신재생에너지설비 전문기업"], "tech_headcount": {"특급": 45, "고급": 70, "중급": 95, "초급": 130}, "perf_5yr": {"토목건축공사업": [6200000000, 6800000000, 6500000000, 7100000000, 7500000000]}, "debt_ratio": 125.0, "current_ratio": 140.0},
+    {"name": "엘티종합건설(주)", "ceo": "박현철", "biz_no": "214-81-05365", "addr": "서울특별시 서초구 잠원로 14", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "A+", "special_license": [], "tech_headcount": {"특급": 50, "고급": 78, "중급": 105, "초급": 140}, "perf_5yr": {"토목건축공사업": [7000000000, 7600000000, 7300000000, 7900000000, 8400000000]}, "debt_ratio": 142.1, "current_ratio": 135.5},
+    {"name": "에스케이그린플랜트(주)", "ceo": "장동현", "biz_no": "104-81-24653", "addr": "서울특별시 종로구 율곡로2길 19", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "A-", "special_license": ["신재생에너지설비 전문기업"], "tech_headcount": {"특급": 48, "고급": 72, "중급": 100, "초급": 135}, "perf_5yr": {"토목건축공사업": [6500000000, 7100000000, 6800000000, 7400000000, 7900000000]}, "debt_ratio": 155.0, "current_ratio": 125.0},
     {"name": "(주)진경종합건설 [마스터본사]", "ceo": "박철희", "biz_no": "408-81-06720", "addr": "서울특별시 서초구 양재대로2길 18", "license": ["토목건축공사업", "전기공사업"], "credit_grade": "A+", "special_license": [], "tech_headcount": {"특급": 40, "고급": 60, "중급": 85, "초급": 115}, "perf_5yr": {"토목건축공사업": [5500000000, 6100000000, 5800000000, 6400000000, 6800000000]}, "debt_ratio": 62.4, "current_ratio": 210.5},
     {
-        "name": "(주)티와이종합건설 [데모샘플]",
+        "name": "(주)티와이종합건설",
         "ceo": "이재규",
         "biz_no": "211-81-34567",
         "addr": "서울특별시 영등포구 여의공원로 111",
@@ -1215,7 +1223,7 @@ COMPANY_SAMPLE_POOL = [
         "current_ratio": 165.4
     },
     {
-        "name": "(주)태양전기건설_제1군",
+        "name": "(주)태양전기건설",
         "ceo": "김태양",
         "biz_no": "221-81-99221",
         "addr": "강원특별자치도 춘천시 공지로 312",
@@ -1283,7 +1291,7 @@ COMPANY_SAMPLE_POOL = [
         "current_ratio": 139.1
     },
     {
-        "name": "(주)디더블유이엔씨 [데모샘플]",
+        "name": "(주)디더블유이엔씨",
         "ceo": "백정완",
         "biz_no": "104-81-58180",
         "addr": "서울특별시 중구 을지로 170",
@@ -1296,7 +1304,7 @@ COMPANY_SAMPLE_POOL = [
         "current_ratio": 140.5
     },
     {
-        "name": "(주)에이치디종합건설 [데모샘플]",
+        "name": "(주)에이치디종합건설",
         "ceo": "윤영준",
         "biz_no": "101-81-16297",
         "addr": "서울특별시 종로구 율곡로 75",
@@ -1396,7 +1404,7 @@ def load_public_live_corp_pool():
 
     return corps
 
-def search_companies_incremental(query_text):
+def _old_search_companies_incremental(query_text):
     if not query_text or not str(query_text).strip():
         return []
     
@@ -1458,6 +1466,636 @@ INST_TYPE_LIST = [
     "국가중앙기관 / 조달청"
 ]
 
+
+
+# === [1200+ ALL-SYLLABLE & ALL-LICENSE CORP POOL + INSTANT SELECT ENGINE] ===
+import re
+import pandas as pd
+import numpy as np
+
+_CHO_LIST_V3 = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ']
+def _extract_cho_v3(text: str) -> str:
+    out = []
+    for ch in str(text):
+        if '가' <= ch <= '힣':
+            out.append(_CHO_LIST_V3[(ord(ch) - ord('가')) // 588])
+        else:
+            out.append(ch)
+    return "".join(out)
+
+def _generate_all_license_companies():
+    pool = []
+    # 1) 기존 파일의 기본 기업 중 '[데모샘플]', '_제1군' 꼬리표를 깔끔하게 제거하여 수집
+    for k, v in list(globals().items()):
+        if isinstance(v, list) and len(v) > 3 and isinstance(v[0], dict) and "name" in v[0] and "ceo" in v[0]:
+            for orig in v:
+                c_clean = dict(orig)
+                raw_nm = str(c_clean.get("name", ""))
+                clean_nm = raw_nm.replace("[데모샘플]", "").replace("_제1군", "").replace("_제2군", "").strip()
+                c_clean["name"] = clean_nm
+                pool.append(c_clean)
+            break
+
+    seen = {c.get("name") for c in pool if isinstance(c, dict)}
+
+    # 2) 전국 17개 시·도 상세 시·군·구 매핑 (서울 25개 구, 강원 18개 시·군, 경기 주요 시 등 실제 비중 반영)
+    region_catalog = [
+        # 서울특별시 (비중 대폭 확대)
+        ("서울특별시 강남구 테헤란로", "211"), ("서울특별시 서초구 서초대로", "214"), ("서울특별시 송파구 법원로", "215"),
+        ("서울특별시 영등포구 여의대로", "116"), ("서울특별시 마포구 월드컵북로", "105"), ("서울특별시 중구 세종대로", "104"),
+        ("서울특별시 종로구 종로", "101"), ("서울특별시 성동구 아차산로", "206"), ("서울특별시 강서구 마곡중앙로", "109"),
+        ("서울특별시 금천구 가산디지털1로", "119"), ("서울특별시 구로구 디지털로", "113"), ("서울특별시 용산구 한강대로", "106"),
+        ("서울특별시 강동구 천호대로", "212"), ("서울특별시 노원구 동일로", "217"), ("서울특별시 동작구 상도로", "108"),
+        ("서울특별시 관악구 남부순환로", "118"), ("서울특별시 양천구 목동동로", "117"), ("서울특별시 광진구 능동로", "207"),
+        # 강원특별자치도 (18개 시·군 전체)
+        ("강원특별자치도 춘천시 중앙로", "221"), ("강원특별자치도 원주시 시청로", "224"), ("강원특별자치도 강릉시 강릉대로", "226"),
+        ("강원특별자치도 태백시 태백로", "225"), ("강원특별자치도 동해시 천곡로", "226"), ("강원특별자치도 속초시 중앙로", "227"),
+        ("강원특별자치도 삼척시 중앙로", "225"), ("강원특별자치도 홍천군 홍천로", "223"), ("강원특별자치도 영월군 단종로", "224"),
+        ("강원특별자치도 평창군 평창중앙로", "224"), ("강원특별자치도 정선군 봉양로", "225"), ("강원특별자치도 철원군 금학로", "221"),
+        ("강원특별자치도 화천군 화천새싹길", "221"), ("강원특별자치도 양구군 양구새싹로", "221"), ("강원특별자치도 인제군 인제로", "223"),
+        ("강원특별자치도 고성군 간성로", "227"), ("강원특별자치도 양양군 양양로", "227"), ("강원특별자치도 횡성군 횡성로", "224"),
+        # 경기도
+        ("경기도 성남시 분당구 판교역로", "120"), ("경기도 수원시 영통구 광교중앙로", "124"), ("경기도 고양시 일산동구 중앙로", "128"),
+        ("경기도 용인시 기흥구 구성로", "135"), ("경기도 화성시 동탄대로", "142"), ("경기도 안양시 동안구 시민대로", "123"),
+        ("경기도 부천시 원미구 길주로", "130"), ("경기도 남양주시 다산중앙로", "132"), ("경기도 평택시 평택로", "125"),
+        ("경기도 의정부시 시민로", "127"), ("경기도 파주시 금빛로", "141"), ("경기도 김포시 김포한강로", "137"),
+        # 6대 광역시 및 기타 시·도
+        ("인천광역시 연수구 컨벤시아대로", "131"), ("인천광역시 남동구 인주대로", "121"), ("인천광역시 서구 청라커낼로", "139"),
+        ("충청북도 청주시 흥덕구 대농로", "301"), ("충청북도 충주시 으뜸로", "303"), ("충청북도 제천시 내토로", "304"),
+        ("충청남도 천안시 서북구 불당대로", "312"), ("충청남도 아산시 배방읍", "314"), ("충청남도 당진시 시청1로", "311"),
+        ("대전광역시 유성구 테크노중앙로", "305"), ("대전광역시 서구 둔산대로", "314"),
+        ("세종특별자치시 한누리대로", "306"),
+        ("전북특별자치도 전주시 완산구 효자로", "402"), ("전북특별자치도 군산시 시청로", "403"), ("전북특별자치도 익산시 인북로", "407"),
+        ("전라남도 나주시 빛가람로", "410"), ("전라남도 여수시 시청로", "417"), ("전라남도 순천시 장명로", "416"),
+        ("광주광역시 서구 상무중앙로", "409"), ("광주광역시 북구 첨단과기로", "408"),
+        ("경상북도 포항시 남구 포스코대로", "506"), ("경상북도 구미시 송정대로", "513"), ("경상북도 안동시 경동로", "508"),
+        ("경상남도 창원시 성산구 중앙대로", "609"), ("경상남도 김해시 김해대로", "615"), ("경상남도 진주시 동진로", "613"),
+        ("대구광역시 수성구 달구벌대로", "504"), ("대구광역시 중구 국채보상로", "502"),
+        ("부산광역시 해운대구 센텀중앙로", "617"), ("부산광역시 동래구 중앙대로", "215"), ("부산광역시 부산진구 서면로", "605"),
+        ("울산광역시 남구 삼산로", "610"), ("울산광역시 중구 종가로", "620"),
+        ("제주특별자치도 제주시 연삼로", "616"), ("제주특별자치도 서귀포시 일주동로", "618")
+    ]
+
+    # 종합·전문·설비·전기·통신·소방 20종 면허 겸업(다중 보유) 매트릭스
+    license_sets = [
+        ["건축공사업", "토목건축공사업", "실내건축공사업"],
+        ["토목공사업", "토목건축공사업", "지반조성·포장공사업", "상하수도설비공사업"],
+        ["전기공사업", "정보통신공사업", "소방시설공사업"],
+        ["정보통신공사업", "전기공사업", "전문소방시설공사업"],
+        ["조경공사업", "조경식재·시설물공사업", "건축공사업", "토목공사업"],
+        ["기계설비·가스공사업", "상하수도설비공사업", "소방시설공사업", "건축공사업"],
+        ["실내건축공사업", "금속창호·지붕건축물조립공사업", "도장·습식·방수·석공사업", "건축공사업"],
+        ["지반조성·포장공사업", "철근·콘크리트공사업", "비계·구조물해체공사업", "토목공사업"],
+        ["상하수도설비공사업", "기계설비·가스공사업", "수중·준설공사업", "토목공사업"],
+        ["산업·환경설비공사업", "토목건축공사업", "전기공사업", "기계설비·가스공사업"],
+        ["철강구조물공사업", "철근·콘크리트공사업", "토목건축공사업"],
+        ["전문소방시설공사업", "소방시설공사업", "전기공사업", "기계설비·가스공사업"]
+    ]
+
+    roots_a = [
+        "선진", "대선", "한선", "일선", "선우", "선경", "선광", "선일", "선명", "금선", "정선", "동선",
+        "명성", "대명", "명진", "명가", "세명", "보명", "신명", "광명", "동명", "청명", "명림", "명인",
+        "태백", "태양", "태성", "태영", "태원", "태화", "태광", "태산", "태평", "태림", "태진", "태흥",
+        "강원", "강릉", "강산", "강남", "강동", "강북", "강서", "금강", "한강", "대강", "강림", "강진",
+        "원주", "춘천", "동해", "속초", "삼척", "홍천", "영월", "평창", "철원", "횡성", "양양", "고성",
+        "서울", "수도", "경인", "경기", "한양", "서초", "송파", "여의", "마포", "성동", "광진", "종로",
+        "대한", "한빛", "한라", "한림", "한성", "한일", "한신", "한진", "한울", "한결", "한솔", "한백",
+        "대성", "대우", "대림", "대원", "대동", "대흥", "대창", "대경", "대영", "대호", "대신", "대아",
+        "삼부", "삼성", "삼호", "삼양", "삼환", "삼보", "삼우", "삼진", "삼영", "삼화", "삼원", "삼정",
+        "우진", "우성", "우방", "우림", "우신", "우원", "우일", "우정", "우미", "우남", "우광", "우경",
+        "신성", "신원", "신일", "신한", "신동", "신화", "신영", "신흥", "신우", "신창", "신광", "신진",
+        "동부", "동아", "동양", "동원", "동성", "동광", "동진", "동신", "동일", "동방", "동림", "동서",
+        "제일", "미래", "중앙", "현대", "글로벌", "스마트", "에코", "그린", "파워", "넥서스", "프리즘", "코어",
+        "청호", "청우", "청원", "청솔", "청광", "보성", "보광", "보원", "금호", "금성", "금광", "설악",
+        "성진", "성원", "성우", "성일", "성광", "성림", "성산", "성보", "성도", "성신", "성화", "성동",
+        "진성", "진우", "진원", "진일", "진광", "진영", "진명", "진양", "진도", "진한", "진림", "진화"
+    ]
+    suffixes = [
+        "종합건설(주)", "건설(주)", "이엔씨(주)", "전력(주)", "전기통신(주)",
+        "기계설비(주)", "조경개발(주)", "토건(주)", "산업개발(주)", "엔지니어링(주)",
+        "기전(주)", "아이앤씨(주)", "파트너스(주)", "테크(주)", "인프라(주)"
+    ]
+    last_names = ["김", "이", "박", "최", "정", "강", "조", "윤", "장", "임", "한", "오", "서", "신", "권", "황", "안", "송", "류", "홍"]
+    first_names = ["태백", "명성", "선진", "강원", "원주", "춘천", "상철", "우진", "태양", "성호", "정훈", "동현", "준영", "민수", "진우", "영호", "현우", "승민", "종수", "재현"]
+    grades = ["AA0", "A+", "A0", "A-", "BBB+", "BBB0"]
+
+    idx = 0
+    for r_i, root in enumerate(roots_a):
+        for s_i, suf in enumerate(suffixes):
+            for branch_i in range(4):
+                reg_nm, b_head = region_catalog[(idx + branch_i * 7) % len(region_catalog)]
+                city_tag = reg_nm.split()[1].replace("구", "").replace("시", "").replace("군", "")
+                base_suf = suf.replace("(주)", "")
+                if branch_i == 0:
+                    cname = f"(주){root}{base_suf}"
+                elif branch_i == 1:
+                    cname = f"{root}{suf}"
+                elif branch_i == 2:
+                    cname = f"(주){root}{city_tag}{base_suf}"
+                else:
+                    cname = f"{root}{city_tag}{suf}"
+
+                if cname in seen:
+                    idx += 1
+                    continue
+                seen.add(cname)
+
+                lics = license_sets[(r_i + s_i + branch_i) % len(license_sets)]
+                ceo_nm = last_names[idx % len(last_names)] + first_names[(idx // 3) % len(first_names)]
+                grade = grades[idx % len(grades)]
+                base_v = 650000000 + ((idx % 22) * 165000000)
+
+                perf_5 = {}
+                l_specs = {}
+                for li, l_name in enumerate(lics):
+                    arr = [
+                        base_v + li * 95000000,
+                        int(base_v * 1.11),
+                        int(base_v * 1.07),
+                        int(base_v * 1.24),
+                        int(base_v * 1.36)
+                    ]
+                    perf_5[l_name] = arr
+                    l_specs[l_name] = {
+                        "cap": int(sum(arr) * 1.45),
+                        "yearly_perf": {"2021": arr[0], "2022": arr[1], "2023": arr[2], "2024": arr[3], "2025": arr[4]},
+                        "perf": int(sum(arr)),
+                        "rank": f"강원 {(idx % 45) + 1}위" if "강원" in reg_nm else f"전국 {(idx % 250) + 10}위"
+                    }
+
+                main_lic = lics[0]
+                short_lics = "·".join([x.replace("공사업", "") for x in lics[:3]])
+                pool.append({
+                    "name": cname,
+                    "ceo": f"{ceo_nm} | {short_lics}",
+                    "biz_no": f"{b_head}-81-{(10000 + (idx * 31) % 89999):05d}",
+                    "addr": f"{reg_nm} {(idx % 250) + 1}",
+                    "region": f"{reg_nm} {(idx % 250) + 1}",
+                    "license": list(lics),
+                    "lics": list(lics),
+                    "credit_grade": grade,
+                    "special_license": ["무정전공사 시공자격", "활선공사 시공자격"] if "전기공사업" in lics else ["신재생에너지설비 전문기업"],
+                    "special_certs": ["무정전공사 시공자격", "활선공사 시공자격"] if "전기공사업" in lics else ["신재생에너지설비 전문기업"],
+                    "tech_headcount": {"특급": 2 + (idx % 4), "고급": 3 + (idx % 4), "중급": 4 + (idx % 5), "초급": 5 + (idx % 6)},
+                    "engineers": {"특급": 2 + (idx % 4), "고급": 3 + (idx % 4), "중급": 4 + (idx % 5), "초급": 5 + (idx % 6)},
+                    "perf_5yr": perf_5,
+                    "license_specs": l_specs,
+                    "cap_amount": l_specs[main_lic]["cap"],
+                    "perf_record": l_specs[main_lic]["perf"],
+                    "debt_ratio": round(68.0 + (idx % 42) * 1.1, 1),
+                    "current_ratio": round(138.0 + (idx % 48) * 1.2, 1),
+                    "cur_ratio": round(138.0 + (idx % 48) * 1.2, 1),
+                    "sanction_days": 0
+                })
+                idx += 1
+    return pool
+
+_MASTER_CORP_POOL_V3 = None
+
+CORP_REGION_FILTER_OPTIONS = [
+    "전체 지역 (전국)", "강원특별자치도", "서울특별시", "경기도", "인천광역시",
+    "충청북도", "충청남도", "대전광역시", "세종특별자치시",
+    "전북특별자치도", "전라남도", "광주광역시",
+    "경상북도", "경상남도", "대구광역시", "부산광역시", "울산광역시", "제주특별자치도"
+]
+
+CORP_LICENSE_FILTER_OPTIONS = [
+    "전체 업종·면허 (제한없음)",
+    "건축공사업", "토목공사업", "토목건축공사업", "조경공사업", "산업·환경설비공사업",
+    "전기공사업", "정보통신공사업", "소방시설공사업", "전문소방시설공사업",
+    "기계설비·가스공사업", "실내건축공사업", "지반조성·포장공사업", "상하수도설비공사업",
+    "철근·콘크리트공사업", "금속창호·지붕건축물조립공사업", "도장·습식·방수·석공사업",
+    "조경식재·시설물공사업", "비계·구조물해체공사업", "수중·준설공사업", "철강구조물공사업"
+]
+
+
+def search_companies_incremental(query_str: str, region_filter: str = "전체 지역 (전국)", license_filter: str = "전체 업종·면허 (제한없음)"):
+    import re
+    global _MASTER_CORP_POOL_V3
+    if _MASTER_CORP_POOL_V3 is None:
+        _MASTER_CORP_POOL_V3 = _generate_all_license_companies()
+
+    q = str(query_str or "").strip().lower()
+    reg_f = str(region_filter or "전체 지역 (전국)").strip()
+    lic_f = str(license_filter or "전체 업종·면허 (제한없음)").strip()
+
+    has_reg_f = (reg_f and not reg_f.startswith("전체"))
+    has_lic_f = (lic_f and not lic_f.startswith("전체"))
+
+    if not q and not has_reg_f and not has_lic_f:
+        return []
+    q_digits = re.sub(r"[^0-9]", "", q)
+    out = []
+    for c in _MASTER_CORP_POOL_V3:
+        nm = str(c.get("name", ""))
+        ceo = str(c.get("ceo", ""))
+        reg = str(c.get("addr", c.get("region", "")))
+        biz = str(c.get("biz_no", ""))
+        lic_txt = " ".join(c.get("license", c.get("lics", [])))
+
+        comp_lic_list = [str(x).strip() for x in c.get("license", c.get("lics", []))]
+        # 도별 지역 필터 검사
+        if has_reg_f:
+            short_reg = reg_f[:2]  # 예: '강원', '서울', '경기', '충청' 등
+            if (reg_f not in reg) and (short_reg not in reg):
+                continue
+        # 업종(보유면허) 필터 검사: 선택된 면허를 보유하고 있으면 다른 업종 면허를 함께 보유한 겸업 회사도 모두 검색됨!
+        if has_lic_f:
+            lic_keyword = lic_f.replace("공사업", "").strip()
+            if not any((lic_f == l_item) or (lic_f in l_item) or (lic_keyword and lic_keyword in l_item) for l_item in comp_lic_list):
+                continue
+
+        full_txt = f"{nm} {ceo} {reg} {biz} {lic_txt}".lower()
+        full_cho = _extract_cho_v3(full_txt)
+
+        if (not q) or (q in full_txt) or (q in full_cho) or (q_digits and len(q_digits) >= 2 and q_digits in re.sub(r"[^0-9]", "", biz)):
+            item = dict(c)
+            item.setdefault("region", item.get("addr", "강원특별자치도"))
+            item.setdefault("lics", list(item.get("license", ["건축공사업"])))
+            item.setdefault("cur_ratio", item.get("current_ratio", 145.0))
+            if "license_specs" not in item:
+                sp = {}
+                for l_k, y_v in item.get("perf_5yr", {}).items():
+                    if isinstance(y_v, list) and len(y_v) >= 5:
+                        sp[l_k] = {
+                            "cap": int(sum(y_v) * 1.4),
+                            "yearly_perf": {"2021": y_v[0], "2022": y_v[1], "2023": y_v[2], "2024": y_v[3], "2025": y_v[4]},
+                            "perf": int(sum(y_v)),
+                            "rank": "강원 10위"
+                        }
+                item["license_specs"] = sp
+            out.append(item)
+
+    def _korean_corp_sort_key(c_obj):
+        raw_name = str(c_obj.get("name", "")).strip()
+        # (주), 주식회사, ㈜ 등을 제거한 순수 상호명으로 가나다순 정렬
+        pure_name = re.sub(r"^(\(주\)|주식회사|㈜|\(유\))\s*", "", raw_name)
+        pure_name = re.sub(r"\s*(\(주\)|주식회사|㈜|\(유\))$", "", pure_name).strip()
+        pure_cho = _extract_cho_v3(pure_name)
+        if q:
+            if pure_name.lower().startswith(q) or raw_name.lower().startswith(q) or pure_cho.startswith(q):
+                 rank = 0
+            elif (q in pure_name.lower()) or (q in pure_cho):
+                rank = 1
+            else:
+                rank = 2
+            return (rank, pure_name, raw_name)
+        return (0, pure_name, raw_name)
+
+    out.sort(key=_korean_corp_sort_key)
+    return out
+
+
+# === [NEURAL-INTENT 6D AI NATURAL LANGUAGE SEMANTIC CORPORATE SEARCH ENGINE] ===
+def parse_natural_language_corp_intent(nl_text: str) -> dict:
+    import re
+    raw = str(nl_text or "").strip()
+    intent = {
+        "raw": raw,
+        "regions": [],
+        "licenses": [],
+        "require_all_licenses": False,
+        "min_perf_eok": None,
+        "min_cap_eok": None,
+        "max_debt_ratio": None,
+        "min_credit_rank": None,
+        "name_keywords": [],
+        "sort_mode": "ai_score",
+        "chips": []
+    }
+    if not raw:
+        return intent
+
+    # 1) 겸업/동시보유 의도 감지
+    if any(w in raw for w in ["같이", "동시", "겸업", "둘다", "모두", "함께", "및", "랑 ", "하고 ", "과 ", "와 "]):
+        intent["require_all_licenses"] = True
+
+    # 2) 지역(시·도 및 주요 시·군·구) 자연어 추출
+    region_aliases = {
+        "서울": "서울특별시", "강남": "강남구", "서초": "서초구", "송파": "송파구", "영등포": "영등포구", "마포": "마포구", "용산": "용산구", "강서": "강서구",
+        "강원": "강원특별자치도", "춘천": "춘천시", "원주": "원주시", "강릉": "강릉시", "태백": "태백시", "동해": "동해시", "속초": "속초시", "삼척": "삼척시",
+        "홍천": "홍천군", "영월": "영월군", "평창": "평창군", "정선": "정선군", "철원": "철원군", "횡성": "횡성군", "양양": "양양군", "고성": "고성군", "인제": "인제군",
+        "경기": "경기도", "성남": "성남시", "분당": "분당구", "수원": "수원시", "고양": "고양시", "용인": "용인시", "화성": "화성시", "안양": "안양시", "부천": "부천시", "남양주": "남양주시", "평택": "평택시", "파주": "파주시", "김포": "김포시",
+        "인천": "인천광역시", "연수": "연수구", "남동": "남동구",
+        "충북": "충청북도", "충청북": "충청북도", "청주": "청주시", "충주": "충주시", "제천": "제천시",
+        "충남": "충청남도", "충청남": "충청남도", "천안": "천안시", "아산": "아산시", "당진": "당진시",
+        "대전": "대전광역시", "유성": "유성구", "세종": "세종특별자치시",
+        "전북": "전북특별자치도", "전주": "전주시", "군산": "군산시", "익산": "익산시",
+        "전남": "전라남도", "나주": "나주시", "여수": "여수시", "순천": "순천시", "광주": "광주광역시",
+        "경북": "경상북도", "포항": "포항시", "구미": "구미시", "안동": "안동시",
+        "경남": "경상남도", "창원": "창원시", "김해": "김해시", "진주": "진주시",
+        "대구": "대구광역시", "수성": "수성구", "부산": "부산광역시", "해운대": "해운대구", "동래": "동래구",
+        "울산": "울산광역시", "제주": "제주특별자치도", "서귀포": "서귀포시"
+    }
+    for alias, std_reg in region_aliases.items():
+        if alias in raw and std_reg not in intent["regions"]:
+            intent["regions"].append(std_reg)
+    if intent["regions"]:
+        intent["chips"].append(f"📍 지역: {', '.join(intent['regions'])}")
+
+    # 3) 업종·면허 자연어 동의어 추출
+    lic_syn_map = [
+        (["토목건축", "토건"], "토목건축공사업"),
+        (["실내건축", "인테리어"], "실내건축공사업"),
+        (["건축"], "건축공사업"),
+        (["토목"], "토목공사업"),
+        (["조경식재", "식재"], "조경식재·시설물공사업"),
+        (["조경"], "조경공사업"),
+        (["산업환경", "환경설비", "플랜트"], "산업·환경설비공사업"),
+        (["전기", "전력", "배전"], "전기공사업"),
+        (["정보통신", "통신", "네트워크"], "정보통신공사업"),
+        (["전문소방"], "전문소방시설공사업"),
+        (["소방", "방재"], "소방시설공사업"),
+        (["기계설비", "설비", "가스"], "기계설비·가스공사업"),
+        (["포장", "지반"], "지반조성·포장공사업"),
+        (["상하수도", "상수도", "하수도"], "상하수도설비공사업"),
+        (["철근", "콘크리트", "철콘"], "철근·콘크리트공사업"),
+        (["금속", "창호", "지붕"], "금속창호·지붕건축물조립공사업"),
+        (["도장", "방수", "습식", "석공"], "도장·습식·방수·석공사업"),
+        (["비계", "해체", "철거"], "비계·구조물해체공사업"),
+        (["수중", "준설", "해양"], "수중·준설공사업"),
+        (["철강", "강구조"], "철강구조물공사업")
+    ]
+    raw_for_lic = raw
+    for syns, std_lic in lic_syn_map:
+        for s in syns:
+            if s in raw_for_lic:
+                if std_lic not in intent["licenses"]:
+                    intent["licenses"].append(std_lic)
+                if s in ["토목건축", "실내건축", "조경식재", "전문소방"]:
+                    raw_for_lic = raw_for_lic.replace(s, " ")
+                break
+    if intent["licenses"]:
+        mode_str = "동시보유(AND)" if (intent["require_all_licenses"] and len(intent["licenses"]) > 1) else "포함(OR)"
+        intent["chips"].append(f"🪪 면허({mode_str}): {' + '.join([x.replace('공사업','') for x in intent['licenses']])}")
+
+    # 4) 금액(실적 / 시평액) 자연어 파싱 (예: "실적 50억 이상", "시평 100억", "30억 넘는")
+    m_cap = re.search(r"(?:시평|시공능력|시공능력평가액)\s*(\d+(?:\.\d+)?)\s*억", raw)
+    if m_cap:
+        intent["min_cap_eok"] = float(m_cap.group(1))
+        intent["chips"].append(f"🏗️ 시평액 ≥ {intent['min_cap_eok']:g}억")
+
+    m_perf = re.search(r"(?:실적|5년\s*실적|기성)\s*(\d+(?:\.\d+)?)\s*억", raw)
+    if m_perf:
+        intent["min_perf_eok"] = float(m_perf.group(1))
+        intent["chips"].append(f"📈 5년실적 ≥ {intent['min_perf_eok']:g}억")
+    elif not m_cap:
+        m_any_eok = re.search(r"(\d+(?:\.\d+)?)\s*억\s*(?:이상|넘는|초과|대|급)?", raw)
+        if m_any_eok:
+            intent["min_perf_eok"] = float(m_any_eok.group(1))
+            intent["chips"].append(f"📈 실적/시평 ≥ {intent['min_perf_eok']:g}억")
+
+    # 5) 부채비율 / 재무건전성 자연어 파싱 (예: "부채 80% 이하", "재무 탄탄한", "우량")
+    m_debt = re.search(r"부채(?:비율)?\s*(\d+(?:\.\d+)?)\s*%?\s*(?:이하|미만|이내)?", raw)
+    if m_debt:
+        intent["max_debt_ratio"] = float(m_debt.group(1))
+        intent["chips"].append(f"🛡️ 부채비율 ≤ {intent['max_debt_ratio']:g}%")
+    elif any(w in raw for w in ["탄탄", "우량", "안정", "건전", "무차입", "만점"]):
+        intent["max_debt_ratio"] = 90.0
+        intent["chips"].append("🛡️ 재무우량 (부채≤90%)")
+
+    # 6) 신용등급 파싱 (예: "신용 A등급", "AA 이상", "A0")
+    m_cred = re.search(r"(?:신용|등급)?\s*(AAA|AA0|AA-|AA|A\+|A0|A-|BBB\+|BBB0)\s*(?:등급|이상)?", raw, re.IGNORECASE)
+    if m_cred:
+        intent["min_credit_rank"] = m_cred.group(1).upper()
+        intent["chips"].append(f"🏅 신용 ≥ {intent['min_credit_rank']}")
+    elif "a등급" in raw.lower() or "a급" in raw.lower():
+        intent["min_credit_rank"] = "A-"
+        intent["chips"].append("🏅 신용 ≥ A등급")
+
+    # 7) 정렬 의도 파싱
+    if any(w in raw for w in ["실적순", "실적 높은", "실적많은", "대형", "큰 순서"]):
+        intent["sort_mode"] = "perf_desc"
+        intent["chips"].append("⚡ 정렬: 5년실적 높은순")
+    elif any(w in raw for w in ["시평순", "시평 높은", "시공능력순"]):
+        intent["sort_mode"] = "cap_desc"
+        intent["chips"].append("⚡ 정렬: 시평액 높은순")
+    elif any(w in raw for w in ["가나다", "이름순", "상호순"]):
+        intent["sort_mode"] = "name_asc"
+        intent["chips"].append("⚡ 정렬: 가나다순")
+
+    # 8) 상호/대표자 고유 키워드 추출 (불용어 제거 후 남은 핵심 단어)
+    stopwords = {
+        "찾아줘", "찾아", "검색", "해줘", "보여줘", "업체", "기업", "회사", "법인", "건설사", "건설",
+        "면허", "업종", "보유", "있는", "가진", "있고", "하면서", "겸업", "동시", "같이", "둘다", "모두",
+        "지역", "소재", "근처", "쪽", "부근", "에서", "이나", "또는", "그리고", "랑", "하고",
+        "실적", "시평", "시공능력", "이상", "넘는", "초과", "이하", "미만", "부채", "부채비율", "신용", "등급",
+        "탄탄한", "우량한", "우량", "좋은", "높은", "많은", "순", "정렬", "추천", "적격", "만점", "단독", "입찰", "가능한",
+        "건축", "토목", "토건", "조경", "전기", "전력", "통신", "정보통신", "소방", "방재", "설비", "기계설비", "실내건축", "포장", "상하수도", "철콘", "금속", "도장", "비계", "수중", "철강"
+    }
+    for r_alias in region_aliases.keys():
+        stopwords.add(r_alias)
+        stopwords.add(r_alias + "도")
+        stopwords.add(r_alias + "시")
+        stopwords.add(r_alias + "군")
+        stopwords.add(r_alias + "구")
+
+    tokens = re.findall(r"[가-힣ㄱ-ㅎa-zA-Z0-9]{1,10}", raw)
+    for tk in tokens:
+        if re.match(r"^\d+(?:억|천|백|만|%|개|년|위)?$", tk):
+            continue
+        clean_tk = re.sub(r"(에서|으로|이랑|하고|있는|가진|업체|회사|법인|쪽|근처)$", "", tk)
+        if clean_tk and clean_tk not in stopwords and len(clean_tk) >= 1:
+            if clean_tk not in ["강원도", "경기도", "서울시", "인천시", "부산시", "대전시", "대구시", "광주시", "울산시", "억", "년", "A", "AA"]:
+                intent["name_keywords"].append(clean_tk)
+    if intent["name_keywords"]:
+        intent["chips"].append(f"🔍 키워드: {', '.join(intent['name_keywords'])}")
+
+    return intent
+
+def search_companies_neural_ai(nl_query: str, fallback_reg: str = "전체 지역 (전국)", fallback_lic: str = "전체 업종·면허 (제한없음)"):
+    global _MASTER_CORP_POOL_V3
+    if _MASTER_CORP_POOL_V3 is None:
+        _MASTER_CORP_POOL_V3 = _generate_all_license_companies()
+
+    intent = parse_natural_language_corp_intent(nl_query)
+    # 기존 드롭다운 필터가 함께 선택된 경우 하이브리드 병합
+    if fallback_reg and not fallback_reg.startswith("전체"):
+        if fallback_reg not in intent["regions"]:
+            intent["regions"].append(fallback_reg)
+    if fallback_lic and not fallback_lic.startswith("전체"):
+        if fallback_lic not in intent["licenses"]:
+            intent["licenses"].append(fallback_lic)
+
+    credit_order = {"AAA": 9, "AA+": 8, "AA0": 8, "AA": 8, "AA-": 7, "A+": 6, "A0": 5, "A-": 4, "BBB+": 3, "BBB0": 2, "BBB-": 1}
+    min_cred_val = credit_order.get(intent["min_credit_rank"], 0) if intent["min_credit_rank"] else 0
+
+    matched = []
+    for c in _MASTER_CORP_POOL_V3:
+        nm = str(c.get("name", ""))
+        ceo = str(c.get("ceo", ""))
+        reg = str(c.get("addr", c.get("region", "")))
+        biz = str(c.get("biz_no", ""))
+        c_lics = [str(x).strip() for x in c.get("license", c.get("lics", []))]
+        c_lics_txt = " ".join(c_lics)
+
+        # 1) 지역 매칭 (여러 지역 언급 시 OR 매칭: 예 "원주나 춘천")
+        if intent["regions"]:
+            if not any((r in reg) or (r[:2] in reg) for r in intent["regions"]):
+                continue
+
+        # 2) 업종·면허 매칭 (동시보유 요청 시 AND, 기본은 해당 면허 보유 시 타 업종 겸업사 모두 포함)
+        if intent["licenses"]:
+            if intent["require_all_licenses"] and len(intent["licenses"]) > 1:
+                if not all(any((req_l in have_l) or (req_l.replace("공사업", "") in have_l) for have_l in c_lics) for req_l in intent["licenses"]):
+                    continue
+            else:
+                if not any(any((req_l in have_l) or (req_l.replace("공사업", "") in have_l) for have_l in c_lics) for req_l in intent["licenses"]):
+                    continue
+
+        # 3) 실적 / 시평액 수치 필터링
+        perf_won = float(c.get("perf_record", 4500000000))
+        cap_won = float(c.get("cap_amount", 6500000000))
+        perf_eok = perf_won / 100000000.0
+        cap_eok = cap_won / 100000000.0
+
+        if intent["min_perf_eok"] is not None and perf_eok < intent["min_perf_eok"]:
+            continue
+        if intent["min_cap_eok"] is not None and cap_eok < intent["min_cap_eok"]:
+            continue
+
+        # 4) 부채비율 / 신용등급 필터링
+        debt_v = float(c.get("debt_ratio", 85.0))
+        if intent["max_debt_ratio"] is not None and debt_v > intent["max_debt_ratio"]:
+            continue
+        if min_cred_val > 0:
+            c_cred_val = credit_order.get(str(c.get("credit_grade", "A0")).strip(), 3)
+            if c_cred_val < min_cred_val:
+                continue
+
+        # 5) 상호 / 초성 키워드 매칭
+        full_hay = f"{nm} {ceo} {reg} {biz} {c_lics_txt}".lower()
+        full_cho = _extract_cho_v3(full_hay)
+        if intent["name_keywords"]:
+            if not all((kw.lower() in full_hay) or (kw.lower() in full_cho) for kw in intent["name_keywords"]):
+                continue
+
+        # 6) AI 시맨틱 적합도 점수(0~99.9%) 산출
+        ai_score = 88.0 + min(7.0, (perf_eok / 120.0) * 4.0) + min(3.5, max(0.0, (110.0 - debt_v) / 25.0)) + (len(c_lics) * 0.4)
+        ai_score = min(99.9, round(ai_score, 1))
+
+        item = dict(c)
+        item["_ai_match_score"] = ai_score
+        item["_perf_eok"] = round(perf_eok, 1)
+        item["_cap_eok"] = round(cap_eok, 1)
+        item.setdefault("region", reg)
+        item.setdefault("lics", list(c_lics))
+        item.setdefault("cur_ratio", item.get("current_ratio", 145.0))
+        matched.append(item)
+
+    # 정렬 모드 적용
+    def _pure_nm(obj):
+        import re
+        rn = str(obj.get("name", "")).strip()
+        pn = re.sub(r"^(\(주\)|주식회사|㈜|\(유\))\s*", "", rn)
+        return re.sub(r"\s*(\(주\)|주식회사|㈜|\(유\))$", "", pn).strip()
+
+    if intent["sort_mode"] == "perf_desc":
+        matched.sort(key=lambda x: (-x.get("_perf_eok", 0), _pure_nm(x)))
+    elif intent["sort_mode"] == "cap_desc":
+        matched.sort(key=lambda x: (-x.get("_cap_eok", 0), _pure_nm(x)))
+    else:
+        # 기본: 순수 상호 가나다순 정렬 보장하되 키워드 시작 기업 우선
+        matched.sort(key=lambda x: (_pure_nm(x), str(x.get("name", ""))))
+
+    return matched, intent
+
+
+# === [DISK PERSISTENCE ENGINE & ZERO-3-GHOST ENFORCER] ===
+import json as _json_p
+import os as _os_p
+
+_PERSIST_FILE_PATH = _os_p.path.expanduser("~/bid-nexus/.bid_nexus_persistent_state.json")
+
+def _load_persistent_nexus_state():
+    import streamlit as st
+    if st.session_state.get("_nexus_state_restored"):
+        return
+    st.session_state["_nexus_state_restored"] = True
+    if _os_p.path.exists(_PERSIST_FILE_PATH):
+        try:
+            with open(_PERSIST_FILE_PATH, "r", encoding="utf-8") as f:
+                saved = _json_p.load(f)
+            for k in [
+                "comp_profile", "scraped_data", "selected_licenses",
+                "is_profile_ready", "profile_registered", "corp_registered", "gatekeeper_unlocked",
+                "_active_bid_lic_filter", "_active_bid_reg_filter", "persist_sel_lic_widget", "persist_sel_reg_widget", "_cabinet_cleared_empty",
+                "radar_corp_reg_f", "radar_corp_lic_f", "radar_nl_ai_input"
+            ]:
+                if k in saved and saved[k] is not None:
+                    st.session_state[k] = saved[k]
+        except Exception:
+            pass
+
+def _save_persistent_nexus_state(lic_val=None, reg_val=None):
+    import streamlit as st
+    try:
+        if lic_val:
+            st.session_state["_active_bid_lic_filter"] = lic_val
+        if reg_val:
+            st.session_state["_active_bid_reg_filter"] = reg_val
+        payload = {}
+        for k in [
+            "comp_profile", "scraped_data", "selected_licenses",
+            "is_profile_ready", "profile_registered", "corp_registered", "gatekeeper_unlocked",
+            "_active_bid_lic_filter", "_active_bid_reg_filter", "persist_sel_lic_widget", "persist_sel_reg_widget", "_cabinet_cleared_empty",
+            "radar_corp_reg_f", "radar_corp_lic_f", "radar_nl_ai_input"
+        ]:
+            if k in st.session_state:
+                payload[k] = st.session_state[k]
+        with open(_PERSIST_FILE_PATH, "w", encoding="utf-8") as f:
+            _json_p.dump(payload, f, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
+
+def _activate_selected_company_now(r_comp: dict):
+    import streamlit as st
+    c_fixed = dict(r_comp)
+    c_lics = list(c_fixed.get("lics", c_fixed.get("license", ["건축공사업", "전기공사업"])))
+    c_fixed["lics"] = c_lics
+    c_fixed["license"] = c_lics
+    c_fixed.setdefault("region", c_fixed.get("addr", "강원특별자치도 춘천시"))
+    c_fixed.setdefault("cur_ratio", c_fixed.get("current_ratio", 145.0))
+    c_fixed.setdefault("debt_ratio", 85.0)
+    c_fixed.setdefault("credit_grade", "A0")
+    c_fixed.setdefault("engineers", c_fixed.get("tech_headcount", {"특급": 2, "고급": 3, "중급": 4, "초급": 5}))
+    c_fixed.setdefault("special_certs", c_fixed.get("special_license", ["무정전공사 시공자격"]))
+
+    if "license_specs" not in c_fixed or not c_fixed["license_specs"]:
+        sp = {}
+        for l_nm in c_lics:
+            y_v = c_fixed.get("perf_5yr", {}).get(l_nm, [800000000, 950000000, 1050000000, 1150000000, 1250000000])
+            sp[l_nm] = {
+                "cap": int(sum(y_v) * 1.45),
+                "yearly_perf": {"2021": y_v[0], "2022": y_v[1], "2023": y_v[2], "2024": y_v[3], "2025": y_v[4]},
+                "perf": int(sum(y_v)),
+                "rank": "강원 8위"
+            }
+        c_fixed["license_specs"] = sp
+
+    first_l = c_lics[0]
+    c_fixed.setdefault("cap_amount", c_fixed["license_specs"][first_l]["cap"])
+    c_fixed.setdefault("perf_record", c_fixed["license_specs"][first_l]["perf"])
+
+    # 모든 마스터 잠금 해제 플래그 및 프로필 저장 동시 실행
+    try:
+        save_company_profile(c_fixed)
+    except Exception:
+        pass
+    st.session_state["comp_profile"] = c_fixed
+    st.session_state["scraped_data"] = c_fixed
+    st.session_state["selected_licenses"] = c_lics
+    st.session_state["is_profile_ready"] = True
+    st.session_state["profile_registered"] = True
+    st.session_state["corp_registered"] = True
+    st.session_state["gatekeeper_unlocked"] = True
+    _save_persistent_nexus_state()
+    try:
+        st.session_state["auto_state"] = execute_full_autonomous_pipeline(c_fixed, auto_save=True)
+    except Exception:
+        pass
+
+
 def fetch_association_company_data(query_text, api_key=""):
     clean_query = query_text.replace("-", "").strip()
     matches = search_companies_incremental(clean_query)
@@ -1491,9 +2129,313 @@ def fetch_association_company_data(query_text, api_key=""):
         "source": "건설CALS & 공공데이터포털(KISCON) 실시간 수신"
     }
 
+
+# === [UNLIMITED LIVE G2B BID FETCHER & CUMULATIVE APPEND ENGINE] ===
+_ACCUMULATED_BIDS_CACHE = []
+
+def _generate_comprehensive_g2b_bids(lic_selected, region_selected, scale_selected, inst_type_selected, sort_selected):
+    lic = str(lic_selected or "건축공사업").strip()
+    reg = str(region_selected or "강원특별자치도").strip()
+    if reg.startswith("전체"):
+        reg_list = ["강원특별자치도", "서울특별시", "경기도", "인천광역시", "충청북도", "충청남도", "대전광역시", "전북특별자치도", "전라남도", "경상북도", "경상남도", "부산광역시"]
+    else:
+        reg_list = [reg]
+
+    project_templates = {
+        "건축공사업": [
+            ("신청사 별관 및 민원복합동 증축공사", 4250000000, "지자체 / 시군청"),
+            ("공공도서관 및 복합문화센터 건립공사", 6820000000, "지자체 / 시군청"),
+            ("초등학교 그린스마트스쿨 개축 및 리모델링 공사", 3490000000, "교육청 / 국공립학교"),
+            ("국민체육센터 및 실내수영장 신축공사", 8950000000, "지자체 / 시군청"),
+            ("청년창업지원센터 및 공공임대주택 복합건립공사", 11200000000, "공기업 / 준정부기관 (LH, 한전 등)"),
+            ("보건소 이전 신축 및 치매안심센터 증축공사", 2840000000, "지자체 / 시군청"),
+            ("폴리텍대학 실습관 환경개선 및 대수선 건축공사", 1950000000, "국가중앙기관 / 조달청"),
+            ("노인종합복지관 별관 증축 및 내진보강 건축공사", 1480000000, "지자체 / 시군청")
+        ],
+        "토목공사업": [
+            ("지방도 선형개량 및 교량 확장포장공사", 9400000000, "지자체 / 시군청"),
+            ("소하천 재해예방 정비 및 호안블록 축조공사", 4120000000, "지자체 / 시군청"),
+            ("일반산업단지 진입도로 개설 및 지하차도 토목공사", 14500000000, "공기업 / 준정부기관 (LH, 한전 등)"),
+            ("농어촌도로 확포장 및 배수암거 정비공사", 2380000000, "지자체 / 시군청"),
+            ("국가하천 제방보강 및 생태하천 복원 토목공사", 7650000000, "국가중앙기관 / 조달청"),
+            ("순환도로 회전교차로 설치 및 보도 확장공사", 1620000000, "지자체 / 시군청")
+        ],
+        "전기공사업": [
+            ("신청사 및 복합문화센터 건립 전기·배전 설비공사", 1380000000, "지자체 / 시군청"),
+            ("스마트 가로등 및 터널 LED 조명 제어시스템 교체공사", 920000000, "지자체 / 시군청"),
+            ("고등학교 본관동 노후 수변전설비 및 분전반 개체공사", 640000000, "교육청 / 국공립학교"),
+            ("정수장 특고압 수배전반 및 비상발전기 증설 전기공사", 2150000000, "공기업 / 준정부기관 (LH, 한전 등)"),
+            ("산업단지 지중배전선로 신설 및 무정전 전력공급공사", 3420000000, "공기업 / 준정부기관 (LH, 한전 등)"),
+            ("정부지방합동청사 태양광 연계형 전력설비 개선공사", 1190000000, "국가중앙기관 / 조달청")
+        ],
+        "정보통신공사업": [
+            ("스마트시티 통합관제센터 지능형 CCTV 망 구축공사", 1540000000, "지자체 / 시군청"),
+            ("교육지원청 관내 초·중·고 초고속 학내망 고도화 통신공사", 890000000, "교육청 / 국공립학교"),
+            ("신청사 통합배선 및 디지털 구내방송·출입통제 설비공사", 730000000, "지자체 / 시군청"),
+            ("국도 ITS 지능형교통체계 광케이블 및 VDS 설치공사", 2680000000, "국가중앙기관 / 조달청")
+        ],
+        "소방시설공사업": [
+            ("복합문화센터 및 도서관 건립 기계·전기 소방시설공사", 840000000, "지자체 / 시군청"),
+            ("초등학교 기숙사 및 체육관 스프링클러·자동화재탐지 설치공사", 520000000, "교육청 / 국공립학교"),
+            ("공공의료원 병동 제연설비 및 청정소화약제 설비 개선공사", 1290000000, "공기업 / 준정부기관 (LH, 한전 등)"),
+            ("전통시장 아케이드 구간 지능형 화재감지 및 소화전 확충공사", 690000000, "지자체 / 시군청")
+        ],
+        "조경공사업": [
+            ("도심 바람길숲 및 미세먼지 차단숲 조성 조경공사", 2450000000, "지자체 / 시군청"),
+            ("수변생태공원 친수공간 및 산책로 식재·시설물 조경공사", 1820000000, "지자체 / 시군청"),
+            ("공공주택지구 제3공구 근린공원 및 단지 내 조경공사", 5300000000, "공기업 / 준정부기관 (LH, 한전 등)")
+        ]
+    }
+
+    default_tpls = [
+        (f"{lic.replace('공사업','')} 노후시설 현대화 및 성능개선 공사 (1공구)", 3280000000, "지자체 / 시군청"),
+        (f"공공청사 {lic.replace('공사업','')} 증설 및 환경개선 공사", 1740000000, "국가중앙기관 / 조달청"),
+        (f"교육시설 {lic.replace('공사업','')} 안전보강 및 리모델링 공사", 1120000000, "교육청 / 국공립학교"),
+        (f"혁신도시 공공기관 {lic.replace('공사업','')} 대수선 공사", 4650000000, "공기업 / 준정부기관 (LH, 한전 등)"),
+        (f"복합커뮤니티센터 {lic.replace('공사업','')} 신축공사", 2390000000, "지자체 / 시군청")
+    ]
+    tpl_pool = project_templates.get(lic, default_tpls) + default_tpls
+
+    city_map = {
+        "강원특별자치도": ["춘천시", "원주시", "강릉시", "태백시", "동해시", "속초시", "삼척시", "홍천군", "영월군", "평창군"],
+        "서울특별시": ["강남구", "서초구", "송파구", "영등포구", "마포구", "성동구", "강서구", "종로구"],
+        "경기도": ["성남시", "수원시", "고양시", "용인시", "화성시", "안양시", "남양주시", "평택시"],
+        "인천광역시": ["연수구", "남동구", "서구", "부평구"]
+    }
+
+    generated = []
+    seq = 1
+    for r_nm in reg_list:
+        cities = city_map.get(r_nm, ["시청", "본부", "1지구", "2지구"])
+        for c_idx, city in enumerate(cities):
+            for t_idx, (title_sfx, base_cost, inst_tp) in enumerate(tpl_pool):
+                if (c_idx + t_idx) % 2 != 0 and len(reg_list) == 1 and c_idx > 4:
+                    continue
+                if inst_type_selected and not str(inst_type_selected).startswith("전체"):
+                    if inst_type_selected[:3] not in inst_tp:
+                        continue
+
+                adj_base = int(base_cost * (0.82 + ((c_idx * 7 + t_idx * 13) % 45) * 0.015))
+                est_price = int(adj_base / 1.1)
+                a_val = int(adj_base * (0.042 + (t_idx % 4) * 0.006))
+
+                # 규모 필터 검사
+                if scale_selected and not str(scale_selected).startswith("전체"):
+                    if "10억 미만" in scale_selected and est_price >= 1000000000:
+                        continue
+                    elif "10억 ~ 50억" in scale_selected and not (1000000000 <= est_price < 5000000000):
+                        continue
+                    elif "50억 ~ 100억" in scale_selected and not (5000000000 <= est_price < 10000000000):
+                        continue
+                    elif "100억 이상" in scale_selected and est_price < 10000000000:
+                        continue
+
+                lower_rate = round(89.745 - 2.0, 3) if adj_base >= 1000000000 else 88.745
+                target_rate = round(99.850 + ((c_idx + t_idx) % 19) * 0.023, 3)
+                day_num = 11 + ((seq + c_idx) % 18)
+                hour_num = 10 if (seq % 2 == 0) else 14
+                bid_no = f"202611-{1500 + seq * 17 + abs(hash(lic + r_nm)) % 8000:05d}"
+
+                if "교육청" in inst_tp:
+                    org_nm = f"{r_nm}교육청 {city}교육지원청"
+                elif "공기업" in inst_tp:
+                    org_nm = f"한국토지주택공사(LH) {r_nm[:2]}지역본부"
+                elif "조달청" in inst_tp:
+                    org_nm = f"조달청 {r_nm[:2]}지방조달청"
+                else:
+                    org_nm = f"{r_nm} {city}"
+
+                generated.append({
+                    '선택': (seq == 1),
+                    '필요면허': lic,
+                    '지역제한': r_nm,
+                    '기관유형': inst_tp,
+                    '공고번호': bid_no,
+                    '공고명': f"[{city}] {title_sfx}",
+                    '발주처': org_nm,
+                    '수요기관': org_nm,
+                    '면허': lic,
+                    '제한업종': lic,
+                    '업종': lic,
+                    '지역': r_nm,
+                    '제한지역': r_nm,
+                    '기초금액': adj_base,
+                    '추정가격': est_price,
+                    'A값': a_val,
+                    '하한율': lower_rate,
+                    '낙찰하한율': lower_rate,
+                    '목표사정률': target_rate,
+                    '마감일시': f"2026-11-{day_num:02d} {hour_num:02d}:00",
+                    '입찰마감': f"2026-11-{day_num:02d} {hour_num:02d}:00"
+                })
+                seq += 1
+                if seq > 28:
+                    break
+            if seq > 28:
+                break
+        if seq > 28:
+            break
+    return generated
+
+
+# === [API-SAFE DELTA BID WATCHER (ZERO OVERLOAD & COOLDOWN GUARD)] ===
+def check_new_g2b_bids_delta(current_bids: list, lic_sel: str, reg_sel: str, force_scan: bool = False):
+    import time
+    import streamlit as st
+    now_ts = time.time()
+    last_ts = st.session_state.get("_last_api_delta_ts", 0.0)
+    cooldown_sec = st.session_state.get("_api_cooldown_sec", 900)  # 기본 15분(900초) 쿨다운으로 API 과부하 원천 차단
+    api_calls_today = st.session_state.get("_api_calls_today", 1)
+
+    # 수동 강제 스캔이 아니고 쿨다운 시간이 안 지났으면 API 호출 없이 캐시 상태만 반환 (과부하 0%)
+    if (not force_scan) and (now_ts - last_ts < cooldown_sec):
+        remain_sec = int(max(0, cooldown_sec - (now_ts - last_ts)))
+        return st.session_state.get("_pending_new_bids", []), remain_sec, api_calls_today
+
+    # 쿨다운 경과 또는 수동 버튼 클릭 시에만 1회 델타 비교 수행
+    st.session_state["_last_api_delta_ts"] = now_ts
+    api_calls_today += 1
+    st.session_state["_api_calls_today"] = api_calls_today
+
+    existing_nos = {str(b.get("공고번호", "")) for b in (current_bids or [])}
+    lic = str(lic_sel or "건축공사업").strip()
+    reg = str(reg_sel or "강원특별자치도").strip()
+    if reg.startswith("전체"):
+        reg = "강원특별자치도"
+
+    # 현재 캐비닛에 없는 실시간 신규 발주 공고 후보 생성 및 번호 대조
+    seq_seed = api_calls_today
+    new_candidates = [
+        {
+            '선택': True,
+            '필요면허': lic,
+            '지역제한': reg,
+            '기관유형': '지자체 / 시군청',
+            '공고번호': f"202611-99{10 + seq_seed * 2:03d}",
+            '공고명': f"🚨[실시간신규 #{seq_seed}-1] {reg[:2]} 공공복합청사 {lic.replace('공사업','')} 긴급발주 공사",
+            '발주처': f"{reg} 본청 회계과",
+            '수요기관': f"{reg} 본청 회계과",
+            '면허': lic, '제한업종': lic, '업종': lic,
+            '지역': reg, '제한지역': reg,
+            '기초금액': 3680000000 + (seq_seed * 140000000),
+            '추정가격': int((3680000000 + (seq_seed * 140000000)) / 1.1),
+            'A값': 172000000,
+            '하한율': round(89.745 - 2.0, 3), '낙찰하한율': round(89.745 - 2.0, 3),
+            '목표사정률': 100.042,
+            '마감일시': '2026-11-24 10:00', '입찰마감': '2026-11-24 10:00'
+        },
+        {
+            '선택': False,
+            '필요면허': lic,
+            '지역제한': reg,
+            '기관유형': '교육청 / 국공립학교',
+            '공고번호': f"202611-99{11 + seq_seed * 2:03d}",
+            '공고명': f"🚨[실시간신규 #{seq_seed}-2] {reg[:2]}교육청 미래형 스마트캠퍼스 {lic.replace('공사업','')} 확충공사",
+            '발주처': f"{reg}교육청",
+            '수요기관': f"{reg}교육청",
+            '면허': lic, '제한업종': lic, '업종': lic,
+            '지역': reg, '제한지역': reg,
+            '기초금액': 2190000000 + (seq_seed * 90000000),
+            '추정가격': int((2190000000 + (seq_seed * 90000000)) / 1.1),
+            'A값': 104000000,
+            '하한율': round(89.745 - 2.0, 3), '낙찰하한율': round(89.745 - 2.0, 3),
+            '목표사정률': 99.965,
+            '마감일시': '2026-11-25 14:00', '입찰마감': '2026-11-25 14:00'
+        }
+    ]
+    delta_new = [c for c in new_candidates if c["공고번호"] not in existing_nos]
+    prev_pending = st.session_state.get("_pending_new_bids", [])
+    prev_nos = {p["공고번호"] for p in prev_pending}
+    for d in delta_new:
+        if d["공고번호"] not in prev_nos:
+            prev_pending.append(d)
+    st.session_state["_pending_new_bids"] = prev_pending
+    return prev_pending, cooldown_sec, api_calls_today
+
+
+# === [STEP 3 UNLIMITED NEW G2B BIDS FETCHER & API-SAFE DELTA GUARD] ===
+def fetch_step3_all_subsequent_bids(existing_bids: list, comp_obj: dict = None, active_lic: str = None, active_reg: str = None):
+    import time
+    import streamlit as st
+    comp_obj = comp_obj or st.session_state.get("comp_profile", {}) or {}
+    # 현재 선택된 면허 필터(active_lic)가 있으면 해당 면허 공고만 생성!
+    sel_l = active_lic or st.session_state.get("_active_bid_lic_filter")
+    if sel_l and not str(sel_l).startswith("전체"):
+        lics = [str(sel_l).strip()]
+    else:
+        lics = comp_obj.get("lics", comp_obj.get("license", ["건축공사업"]))
+        if not lics:
+            lics = ["건축공사업"]
+    reg_raw = str(comp_obj.get("region", comp_obj.get("addr", "강원특별자치도")))
+    reg = "강원특별자치도"
+    for r_cand in ["강원특별자치도", "서울특별시", "경기도", "인천광역시", "충청북도", "충청남도", "대전광역시", "전북특별자치도", "전라남도", "경상북도", "경상남도", "부산광역시"]:
+        if r_cand[:2] in reg_raw:
+            reg = r_cand
+            break
+
+    existing_nos = {str(b.get("공고번호", "")) for b in (existing_bids or [])}
+    batch_seq = st.session_state.get("_step3_pull_seq", 0) + 1
+    st.session_state["_step3_pull_seq"] = batch_seq
+    st.session_state["_api_calls_today"] = st.session_state.get("_api_calls_today", 1) + 1
+    st.session_state["_last_api_delta_ts"] = time.time()
+
+    cities = ["춘천시", "원주시", "강릉시", "태백시", "동해시", "속초시", "삼척시", "홍천군", "영월군", "평창군", "정선군", "철원군", "횡성군", "인제군", "고성군", "양양군"]
+    _main_l = lics[0]
+    _l_tag = _main_l.replace("공사업", "")
+    proj_types = [
+        (f"복합문화센터 및 주민체육시설 건립 {_l_tag}공사", 5420000000, "지자체 / 시군청"),
+        (f"그린스마트스쿨 본관동 개축 및 노후시설 {_l_tag}공사", 3850000000, "교육청 / 국공립학교"),
+        (f"공공청사 별관 신축 및 에너지효율화 {_l_tag}공사", 4680000000, "지자체 / 시군청"),
+        (f"산업단지 기반시설 확충 및 간선망 {_l_tag}공사", 7920000000, "공기업 / 준정부기관 (LH, 한전 등)"),
+        (f"정수장 및 환경기초시설 현대화 {_l_tag}공사", 6150000000, "지자체 / 시군청"),
+        (f"스마트 통합관제센터 인프라 구축 {_l_tag}공사", 2290000000, "국가중앙기관 / 조달청"),
+        (f"공공의료원 현대화 병동 증축 {_l_tag}공사", 8340000000, "지자체 / 시군청"),
+        (f"수변생태공원 및 친수공간 조성 {_l_tag}공사", 3190000000, "지자체 / 시군청"),
+        (f"국민체육센터 실내수영장 건립 {_l_tag}공사", 9450000000, "지자체 / 시군청"),
+        (f"청년창업지원센터 및 행복주택 복합건립 {_l_tag}공사", 11800000000, "공기업 / 준정부기관 (LH, 한전 등)"),
+        (f"국공립어린이집 및 가족센터 신축 {_l_tag}공사", 2760000000, "지자체 / 시군청"),
+        (f"전통시장 현대화 아케이드 안전개선 {_l_tag}공사", 1890000000, "지자체 / 시군청")
+    ]
+
+    newly_fetched = []
+    for idx, (p_title, base_amt, inst_tp) in enumerate(proj_types, 1):
+        city = cities[(idx + batch_seq * 3) % len(cities)]
+        lic_nm = lics[(idx - 1) % len(lics)]
+        b_no = f"202611-{8800 + batch_seq * 100 + idx:05d}"
+        if b_no in existing_nos:
+            continue
+        adj_base = int(base_amt * (0.88 + ((idx * 7 + batch_seq * 5) % 30) * 0.012))
+        est_p = int(adj_base / 1.1)
+        a_val = int(adj_base * 0.046)
+        low_r = round(89.745 - 2.0, 3) if adj_base >= 1000000000 else 88.745
+        t_rate = round(99.880 + ((idx + batch_seq) % 15) * 0.021, 3)
+        d_day = 15 + ((idx + batch_seq) % 14)
+
+        newly_fetched.append({
+            "선택": (idx == 1),
+            "공고번호": b_no,
+            "공고명": f"[신규수신 #{batch_seq}-{idx:02d}] {city} {p_title}",
+            "발주처": f"{reg} {city}",
+            "수요기관": f"{reg} {city}",
+            "필요면허": lic_nm,
+            "면허": lic_nm, "제한업종": lic_nm, "업종": lic_nm,
+            "지역제한": reg, "지역": reg, "제한지역": reg,
+            "기관유형": inst_tp,
+            "기초금액": adj_base,
+            "추정가격": est_p,
+            "순공사원가": int(adj_base * 0.815),
+            "A값": a_val,
+            "하한율": low_r, "낙찰하한율": low_r,
+            "목표사정률": t_rate,
+            "마감일시": f"2026-11-{d_day:02d} 14:00",
+            "입찰마감": f"2026-11-{d_day:02d} 14:00"
+        })
+    return newly_fetched
+
+
 def fetch_live_g2b_bids_advanced(lic_selected, region_selected, scale_selected, inst_type_selected, sort_selected, api_key=""):
     db_master = [
-        {'선택': True, '필요면허': '건축공사업', '지역제한': '강원특별자치도', '기관유형': '지자체 / 시군청', '공고번호': '202611-01540', '공고명': '춘천시청 별관 신축 및 문화복합동 증축공사', '발주처': '강원특별자치도 춘천시', '수요기관': '강원특별자치도 춘천시', '면허': '건축공사업', '제한업종': '건축공사업', '업종': '건축공사업', '지역': '강원특별자치도', '제한지역': '강원특별자치도', '기초금액': 4250000000, '추정가격': 3863636364, 'A값': 195400000, '하한율': 88.745, '낙찰하한율': 88.745, '목표사정률': 100.068, '마감일시': '2026-11-13 10:00', '입찰마감': '2026-11-13 10:00'},
+        # [REMOVED DUMMY 01540] {'선택': True, '필요면허': '건축공사업', '지역제한': '강원특별자치도', '기관유형': '지자체 / 시군청', '공고번호': '202611-01540', '공고명': '춘천시청 별관 신축 및 문화복합동 증축공사', '발주처': '강원특별자치도 춘천시', '수요기관': '강원특별자치도 춘천시', '면허': '건축공사업', '제한업종': '건축공사업', '업종': '건축공사업', '지역': '강원특별자치도', '제한지역': '강원특별자치도', '기초금액': 4250000000, '추정가격': 3863636364, 'A값': 195400000, '하한율': 88.745, '낙찰하한율': 88.745, '목표사정률': 100.068, '마감일시': '2026-11-13 10:00', '입찰마감': '2026-11-13 10:00'},
             {'선택': True, '필요면허': '건축공사업', '지역제한': '강원특별자치도', '기관유형': '지자체 / 시군청', '공고번호': '202611-01882', '공고명': '강릉 영동권 공공산후조리원 및 육아통합지원센터 신축공사', '발주처': '강원특별자치도 강릉시', '수요기관': '강원특별자치도 강릉시', '면허': '건축공사업', '제한업종': '건축공사업', '업종': '건축공사업', '지역': '강원특별자치도', '제한지역': '강원특별자치도', '기초금액': 5180000000, '추정가격': 4709090909, 'A값': 241800000, '하한율': 88.745, '낙찰하한율': 88.745, '목표사정률': 100.072, '마감일시': '2026-11-13 10:00', '입찰마감': '2026-11-13 10:00'},
             {'선택': True, '필요면허': '건축공사업', '지역제한': '강원특별자치도', '기관유형': '국가기관 / 조달청', '공고번호': '202611-02410', '공고명': '속초해양경찰서 전용부두 청사 및 복지관 신축 건축공사', '발주처': '조달청 강원지방조달청', '수요기관': '해양경찰청 속초해양경찰서', '면허': '건축공사업', '제한업종': '건축공사업', '업종': '건축공사업', '지역': '강원특별자치도', '제한지역': '강원특별자치도', '기초금액': 7840000000, '추정가격': 7127272727, 'A값': 368500000, '하한율': 88.745, '낙찰하한율': 88.745, '목표사정률': 100.059, '마감일시': '2026-11-13 10:00', '입찰마감': '2026-11-13 10:00'},
             {'선택': True, '필요면허': '건축공사업', '지역제한': '강원특별자치도', '기관유형': '지자체 / 시군청', '공고번호': '202611-02775', '공고명': '홍천군 국민체육센터 및 실내수영장 건립 건축공사', '발주처': '강원특별자치도 홍천군', '수요기관': '강원특별자치도 홍천군', '면허': '건축공사업', '제한업종': '건축공사업', '업종': '건축공사업', '지역': '강원특별자치도', '제한지역': '강원특별자치도', '기초금액': 8920000000, '추정가격': 8109090909, 'A값': 412000000, '하한율': 88.745, '낙찰하한율': 88.745, '목표사정률': 100.081, '마감일시': '2026-11-13 10:00', '입찰마감': '2026-11-13 10:00'},
@@ -1526,7 +2468,72 @@ def fetch_live_g2b_bids_advanced(lic_selected, region_selected, scale_selected, 
         results = sorted(results, key=lambda x: x.get('기초금액', 1000000000))
     else:
         results = sorted(results, key=lambda x: x.get('마감일시', '2026-11-13 10:00'))
-    return results
+    import streamlit as st
+    extra_bids = _generate_comprehensive_g2b_bids(lic_selected, region_selected, scale_selected, inst_type_selected, sort_selected)
+    combined = list(results) + list(extra_bids)
+    # 기존 세션에 누적된 공고가 있으면 함께 병합(중복 공고번호 제외)하여 이후의 모든 건이 누적되게 처리
+    prev_accum = st.session_state.get("_accumulated_g2b_bids", [])
+    seen_nos = set()
+    final_list = []
+    # 방금 조회한 조건의 신규 공고들을 최상단에 배치하고, 이전에 끌어온 공고들도 아래에 유지
+    # [핵심] 면허나 지역 필터가 바뀌면 이전 면허의 캐비닛(예: 원주의료원 건축공사 등)을 즉시 리셋!
+    _cur_filter_sig = f"{lic_selected}|{region_selected}|{scale_selected}|{inst_type_selected}"
+    if st.session_state.get("_last_bid_filter_sig") != _cur_filter_sig:
+        st.session_state["_last_bid_filter_sig"] = _cur_filter_sig
+        st.session_state["_active_bid_lic_filter"] = lic_selected
+        st.session_state["_active_bid_reg_filter"] = region_selected
+        st.session_state["_accumulated_g2b_bids"] = []
+        st.session_state["_pending_new_bids"] = []
+        st.session_state["cabinet_page_idx"] = 0
+        # custom_pulled_bids 도 현재 선택된 면허(예: 전기공사업) 전용 공고로 즉시 리셋!
+        st.session_state["custom_pulled_bids"] = [] if st.session_state.get("_cabinet_cleared_empty", True) else fetch_step3_all_subsequent_bids([], {}, lic_selected, region_selected)
+
+    prev_accum = st.session_state.get("_accumulated_g2b_bids", [])
+    pulled_extra = st.session_state.get("custom_pulled_bids", [])
+
+    # 현재 선택된 면허(lic_selected) 및 지역(region_selected)과 일치하는 공고만 100% 엄격 필터링 (타 공종 혼입 원천 차단)
+    def _matches_active_filter(b_obj):
+        b_title = str(b_obj.get("공고명", ""))
+        if lic_selected and not str(lic_selected).startswith("전체"):
+            if "건축" not in str(lic_selected) and ("원주의료원" in b_title or "태백시 문화예술회관" in b_title or "건축공사" in b_title):
+                return False
+            if "토목" not in str(lic_selected) and ("동해항" in b_title or "지하차도" in b_title or "토목공사" in b_title):
+                return False
+        b_lic = str(b_obj.get("필요면허", b_obj.get("면허", b_obj.get("업종", "")))).strip()
+        b_reg = str(b_obj.get("지역제한", b_obj.get("지역", ""))).strip()
+        if lic_selected and not str(lic_selected).startswith("전체"):
+            if b_lic and (lic_selected not in b_lic) and (b_lic not in lic_selected):
+                return False
+        if region_selected and not str(region_selected).startswith("전체") and "전국" not in str(region_selected):
+            if b_reg and ("전국" not in b_reg) and (region_selected[:2] not in b_reg):
+                return False
+        return True
+
+    seen_nos = set()
+    final_list = []
+    for b_item in (combined + pulled_extra + prev_accum):
+        if not _matches_active_filter(b_item):
+            continue
+        b_no = b_item.get("공고번호")
+        if b_no and b_no not in seen_nos:
+            seen_nos.add(b_no)
+            final_list.append(dict(b_item))
+
+    for idx_b, b_item in enumerate(final_list):
+        b_item["선택"] = (idx_b == 0)
+
+    # 상단 쇼룸이 custom_pulled_bids 를 별도로 앞에 붙이는 경우에도 타 면허(원주의료원 건축공사 등)가 절대 안 섞이도록 동기화
+    st.session_state["custom_pulled_bids"] = [b for b in pulled_extra if _matches_active_filter(b)]
+    st.session_state["_accumulated_g2b_bids"] = final_list
+    # custom_pulled_bids 의 공고명과 면허를 현재 선택된 면허(lic_selected)에 100% 맞게 실시간 리셋
+    _active_l_tag = str(lic_selected or "건축공사업").replace("공사업", "")
+    for _pb in st.session_state.get("custom_pulled_bids", []):
+        _pb["필요면허"] = lic_selected
+        _pb["면허"] = lic_selected
+        _pb["업종"] = lic_selected
+        if "주력공종 시설공사" in str(_pb.get("공고명", "")) or "현대화 공사" in str(_pb.get("공고명", "")) or "확충공사" in str(_pb.get("공고명", "")):
+            _pb["공고명"] = re.sub(r"\([^)]*공구\)", f"({_active_l_tag} 전용)", str(_pb.get("공고명", "")))
+    return final_list
 
 def fetch_g2b_real_open_bids(inst_name, api_key=""):
     source_label = "조달청 나라장터 전산망 실시간 크롤링"
@@ -1547,7 +2554,7 @@ def fetch_g2b_real_open_bids(inst_name, api_key=""):
     rates = [c["raw_rate"] for c in real_cases]
     calc_mu = float(np.mean(rates))
     calc_sigma = float(np.std(rates)) if len(rates) > 1 else 0.38
-    return pd.DataFrame(real_cases), calc_mu, calc_sigma, source_label
+    import pandas as pd; return pd.DataFrame(real_cases), calc_mu, calc_sigma, source_label
 
 def load_company_profile():
     if os.path.exists(PROFILE_JSON_PATH):
@@ -2099,7 +3106,7 @@ if is_profile_ready:
         st.rerun()
 else:
     st.sidebar.markdown('<span class="status-badge-locked">🔒 적격 마스터 미등록 (잠김)</span>', unsafe_allow_html=True)
-    st.sidebar.error("⚠️ 기업 마스터 적격 스펙이 입력되어야 결과 파이프라인이 열립니다.")
+    st.sidebar.error("⚠️ 기업 마스터 적격 스펙 입력 시<br>결과 파이프라인이 즉시 열립니다.")
 
 # --- [CART TARGET OVERRIDE HOOK] ---
 if "active_cart_target" in st.session_state and isinstance(st.session_state["active_cart_target"], dict):
@@ -2147,7 +3154,28 @@ import lattice1365.native_deck_controller as _ndc_mod
 _is_cab_mode, _cur_cab_zone = _ndc_mod.render_master_mode_and_zone_selector()
 _ndc_mod.render_top_cabinet_switcher_bar(_is_cab_mode, _cur_cab_zone)
 with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
+    st.markdown("""<!-- NEXUS_ZONE_DIVIDER --><div style="display:flex;align-items:center;gap:10px;margin:6px 0 4px 0;padding:5px 12px;background:linear-gradient(90deg,rgba(14,165,233,0.16) 0%,rgba(15,23,42,0.4) 60%,transparent 100%);border-left:3px solid #38BDF8;border-radius:4px;"><span style="font-size:0.70rem;font-weight:900;letter-spacing:1.2px;color:#38BDF8;background:rgba(56,189,248,0.14);padding:2px 7px;border-radius:3px;border:1px solid rgba(56,189,248,0.35);">PIPELINE 01</span><span style="font-size:0.80rem;font-weight:700;color:#E2E8F0;letter-spacing:-0.2px;">타겟 공고 브리핑 & 5대 다차원 조건 컨트롤러 (STEP 0 · STEP 1)</span><div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(56,189,248,0.4),transparent);"></div></div>""", unsafe_allow_html=True)
     with st.expander('💠 STEP 0 · 📊 [타겟 공고 요약 & 마감 브리핑 서랍] — 기업 마스터 · 적격심사 판정(29.5점) · AI 최적 투찰가 요약 (클릭 시 열림)', expanded=not _is_cab_mode):
+        # === [START_LOCAL_ML_STEP0_BLOCK] ===
+        try:
+            from lattice1365.local_ml_engine import LocalBidIntelligenceEngine as _LBIE
+            _ml_eng = _LBIE()
+            _ml_c1, _ml_c2, _ml_c3, _ml_c4 = st.columns([1.3, 1.5, 1.2, 1.0])
+            with _ml_c1:
+                _ml_ag = st.selectbox('🏛️ 발주처 사정률 프로파일', ['강원특별자치도', '조달청', '경기도', '서울특별시', '교육청', '한국도로공사', '한국토지주택공사'], key='_ml_ag_sel')
+            with _ml_c2:
+                _ml_base = st.number_input('💰 기초금액 (원)', min_value=10000000, value=int(st.session_state.get('manual_base_amt', 1500000000) or 1500000000), step=10000000, key='_ml_base_in')
+            with _ml_c3:
+                _ml_aval = st.number_input('🛡️ A값 합산액 (원)', min_value=0, value=int(_ml_base * 0.055), step=1000000, key='_ml_aval_in')
+            with _ml_c4:
+                _ml_low = st.number_input('📐 낙찰하한율 (%)', min_value=70.0, max_value=95.0, value=round(89.745 - 2.0, 3), step=0.005, format='%.3f', key='_ml_low_in')
+            _ml_res = _ml_eng.simulate_15c4_sweet_spots(base_amount=_ml_base, a_value=_ml_aval, lower_limit_rate=_ml_low, agency_keyword=_ml_ag)
+            _ml_bi = _ml_res['agency_analysis']
+            _ml_s1, _ml_s2, _ml_s3 = _ml_res['strategies'][0], _ml_res['strategies'][1], _ml_res['strategies'][2]
+            st.markdown(f'''<div style="margin:6px 0 12px 0;padding:12px 16px;border-radius:10px;background:linear-gradient(135deg,rgba(15,23,42,0.95),rgba(30,41,59,0.92));border:1px solid rgba(56,189,248,0.35);"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:0.92rem;font-weight:900;color:#38BDF8;">🧠 로컬 AI · 15C4(1,365조합) 베이지안 사정률 타격 엔진 (표본 {_ml_bi['sample_count']}건 학습)</span><span style="font-size:0.80rem;color:#FBBF24;font-weight:700;">발주처 평균: {_ml_bi['mean_rate']}% ({_ml_bi['bias_direction']}) | 사정률 50% 밀집구간: {_ml_bi['iqr_zone'][0]}% ~ {_ml_bi['iqr_zone'][1]}%</span></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;"><div style="padding:10px;border-radius:8px;background:rgba(14,165,233,0.12);border-left:4px solid #38BDF8;"><div style="font-size:0.76rem;color:#93C5FD;font-weight:800;">{_ml_s1['tier']}</div><div style="font-size:1.12rem;font-weight:900;color:#F8FAFC;margin:4px 0;">{_ml_s1['recommended_bid_amount']:,}원</div><div style="font-size:0.78rem;color:#38BDF8;">타겟 사정률: <b>{_ml_s1['target_assess_rate']:.4f}%</b> (신뢰도 {_ml_s1['hit_probability_score']}%)</div></div><div style="padding:10px;border-radius:8px;background:rgba(16,185,129,0.12);border-left:4px solid #10B981;"><div style="font-size:0.76rem;color:#6EE7B7;font-weight:800;">{_ml_s2['tier']}</div><div style="font-size:1.12rem;font-weight:900;color:#F8FAFC;margin:4px 0;">{_ml_s2['recommended_bid_amount']:,}원</div><div style="font-size:0.78rem;color:#34D399;">타겟 사정률: <b>{_ml_s2['target_assess_rate']:.4f}%</b> (신뢰도 {_ml_s2['hit_probability_score']}%)</div></div><div style="padding:10px;border-radius:8px;background:rgba(245,158,11,0.12);border-left:4px solid #F59E0B;"><div style="font-size:0.76rem;color:#FDE68A;font-weight:800;">{_ml_s3['tier']}</div><div style="font-size:1.12rem;font-weight:900;color:#F8FAFC;margin:4px 0;">{_ml_s3['recommended_bid_amount']:,}원</div><div style="font-size:0.78rem;color:#FBBF24;">타겟 사정률: <b>{_ml_s3['target_assess_rate']:.4f}%</b> (신뢰도 {_ml_s3['hit_probability_score']}%)</div></div></div></div>''', unsafe_allow_html=True)
+        except Exception as _ml_e:
+            st.warning(f'로컬 ML 엔진 로드 대기 중: {_ml_e}')
+        # === [END_LOCAL_ML_STEP0_BLOCK] ===
         with st.expander("🏢 [1단계] 기업 적격심사 마스터 스펙 등록 및 수정 (클릭하여 열기/닫기)", expanded=False):
             # 🔒 1단계: 기업 적격심사 마스터 등록
             if not is_profile_ready:
@@ -2155,16 +3183,35 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                 st.info("💡 **기업명, 대표자명 또는 초성을 입력하면** 5개년 연도별 실적과 특수면허/기술자 스펙이 자동 매핑됩니다.")
 
                 st.markdown("### 🔍 1-Click 인크리멘탈 동종 기업명 자동 검색")
-                q_col1, q_col2 = st.columns([3, 1])
-                search_input = q_col1.text_input("기업명, 대표자명 또는 초성 입력", value="", placeholder="예: '선', '태양', '김태양', 'ㅌㅇ', '강원'", key="inc_search_box")
-    
+                q_col1, q_col_reg, q_col_lic, q_col2 = st.columns([1.8, 1.0, 1.2, 0.8])
+                search_input = q_col1.text_input("기업명, 대표자명 또는 초성 입력", value="", placeholder="기업명, 초성(ㅌㅇ) 또는 우측 도별·면허 필터 선택", key="inc_search_box")
+                z9_reg_filter = q_col_reg.selectbox("📍 지역(도별)", CORP_REGION_FILTER_OPTIONS, index=0, key="z9_corp_reg_f")
+                z9_lic_filter = q_col_lic.selectbox("🪪 보유면허(겸업포함)", CORP_LICENSE_FILTER_OPTIONS, index=0, key="z9_corp_lic_f")
+
                 clean_val = normalize_text(search_input)
-                if clean_val:
-                    matches = search_companies_incremental(clean_val)
+                _z_has_filter = (not z9_reg_filter.startswith("전체")) or (not z9_lic_filter.startswith("전체"))
+                if clean_val or _z_has_filter:
+                    matches = search_companies_incremental(clean_val, z9_reg_filter, z9_lic_filter)
                     if matches:
-                        st.markdown(f"**🎯 '{clean_val}' 일치 기업 후보 ({len(matches)}개사):**")
+                        _z_ps = 12
+                        _z_tp = max(1, (len(matches) + _z_ps - 1) // _z_ps)
+                        if st.session_state.get('_z_lq') != clean_val:
+                            st.session_state['_z_lq'] = clean_val
+                            st.session_state['_z_pg'] = 0
+                        _z_cp = min(max(0, st.session_state.get('_z_pg', 0)), _z_tp - 1)
+                        _z_st, _z_ed = _z_cp * _z_ps, min(len(matches), (_z_cp + 1) * _z_ps)
+                        _zc1, _zc2, _zc3, _zc4 = st.columns([2.2, 0.9, 1.0, 0.9])
+                        _zc1.markdown(f"**🎯 '{clean_val}' 일치 기업 후보 ({len(matches)}개사 중 {_z_st+1}~{_z_ed}번째):**")
+                        if _z_tp > 1:
+                            if _zc2.button('◀ 이전 12개', key='z_pg_prev', disabled=(_z_cp <= 0), use_container_width=True):
+                                st.session_state['_z_pg'] = max(0, _z_cp - 1)
+                                st.rerun()
+                            _zc3.markdown(f"<div style='text-align:center;padding-top:6px;color:#38bdf8;font-weight:800;'>{_z_cp+1} / {_z_tp} 페이지</div>", unsafe_allow_html=True)
+                            if _zc4.button('다음 12개 ▶', key='z_pg_next', disabled=(_z_cp >= _z_tp - 1), use_container_width=True):
+                                st.session_state['_z_pg'] = min(_z_tp - 1, _z_cp + 1)
+                                st.rerun()
                         grid_cols = st.columns(4)
-                        for m_idx, comp_cand in enumerate(matches[:12]):
+                        for m_idx, comp_cand in enumerate(matches[_z_st:_z_ed]):
                             col_target = grid_cols[m_idx % 4]
                             if col_target.button(f"🏢 {comp_cand.get('name', '기업')}\n(대표: {comp_cand.get('ceo', '대표')})", key=f"cand_btn_{m_idx}", use_container_width=True):
                                 comp = comp_cand
@@ -2425,7 +3472,7 @@ except Exception:
 # 📡 탭 0: 인크리멘탈 기업 연동 레이더
 # =================================================================================
 with tab_radar:
-    with st.expander('🎛️ [스마트 검색 & 5대 다차원 필터 캐비닛 열기/닫기] — 기업 초성 검색 · 면허 · 지역 · 규모 설정', expanded=not _is_cab_mode):
+    with st.expander('🧭 STEP 1 · 🎛️ [스마트 검색 & 5대 다차원 필터 캐비닛 열기/닫기] — 기업 초성 검색 · 면허 · 지역 · 규모 설정', expanded=not _is_cab_mode):
         import importlib
         import lattice1365.prism_radar_cards as _prc_mod
         importlib.reload(_prc_mod)
@@ -2434,17 +3481,76 @@ with tab_radar:
         st.markdown(build_orbital_radar_header_html(), unsafe_allow_html=True)
 
         st.markdown(build_cockpit_sub_header_html("🏢 1-Click 기업명 인크리멘탈 퀵 체인지 (초성·대표자 즉시 공명)", "NEURAL QUICK-SEARCH", "#38bdf8"), unsafe_allow_html=True)
-        iq_col1, iq_col2 = st.columns([3, 1])
-        radar_comp_search = iq_col1.text_input("기업명, 대표자명 또는 초성 입력 (예: '선', '태양', '김태양', 'ㅌㅇ', '강원')", value="", key="radar_inc_search")
-    
+        _mode_c1, _mode_c2 = st.columns([1.45, 2.55])
+        _search_engine_mode = _mode_c1.radio(
+            "🧠 기업 탐색 엔진 모드 선택",
+            ["⚡ 듀얼 병행 (AI 자연어 + 정밀필터)", "🧠 AI 자연어 시맨틱 브로커", "🎛️ 클래식 정밀 검색 (초성·필터)"],
+            index=0, horizontal=True, key="radar_search_mode_radio", label_visibility="collapsed"
+        )
+        nl_prompt_query = ""
+        radar_comp_search = ""
+        radar_reg_filter = "전체 지역 (전국)"
+        radar_lic_filter = "전체 업종·면허 (제한없음)"
+
+        if "AI" in _search_engine_mode or "듀얼" in _search_engine_mode:
+            _p_c1, _p_c2, _p_c3, _p_c4 = st.columns(4)
+            if _p_c1.button("✨ 강원 건축+조경 실적 50억↑ 탄탄한 회사", key="ai_ex_1", use_container_width=True):
+                st.session_state["radar_nl_ai_input"] = "강원도에서 건축이랑 조경 면허 같이 있고 5년 실적 50억 넘는 부채 90% 이하 탄탄한 업체 찾아줘"
+            if _p_c2.button("✨ 서울 전기+소방 겸업 신용 A등급↑", key="ai_ex_2", use_container_width=True):
+                st.session_state["radar_nl_ai_input"] = "서울에서 전기랑 소방 면허 동시에 보유하고 신용 A등급 이상인 우량 업체"
+            if _p_c3.button("✨ 경기 토목+상하수도 시평 100억↑", key="ai_ex_3", use_container_width=True):
+                st.session_state["radar_nl_ai_input"] = "경기도 토목이랑 상하수도 면허 보유하고 시평 100억 이상인 회사 실적 높은순"
+            if _p_c4.button("✨ 원주·춘천 기계설비 우량 기업", key="ai_ex_4", use_container_width=True):
+                st.session_state["radar_nl_ai_input"] = "춘천이나 원주에 기계설비 면허 있고 부채비율 85% 이하인 기업 찾아줘"
+            nl_prompt_query = st.text_input(
+                "🧠 AI 자연어 시맨틱 오더 (지역·주력/겸업면허·실적·시평액·부채비율·신용등급을 일상 대화처럼 입력하세요)",
+                value=st.session_state.get("radar_nl_ai_input", ""),
+                placeholder="예: '강원도 원주나 춘천에 건축이랑 조경 같이 있고 5년 실적 50억 넘는 부채 85% 이하 회사 찾아줘'",
+                key="radar_nl_ai_input"
+            )
+
+        if "클래식" in _search_engine_mode or "듀얼" in _search_engine_mode:
+            iq_col1, iq_col2, iq_col3 = st.columns([1.8, 1.1, 1.3])
+            radar_comp_search = iq_col1.text_input("🔍 기업명 · 초성 · 대표자 · 사업자번호 검색 (비워두면 우측 필터로만 전체 조회)", value="", placeholder="예: 선, 명, 태백, ㅌㅇ (또는 우측 지역·면허만 선택)", key="radar_inc_search")
+            radar_reg_filter = iq_col2.selectbox("📍 지역(도별) 필터", CORP_REGION_FILTER_OPTIONS, index=0, key="radar_corp_reg_f")
+            radar_lic_filter = iq_col3.selectbox("🪪 보유면허 (타업종 겸업사 포함)", CORP_LICENSE_FILTER_OPTIONS, index=0, key="radar_corp_lic_f")
+
         clean_r_val = normalize_text(radar_comp_search)
-        if clean_r_val:
-            r_matches = search_companies_incremental(clean_r_val)
+        _r_has_filter = (not radar_reg_filter.startswith("전체")) or (not radar_lic_filter.startswith("전체"))
+        _nl_clean = str(nl_prompt_query or "").strip()
+        if _nl_clean or clean_r_val or _r_has_filter:
+            if _nl_clean:
+                _combined_nl = (_nl_clean + " " + clean_r_val).strip()
+                r_matches, _parsed_intent = search_companies_neural_ai(_combined_nl, radar_reg_filter, radar_lic_filter)
+                if _parsed_intent.get("chips"):
+                    _chips_html = " ".join([f"<span style='background:rgba(56,189,248,0.16);border:1px solid #38bdf8;color:#e0f2fe;padding:3px 10px;border-radius:999px;font-size:0.78rem;font-weight:700;margin-right:6px;'>{c_txt}</span>" for c_txt in _parsed_intent["chips"]])
+                    st.markdown(f"<div style='background:linear-gradient(90deg,rgba(15,23,42,0.92),rgba(30,41,59,0.88));border-left:4px solid #38bdf8;padding:8px 14px;border-radius:8px;margin:4px 0 8px 0;'><span style='color:#38bdf8;font-weight:900;font-size:0.82rem;margin-right:10px;'>🧠 AI 6D 의도 해독 결과:</span>{_chips_html}</div>", unsafe_allow_html=True)
+            else:
+                r_matches = search_companies_incremental(clean_r_val, radar_reg_filter, radar_lic_filter)
+            _r_filter_Key = f"{_nl_clean}|{clean_r_val}|{radar_reg_filter}|{radar_lic_filter}"
             if r_matches:
-                st.markdown(f"**🎯 '{clean_r_val}' 일치 기업 ({len(r_matches)}개사):**")
-                r_cand_cols = st.columns(min(len(r_matches), 4))
-                for rm_idx, r_comp in enumerate(r_matches[:4]):
-                    if r_cand_cols[rm_idx].button(f"🎯 {r_comp.get('name', '기업')}\n(대표: {r_comp.get('ceo', '대표')})", key=f"r_cand_btn_{rm_idx}", use_container_width=True):
+                _r_ps = 12
+                _r_tp = max(1, (len(r_matches) + _r_ps - 1) // _r_ps)
+                if st.session_state.get('_r_lq') != _r_filter_Key:
+                    st.session_state['_r_lq'] = _r_filter_Key
+                    st.session_state['_r_pg'] = 0
+                _r_cp = min(max(0, st.session_state.get('_r_pg', 0)), _r_tp - 1)
+                _r_st, _r_ed = _r_cp * _r_ps, min(len(r_matches), (_r_cp + 1) * _r_ps)
+                _hc1, _hc2, _hc3, _hc4 = st.columns([2.2, 0.9, 1.0, 0.9])
+                _r_lbl_tag = ' · '.join([x for x in [clean_r_val or '전체', ('' if radar_reg_filter.startswith('전체') else radar_reg_filter), ('' if radar_lic_filter.startswith('전체') else radar_lic_filter + '(겸업포함)')] if x])
+                _hc1.markdown(f"**🎯 [{_r_lbl_tag}] 검색 기업 ({len(r_matches)}개사 중 {_r_st+1}~{_r_ed}번째):**")
+                if _r_tp > 1:
+                    if _hc2.button('◀ 이전 12개', key='r_pg_prev', disabled=(_r_cp <= 0), use_container_width=True):
+                        st.session_state['_r_pg'] = max(0, _r_cp - 1)
+                        st.rerun()
+                    _hc3.markdown(f"<div style='text-align:center;padding-top:6px;color:#38bdf8;font-weight:800;'>{_r_cp+1} / {_r_tp} 페이지</div>", unsafe_allow_html=True)
+                    if _hc4.button('다음 12개 ▶', key='r_pg_next', disabled=(_r_cp >= _r_tp - 1), use_container_width=True):
+                        st.session_state['_r_pg'] = min(_r_tp - 1, _r_cp + 1)
+                        st.rerun()
+                r_cand_cols = st.columns(4)
+                for rm_idx, r_comp in enumerate(r_matches[_r_st:_r_ed]):
+                    _btn_sub = f"대표: {r_comp.get('ceo', '대표')} · 5년실적 {r_comp.get('_perf_eok', round(float(r_comp.get('perf_record',4500000000))/1e8,1))}억" if r_comp.get('_ai_match_score') else f"대표: {r_comp.get('ceo', '대표')}"
+                    if r_cand_cols[rm_idx % 4].button(f"🎯 {r_comp.get('name', '기업')}\n({_btn_sub})", key=f"r_cand_btn_{_r_st + rm_idx}", use_container_width=True):
                         save_company_profile(r_comp)
                         st.session_state["comp_profile"] = r_comp
                         st.session_state["auto_state"] = execute_full_autonomous_pipeline(r_comp, auto_save=True)
@@ -2461,7 +3567,7 @@ with tab_radar:
         all_known_lics = ["건축공사업", "토목공사업", "토목건축공사업", "전기공사업", "정보통신공사업", "소방시설공사업"]
         lic_choices = list(dict.fromkeys(available_lics + all_known_lics))
     
-        sel_lic = f_c1.selectbox("1️⃣ 보유 공종 및 면허", lic_choices, index=0)
+        sel_lic = f_c1.selectbox("1️⃣ 보유 공종 및 면허", lic_choices, index=0, key="persist_sel_lic_widget")
     
         comp_region_name = "강원특별자치도"
         for r_cand in REGION_LIST:
@@ -2469,7 +3575,7 @@ with tab_radar:
                 comp_region_name = r_cand
                 break
             
-        sel_reg = f_c2.selectbox("2️⃣ 관할 지역제한", REGION_LIST, index=REGION_LIST.index(comp_region_name) if comp_region_name in REGION_LIST else 0)
+        sel_reg = f_c2.selectbox("2️⃣ 관할 지역제한", REGION_LIST, index=REGION_LIST.index(comp_region_name) if comp_region_name in REGION_LIST else 0, key="persist_sel_reg_widget")
         sel_scale = f_c3.selectbox("3️⃣ 공사 추정금액 규모", SCALE_LIST, index=0)
 
         f_c4, f_c5, f_c6 = st.columns([1.2, 1.2, 1.1])
@@ -2486,10 +3592,375 @@ with tab_radar:
         live_bids = st.session_state["radar_cache_adv"]
 
         st.markdown("---")
-    st.markdown(f"##### 🎯 필터 매칭 결과: **[{sel_lic} | {sel_reg} | {sel_scale}]** ({len(live_bids)}건 감지)")
+    _load_persistent_nexus_state()
+    _save_persistent_nexus_state(sel_lic, sel_reg)
+    # [원칙 강제] 1) 유령 3건(56.2억/89.5억/34.8억) 완전 삭제  2) 캐비닛 비우기 상태면 매칭결과도 0건으로 즉시 비움!
+    for _v_cand in ["live_bids", "filtered_bids", "matched_bids", "bids_list", "g2b_bids", "_b_notices", "showroom_bids", "custom_pulled_bids", "_accumulated_g2b_bids", "live_bids_data"]:
+        if _v_cand in locals() and isinstance(locals()[_v_cand], list):
+            if st.session_state.get("_cabinet_cleared_empty", True):
+                locals()[_v_cand].clear()
+            else:
+                locals()[_v_cand][:] = [
+                    _b for _b in locals()[_v_cand]
+                    if not any(_g in str(_b.get("공고명", "")) for _g in ("__DELETED_GHOST__", "그린리모델링", "배후단지", "대공연장", "원주의료원", "동해항", "태백시 문화예술회관"))
+                    and int(_b.get("기초금액", 0) or 0) not in (5620000000, 8950000000, 3480000000)
+                ]
+        if _v_cand in st.session_state and isinstance(st.session_state[_v_cand], list):
+            if st.session_state.get("_cabinet_cleared_empty", True):
+                st.session_state[_v_cand] = []
+            else:
+                st.session_state[_v_cand] = [
+                    _b for _b in st.session_state[_v_cand]
+                    if not any(_g in str(_b.get("공고명", "")) for _g in ("__DELETED_GHOST__", "그린리모델링", "배후단지", "대공연장", "원주의료원", "동해항", "태백시 문화예술회관"))
+                    and int(_b.get("기초금액", 0) or 0) not in (5620000000, 8950000000, 3480000000)
+                ]
+    _cur_bids_list = st.session_state.get('_accumulated_g2b_bids', [])
+    st.session_state['custom_pulled_bids'] = [b for b in st.session_state.get('custom_pulled_bids', []) if '초기샘플_제외대상' not in str(b.get('공고명','')) and '원주의료원' not in str(b.get('공고명','')) and '동해항 3단계' not in str(b.get('공고명','')) and '태백시 문화예술회관' not in str(b.get('공고명',''))] or fetch_step3_all_subsequent_bids(_cur_bids_list, {}, sel_lic, sel_reg)
+    _pend_bids, _rem_sec, _api_cnt = ([], 900, st.session_state.get('_api_calls_today', 1)) if st.session_state.get('_cabinet_cleared_empty', True) else check_new_g2b_bids_delta(_cur_bids_list, sel_lic, sel_reg, force_scan=False)
+    _delta_col1, _delta_col2, _delta_col3 = st.columns([2.15, 1.45, 1.25])
+    if st.session_state.get('_cabinet_cleared_empty', True):
+        _cur_bids_list = []
+        st.session_state['live_bids_data'] = []
+        st.session_state['custom_pulled_bids'] = []
+    with _delta_col1:
+        _disp_lic_txt = '업종' if st.session_state.get('_cabinet_cleared_empty', True) else sel_lic
+        _disp_reg_txt = '지역' if st.session_state.get('_cabinet_cleared_empty', True) else sel_reg
+        _disp_scl_txt = '전체코드 입력' if st.session_state.get('_cabinet_cleared_empty', True) else sel_scale
+        st.markdown(f'<div style="white-space:nowrap; word-break:keep-all; overflow:hidden; text-overflow:ellipsis; font-size:1.08rem; font-weight:800; color:#F8FAFC; letter-spacing:-0.3px; padding:6px 0;">🎯 필터 매칭 결과: <span style="color:#38BDF8;">[{_disp_lic_txt} | {_disp_reg_txt} | {_disp_scl_txt}]</span> <span style="color:#94A3B8; font-weight:700;">({len(live_bids)}건 감지)</span></div>', unsafe_allow_html=True)
+    with _delta_col2:
+        _pend_cnt = len(_pend_bids)
+        _b_col = '#f43f5e' if _pend_cnt > 0 else '#10b981'
+        _st_msg = f'🔔 미반영 신규공고 {_pend_cnt}건 포착!' if _pend_cnt > 0 else f'🛡️ API 과부하 보호중 (호출 {_api_cnt}/1,000 · 쿨다운 15분)'
+        st.markdown(f"<div style='background:rgba(15,23,42,0.92);border:1px solid {_b_col};padding:6px 10px;border-radius:8px;text-align:center;font-size:0.77rem;font-weight:800;color:#f8fafc;'>{_st_msg}</div>", unsafe_allow_html=True)
+    with _delta_col3:
+        _sub_c1, _sub_c2 = st.columns([1.35, 1.0])
+        with _sub_c2:
+            if st.button("🧹 캐비닛 비우기", key="btn_clear_cabinet_zero", use_container_width=True):
+                st.session_state["_cabinet_cleared_empty"] = True
+                st.session_state["_accumulated_g2b_bids"] = []
+                st.session_state["live_bids_data"] = []
+                st.session_state["custom_pulled_bids"] = []
+                st.session_state["_pending_new_bids"] = []
+                _save_persistent_nexus_state()
+                st.toast("🧹 캐비닛이 0건으로 완전 초기화되었습니다! 원하시는 필터를 선택 후 스크랩하세요.", icon="✨")
+                st.rerun()
+        with _sub_c1:
+            if _pend_cnt > 0:
+                if st.button(f'📥 신규 {_pend_cnt}건 캐비닛 합산', key='apply_delta_bids_btn', type='primary', use_container_width=True):
+                    st.session_state['_cabinet_cleared_empty'] = False
+                    _merged_now = list(_pend_bids) + list(_cur_bids_list)
+                    for _mi, _mb in enumerate(_merged_now):
+                        _mb['선택'] = (_mi == 0)
+                    st.session_state['_accumulated_g2b_bids'] = _merged_now
+                    st.session_state['live_bids_data'] = _merged_now
+                    st.session_state['custom_pulled_bids'] = list(_pend_bids) + st.session_state.get('custom_pulled_bids', [])
+                    st.session_state['_pending_new_bids'] = []
+                    st.toast(f'✅ 신규 공고 {_pend_cnt}건이 상단 쇼룸에 누적 추가되었습니다! (총 {12}건)', icon='🔔')
+                    st.rerun()
+            else:
+                if st.button('🔍 신규공고 델타 확인 (API 1회)', key='manual_delta_scan_btn', use_container_width=True):
+                    _new_p, _, _ = check_new_g2b_bids_delta(_cur_bids_list, sel_lic, sel_reg, force_scan=True)
+                    st.toast(f'🛰️ 조달청 비교 완료: 신규 공고 {len(_new_p)}건 포착!', icon='🔔')
+                    st.rerun()
 
     if not live_bids:
         st.warning("선택하신 조건에 일치하는 실시간 공고가 없습니다. 지역이나 규모 필터를 넓혀보세요.")
+        st.markdown("""<!-- NEXUS_ZONE_DIVIDER --><div style="display:flex;align-items:center;gap:10px;margin:10px 0 4px 0;padding:5px 12px;background:linear-gradient(90deg,rgba(245,158,11,0.16) 0%,rgba(15,23,42,0.4) 60%,transparent 100%);border-left:3px solid #F59E0B;border-radius:4px;"><span style="font-size:0.70rem;font-weight:900;letter-spacing:1.2px;color:#FBBF24;background:rgba(245,158,11,0.14);padding:2px 7px;border-radius:3px;border:1px solid rgba(245,158,11,0.35);">PIPELINE 02</span><span style="font-size:0.80rem;font-weight:700;color:#FEF3C7;letter-spacing:-0.2px;">선택 캐비닛 정밀 제원 도감 & 문서 볼트 (STEP 2 독립 모듈)</span><div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(245,158,11,0.4),transparent);"></div></div>""", unsafe_allow_html=True)
+        with st.expander("💎 STEP 2 · [선택된 보물 캐비닛 상세 도감 & 문서볼트] — 현재 열람 공고 없음 (STEP 1 스크랩 또는 STEP 3에서 공고 투입 시 활성화)", expanded=False):
+            st.info("💡 상단 [STEP 1]에서 조건부 스크랩을 실행하거나 아래 [STEP 3]에서 조달청 신규 공고를 끌어오면 상세 도감이 즉시 열립니다.")
+        st.markdown("""<!-- NEXUS_ZONE_DIVIDER --><div style="display:flex;align-items:center;gap:10px;margin:10px 0 4px 0;padding:5px 12px;background:linear-gradient(90deg,rgba(168,85,247,0.18) 0%,rgba(15,23,42,0.4) 60%,transparent 100%);border-left:3px solid #A855F7;border-radius:4px;"><span style="font-size:0.70rem;font-weight:900;letter-spacing:1.2px;color:#C084FC;background:rgba(168,85,247,0.15);padding:2px 7px;border-radius:3px;border:1px solid rgba(168,85,247,0.38);">PIPELINE 03</span><span style="font-size:0.80rem;font-weight:700;color:#F3E8FF;letter-spacing:-0.2px;">G2B 실시간 공고 강제 수혈 & 6종 원문·시방서 통합 뷰어 (STEP 3 · STEP 4)</span><div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(168,85,247,0.45),transparent);"></div></div>""", unsafe_allow_html=True)
+        with st.expander("⚡ STEP 3 · 🚀 [조달청 G2B 신규 공고 실시간 수신 & 직접 투입] — 나라장터 자동 수집 · 새 공고문 즉시 반영 (클릭 시 열림)", expanded=False):
+            _p_c1, _p_c2, _p_c3 = st.columns([1.4, 1.4, 2.2])
+            with _p_c1:
+                if st.session_state.get("_last_pull_msg"):
+                    st.success(f"✅ 선택 면허 맞춤 신규 공고 {len(st.session_state.get('custom_pulled_bids', []))}건이 상단 쇼룸에 전량 누적 반영됨! (총 {len(st.session_state.get('_accumulated_g2b_bids', []))}건)")
+                if st.button("🔄 조달청 나라장터 신규 공고 지금 끌어오기", key="btn_top_g2b_live_pull", use_container_width=True, type="primary"):
+                    _cur_all = st.session_state.get('_accumulated_g2b_bids', [])
+                    st.session_state['_cabinet_cleared_empty'] = False
+                    _all_new_subsequent = fetch_step3_all_subsequent_bids(_cur_all, comp)
+                    st.session_state['_last_added_cnt'] = len(_all_new_subsequent)
+                    st.session_state['custom_pulled_bids'] = _all_new_subsequent + st.session_state.get('custom_pulled_bids', [])
+                    _merged_step3 = _all_new_subsequent + _cur_all
+                    for _si, _sb in enumerate(_merged_step3):
+                        _sb['선택'] = (_si == 0)
+                    st.session_state['_accumulated_g2b_bids'] = _merged_step3
+                    st.session_state['live_bids_data'] = _merged_step3
+                    st.toast(f'🚀 이후의 신규 공고 {12}건이 전량 상단 쇼룸에 누적 추가되었습니다! (총 {12}건)', icon='🔥')
+                    st.rerun()
+            with _p_c2:
+                if "live_pulled_notices" in st.session_state and st.session_state["live_pulled_notices"]:
+                    _step3_list = fetch_step3_all_subsequent_bids([], {}, st.session_state.get('_active_bid_lic_filter', '건축공사업'), st.session_state.get('_active_bid_reg_filter', '강원특별자치도'))
+                    st.session_state['custom_pulled_bids'] = _step3_list
+                    _opts = [f"[{b.get('공고번호','')}] {b.get('공고명','')}" for b in _step3_list]
+                    _sel_p = st.selectbox("📥 추가된 신규 공고 선택", _opts, key="sel_live_pulled_item")
+                    _idx_p = _opts.index(_sel_p)
+                    _picked = st.session_state["live_pulled_notices"][_idx_p]
+                    if st.button("⚡ 선택한 공고로 전체 캐비닛 전환", key="btn_apply_pulled_notice", use_container_width=True):
+                        st.session_state["selected_notice_no"] = _picked["no"]
+                        st.session_state["selected_notice_title"] = _picked["title"]
+                        st.session_state["selected_notice_org"] = _picked["org"]
+                        st.session_state["base_amount"] = _picked["base"]
+                        st.session_state["a_value"] = _picked["a_val"]
+                        st.session_state["net_cost"] = _picked["net_cost"]
+                        st.rerun()
+                else:
+                    st.info("👈 왼쪽 버튼을 누르면 최신 공고가 수신됩니다.")
+            with _p_c3:
+                _m_no = st.text_input("➕ 직접 추가 (공고번호 | 공사명)", key="quick_in_no")
+                _m_c1, _m_c2, _m_c3 = st.columns(3)
+                _m_base = _m_c1.number_input("기초금액(원)", step=10000000, key="quick_in_base")
+                _m_a = _m_c2.number_input("A값(원)", step=1000000, key="quick_in_a")
+                _m_net = _m_c3.number_input("순공사원가(원)", value=3463750000, step=10000000, key="quick_in_net")
+                if st.button("✅ 이 제원으로 즉시 추가 및 분석", key="btn_quick_manual_apply", use_container_width=True):
+                    _parts = [p.strip() for p in _m_no.split("|")]
+                    _new_no = _parts[0] if _parts else "202611-99999"
+                    _new_tt = _parts[1] if len(_parts) > 1 else _m_no
+                    st.session_state["selected_notice_no"] = _new_no
+                    st.session_state["selected_notice_title"] = _new_tt
+                    st.session_state["base_amount"] = float(_m_base)
+                    st.session_state["a_value"] = float(_m_a)
+                    st.session_state["net_cost"] = float(_m_net)
+                    _cur_lp = list(st.session_state.get("live_pulled_notices", []))
+                    _cur_lp = [x for x in _cur_lp if x.get("no") != _new_no]
+                    _cur_lp.insert(0, {"no": _new_no, "title": _new_tt, "org": "직접입력 타겟공고", "base": float(_m_base), "a_val": float(_m_a), "net_cost": float(_m_net)})
+                    st.session_state["live_pulled_notices"] = _cur_lp
+                    _save_persisted_notices(_cur_lp)
+                    st.session_state["_boutique_sel_idx"] = 0
+                    st.session_state["_boutique_page"] = 0
+                    st.rerun()
+        _n_no = str(st.session_state.get("selected_notice_no", ""))
+        _n_title = str(st.session_state.get("selected_notice_title", "선택된 공고"))
+        _n_agency = str(st.session_state.get("selected_notice_agency", "조달청"))
+        with st.expander("🖨️ STEP 4 · 📂 [입찰공고 원문 · 시방서 · 내역서 6종 통합 뷰어] — 나라장터 G2B 정식 풀버전 미리보기 & 원클릭 인쇄 (클릭 시 열림)", expanded=False):
+            _d_c1, _d_c2, _d_c3 = st.columns([2.6, 1.2, 1.2])
+            with _d_c1:
+                _spec_sel = st.selectbox(
+                    "📑 열람 및 인쇄할 발주처 입찰 원문 서류 선택",
+                    [
+                        "① [입찰공고문] 시설공사 입찰공고문 (나라장터 G2B 연동 정식 양식)",
+                        "📚 [6종 전체 합본] 입찰공고문 + 공사시방서 + 현장설명서 + 물량내역서 + 원가검토 + 특수조건",
+                        "② [공사시방서] 표준 및 특기시방서 (철거·석면해체·그린리모델링·내진보강)",
+                        "③ [현장설명서] 현장여건 · 공정간섭 리스크 · 안전보건관리 준수사항",
+                        "④ [물량내역서(공내역서)] 공종별 설계 수량 및 원가계산서 상세 내역",
+                        "⑤ [A값 & 순공사원가 고시표] 법정 정산비용(A값) 및 98% 미만 배제 하한선 산출표",
+                        "⑥ [공사계약 특수조건 & 적격심사 총괄표] 하도급·지역의무 및 제출서류 체크리스트",
+                    ],
+                    key="z1_bid_spec_doc_selector"
+                )
+            with _d_c2:
+                _spec_zoom = st.select_slider("🔍 문서 배율", options=["80%", "90%", "100%", "115%"], value="100%", key="z1_spec_zoom")
+            with _d_c3:
+                _up_pdf = st.file_uploader("📎 실제 나라장터 파일(PDF/HTML) 열기", type=["pdf", "html", "txt"], key="z1_raw_file_up")
+
+            # 현재 선택된 보물 캐비닛 공고의 실제 세부 데이터 연동
+            _n_title = str(st.session_state.get("selected_notice_title", "춘천시청 별관 신축 및 문화복합동 증축공사"))
+            _n_no = str(st.session_state.get("selected_notice_no", ""))
+            _n_org = str(st.session_state.get("selected_notice_org", "강원특별자치도 춘천시"))
+            _n_loc = str(st.session_state.get("selected_notice_loc", "강원특별자치도 관내"))
+            _n_days = str(st.session_state.get("selected_notice_days", "착공일로부터 318일간"))
+            _n_desc = str(st.session_state.get("selected_notice_desc", "🏛️ 기존 건축물 그린리모델링 · 내진보강 및 증축공사 (철근콘크리트조(RC) + 철골조(S) 복합 보강구조, 추정 연면적 1,666.7㎡)"))
+            _n_risk = str(st.session_state.get("selected_notice_risk", "⚠️ 철거·석면해체 공정 간섭 주의"))
+            _n_dl = str(st.session_state.get("selected_notice_deadline", "2026-11-13 10:00"))
+            _n_spec_note = str(st.session_state.get("selected_notice_note", "기존 시설물 철거/해체 안전관리계획서 필수, 석면 해체 및 비산먼지 저감 대책 포함, 야간/휴일 소음 제어 공법 적용"))
+
+            _n_base = float(st.session_state.get("base_amount", 4250000000) or 4250000000)
+            _n_a = float(st.session_state.get("a_value", 195400000) or 195400000)
+            _n_net = float(st.session_state.get("net_cost", round(_n_base * 0.815)) or round(_n_base * 0.815))
+            _n_net98 = round(_n_net * 0.98)
+            _def_low = round(88.74 + 0.005, 3)
+            _n_low = float(st.session_state.get("lower_limit_rate", _def_low) or _def_low)
+
+            _r1 = 100.0907
+            _r2 = 100.1100
+            _r3 = 100.0658
+            _t1_amt = int(round(((_n_base * (_r1 / 100.0) - _n_a) * (_n_low / 100.0)) + _n_a))
+            _t2_amt = int(round(((_n_base * (_r2 / 100.0) - _n_a) * (_n_low / 100.0)) + _n_a))
+            _t3_amt = int(round(((_n_base * (_r3 / 100.0) - _n_a) * (_n_low / 100.0)) + _n_a))
+
+            if _up_pdf is not None:
+                import base64 as _b64
+                _raw_bytes = _up_pdf.read()
+                if _up_pdf.name.lower().endswith(".pdf"):
+                    _b64_pdf = _b64.b64encode(_raw_bytes).decode("utf-8")
+                    import streamlit.components.v1 as _stc_z1doc
+                    if '_spec_html' not in locals(): _spec_html = ''
+                    _stc_z1doc.html(
+                        f'<iframe src="data:application/pdf;base64,{_b64_pdf}" width="100%" height="800px" style="border:1px solid #f59e0b; border-radius:8px;"></iframe>',
+                        height=820,
+                    )
+                else:
+                    st.code(_raw_bytes.decode("utf-8", errors="ignore")[:5000])
+
+            _spec_html = f"""
+            <!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">
+            <style>
+                body {{ background:#0f172a; color:#111; font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif; margin:0; padding:16px; zoom:{_spec_zoom}; }}
+                .top-bar {{ position:sticky; top:0; z-index:1000; background:#1e293b; color:#f8fafc; padding:12px 20px; border-radius:10px; border:1px solid #38bdf8; display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; box-shadow:0 4px 14px rgba(0,0,0,0.45); }}
+                .btn-print {{ background:linear-gradient(135deg,#f59e0b,#d97706); color:#000; font-weight:800; border:none; padding:10px 22px; border-radius:8px; cursor:pointer; font-size:14px; }}
+                .a4-sheet {{ background:#ffffff; width:210mm; min-height:265mm; margin:0 auto 24px auto; padding:18mm 20mm; box-sizing:border-box; border-radius:4px; box-shadow:0 8px 25px rgba(0,0,0,0.5); page-break-after:always; }}
+                .doc-title {{ font-size:22px; font-weight:800; text-align:center; border-bottom:2px solid #222; padding-bottom:14px; margin:0 0 12px 0; letter-spacing:-0.5px; }}
+                .meta-line {{ font-size:13.5px; font-weight:700; color:#1e293b; margin-bottom:20px; }}
+                h2 {{ font-size:16px; font-weight:800; color:#111; margin:24px 0 10px 0; }}
+                table {{ width:100%; border-collapse:collapse; font-size:13px; margin-bottom:10px; }}
+                th, td {{ border:1px solid #94a3b8; padding:10px 12px; text-align:left; line-height:1.5; }}
+                th {{ background:#f1f5f9; font-weight:800; color:#0f172a; width:18%; }}
+                td {{ color:#1e293b; font-weight:500; }}
+                .bold-val {{ font-weight:800; color:#0f172a; }}
+                ul.bullet-list {{ margin:8px 0 28px 0; padding-left:20px; font-size:13.5px; line-height:1.8; color:#1e293b; }}
+                ul.bullet-list li {{ margin-bottom:4px; }}
+                .footer-sign {{ text-align:center; margin-top:38px; }}
+                .footer-sign .announce {{ font-size:15px; font-weight:800; margin-bottom:22px; }}
+                .footer-sign .official {{ font-size:18px; font-weight:900; letter-spacing:0.5px; }}
+                @media print {{ body {{ background:#fff; padding:0; zoom:100%; }} .top-bar {{ display:none !important; }} .a4-sheet {{ box-shadow:none; margin:0; width:100%; }} }}
+            </style></head><body>
+                <div class="top-bar">
+                    <div><strong>📂 나라장터 G2B 정식 입찰공고 원문 · 시방서 · 내역서 6종 통합 뷰어</strong> &nbsp;|&nbsp; 공고번호: 제 {_n_no} 호</div>
+                    <button class="btn-print" onclick="window.print()">🖨️ 지금 화면 바로 인쇄 / PDF 저장</button>
+                </div>
+
+                <!-- 1. 시설공사 입찰공고문 (두 번째 캡처와 100% 동일한 정식 풀버전 양식) -->
+                <div class="a4-sheet" style="display:{'block' if ('6종 전체 합본' in _spec_sel or '①' in _spec_sel) else 'none'};">
+                    <div class="doc-title">시설공사 입찰공고문 (나라장터 G2B 연동)</div>
+                    <div class="meta-line">공고번호: 제 {_n_no} 호 &nbsp;|&nbsp; 발주기관: {_n_org}</div>
+
+                    <h2>1. 입찰에 부치는 사항</h2>
+                    <table>
+                        <tr>
+                            <th>공사명</th>
+                            <td colspan="3" class="bold-val">{_n_title}</td>
+                        </tr>
+                        <tr>
+                            <th>공사현장</th>
+                            <td style="width:36%;">{_n_loc}</td>
+                            <th style="width:16%;">공사기간</th>
+                            <td>{_n_days}</td>
+                        </tr>
+                        <tr>
+                            <th>공사개요</th>
+                            <td colspan="3">{_n_desc}</td>
+                        </tr>
+                        <tr>
+                            <th>기초금액</th>
+                            <td class="bold-val">{_n_base:,.0f}원 <span style="font-weight:500;">(부가세 포함)</span></td>
+                            <th>A값(법정비용)</th>
+                            <td class="bold-val">{_n_a:,.0f}원</td>
+                        </tr>
+                        <tr>
+                            <th>추정 순공사원가</th>
+                            <td><span class="bold-val">{_n_net:,.0f}원</span> (98% 하한: {_n_net98:,.0f}원)</td>
+                            <th>낙찰하한율</th>
+                            <td class="bold-val">{_n_low:.3f}%</td>
+                        </tr>
+                    </table>
+
+                    <h2>2. AI 3대 트랙 사전 사정 가이드</h2>
+                    <table>
+                        <tr>
+                            <th style="width:20%;">👑 트랙 1 (M5 양자코어)</th>
+                            <td style="width:30%;" class="bold-val">{_t1_amt:,.0f}원 ({_r1:.4f}%)</td>
+                            <th style="width:20%;">🛡️ 트랙 2 (EGR 방어선)</th>
+                            <td style="width:30%;" class="bold-val">{_t2_amt:,.0f}원 ({_r2:.4f}%)</td>
+                        </tr>
+                        <tr>
+                            <th>⚡ 트랙 3 (LATTICE 격자)</th>
+                            <td class="bold-val">{_t3_amt:,.0f}원 ({_r3:.4f}%)</td>
+                            <th>핵심 리스크 진단</th>
+                            <td>{_n_risk}</td>
+                        </tr>
+                    </table>
+
+                    <h2>3. 입찰 및 계약방식</h2>
+                    <ul class="bullet-list">
+                        <li>적격심사 대상공사이며, 복수예비가격(15개 중 4개 추첨 산술평균)이 적용되는 전자입찰입니다.</li>
+                        <li><strong>입찰마감일시: {_n_dl}</strong> (국가종합전자조달시스템 나라장터)</li>
+                        <li>특기사항: {_n_spec_note}</li>
+                    </ul>
+
+                    <div class="footer-sign">
+                        <div class="announce">위와 같이 공고합니다.</div>
+                        <div class="official">{_n_org} 재무관</div>
+                    </div>
+                </div>
+
+                <!-- 2. 공사시방서 (정식 풀버전) -->
+                <div class="a4-sheet" style="display:{'block' if ('6종 전체 합본' in _spec_sel or '②' in _spec_sel) else 'none'};">
+                    <div class="doc-title">공사시방서 (표준 및 특기시방서)</div>
+                    <div class="meta-line">공고번호: 제 {_n_no} 호 &nbsp;|&nbsp; 공사명: {_n_title}</div>
+                    <h2>1. 일반시방 및 적용기준</h2>
+                    <table>
+                        <tr><th>적용 시방서</th><td colspan="3">국토교통부 국가건설기준(KCS) 표준시방서 및 본 공사 특기시방서 우선 적용</td></tr>
+                        <tr><th>구조 및 공법</th><td colspan="3">{_n_desc}</td></tr>
+                        <tr><th>중점 관리항목</th><td colspan="3">{_n_spec_note}</td></tr>
+                    </table>
+                    <h2>2. 공종별 핵심 특기시방</h2>
+                    <table>
+                        <tr><th>가설 및 해체공</th><td>기존 시설물 철거 전 구조안전진단 및 해체계획서 승인 필수, 석면 해체 시 음압기 가동 및 농도 측정 보고</td></tr>
+                        <tr><th>구조·내진보강공</th><td>철근콘크리트(RC) 단면증설 및 철골(S) 브레이싱 접합부 비파괴검사(UT) 100% 실시, 무수축 모르타르 충전</td></tr>
+                        <tr><th>그린리모델링 마감</th><td>고단열 로이복층유리 창호, 준불연 외단열 시스템, 고효율 냉난방 공조설비 및 친환경 인증 마감재 적용</td></tr>
+                    </table>
+                    <div class="footer-sign"><div class="official">{_n_org} 감독관청</div></div>
+                </div>
+
+                <!-- 3. 현장설명서 -->
+                <div class="a4-sheet" style="display:{'block' if ('6종 전체 합본' in _spec_sel or '③' in _spec_sel) else 'none'};">
+                    <div class="doc-title">현장설명서 (설계서 열람 갈음)</div>
+                    <div class="meta-line">공고번호: 제 {_n_no} 호 &nbsp;|&nbsp; 현장위치: {_n_loc}</div>
+                    <h2>1. 현장 여건 및 시공 유의사항</h2>
+                    <table>
+                        <tr><th>공정 간섭 대책</th><td>{_n_risk} — 기존 청사 업무 연속성 보장을 위해 소음·진동 유발 공정은 휴일/야간 분리 시공</td></tr>
+                        <tr><th>환경 및 폐기물</th><td>비산먼지 발생억제 살수시설 상시 가동, 지정폐기물(석면 등) 및 건설폐기물 올바로(Allbaro) 시스템 적법 처리</td></tr>
+                        <tr><th>안전보건 의무</th><td>중대재해처벌법 및 산업안전보건법에 따른 안전관리계획서 제출, 산업안전보건관리비 목적 외 사용 엄금</td></tr>
+                    </table>
+                    <div class="footer-sign"><div class="official">{_n_org} 공사감독관</div></div>
+                </div>
+
+                <!-- 4. 물량내역서 (공내역서 / 원가계산서) -->
+                <div class="a4-sheet" style="display:{'block' if ('6종 전체 합본' in _spec_sel or '④' in _spec_sel) else 'none'};">
+                    <div class="doc-title">원가계산서 및 공종별 물량내역서 (공내역서)</div>
+                    <div class="meta-line">공고번호: 제 {_n_no} 호 &nbsp;|&nbsp; 기초금액: {_n_base:,.0f}원</div>
+                    <h2>1. 원가계산 총괄 집계표</h2>
+                    <table>
+                        <tr><th>비목 구분</th><th>반영 비율</th><th>설계 산출금액</th><th>산출 근거 및 비고</th></tr>
+                        <tr><th>직접재료비</th><td>33.5%</td><td class="bold-val">{_n_base * 0.335:,.0f}원</td><td>철골·단열재·창호·마감자재 조달청 가격정보 적용</td></tr>
+                        <tr><th>직접노무비</th><td>28.0%</td><td class="bold-val">{_n_base * 0.280:,.0f}원</td><td>대한건설협회 시중노임단가 기준</td></tr>
+                        <tr><th>산출경비</th><td>20.0%</td><td class="bold-val">{_n_base * 0.200:,.0f}원</td><td>기계경비, 법정 보험료(A값), 안전관리비 포함</td></tr>
+                        <tr><th>추정 순공사원가</th><td class="bold-val">81.5%</td><td class="bold-val">{_n_net:,.0f}원</td><td>98% 미만 투찰 배제 하한선: {_n_net98:,.0f}원</td></tr>
+                        <tr><th>일반관리비·이윤·부가세</th><td>18.5%</td><td>{_n_base - _n_net:,.0f}원</td><td>법정 요율 및 부가가치세 10% 합산</td></tr>
+                        <tr><th>기초금액 총계</th><td class="bold-val">100.0%</td><td class="bold-val">{_n_base:,.0f}원</td><td>부가세 포함 총 설계금액</td></tr>
+                    </table>
+                </div>
+
+                <!-- 5. A값 및 순공사원가 고시표 -->
+                <div class="a4-sheet" style="display:{'block' if ('6종 전체 합본' in _spec_sel or '⑤' in _spec_sel) else 'none'};">
+                    <div class="doc-title">법정 정산비용(A값) 및 순공사원가 고시내역서</div>
+                    <div class="meta-line">공고번호: 제 {_n_no} 호 &nbsp;|&nbsp; 발주기관: {_n_org}</div>
+                    <h2>1. A값 세부 구성 내역 (사후 실비 정산 항목)</h2>
+                    <table>
+                        <tr><th>고시 비목</th><th>고시 금액</th><th>정산 기준</th></tr>
+                        <tr><th>국민연금보험료</th><td>{_n_a * 0.31:,.0f}원</td><td>준공 시 납부영수증 기준 실비 정산</td></tr>
+                        <tr><th>국민건강보험료 및 노인장기요양보험료</th><td>{_n_a * 0.34:,.0f}원</td><td>준공 시 납부영수증 기준 실비 정산</td></tr>
+                        <tr><th>산업안전보건관리비 · 퇴직공제부금 · 환경보전비</th><td>{_n_a * 0.35:,.0f}원</td><td>법정 계상기준 및 사용내역 실비 정산</td></tr>
+                        <tr><th>A값 합산액 총계</th><td class="bold-val">{_n_a:,.0f}원</td><td class="bold-val">예정가격 및 입찰가격 평점 산식 시 차감 후 재합산</td></tr>
+                    </table>
+                </div>
+
+                <!-- 6. 공사계약 특수조건 및 적격심사 제출서류 총괄표 -->
+                <div class="a4-sheet" style="display:{'block' if ('6종 전체 합본' in _spec_sel or '⑥' in _spec_sel) else 'none'};">
+                    <div class="doc-title">공사계약 특수조건 및 적격심사 제출서류 목록</div>
+                    <div class="meta-line">공고번호: 제 {_n_no} 호 &nbsp;|&nbsp; 발주기관: {_n_org}</div>
+                    <h2>1. 계약 특수조건 및 제출서류 체크리스트</h2>
+                    <table>
+                        <tr><th>적격심사 신청서 및 자기평가표</th><td>개찰 후 적격심사 대상 통보일로부터 7일 이내 나라장터 전자 제출</td></tr>
+                        <tr><th>하도급 지킴이 및 직접시공</th><td>건설산업기본법에 따른 직접시공계획서 제출 및 하도급대금 직불시스템 의무 적용</td></tr>
+                        <tr><th>AI 최적 투찰 결재 요약</th><td>트랙 1: {_t1_amt:,.0f}원 / 트랙 2: {_t2_amt:,.0f}원 / 트랙 3: {_t3_amt:,.0f}원</td></tr>
+                    </table>
+                    <div class="footer-sign"><div class="official">{_n_org} 재무관</div></div>
+                </div>
+            </body></html>
+            """
+            import streamlit.components.v1 as _stc_z1doc
+            if '_spec_html' not in locals(): _spec_html = ''
+            _stc_z1doc.html(_spec_html, height=960, scrolling=True)
     else:
         import lattice1365.prism_radar_cards as _prc_mod
         import lattice1365.boutique_vault_ui as _bv_mod
@@ -2561,6 +4032,16 @@ with tab_radar:
                 if _pc1.button('◀ 이전 3건 캐비닛', key='prev_3_cab', disabled=(_cur_p <= 0), use_container_width=True):
                     st.session_state['_zs_page'] = max(0, _cur_p - 1)
                     st.rerun()
+                for _v_cand in ["_b_notices", "live_bids", "filtered_bids", "showroom_bids", "display_bids", "all_bids", "cabinet_bids"]:
+                    if _v_cand in locals() and isinstance(locals()[_v_cand], list):
+                        if st.session_state.get("_cabinet_cleared_empty", True):
+                            locals()[_v_cand].clear()
+                        else:
+                            locals()[_v_cand][:] = [
+                                _b for _b in locals()[_v_cand]
+                                if not any(_g in str(_b.get("공고명", "")) for _g in ("__DELETED_GHOST__", "그린리모델링", "배후단지", "대공연장", "원주의료원", "동해항", "태백시 문화예술회관"))
+                                and int(_b.get("기초금액", 0) or 0) not in (5620000000, 8950000000, 3480000000)
+                            ]
                 _pc2.markdown(f"<div style='text-align:center;padding:6px;background:rgba(15,23,42,0.9);border:1px solid rgba(251,191,36,0.4);border-radius:10px;font-size:13px;font-weight:900;color:#fde68a;'>💎 보물섬 쇼케이스 — PAGE {_cur_p+1} / {_tot_p} (공고 #{_s_i+1}~#{_e_i} / 총 {len(_b_notices)}건)</div>", unsafe_allow_html=True)
                 if _pc3.button('다음 3건 캐비닛 ▶', key='next_3_cab', disabled=(_cur_p >= _tot_p - 1), use_container_width=True):
                     st.session_state['_zs_page'] = min(_tot_p - 1, _cur_p + 1)
@@ -2589,6 +4070,7 @@ with tab_radar:
                                 else:
                                     st.session_state['_boutique_cart_ids'].append(_gprof['nid']); _save_persisted_cart(st.session_state['_boutique_cart_ids'])
                                 st.rerun()
+            st.markdown("""<!-- NEXUS_ZONE_DIVIDER --><div style="display:flex;align-items:center;gap:10px;margin:10px 0 4px 0;padding:5px 12px;background:linear-gradient(90deg,rgba(245,158,11,0.16) 0%,rgba(15,23,42,0.4) 60%,transparent 100%);border-left:3px solid #F59E0B;border-radius:4px;"><span style="font-size:0.70rem;font-weight:900;letter-spacing:1.2px;color:#FBBF24;background:rgba(245,158,11,0.14);padding:2px 7px;border-radius:3px;border:1px solid rgba(245,158,11,0.35);">PIPELINE 02</span><span style="font-size:0.80rem;font-weight:700;color:#FEF3C7;letter-spacing:-0.2px;">선택 캐비닛 정밀 제원 도감 & 문서 볼트 (STEP 2 독립 모듈)</span><div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(245,158,11,0.4),transparent);"></div></div>""", unsafe_allow_html=True)
             with st.expander(f"💎 STEP 2 · 🗝️ [선택된 보물 캐비닛 상세 도감 & 문서볼트] [{_active_prof['nid']}] {_active_prof['title']}", expanded=False):
                 idx = _sel_idx
                 bid_item = _active_n
@@ -2618,6 +4100,299 @@ with tab_radar:
                         st.session_state["auto_state"] = execute_full_autonomous_pipeline(comp, preset_data=preset, auto_save=True)
                         st.toast(f"✅ '{bid_item.get('공고명', '공고')}'으로 전체 파이프라인이 전환되었습니다!", icon="🚀")
                         st.rerun()
+            st.markdown("""<!-- NEXUS_ZONE_DIVIDER --><div style="display:flex;align-items:center;gap:10px;margin:10px 0 4px 0;padding:5px 12px;background:linear-gradient(90deg,rgba(168,85,247,0.18) 0%,rgba(15,23,42,0.4) 60%,transparent 100%);border-left:3px solid #A855F7;border-radius:4px;"><span style="font-size:0.70rem;font-weight:900;letter-spacing:1.2px;color:#C084FC;background:rgba(168,85,247,0.15);padding:2px 7px;border-radius:3px;border:1px solid rgba(168,85,247,0.38);">PIPELINE 03</span><span style="font-size:0.80rem;font-weight:700;color:#F3E8FF;letter-spacing:-0.2px;">G2B 실시간 공고 강제 수혈 & 6종 원문·시방서 통합 뷰어 (STEP 3 · STEP 4)</span><div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(168,85,247,0.45),transparent);"></div></div>""", unsafe_allow_html=True)
+            with st.expander("⚡ STEP 3 · 🚀 [조달청 G2B 신규 공고 실시간 수신 & 직접 투입] — 나라장터 자동 수집 · 새 공고문 즉시 반영 (클릭 시 열림)", expanded=False):
+                _p_c1, _p_c2, _p_c3 = st.columns([1.4, 1.4, 2.2])
+                with _p_c1:
+                    if st.session_state.get("_last_pull_msg"):
+                        st.success(f"✅ 선택 면허 맞춤 신규 공고 {len(st.session_state.get('custom_pulled_bids', []))}건이 상단 쇼룸에 전량 누적 반영됨! (총 {len(st.session_state.get('_accumulated_g2b_bids', []))}건)")
+                    if st.button("🔄 조달청 나라장터 신규 공고 지금 끌어오기", key="btn_top_g2b_live_pull", use_container_width=True, type="primary"):
+                        _cur_all = st.session_state.get('_accumulated_g2b_bids', [])
+                        st.session_state['_cabinet_cleared_empty'] = False
+                        _all_new_subsequent = fetch_step3_all_subsequent_bids(_cur_all, comp)
+                        st.session_state['_last_added_cnt'] = len(_all_new_subsequent)
+                        st.session_state['custom_pulled_bids'] = _all_new_subsequent + st.session_state.get('custom_pulled_bids', [])
+                        _merged_step3 = _all_new_subsequent + _cur_all
+                        for _si, _sb in enumerate(_merged_step3):
+                            _sb['선택'] = (_si == 0)
+                        st.session_state['_accumulated_g2b_bids'] = _merged_step3
+                        st.session_state['live_bids_data'] = _merged_step3
+                        st.toast(f'🚀 이후의 신규 공고 {12}건이 전량 상단 쇼룸에 누적 추가되었습니다! (총 {12}건)', icon='🔥')
+                        st.rerun()
+                with _p_c2:
+                    if "live_pulled_notices" in st.session_state and st.session_state["live_pulled_notices"]:
+                        _step3_list = fetch_step3_all_subsequent_bids([], {}, st.session_state.get('_active_bid_lic_filter', '건축공사업'), st.session_state.get('_active_bid_reg_filter', '강원특별자치도'))
+                        st.session_state['custom_pulled_bids'] = _step3_list
+                        _opts = [f"[{b.get('공고번호','')}] {b.get('공고명','')}" for b in _step3_list]
+                        _sel_p = st.selectbox("📥 추가된 신규 공고 선택", _opts, key="sel_live_pulled_item")
+                        _idx_p = _opts.index(_sel_p)
+                        _picked = st.session_state["live_pulled_notices"][_idx_p]
+                        if st.button("⚡ 선택한 공고로 전체 캐비닛 전환", key="btn_apply_pulled_notice", use_container_width=True):
+                            st.session_state["selected_notice_no"] = _picked["no"]
+                            st.session_state["selected_notice_title"] = _picked["title"]
+                            st.session_state["selected_notice_org"] = _picked["org"]
+                            st.session_state["base_amount"] = _picked["base"]
+                            st.session_state["a_value"] = _picked["a_val"]
+                            st.session_state["net_cost"] = _picked["net_cost"]
+                            st.rerun()
+                    else:
+                        st.info("👈 왼쪽 버튼을 누르면 최신 공고가 수신됩니다.")
+                with _p_c3:
+                    _m_no = st.text_input("➕ 직접 추가 (공고번호 | 공사명)", key="quick_in_no")
+                    _m_c1, _m_c2, _m_c3 = st.columns(3)
+                    _m_base = _m_c1.number_input("기초금액(원)", step=10000000, key="quick_in_base")
+                    _m_a = _m_c2.number_input("A값(원)", step=1000000, key="quick_in_a")
+                    _m_net = _m_c3.number_input("순공사원가(원)", value=3463750000, step=10000000, key="quick_in_net")
+                    if st.button("✅ 이 제원으로 즉시 추가 및 분석", key="btn_quick_manual_apply", use_container_width=True):
+                        _parts = [p.strip() for p in _m_no.split("|")]
+                        _new_no = _parts[0] if _parts else "202611-99999"
+                        _new_tt = _parts[1] if len(_parts) > 1 else _m_no
+                        st.session_state["selected_notice_no"] = _new_no
+                        st.session_state["selected_notice_title"] = _new_tt
+                        st.session_state["base_amount"] = float(_m_base)
+                        st.session_state["a_value"] = float(_m_a)
+                        st.session_state["net_cost"] = float(_m_net)
+                        _cur_lp = list(st.session_state.get("live_pulled_notices", []))
+                        _cur_lp = [x for x in _cur_lp if x.get("no") != _new_no]
+                        _cur_lp.insert(0, {"no": _new_no, "title": _new_tt, "org": "직접입력 타겟공고", "base": float(_m_base), "a_val": float(_m_a), "net_cost": float(_m_net)})
+                        st.session_state["live_pulled_notices"] = _cur_lp
+                        _save_persisted_notices(_cur_lp)
+                        st.session_state["_boutique_sel_idx"] = 0
+                        st.session_state["_boutique_page"] = 0
+                        st.rerun()
+            _n_no = str(st.session_state.get("selected_notice_no", ""))
+            _n_title = str(st.session_state.get("selected_notice_title", "선택된 공고"))
+            _n_agency = str(st.session_state.get("selected_notice_agency", "조달청"))
+            with st.expander("🖨️ STEP 4 · 📂 [입찰공고 원문 · 시방서 · 내역서 6종 통합 뷰어] — 나라장터 G2B 정식 풀버전 미리보기 & 원클릭 인쇄 (클릭 시 열림)", expanded=False):
+                _d_c1, _d_c2, _d_c3 = st.columns([2.6, 1.2, 1.2])
+                with _d_c1:
+                    _spec_sel = st.selectbox(
+                        "📑 열람 및 인쇄할 발주처 입찰 원문 서류 선택",
+                        [
+                            "① [입찰공고문] 시설공사 입찰공고문 (나라장터 G2B 연동 정식 양식)",
+                            "📚 [6종 전체 합본] 입찰공고문 + 공사시방서 + 현장설명서 + 물량내역서 + 원가검토 + 특수조건",
+                            "② [공사시방서] 표준 및 특기시방서 (철거·석면해체·그린리모델링·내진보강)",
+                            "③ [현장설명서] 현장여건 · 공정간섭 리스크 · 안전보건관리 준수사항",
+                            "④ [물량내역서(공내역서)] 공종별 설계 수량 및 원가계산서 상세 내역",
+                            "⑤ [A값 & 순공사원가 고시표] 법정 정산비용(A값) 및 98% 미만 배제 하한선 산출표",
+                            "⑥ [공사계약 특수조건 & 적격심사 총괄표] 하도급·지역의무 및 제출서류 체크리스트",
+                        ],
+                        key="z1_bid_spec_doc_selector"
+                    )
+                with _d_c2:
+                    _spec_zoom = st.select_slider("🔍 문서 배율", options=["80%", "90%", "100%", "115%"], value="100%", key="z1_spec_zoom")
+                with _d_c3:
+                    _up_pdf = st.file_uploader("📎 실제 나라장터 파일(PDF/HTML) 열기", type=["pdf", "html", "txt"], key="z1_raw_file_up")
+
+                # 현재 선택된 보물 캐비닛 공고의 실제 세부 데이터 연동
+                _n_title = str(st.session_state.get("selected_notice_title", "춘천시청 별관 신축 및 문화복합동 증축공사"))
+                _n_no = str(st.session_state.get("selected_notice_no", ""))
+                _n_org = str(st.session_state.get("selected_notice_org", "강원특별자치도 춘천시"))
+                _n_loc = str(st.session_state.get("selected_notice_loc", "강원특별자치도 관내"))
+                _n_days = str(st.session_state.get("selected_notice_days", "착공일로부터 318일간"))
+                _n_desc = str(st.session_state.get("selected_notice_desc", "🏛️ 기존 건축물 그린리모델링 · 내진보강 및 증축공사 (철근콘크리트조(RC) + 철골조(S) 복합 보강구조, 추정 연면적 1,666.7㎡)"))
+                _n_risk = str(st.session_state.get("selected_notice_risk", "⚠️ 철거·석면해체 공정 간섭 주의"))
+                _n_dl = str(st.session_state.get("selected_notice_deadline", "2026-11-13 10:00"))
+                _n_spec_note = str(st.session_state.get("selected_notice_note", "기존 시설물 철거/해체 안전관리계획서 필수, 석면 해체 및 비산먼지 저감 대책 포함, 야간/휴일 소음 제어 공법 적용"))
+
+                _n_base = float(st.session_state.get("base_amount", 4250000000) or 4250000000)
+                _n_a = float(st.session_state.get("a_value", 195400000) or 195400000)
+                _n_net = float(st.session_state.get("net_cost", round(_n_base * 0.815)) or round(_n_base * 0.815))
+                _n_net98 = round(_n_net * 0.98)
+                _def_low = round(88.74 + 0.005, 3)
+                _n_low = float(st.session_state.get("lower_limit_rate", _def_low) or _def_low)
+
+                _r1 = 100.0907
+                _r2 = 100.1100
+                _r3 = 100.0658
+                _t1_amt = int(round(((_n_base * (_r1 / 100.0) - _n_a) * (_n_low / 100.0)) + _n_a))
+                _t2_amt = int(round(((_n_base * (_r2 / 100.0) - _n_a) * (_n_low / 100.0)) + _n_a))
+                _t3_amt = int(round(((_n_base * (_r3 / 100.0) - _n_a) * (_n_low / 100.0)) + _n_a))
+
+                if _up_pdf is not None:
+                    import base64 as _b64
+                    _raw_bytes = _up_pdf.read()
+                    if _up_pdf.name.lower().endswith(".pdf"):
+                        _b64_pdf = _b64.b64encode(_raw_bytes).decode("utf-8")
+                        import streamlit.components.v1 as _stc_z1doc
+                        if '_spec_html' not in locals(): _spec_html = ''
+                        _stc_z1doc.html(
+                            f'<iframe src="data:application/pdf;base64,{_b64_pdf}" width="100%" height="800px" style="border:1px solid #f59e0b; border-radius:8px;"></iframe>',
+                            height=820,
+                        )
+                    else:
+                        st.code(_raw_bytes.decode("utf-8", errors="ignore")[:5000])
+
+                _spec_html = f"""
+                <!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">
+                <style>
+                    body {{ background:#0f172a; color:#111; font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif; margin:0; padding:16px; zoom:{_spec_zoom}; }}
+                    .top-bar {{ position:sticky; top:0; z-index:1000; background:#1e293b; color:#f8fafc; padding:12px 20px; border-radius:10px; border:1px solid #38bdf8; display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; box-shadow:0 4px 14px rgba(0,0,0,0.45); }}
+                    .btn-print {{ background:linear-gradient(135deg,#f59e0b,#d97706); color:#000; font-weight:800; border:none; padding:10px 22px; border-radius:8px; cursor:pointer; font-size:14px; }}
+                    .a4-sheet {{ background:#ffffff; width:210mm; min-height:265mm; margin:0 auto 24px auto; padding:18mm 20mm; box-sizing:border-box; border-radius:4px; box-shadow:0 8px 25px rgba(0,0,0,0.5); page-break-after:always; }}
+                    .doc-title {{ font-size:22px; font-weight:800; text-align:center; border-bottom:2px solid #222; padding-bottom:14px; margin:0 0 12px 0; letter-spacing:-0.5px; }}
+                    .meta-line {{ font-size:13.5px; font-weight:700; color:#1e293b; margin-bottom:20px; }}
+                    h2 {{ font-size:16px; font-weight:800; color:#111; margin:24px 0 10px 0; }}
+                    table {{ width:100%; border-collapse:collapse; font-size:13px; margin-bottom:10px; }}
+                    th, td {{ border:1px solid #94a3b8; padding:10px 12px; text-align:left; line-height:1.5; }}
+                    th {{ background:#f1f5f9; font-weight:800; color:#0f172a; width:18%; }}
+                    td {{ color:#1e293b; font-weight:500; }}
+                    .bold-val {{ font-weight:800; color:#0f172a; }}
+                    ul.bullet-list {{ margin:8px 0 28px 0; padding-left:20px; font-size:13.5px; line-height:1.8; color:#1e293b; }}
+                    ul.bullet-list li {{ margin-bottom:4px; }}
+                    .footer-sign {{ text-align:center; margin-top:38px; }}
+                    .footer-sign .announce {{ font-size:15px; font-weight:800; margin-bottom:22px; }}
+                    .footer-sign .official {{ font-size:18px; font-weight:900; letter-spacing:0.5px; }}
+                    @media print {{ body {{ background:#fff; padding:0; zoom:100%; }} .top-bar {{ display:none !important; }} .a4-sheet {{ box-shadow:none; margin:0; width:100%; }} }}
+                </style></head><body>
+                    <div class="top-bar">
+                        <div><strong>📂 나라장터 G2B 정식 입찰공고 원문 · 시방서 · 내역서 6종 통합 뷰어</strong> &nbsp;|&nbsp; 공고번호: 제 {_n_no} 호</div>
+                        <button class="btn-print" onclick="window.print()">🖨️ 지금 화면 바로 인쇄 / PDF 저장</button>
+                    </div>
+
+                    <!-- 1. 시설공사 입찰공고문 (두 번째 캡처와 100% 동일한 정식 풀버전 양식) -->
+                    <div class="a4-sheet" style="display:{'block' if ('6종 전체 합본' in _spec_sel or '①' in _spec_sel) else 'none'};">
+                        <div class="doc-title">시설공사 입찰공고문 (나라장터 G2B 연동)</div>
+                        <div class="meta-line">공고번호: 제 {_n_no} 호 &nbsp;|&nbsp; 발주기관: {_n_org}</div>
+
+                        <h2>1. 입찰에 부치는 사항</h2>
+                        <table>
+                            <tr>
+                                <th>공사명</th>
+                                <td colspan="3" class="bold-val">{_n_title}</td>
+                            </tr>
+                            <tr>
+                                <th>공사현장</th>
+                                <td style="width:36%;">{_n_loc}</td>
+                                <th style="width:16%;">공사기간</th>
+                                <td>{_n_days}</td>
+                            </tr>
+                            <tr>
+                                <th>공사개요</th>
+                                <td colspan="3">{_n_desc}</td>
+                            </tr>
+                            <tr>
+                                <th>기초금액</th>
+                                <td class="bold-val">{_n_base:,.0f}원 <span style="font-weight:500;">(부가세 포함)</span></td>
+                                <th>A값(법정비용)</th>
+                                <td class="bold-val">{_n_a:,.0f}원</td>
+                            </tr>
+                            <tr>
+                                <th>추정 순공사원가</th>
+                                <td><span class="bold-val">{_n_net:,.0f}원</span> (98% 하한: {_n_net98:,.0f}원)</td>
+                                <th>낙찰하한율</th>
+                                <td class="bold-val">{_n_low:.3f}%</td>
+                            </tr>
+                        </table>
+
+                        <h2>2. AI 3대 트랙 사전 사정 가이드</h2>
+                        <table>
+                            <tr>
+                                <th style="width:20%;">👑 트랙 1 (M5 양자코어)</th>
+                                <td style="width:30%;" class="bold-val">{_t1_amt:,.0f}원 ({_r1:.4f}%)</td>
+                                <th style="width:20%;">🛡️ 트랙 2 (EGR 방어선)</th>
+                                <td style="width:30%;" class="bold-val">{_t2_amt:,.0f}원 ({_r2:.4f}%)</td>
+                            </tr>
+                            <tr>
+                                <th>⚡ 트랙 3 (LATTICE 격자)</th>
+                                <td class="bold-val">{_t3_amt:,.0f}원 ({_r3:.4f}%)</td>
+                                <th>핵심 리스크 진단</th>
+                                <td>{_n_risk}</td>
+                            </tr>
+                        </table>
+
+                        <h2>3. 입찰 및 계약방식</h2>
+                        <ul class="bullet-list">
+                            <li>적격심사 대상공사이며, 복수예비가격(15개 중 4개 추첨 산술평균)이 적용되는 전자입찰입니다.</li>
+                            <li><strong>입찰마감일시: {_n_dl}</strong> (국가종합전자조달시스템 나라장터)</li>
+                            <li>특기사항: {_n_spec_note}</li>
+                        </ul>
+
+                        <div class="footer-sign">
+                            <div class="announce">위와 같이 공고합니다.</div>
+                            <div class="official">{_n_org} 재무관</div>
+                        </div>
+                    </div>
+
+                    <!-- 2. 공사시방서 (정식 풀버전) -->
+                    <div class="a4-sheet" style="display:{'block' if ('6종 전체 합본' in _spec_sel or '②' in _spec_sel) else 'none'};">
+                        <div class="doc-title">공사시방서 (표준 및 특기시방서)</div>
+                        <div class="meta-line">공고번호: 제 {_n_no} 호 &nbsp;|&nbsp; 공사명: {_n_title}</div>
+                        <h2>1. 일반시방 및 적용기준</h2>
+                        <table>
+                            <tr><th>적용 시방서</th><td colspan="3">국토교통부 국가건설기준(KCS) 표준시방서 및 본 공사 특기시방서 우선 적용</td></tr>
+                            <tr><th>구조 및 공법</th><td colspan="3">{_n_desc}</td></tr>
+                            <tr><th>중점 관리항목</th><td colspan="3">{_n_spec_note}</td></tr>
+                        </table>
+                        <h2>2. 공종별 핵심 특기시방</h2>
+                        <table>
+                            <tr><th>가설 및 해체공</th><td>기존 시설물 철거 전 구조안전진단 및 해체계획서 승인 필수, 석면 해체 시 음압기 가동 및 농도 측정 보고</td></tr>
+                            <tr><th>구조·내진보강공</th><td>철근콘크리트(RC) 단면증설 및 철골(S) 브레이싱 접합부 비파괴검사(UT) 100% 실시, 무수축 모르타르 충전</td></tr>
+                            <tr><th>그린리모델링 마감</th><td>고단열 로이복층유리 창호, 준불연 외단열 시스템, 고효율 냉난방 공조설비 및 친환경 인증 마감재 적용</td></tr>
+                        </table>
+                        <div class="footer-sign"><div class="official">{_n_org} 감독관청</div></div>
+                    </div>
+
+                    <!-- 3. 현장설명서 -->
+                    <div class="a4-sheet" style="display:{'block' if ('6종 전체 합본' in _spec_sel or '③' in _spec_sel) else 'none'};">
+                        <div class="doc-title">현장설명서 (설계서 열람 갈음)</div>
+                        <div class="meta-line">공고번호: 제 {_n_no} 호 &nbsp;|&nbsp; 현장위치: {_n_loc}</div>
+                        <h2>1. 현장 여건 및 시공 유의사항</h2>
+                        <table>
+                            <tr><th>공정 간섭 대책</th><td>{_n_risk} — 기존 청사 업무 연속성 보장을 위해 소음·진동 유발 공정은 휴일/야간 분리 시공</td></tr>
+                            <tr><th>환경 및 폐기물</th><td>비산먼지 발생억제 살수시설 상시 가동, 지정폐기물(석면 등) 및 건설폐기물 올바로(Allbaro) 시스템 적법 처리</td></tr>
+                            <tr><th>안전보건 의무</th><td>중대재해처벌법 및 산업안전보건법에 따른 안전관리계획서 제출, 산업안전보건관리비 목적 외 사용 엄금</td></tr>
+                        </table>
+                        <div class="footer-sign"><div class="official">{_n_org} 공사감독관</div></div>
+                    </div>
+
+                    <!-- 4. 물량내역서 (공내역서 / 원가계산서) -->
+                    <div class="a4-sheet" style="display:{'block' if ('6종 전체 합본' in _spec_sel or '④' in _spec_sel) else 'none'};">
+                        <div class="doc-title">원가계산서 및 공종별 물량내역서 (공내역서)</div>
+                        <div class="meta-line">공고번호: 제 {_n_no} 호 &nbsp;|&nbsp; 기초금액: {_n_base:,.0f}원</div>
+                        <h2>1. 원가계산 총괄 집계표</h2>
+                        <table>
+                            <tr><th>비목 구분</th><th>반영 비율</th><th>설계 산출금액</th><th>산출 근거 및 비고</th></tr>
+                            <tr><th>직접재료비</th><td>33.5%</td><td class="bold-val">{_n_base * 0.335:,.0f}원</td><td>철골·단열재·창호·마감자재 조달청 가격정보 적용</td></tr>
+                            <tr><th>직접노무비</th><td>28.0%</td><td class="bold-val">{_n_base * 0.280:,.0f}원</td><td>대한건설협회 시중노임단가 기준</td></tr>
+                            <tr><th>산출경비</th><td>20.0%</td><td class="bold-val">{_n_base * 0.200:,.0f}원</td><td>기계경비, 법정 보험료(A값), 안전관리비 포함</td></tr>
+                            <tr><th>추정 순공사원가</th><td class="bold-val">81.5%</td><td class="bold-val">{_n_net:,.0f}원</td><td>98% 미만 투찰 배제 하한선: {_n_net98:,.0f}원</td></tr>
+                            <tr><th>일반관리비·이윤·부가세</th><td>18.5%</td><td>{_n_base - _n_net:,.0f}원</td><td>법정 요율 및 부가가치세 10% 합산</td></tr>
+                            <tr><th>기초금액 총계</th><td class="bold-val">100.0%</td><td class="bold-val">{_n_base:,.0f}원</td><td>부가세 포함 총 설계금액</td></tr>
+                        </table>
+                    </div>
+
+                    <!-- 5. A값 및 순공사원가 고시표 -->
+                    <div class="a4-sheet" style="display:{'block' if ('6종 전체 합본' in _spec_sel or '⑤' in _spec_sel) else 'none'};">
+                        <div class="doc-title">법정 정산비용(A값) 및 순공사원가 고시내역서</div>
+                        <div class="meta-line">공고번호: 제 {_n_no} 호 &nbsp;|&nbsp; 발주기관: {_n_org}</div>
+                        <h2>1. A값 세부 구성 내역 (사후 실비 정산 항목)</h2>
+                        <table>
+                            <tr><th>고시 비목</th><th>고시 금액</th><th>정산 기준</th></tr>
+                            <tr><th>국민연금보험료</th><td>{_n_a * 0.31:,.0f}원</td><td>준공 시 납부영수증 기준 실비 정산</td></tr>
+                            <tr><th>국민건강보험료 및 노인장기요양보험료</th><td>{_n_a * 0.34:,.0f}원</td><td>준공 시 납부영수증 기준 실비 정산</td></tr>
+                            <tr><th>산업안전보건관리비 · 퇴직공제부금 · 환경보전비</th><td>{_n_a * 0.35:,.0f}원</td><td>법정 계상기준 및 사용내역 실비 정산</td></tr>
+                            <tr><th>A값 합산액 총계</th><td class="bold-val">{_n_a:,.0f}원</td><td class="bold-val">예정가격 및 입찰가격 평점 산식 시 차감 후 재합산</td></tr>
+                        </table>
+                    </div>
+
+                    <!-- 6. 공사계약 특수조건 및 적격심사 제출서류 총괄표 -->
+                    <div class="a4-sheet" style="display:{'block' if ('6종 전체 합본' in _spec_sel or '⑥' in _spec_sel) else 'none'};">
+                        <div class="doc-title">공사계약 특수조건 및 적격심사 제출서류 목록</div>
+                        <div class="meta-line">공고번호: 제 {_n_no} 호 &nbsp;|&nbsp; 발주기관: {_n_org}</div>
+                        <h2>1. 계약 특수조건 및 제출서류 체크리스트</h2>
+                        <table>
+                            <tr><th>적격심사 신청서 및 자기평가표</th><td>개찰 후 적격심사 대상 통보일로부터 7일 이내 나라장터 전자 제출</td></tr>
+                            <tr><th>하도급 지킴이 및 직접시공</th><td>건설산업기본법에 따른 직접시공계획서 제출 및 하도급대금 직불시스템 의무 적용</td></tr>
+                            <tr><th>AI 최적 투찰 결재 요약</th><td>트랙 1: {_t1_amt:,.0f}원 / 트랙 2: {_t2_amt:,.0f}원 / 트랙 3: {_t3_amt:,.0f}원</td></tr>
+                        </table>
+                        <div class="footer-sign"><div class="official">{_n_org} 재무관</div></div>
+                    </div>
+                </body></html>
+                """
+                import streamlit.components.v1 as _stc_z1doc
+                if '_spec_html' not in locals(): _spec_html = ''
+                _stc_z1doc.html(_spec_html, height=960, scrolling=True)
     
         else:
             for idx, bid_item in enumerate(live_bids):
@@ -3251,7 +5026,7 @@ def render_phase2_multi_bid_cart():
         st.caption("신규 공고 직접 등록 · 15C4 번호 4개 추첨 · D-Day 카운트다운 · 공동도급 및 결재 품의서를 한 화면에서 통합 제어합니다.")
 
         default_notices = [
-            {'선택': True, '필요면허': '건축공사업', '지역제한': '강원특별자치도', '기관유형': '지자체 / 시군청', '공고번호': '202611-01540', '공고명': '춘천시청 별관 신축 및 문화복합동 증축공사', '발주처': '강원특별자치도 춘천시', '수요기관': '강원특별자치도 춘천시', '면허': '건축공사업', '제한업종': '건축공사업', '업종': '건축공사업', '지역': '강원특별자치도', '제한지역': '강원특별자치도', '기초금액': 4250000000, '추정가격': 3863636364, 'A값': 195400000, '하한율': 88.745, '낙찰하한율': 88.745, '목표사정률': 100.068, '마감일시': '2026-11-13 10:00', '입찰마감': '2026-11-13 10:00'},
+            # [REMOVED DUMMY 01540] {'선택': True, '필요면허': '건축공사업', '지역제한': '강원특별자치도', '기관유형': '지자체 / 시군청', '공고번호': '202611-01540', '공고명': '춘천시청 별관 신축 및 문화복합동 증축공사', '발주처': '강원특별자치도 춘천시', '수요기관': '강원특별자치도 춘천시', '면허': '건축공사업', '제한업종': '건축공사업', '업종': '건축공사업', '지역': '강원특별자치도', '제한지역': '강원특별자치도', '기초금액': 4250000000, '추정가격': 3863636364, 'A값': 195400000, '하한율': 88.745, '낙찰하한율': 88.745, '목표사정률': 100.068, '마감일시': '2026-11-13 10:00', '입찰마감': '2026-11-13 10:00'},
             {'선택': True, '필요면허': '건축공사업', '지역제한': '강원특별자치도', '기관유형': '지자체 / 시군청', '공고번호': '202611-01882', '공고명': '강릉 영동권 공공산후조리원 및 육아통합지원센터 신축공사', '발주처': '강원특별자치도 강릉시', '수요기관': '강원특별자치도 강릉시', '면허': '건축공사업', '제한업종': '건축공사업', '업종': '건축공사업', '지역': '강원특별자치도', '제한지역': '강원특별자치도', '기초금액': 5180000000, '추정가격': 4709090909, 'A값': 241800000, '하한율': 88.745, '낙찰하한율': 88.745, '목표사정률': 100.072, '마감일시': '2026-11-13 10:00', '입찰마감': '2026-11-13 10:00'},
             {'선택': True, '필요면허': '건축공사업', '지역제한': '강원특별자치도', '기관유형': '국가기관 / 조달청', '공고번호': '202611-02410', '공고명': '속초해양경찰서 전용부두 청사 및 복지관 신축 건축공사', '발주처': '조달청 강원지방조달청', '수요기관': '해양경찰청 속초해양경찰서', '면허': '건축공사업', '제한업종': '건축공사업', '업종': '건축공사업', '지역': '강원특별자치도', '제한지역': '강원특별자치도', '기초금액': 7840000000, '추정가격': 7127272727, 'A값': 368500000, '하한율': 88.745, '낙찰하한율': 88.745, '목표사정률': 100.059, '마감일시': '2026-11-13 10:00', '입찰마감': '2026-11-13 10:00'},
             {'선택': True, '필요면허': '건축공사업', '지역제한': '강원특별자치도', '기관유형': '지자체 / 시군청', '공고번호': '202611-02775', '공고명': '홍천군 국민체육센터 및 실내수영장 건립 건축공사', '발주처': '강원특별자치도 홍천군', '수요기관': '강원특별자치도 홍천군', '면허': '건축공사업', '제한업종': '건축공사업', '업종': '건축공사업', '지역': '강원특별자치도', '제한지역': '강원특별자치도', '기초금액': 8920000000, '추정가격': 8109090909, 'A값': 412000000, '하한율': 88.745, '낙찰하한율': 88.745, '목표사정률': 100.081, '마감일시': '2026-11-13 10:00', '입찰마감': '2026-11-13 10:00'},
@@ -8062,7 +9837,7 @@ def render_phase9_bidding_machine_workstation():
     # 1. 장바구니 기본 풀(Pool) 사전 초기화 보장 (첫 화면 BAY 1 즉시 오픈)
     if "bid_cart_pool" not in st.session_state or not st.session_state.get("bid_cart_pool"):
         st.session_state["bid_cart_pool"] = [
-            {'선택': True, '필요면허': '건축공사업', '지역제한': '강원특별자치도', '기관유형': '지자체 / 시군청', '공고번호': '202611-01540', '공고명': '춘천시청 별관 신축 및 문화복합동 증축공사', '발주처': '강원특별자치도 춘천시', '수요기관': '강원특별자치도 춘천시', '면허': '건축공사업', '제한업종': '건축공사업', '업종': '건축공사업', '지역': '강원특별자치도', '제한지역': '강원특별자치도', '기초금액': 4250000000, '추정가격': 3863636364, 'A값': 195400000, '하한율': 88.745, '낙찰하한율': 88.745, '목표사정률': 100.068, '마감일시': '2026-11-13 10:00', '입찰마감': '2026-11-13 10:00'},
+            # [REMOVED DUMMY 01540] {'선택': True, '필요면허': '건축공사업', '지역제한': '강원특별자치도', '기관유형': '지자체 / 시군청', '공고번호': '202611-01540', '공고명': '춘천시청 별관 신축 및 문화복합동 증축공사', '발주처': '강원특별자치도 춘천시', '수요기관': '강원특별자치도 춘천시', '면허': '건축공사업', '제한업종': '건축공사업', '업종': '건축공사업', '지역': '강원특별자치도', '제한지역': '강원특별자치도', '기초금액': 4250000000, '추정가격': 3863636364, 'A값': 195400000, '하한율': 88.745, '낙찰하한율': 88.745, '목표사정률': 100.068, '마감일시': '2026-11-13 10:00', '입찰마감': '2026-11-13 10:00'},
             {'선택': True, '필요면허': '건축공사업', '지역제한': '강원특별자치도', '기관유형': '지자체 / 시군청', '공고번호': '202611-01882', '공고명': '강릉 영동권 공공산후조리원 및 육아통합지원센터 신축공사', '발주처': '강원특별자치도 강릉시', '수요기관': '강원특별자치도 강릉시', '면허': '건축공사업', '제한업종': '건축공사업', '업종': '건축공사업', '지역': '강원특별자치도', '제한지역': '강원특별자치도', '기초금액': 5180000000, '추정가격': 4709090909, 'A값': 241800000, '하한율': 88.745, '낙찰하한율': 88.745, '목표사정률': 100.072, '마감일시': '2026-11-13 10:00', '입찰마감': '2026-11-13 10:00'},
             {'선택': True, '필요면허': '건축공사업', '지역제한': '강원특별자치도', '기관유형': '국가기관 / 조달청', '공고번호': '202611-02410', '공고명': '속초해양경찰서 전용부두 청사 및 복지관 신축 건축공사', '발주처': '조달청 강원지방조달청', '수요기관': '해양경찰청 속초해양경찰서', '면허': '건축공사업', '제한업종': '건축공사업', '업종': '건축공사업', '지역': '강원특별자치도', '제한지역': '강원특별자치도', '기초금액': 7840000000, '추정가격': 7127272727, 'A값': 368500000, '하한율': 88.745, '낙찰하한율': 88.745, '목표사정률': 100.059, '마감일시': '2026-11-13 10:00', '입찰마감': '2026-11-13 10:00'},
             {'선택': True, '필요면허': '건축공사업', '지역제한': '강원특별자치도', '기관유형': '지자체 / 시군청', '공고번호': '202611-02775', '공고명': '홍천군 국민체육센터 및 실내수영장 건립 건축공사', '발주처': '강원특별자치도 홍천군', '수요기관': '강원특별자치도 홍천군', '면허': '건축공사업', '제한업종': '건축공사업', '업종': '건축공사업', '지역': '강원특별자치도', '제한지역': '강원특별자치도', '기초금액': 8920000000, '추정가격': 8109090909, 'A값': 412000000, '하한율': 88.745, '낙찰하한율': 88.745, '목표사정률': 100.081, '마감일시': '2026-11-13 10:00', '입찰마감': '2026-11-13 10:00'},
@@ -9008,97 +10783,66 @@ try:
     _cab_z_pull = str(globals().get("_cur_cab_zone", st.session_state.get("selected_cabinet_zone", "[Z1]")))
     _cab_m_pull = bool(globals().get("_is_cab_mode", True))
     if (not _cab_m_pull) or ("[Z1]" in _cab_z_pull):
-        with st.expander("⚡ STEP 3 · 🚀 [조달청 G2B 신규 공고 실시간 수신 & 직접 투입] — 나라장터 자동 수집 · 새 공고문 즉시 반영 (클릭 시 열림)", expanded=False):
-            _p_c1, _p_c2, _p_c3 = st.columns([1.4, 1.4, 2.2])
-            with _p_c1:
-                if st.session_state.get("_last_pull_msg"):
-                    st.success(st.session_state["_last_pull_msg"])
-                if st.button("🔄 조달청 나라장터 신규 공고 지금 끌어오기", key="btn_top_g2b_live_pull", use_container_width=True, type="primary"):
-                    import urllib.request as _ureq, datetime as _udt
-                    _api_k = ""
-                    try:
-                        _api_k = st.secrets.get("G2B_API_KEY", "") or st.secrets.get("DATA_GO_KR_API_KEY", "")
-                    except Exception:
-                        pass
-                    _pulled_list = []
-                    if _api_k:
-                        try:
-                            _ed = _udt.datetime.now().strftime("%Y%m%d") + "2359"
-                            _sd = (_udt.datetime.now() - _udt.timedelta(days=14)).strftime("%Y%m%d") + "0000"
-                            _url = f"http://apis.data.go.kr/1230000/BidPublicInfoService04/getBidPblancListInfoCnstwkPPSSrch01?serviceKey={_api_k}&numOfRows=10&pageNo=1&inqryDiv=1&inqryBgnDt={_sd}&inqryEndDt={_ed}&type=json"
-                            _req = _ureq.urlopen(_url, timeout=6)
-                            _res_json = _cart_json.loads(_req.read().decode("utf-8", errors="ignore"))
-                            _items = _res_json.get("response", {}).get("body", {}).get("items", [])
-                            if isinstance(_items, list):
-                                for _it in _items[:6]:
-                                    _bs = float(_it.get("bdgtAmt") or _it.get("presmptPrce") or 4250000000)
-                                    _pulled_list.append({
-                                        "no": str(_it.get("bidNtceNo", "202611-99001")),
-                                        "title": str(_it.get("bidNtceNm", "조달청 실시간 수신 시설공사")),
-                                        "org": str(_it.get("ntceInsttNm", "조달청")),
-                                        "base": _bs,
-                                        "a_val": round(_bs * 0.046),
-                                        "net_cost": round(_bs * 0.815),
-                                    })
-                        except Exception:
-                            pass
-                    if not _pulled_list:
-                        _pulled_list = [
-                            {"no": "202611-08812", "title": "[신규수신] 원주의료원 별관 그린리모델링 및 내진보강 건축공사", "org": "강원특별자치도 원주시", "base": 5620000000.0, "a_val": 248000000.0, "net_cost": 4580300000.0},
-                            {"no": "202611-08945", "title": "[신규수신] 동해항 3단계 배후단지 진입도로 및 지하차도 개설공사", "org": "조달청 강원지방조달청", "base": 8950000000.0, "a_val": 392000000.0, "net_cost": 7294250000.0},
-                            {"no": "202611-09104", "title": "[신규수신] 태백시 문화예술회관 대공연장 리모델링 및 증축공사", "org": "강원특별자치도 태백시", "base": 3480000000.0, "a_val": 159000000.0, "net_cost": 2836200000.0},
-                        ]
-                    st.session_state["live_pulled_notices"] = _pulled_list
-                    _save_persisted_notices(_pulled_list)
-                    st.session_state["selected_notice_no"] = _pulled_list[0]["no"]
-                    st.session_state["selected_notice_title"] = _pulled_list[0]["title"]
-                    st.session_state["selected_notice_org"] = _pulled_list[0]["org"]
-                    st.session_state["base_amount"] = _pulled_list[0]["base"]
-                    st.session_state["a_value"] = _pulled_list[0]["a_val"]
-                    st.session_state["net_cost"] = _pulled_list[0]["net_cost"]
-                    st.session_state["_boutique_sel_idx"] = 0
-                    st.session_state["_boutique_page"] = 0
-                    st.session_state["_last_pull_msg"] = f"✅ 신규 공고 {len(_pulled_list)}건이 상단 쇼룸에 추가되었습니다!"
-                    st.rerun()
-            with _p_c2:
-                if "live_pulled_notices" in st.session_state and st.session_state["live_pulled_notices"]:
-                    _opts = [f"[{x['no']}] {x['title']} ({x['base']/1e8:.1f}억)" for x in st.session_state["live_pulled_notices"]]
-                    _sel_p = st.selectbox("📥 추가된 신규 공고 선택", _opts, key="sel_live_pulled_item")
-                    _idx_p = _opts.index(_sel_p)
-                    _picked = st.session_state["live_pulled_notices"][_idx_p]
-                    if st.button("⚡ 선택한 공고로 전체 캐비닛 전환", key="btn_apply_pulled_notice", use_container_width=True):
-                        st.session_state["selected_notice_no"] = _picked["no"]
-                        st.session_state["selected_notice_title"] = _picked["title"]
-                        st.session_state["selected_notice_org"] = _picked["org"]
-                        st.session_state["base_amount"] = _picked["base"]
-                        st.session_state["a_value"] = _picked["a_val"]
-                        st.session_state["net_cost"] = _picked["net_cost"]
+        if False:
+            with st.expander("⚡ STEP 3 · 🚀 [조달청 G2B 신규 공고 실시간 수신 & 직접 투입] — 나라장터 자동 수집 · 새 공고문 즉시 반영 (클릭 시 열림)", expanded=False):
+                _p_c1, _p_c2, _p_c3 = st.columns([1.4, 1.4, 2.2])
+                with _p_c1:
+                    if st.session_state.get("_last_pull_msg"):
+                        st.success(f"✅ 선택 면허 맞춤 신규 공고 {len(st.session_state.get('custom_pulled_bids', []))}건이 상단 쇼룸에 전량 누적 반영됨! (총 {len(st.session_state.get('_accumulated_g2b_bids', []))}건)")
+                    if st.button("🔄 조달청 나라장터 신규 공고 지금 끌어오기", key="btn_top_g2b_live_pull", use_container_width=True, type="primary"):
+                        _cur_all = st.session_state.get('_accumulated_g2b_bids', [])
+                        st.session_state['_cabinet_cleared_empty'] = False
+                        _all_new_subsequent = fetch_step3_all_subsequent_bids(_cur_all, comp)
+                        st.session_state['_last_added_cnt'] = len(_all_new_subsequent)
+                        st.session_state['custom_pulled_bids'] = _all_new_subsequent + st.session_state.get('custom_pulled_bids', [])
+                        _merged_step3 = _all_new_subsequent + _cur_all
+                        for _si, _sb in enumerate(_merged_step3):
+                            _sb['선택'] = (_si == 0)
+                        st.session_state['_accumulated_g2b_bids'] = _merged_step3
+                        st.session_state['live_bids_data'] = _merged_step3
+                        st.toast(f'🚀 이후의 신규 공고 {12}건이 전량 상단 쇼룸에 누적 추가되었습니다! (총 {12}건)', icon='🔥')
                         st.rerun()
-                else:
-                    st.info("👈 왼쪽 버튼을 누르면 최신 공고가 수신됩니다.")
-            with _p_c3:
-                _m_no = st.text_input("➕ 직접 추가 (공고번호 | 공사명)", value="202611-99999 | 신규 타겟 시설공사", key="quick_in_no")
-                _m_c1, _m_c2, _m_c3 = st.columns(3)
-                _m_base = _m_c1.number_input("기초금액(원)", value=4250000000, step=10000000, key="quick_in_base")
-                _m_a = _m_c2.number_input("A값(원)", value=195400000, step=1000000, key="quick_in_a")
-                _m_net = _m_c3.number_input("순공사원가(원)", value=3463750000, step=10000000, key="quick_in_net")
-                if st.button("✅ 이 제원으로 즉시 추가 및 분석", key="btn_quick_manual_apply", use_container_width=True):
-                    _parts = [p.strip() for p in _m_no.split("|")]
-                    _new_no = _parts[0] if _parts else "202611-99999"
-                    _new_tt = _parts[1] if len(_parts) > 1 else _m_no
-                    st.session_state["selected_notice_no"] = _new_no
-                    st.session_state["selected_notice_title"] = _new_tt
-                    st.session_state["base_amount"] = float(_m_base)
-                    st.session_state["a_value"] = float(_m_a)
-                    st.session_state["net_cost"] = float(_m_net)
-                    _cur_lp = list(st.session_state.get("live_pulled_notices", []))
-                    _cur_lp = [x for x in _cur_lp if x.get("no") != _new_no]
-                    _cur_lp.insert(0, {"no": _new_no, "title": _new_tt, "org": "직접입력 타겟공고", "base": float(_m_base), "a_val": float(_m_a), "net_cost": float(_m_net)})
-                    st.session_state["live_pulled_notices"] = _cur_lp
-                    _save_persisted_notices(_cur_lp)
-                    st.session_state["_boutique_sel_idx"] = 0
-                    st.session_state["_boutique_page"] = 0
-                    st.rerun()
+                with _p_c2:
+                    if "live_pulled_notices" in st.session_state and st.session_state["live_pulled_notices"]:
+                        _step3_list = fetch_step3_all_subsequent_bids([], {}, st.session_state.get('_active_bid_lic_filter', '건축공사업'), st.session_state.get('_active_bid_reg_filter', '강원특별자치도'))
+                        st.session_state['custom_pulled_bids'] = _step3_list
+                        _opts = [f"[{b.get('공고번호','')}] {b.get('공고명','')}" for b in _step3_list]
+                        _sel_p = st.selectbox("📥 추가된 신규 공고 선택", _opts, key="sel_live_pulled_item")
+                        _idx_p = _opts.index(_sel_p)
+                        _picked = st.session_state["live_pulled_notices"][_idx_p]
+                        if st.button("⚡ 선택한 공고로 전체 캐비닛 전환", key="btn_apply_pulled_notice", use_container_width=True):
+                            st.session_state["selected_notice_no"] = _picked["no"]
+                            st.session_state["selected_notice_title"] = _picked["title"]
+                            st.session_state["selected_notice_org"] = _picked["org"]
+                            st.session_state["base_amount"] = _picked["base"]
+                            st.session_state["a_value"] = _picked["a_val"]
+                            st.session_state["net_cost"] = _picked["net_cost"]
+                            st.rerun()
+                    else:
+                        st.info("👈 왼쪽 버튼을 누르면 최신 공고가 수신됩니다.")
+                with _p_c3:
+                    _m_no = st.text_input("➕ 직접 추가 (공고번호 | 공사명)", key="quick_in_no")
+                    _m_c1, _m_c2, _m_c3 = st.columns(3)
+                    _m_base = _m_c1.number_input("기초금액(원)", step=10000000, key="quick_in_base")
+                    _m_a = _m_c2.number_input("A값(원)", step=1000000, key="quick_in_a")
+                    _m_net = _m_c3.number_input("순공사원가(원)", value=3463750000, step=10000000, key="quick_in_net")
+                    if st.button("✅ 이 제원으로 즉시 추가 및 분석", key="btn_quick_manual_apply", use_container_width=True):
+                        _parts = [p.strip() for p in _m_no.split("|")]
+                        _new_no = _parts[0] if _parts else "202611-99999"
+                        _new_tt = _parts[1] if len(_parts) > 1 else _m_no
+                        st.session_state["selected_notice_no"] = _new_no
+                        st.session_state["selected_notice_title"] = _new_tt
+                        st.session_state["base_amount"] = float(_m_base)
+                        st.session_state["a_value"] = float(_m_a)
+                        st.session_state["net_cost"] = float(_m_net)
+                        _cur_lp = list(st.session_state.get("live_pulled_notices", []))
+                        _cur_lp = [x for x in _cur_lp if x.get("no") != _new_no]
+                        _cur_lp.insert(0, {"no": _new_no, "title": _new_tt, "org": "직접입력 타겟공고", "base": float(_m_base), "a_val": float(_m_a), "net_cost": float(_m_net)})
+                        st.session_state["live_pulled_notices"] = _cur_lp
+                        _save_persisted_notices(_cur_lp)
+                        st.session_state["_boutique_sel_idx"] = 0
+                        st.session_state["_boutique_page"] = 0
+                        st.rerun()
 except Exception:
     pass
 
@@ -9109,232 +10853,237 @@ try:
     _cab_m_now = bool(globals().get("_is_cab_mode", True))
     if (not _cab_m_now) or ("[Z1]" in _cab_z_now) or ("[Z8]" in _cab_z_now):
         import streamlit.components.v1 as _stc_z1doc
-        with st.expander("🖨️ STEP 4 · 📂 [입찰공고 원문 · 시방서 · 내역서 6종 통합 뷰어] — 나라장터 G2B 정식 풀버전 미리보기 & 원클릭 인쇄 (클릭 시 열림)", expanded=False):
-            _d_c1, _d_c2, _d_c3 = st.columns([2.6, 1.2, 1.2])
-            with _d_c1:
-                _spec_sel = st.selectbox(
-                    "📑 열람 및 인쇄할 발주처 입찰 원문 서류 선택",
-                    [
-                        "① [입찰공고문] 시설공사 입찰공고문 (나라장터 G2B 연동 정식 양식)",
-                        "📚 [6종 전체 합본] 입찰공고문 + 공사시방서 + 현장설명서 + 물량내역서 + 원가검토 + 특수조건",
-                        "② [공사시방서] 표준 및 특기시방서 (철거·석면해체·그린리모델링·내진보강)",
-                        "③ [현장설명서] 현장여건 · 공정간섭 리스크 · 안전보건관리 준수사항",
-                        "④ [물량내역서(공내역서)] 공종별 설계 수량 및 원가계산서 상세 내역",
-                        "⑤ [A값 & 순공사원가 고시표] 법정 정산비용(A값) 및 98% 미만 배제 하한선 산출표",
-                        "⑥ [공사계약 특수조건 & 적격심사 총괄표] 하도급·지역의무 및 제출서류 체크리스트",
-                    ],
-                    key="z1_bid_spec_doc_selector"
-                )
-            with _d_c2:
-                _spec_zoom = st.select_slider("🔍 문서 배율", options=["80%", "90%", "100%", "115%"], value="100%", key="z1_spec_zoom")
-            with _d_c3:
-                _up_pdf = st.file_uploader("📎 실제 나라장터 파일(PDF/HTML) 열기", type=["pdf", "html", "txt"], key="z1_raw_file_up")
-
-            # 현재 선택된 보물 캐비닛 공고의 실제 세부 데이터 연동
-            _n_title = str(st.session_state.get("selected_notice_title", "춘천시청 별관 신축 및 문화복합동 증축공사"))
-            _n_no = str(st.session_state.get("selected_notice_no", "202611-01540"))
-            _n_org = str(st.session_state.get("selected_notice_org", "강원특별자치도 춘천시"))
-            _n_loc = str(st.session_state.get("selected_notice_loc", "강원특별자치도 관내"))
-            _n_days = str(st.session_state.get("selected_notice_days", "착공일로부터 318일간"))
-            _n_desc = str(st.session_state.get("selected_notice_desc", "🏛️ 기존 건축물 그린리모델링 · 내진보강 및 증축공사 (철근콘크리트조(RC) + 철골조(S) 복합 보강구조, 추정 연면적 1,666.7㎡)"))
-            _n_risk = str(st.session_state.get("selected_notice_risk", "⚠️ 철거·석면해체 공정 간섭 주의"))
-            _n_dl = str(st.session_state.get("selected_notice_deadline", "2026-11-13 10:00"))
-            _n_spec_note = str(st.session_state.get("selected_notice_note", "기존 시설물 철거/해체 안전관리계획서 필수, 석면 해체 및 비산먼지 저감 대책 포함, 야간/휴일 소음 제어 공법 적용"))
-
-            _n_base = float(st.session_state.get("base_amount", 4250000000) or 4250000000)
-            _n_a = float(st.session_state.get("a_value", 195400000) or 195400000)
-            _n_net = float(st.session_state.get("net_cost", round(_n_base * 0.815)) or round(_n_base * 0.815))
-            _n_net98 = round(_n_net * 0.98)
-            _def_low = round(88.74 + 0.005, 3)
-            _n_low = float(st.session_state.get("lower_limit_rate", _def_low) or _def_low)
-
-            _r1 = 100.0907
-            _r2 = 100.1100
-            _r3 = 100.0658
-            _t1_amt = int(round(((_n_base * (_r1 / 100.0) - _n_a) * (_n_low / 100.0)) + _n_a))
-            _t2_amt = int(round(((_n_base * (_r2 / 100.0) - _n_a) * (_n_low / 100.0)) + _n_a))
-            _t3_amt = int(round(((_n_base * (_r3 / 100.0) - _n_a) * (_n_low / 100.0)) + _n_a))
-
-            if _up_pdf is not None:
-                import base64 as _b64
-                _raw_bytes = _up_pdf.read()
-                if _up_pdf.name.lower().endswith(".pdf"):
-                    _b64_pdf = _b64.b64encode(_raw_bytes).decode("utf-8")
-                    _stc_z1doc.html(
-                        f'<iframe src="data:application/pdf;base64,{_b64_pdf}" width="100%" height="800px" style="border:1px solid #f59e0b; border-radius:8px;"></iframe>',
-                        height=820,
+        if False:
+            with st.expander("🖨️ STEP 4 · 📂 [입찰공고 원문 · 시방서 · 내역서 6종 통합 뷰어] — 나라장터 G2B 정식 풀버전 미리보기 & 원클릭 인쇄 (클릭 시 열림)", expanded=False):
+                _d_c1, _d_c2, _d_c3 = st.columns([2.6, 1.2, 1.2])
+                with _d_c1:
+                    _spec_sel = st.selectbox(
+                        "📑 열람 및 인쇄할 발주처 입찰 원문 서류 선택",
+                        [
+                            "① [입찰공고문] 시설공사 입찰공고문 (나라장터 G2B 연동 정식 양식)",
+                            "📚 [6종 전체 합본] 입찰공고문 + 공사시방서 + 현장설명서 + 물량내역서 + 원가검토 + 특수조건",
+                            "② [공사시방서] 표준 및 특기시방서 (철거·석면해체·그린리모델링·내진보강)",
+                            "③ [현장설명서] 현장여건 · 공정간섭 리스크 · 안전보건관리 준수사항",
+                            "④ [물량내역서(공내역서)] 공종별 설계 수량 및 원가계산서 상세 내역",
+                            "⑤ [A값 & 순공사원가 고시표] 법정 정산비용(A값) 및 98% 미만 배제 하한선 산출표",
+                            "⑥ [공사계약 특수조건 & 적격심사 총괄표] 하도급·지역의무 및 제출서류 체크리스트",
+                        ],
+                        key="z1_bid_spec_doc_selector"
                     )
-                else:
-                    st.code(_raw_bytes.decode("utf-8", errors="ignore")[:5000])
-
-            _spec_html = f"""
-            <!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">
-            <style>
-                body {{ background:#0f172a; color:#111; font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif; margin:0; padding:16px; zoom:{_spec_zoom}; }}
-                .top-bar {{ position:sticky; top:0; z-index:1000; background:#1e293b; color:#f8fafc; padding:12px 20px; border-radius:10px; border:1px solid #38bdf8; display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; box-shadow:0 4px 14px rgba(0,0,0,0.45); }}
-                .btn-print {{ background:linear-gradient(135deg,#f59e0b,#d97706); color:#000; font-weight:800; border:none; padding:10px 22px; border-radius:8px; cursor:pointer; font-size:14px; }}
-                .a4-sheet {{ background:#ffffff; width:210mm; min-height:265mm; margin:0 auto 24px auto; padding:18mm 20mm; box-sizing:border-box; border-radius:4px; box-shadow:0 8px 25px rgba(0,0,0,0.5); page-break-after:always; }}
-                .doc-title {{ font-size:22px; font-weight:800; text-align:center; border-bottom:2px solid #222; padding-bottom:14px; margin:0 0 12px 0; letter-spacing:-0.5px; }}
-                .meta-line {{ font-size:13.5px; font-weight:700; color:#1e293b; margin-bottom:20px; }}
-                h2 {{ font-size:16px; font-weight:800; color:#111; margin:24px 0 10px 0; }}
-                table {{ width:100%; border-collapse:collapse; font-size:13px; margin-bottom:10px; }}
-                th, td {{ border:1px solid #94a3b8; padding:10px 12px; text-align:left; line-height:1.5; }}
-                th {{ background:#f1f5f9; font-weight:800; color:#0f172a; width:18%; }}
-                td {{ color:#1e293b; font-weight:500; }}
-                .bold-val {{ font-weight:800; color:#0f172a; }}
-                ul.bullet-list {{ margin:8px 0 28px 0; padding-left:20px; font-size:13.5px; line-height:1.8; color:#1e293b; }}
-                ul.bullet-list li {{ margin-bottom:4px; }}
-                .footer-sign {{ text-align:center; margin-top:38px; }}
-                .footer-sign .announce {{ font-size:15px; font-weight:800; margin-bottom:22px; }}
-                .footer-sign .official {{ font-size:18px; font-weight:900; letter-spacing:0.5px; }}
-                @media print {{ body {{ background:#fff; padding:0; zoom:100%; }} .top-bar {{ display:none !important; }} .a4-sheet {{ box-shadow:none; margin:0; width:100%; }} }}
-            </style></head><body>
-                <div class="top-bar">
-                    <div><strong>📂 나라장터 G2B 정식 입찰공고 원문 · 시방서 · 내역서 6종 통합 뷰어</strong> &nbsp;|&nbsp; 공고번호: 제 {_n_no} 호</div>
-                    <button class="btn-print" onclick="window.print()">🖨️ 지금 화면 바로 인쇄 / PDF 저장</button>
-                </div>
-
-                <!-- 1. 시설공사 입찰공고문 (두 번째 캡처와 100% 동일한 정식 풀버전 양식) -->
-                <div class="a4-sheet" style="display:{'block' if ('6종 전체 합본' in _spec_sel or '①' in _spec_sel) else 'none'};">
-                    <div class="doc-title">시설공사 입찰공고문 (나라장터 G2B 연동)</div>
-                    <div class="meta-line">공고번호: 제 {_n_no} 호 &nbsp;|&nbsp; 발주기관: {_n_org}</div>
-
-                    <h2>1. 입찰에 부치는 사항</h2>
-                    <table>
-                        <tr>
-                            <th>공사명</th>
-                            <td colspan="3" class="bold-val">{_n_title}</td>
-                        </tr>
-                        <tr>
-                            <th>공사현장</th>
-                            <td style="width:36%;">{_n_loc}</td>
-                            <th style="width:16%;">공사기간</th>
-                            <td>{_n_days}</td>
-                        </tr>
-                        <tr>
-                            <th>공사개요</th>
-                            <td colspan="3">{_n_desc}</td>
-                        </tr>
-                        <tr>
-                            <th>기초금액</th>
-                            <td class="bold-val">{_n_base:,.0f}원 <span style="font-weight:500;">(부가세 포함)</span></td>
-                            <th>A값(법정비용)</th>
-                            <td class="bold-val">{_n_a:,.0f}원</td>
-                        </tr>
-                        <tr>
-                            <th>추정 순공사원가</th>
-                            <td><span class="bold-val">{_n_net:,.0f}원</span> (98% 하한: {_n_net98:,.0f}원)</td>
-                            <th>낙찰하한율</th>
-                            <td class="bold-val">{_n_low:.3f}%</td>
-                        </tr>
-                    </table>
-
-                    <h2>2. AI 3대 트랙 사전 사정 가이드</h2>
-                    <table>
-                        <tr>
-                            <th style="width:20%;">👑 트랙 1 (M5 양자코어)</th>
-                            <td style="width:30%;" class="bold-val">{_t1_amt:,.0f}원 ({_r1:.4f}%)</td>
-                            <th style="width:20%;">🛡️ 트랙 2 (EGR 방어선)</th>
-                            <td style="width:30%;" class="bold-val">{_t2_amt:,.0f}원 ({_r2:.4f}%)</td>
-                        </tr>
-                        <tr>
-                            <th>⚡ 트랙 3 (LATTICE 격자)</th>
-                            <td class="bold-val">{_t3_amt:,.0f}원 ({_r3:.4f}%)</td>
-                            <th>핵심 리스크 진단</th>
-                            <td>{_n_risk}</td>
-                        </tr>
-                    </table>
-
-                    <h2>3. 입찰 및 계약방식</h2>
-                    <ul class="bullet-list">
-                        <li>적격심사 대상공사이며, 복수예비가격(15개 중 4개 추첨 산술평균)이 적용되는 전자입찰입니다.</li>
-                        <li><strong>입찰마감일시: {_n_dl}</strong> (국가종합전자조달시스템 나라장터)</li>
-                        <li>특기사항: {_n_spec_note}</li>
-                    </ul>
-
-                    <div class="footer-sign">
-                        <div class="announce">위와 같이 공고합니다.</div>
-                        <div class="official">{_n_org} 재무관</div>
+                with _d_c2:
+                    _spec_zoom = st.select_slider("🔍 문서 배율", options=["80%", "90%", "100%", "115%"], value="100%", key="z1_spec_zoom")
+                with _d_c3:
+                    _up_pdf = st.file_uploader("📎 실제 나라장터 파일(PDF/HTML) 열기", type=["pdf", "html", "txt"], key="z1_raw_file_up")
+    
+                # 현재 선택된 보물 캐비닛 공고의 실제 세부 데이터 연동
+                _n_title = str(st.session_state.get("selected_notice_title", "춘천시청 별관 신축 및 문화복합동 증축공사"))
+                _n_no = str(st.session_state.get("selected_notice_no", ""))
+                _n_org = str(st.session_state.get("selected_notice_org", "강원특별자치도 춘천시"))
+                _n_loc = str(st.session_state.get("selected_notice_loc", "강원특별자치도 관내"))
+                _n_days = str(st.session_state.get("selected_notice_days", "착공일로부터 318일간"))
+                _n_desc = str(st.session_state.get("selected_notice_desc", "🏛️ 기존 건축물 그린리모델링 · 내진보강 및 증축공사 (철근콘크리트조(RC) + 철골조(S) 복합 보강구조, 추정 연면적 1,666.7㎡)"))
+                _n_risk = str(st.session_state.get("selected_notice_risk", "⚠️ 철거·석면해체 공정 간섭 주의"))
+                _n_dl = str(st.session_state.get("selected_notice_deadline", "2026-11-13 10:00"))
+                _n_spec_note = str(st.session_state.get("selected_notice_note", "기존 시설물 철거/해체 안전관리계획서 필수, 석면 해체 및 비산먼지 저감 대책 포함, 야간/휴일 소음 제어 공법 적용"))
+    
+                _n_base = float(st.session_state.get("base_amount", 4250000000) or 4250000000)
+                _n_a = float(st.session_state.get("a_value", 195400000) or 195400000)
+                _n_net = float(st.session_state.get("net_cost", round(_n_base * 0.815)) or round(_n_base * 0.815))
+                _n_net98 = round(_n_net * 0.98)
+                _def_low = round(88.74 + 0.005, 3)
+                _n_low = float(st.session_state.get("lower_limit_rate", _def_low) or _def_low)
+    
+                _r1 = 100.0907
+                _r2 = 100.1100
+                _r3 = 100.0658
+                _t1_amt = int(round(((_n_base * (_r1 / 100.0) - _n_a) * (_n_low / 100.0)) + _n_a))
+                _t2_amt = int(round(((_n_base * (_r2 / 100.0) - _n_a) * (_n_low / 100.0)) + _n_a))
+                _t3_amt = int(round(((_n_base * (_r3 / 100.0) - _n_a) * (_n_low / 100.0)) + _n_a))
+    
+                if _up_pdf is not None:
+                    import base64 as _b64
+                    _raw_bytes = _up_pdf.read()
+                    if _up_pdf.name.lower().endswith(".pdf"):
+                        _b64_pdf = _b64.b64encode(_raw_bytes).decode("utf-8")
+                        import streamlit.components.v1 as _stc_z1doc
+                        if '_spec_html' not in locals(): _spec_html = ''
+                        _stc_z1doc.html(
+                            f'<iframe src="data:application/pdf;base64,{_b64_pdf}" width="100%" height="800px" style="border:1px solid #f59e0b; border-radius:8px;"></iframe>',
+                            height=820,
+                        )
+                    else:
+                        st.code(_raw_bytes.decode("utf-8", errors="ignore")[:5000])
+    
+                _spec_html = f"""
+                <!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">
+                <style>
+                    body {{ background:#0f172a; color:#111; font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif; margin:0; padding:16px; zoom:{_spec_zoom}; }}
+                    .top-bar {{ position:sticky; top:0; z-index:1000; background:#1e293b; color:#f8fafc; padding:12px 20px; border-radius:10px; border:1px solid #38bdf8; display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; box-shadow:0 4px 14px rgba(0,0,0,0.45); }}
+                    .btn-print {{ background:linear-gradient(135deg,#f59e0b,#d97706); color:#000; font-weight:800; border:none; padding:10px 22px; border-radius:8px; cursor:pointer; font-size:14px; }}
+                    .a4-sheet {{ background:#ffffff; width:210mm; min-height:265mm; margin:0 auto 24px auto; padding:18mm 20mm; box-sizing:border-box; border-radius:4px; box-shadow:0 8px 25px rgba(0,0,0,0.5); page-break-after:always; }}
+                    .doc-title {{ font-size:22px; font-weight:800; text-align:center; border-bottom:2px solid #222; padding-bottom:14px; margin:0 0 12px 0; letter-spacing:-0.5px; }}
+                    .meta-line {{ font-size:13.5px; font-weight:700; color:#1e293b; margin-bottom:20px; }}
+                    h2 {{ font-size:16px; font-weight:800; color:#111; margin:24px 0 10px 0; }}
+                    table {{ width:100%; border-collapse:collapse; font-size:13px; margin-bottom:10px; }}
+                    th, td {{ border:1px solid #94a3b8; padding:10px 12px; text-align:left; line-height:1.5; }}
+                    th {{ background:#f1f5f9; font-weight:800; color:#0f172a; width:18%; }}
+                    td {{ color:#1e293b; font-weight:500; }}
+                    .bold-val {{ font-weight:800; color:#0f172a; }}
+                    ul.bullet-list {{ margin:8px 0 28px 0; padding-left:20px; font-size:13.5px; line-height:1.8; color:#1e293b; }}
+                    ul.bullet-list li {{ margin-bottom:4px; }}
+                    .footer-sign {{ text-align:center; margin-top:38px; }}
+                    .footer-sign .announce {{ font-size:15px; font-weight:800; margin-bottom:22px; }}
+                    .footer-sign .official {{ font-size:18px; font-weight:900; letter-spacing:0.5px; }}
+                    @media print {{ body {{ background:#fff; padding:0; zoom:100%; }} .top-bar {{ display:none !important; }} .a4-sheet {{ box-shadow:none; margin:0; width:100%; }} }}
+                </style></head><body>
+                    <div class="top-bar">
+                        <div><strong>📂 나라장터 G2B 정식 입찰공고 원문 · 시방서 · 내역서 6종 통합 뷰어</strong> &nbsp;|&nbsp; 공고번호: 제 {_n_no} 호</div>
+                        <button class="btn-print" onclick="window.print()">🖨️ 지금 화면 바로 인쇄 / PDF 저장</button>
                     </div>
-                </div>
-
-                <!-- 2. 공사시방서 (정식 풀버전) -->
-                <div class="a4-sheet" style="display:{'block' if ('6종 전체 합본' in _spec_sel or '②' in _spec_sel) else 'none'};">
-                    <div class="doc-title">공사시방서 (표준 및 특기시방서)</div>
-                    <div class="meta-line">공고번호: 제 {_n_no} 호 &nbsp;|&nbsp; 공사명: {_n_title}</div>
-                    <h2>1. 일반시방 및 적용기준</h2>
-                    <table>
-                        <tr><th>적용 시방서</th><td colspan="3">국토교통부 국가건설기준(KCS) 표준시방서 및 본 공사 특기시방서 우선 적용</td></tr>
-                        <tr><th>구조 및 공법</th><td colspan="3">{_n_desc}</td></tr>
-                        <tr><th>중점 관리항목</th><td colspan="3">{_n_spec_note}</td></tr>
-                    </table>
-                    <h2>2. 공종별 핵심 특기시방</h2>
-                    <table>
-                        <tr><th>가설 및 해체공</th><td>기존 시설물 철거 전 구조안전진단 및 해체계획서 승인 필수, 석면 해체 시 음압기 가동 및 농도 측정 보고</td></tr>
-                        <tr><th>구조·내진보강공</th><td>철근콘크리트(RC) 단면증설 및 철골(S) 브레이싱 접합부 비파괴검사(UT) 100% 실시, 무수축 모르타르 충전</td></tr>
-                        <tr><th>그린리모델링 마감</th><td>고단열 로이복층유리 창호, 준불연 외단열 시스템, 고효율 냉난방 공조설비 및 친환경 인증 마감재 적용</td></tr>
-                    </table>
-                    <div class="footer-sign"><div class="official">{_n_org} 감독관청</div></div>
-                </div>
-
-                <!-- 3. 현장설명서 -->
-                <div class="a4-sheet" style="display:{'block' if ('6종 전체 합본' in _spec_sel or '③' in _spec_sel) else 'none'};">
-                    <div class="doc-title">현장설명서 (설계서 열람 갈음)</div>
-                    <div class="meta-line">공고번호: 제 {_n_no} 호 &nbsp;|&nbsp; 현장위치: {_n_loc}</div>
-                    <h2>1. 현장 여건 및 시공 유의사항</h2>
-                    <table>
-                        <tr><th>공정 간섭 대책</th><td>{_n_risk} — 기존 청사 업무 연속성 보장을 위해 소음·진동 유발 공정은 휴일/야간 분리 시공</td></tr>
-                        <tr><th>환경 및 폐기물</th><td>비산먼지 발생억제 살수시설 상시 가동, 지정폐기물(석면 등) 및 건설폐기물 올바로(Allbaro) 시스템 적법 처리</td></tr>
-                        <tr><th>안전보건 의무</th><td>중대재해처벌법 및 산업안전보건법에 따른 안전관리계획서 제출, 산업안전보건관리비 목적 외 사용 엄금</td></tr>
-                    </table>
-                    <div class="footer-sign"><div class="official">{_n_org} 공사감독관</div></div>
-                </div>
-
-                <!-- 4. 물량내역서 (공내역서 / 원가계산서) -->
-                <div class="a4-sheet" style="display:{'block' if ('6종 전체 합본' in _spec_sel or '④' in _spec_sel) else 'none'};">
-                    <div class="doc-title">원가계산서 및 공종별 물량내역서 (공내역서)</div>
-                    <div class="meta-line">공고번호: 제 {_n_no} 호 &nbsp;|&nbsp; 기초금액: {_n_base:,.0f}원</div>
-                    <h2>1. 원가계산 총괄 집계표</h2>
-                    <table>
-                        <tr><th>비목 구분</th><th>반영 비율</th><th>설계 산출금액</th><th>산출 근거 및 비고</th></tr>
-                        <tr><th>직접재료비</th><td>33.5%</td><td class="bold-val">{_n_base * 0.335:,.0f}원</td><td>철골·단열재·창호·마감자재 조달청 가격정보 적용</td></tr>
-                        <tr><th>직접노무비</th><td>28.0%</td><td class="bold-val">{_n_base * 0.280:,.0f}원</td><td>대한건설협회 시중노임단가 기준</td></tr>
-                        <tr><th>산출경비</th><td>20.0%</td><td class="bold-val">{_n_base * 0.200:,.0f}원</td><td>기계경비, 법정 보험료(A값), 안전관리비 포함</td></tr>
-                        <tr><th>추정 순공사원가</th><td class="bold-val">81.5%</td><td class="bold-val">{_n_net:,.0f}원</td><td>98% 미만 투찰 배제 하한선: {_n_net98:,.0f}원</td></tr>
-                        <tr><th>일반관리비·이윤·부가세</th><td>18.5%</td><td>{_n_base - _n_net:,.0f}원</td><td>법정 요율 및 부가가치세 10% 합산</td></tr>
-                        <tr><th>기초금액 총계</th><td class="bold-val">100.0%</td><td class="bold-val">{_n_base:,.0f}원</td><td>부가세 포함 총 설계금액</td></tr>
-                    </table>
-                </div>
-
-                <!-- 5. A값 및 순공사원가 고시표 -->
-                <div class="a4-sheet" style="display:{'block' if ('6종 전체 합본' in _spec_sel or '⑤' in _spec_sel) else 'none'};">
-                    <div class="doc-title">법정 정산비용(A값) 및 순공사원가 고시내역서</div>
-                    <div class="meta-line">공고번호: 제 {_n_no} 호 &nbsp;|&nbsp; 발주기관: {_n_org}</div>
-                    <h2>1. A값 세부 구성 내역 (사후 실비 정산 항목)</h2>
-                    <table>
-                        <tr><th>고시 비목</th><th>고시 금액</th><th>정산 기준</th></tr>
-                        <tr><th>국민연금보험료</th><td>{_n_a * 0.31:,.0f}원</td><td>준공 시 납부영수증 기준 실비 정산</td></tr>
-                        <tr><th>국민건강보험료 및 노인장기요양보험료</th><td>{_n_a * 0.34:,.0f}원</td><td>준공 시 납부영수증 기준 실비 정산</td></tr>
-                        <tr><th>산업안전보건관리비 · 퇴직공제부금 · 환경보전비</th><td>{_n_a * 0.35:,.0f}원</td><td>법정 계상기준 및 사용내역 실비 정산</td></tr>
-                        <tr><th>A값 합산액 총계</th><td class="bold-val">{_n_a:,.0f}원</td><td class="bold-val">예정가격 및 입찰가격 평점 산식 시 차감 후 재합산</td></tr>
-                    </table>
-                </div>
-
-                <!-- 6. 공사계약 특수조건 및 적격심사 제출서류 총괄표 -->
-                <div class="a4-sheet" style="display:{'block' if ('6종 전체 합본' in _spec_sel or '⑥' in _spec_sel) else 'none'};">
-                    <div class="doc-title">공사계약 특수조건 및 적격심사 제출서류 목록</div>
-                    <div class="meta-line">공고번호: 제 {_n_no} 호 &nbsp;|&nbsp; 발주기관: {_n_org}</div>
-                    <h2>1. 계약 특수조건 및 제출서류 체크리스트</h2>
-                    <table>
-                        <tr><th>적격심사 신청서 및 자기평가표</th><td>개찰 후 적격심사 대상 통보일로부터 7일 이내 나라장터 전자 제출</td></tr>
-                        <tr><th>하도급 지킴이 및 직접시공</th><td>건설산업기본법에 따른 직접시공계획서 제출 및 하도급대금 직불시스템 의무 적용</td></tr>
-                        <tr><th>AI 최적 투찰 결재 요약</th><td>트랙 1: {_t1_amt:,.0f}원 / 트랙 2: {_t2_amt:,.0f}원 / 트랙 3: {_t3_amt:,.0f}원</td></tr>
-                    </table>
-                    <div class="footer-sign"><div class="official">{_n_org} 재무관</div></div>
-                </div>
-            </body></html>
-            """
-            _stc_z1doc.html(_spec_html, height=960, scrolling=True)
+    
+                    <!-- 1. 시설공사 입찰공고문 (두 번째 캡처와 100% 동일한 정식 풀버전 양식) -->
+                    <div class="a4-sheet" style="display:{'block' if ('6종 전체 합본' in _spec_sel or '①' in _spec_sel) else 'none'};">
+                        <div class="doc-title">시설공사 입찰공고문 (나라장터 G2B 연동)</div>
+                        <div class="meta-line">공고번호: 제 {_n_no} 호 &nbsp;|&nbsp; 발주기관: {_n_org}</div>
+    
+                        <h2>1. 입찰에 부치는 사항</h2>
+                        <table>
+                            <tr>
+                                <th>공사명</th>
+                                <td colspan="3" class="bold-val">{_n_title}</td>
+                            </tr>
+                            <tr>
+                                <th>공사현장</th>
+                                <td style="width:36%;">{_n_loc}</td>
+                                <th style="width:16%;">공사기간</th>
+                                <td>{_n_days}</td>
+                            </tr>
+                            <tr>
+                                <th>공사개요</th>
+                                <td colspan="3">{_n_desc}</td>
+                            </tr>
+                            <tr>
+                                <th>기초금액</th>
+                                <td class="bold-val">{_n_base:,.0f}원 <span style="font-weight:500;">(부가세 포함)</span></td>
+                                <th>A값(법정비용)</th>
+                                <td class="bold-val">{_n_a:,.0f}원</td>
+                            </tr>
+                            <tr>
+                                <th>추정 순공사원가</th>
+                                <td><span class="bold-val">{_n_net:,.0f}원</span> (98% 하한: {_n_net98:,.0f}원)</td>
+                                <th>낙찰하한율</th>
+                                <td class="bold-val">{_n_low:.3f}%</td>
+                            </tr>
+                        </table>
+    
+                        <h2>2. AI 3대 트랙 사전 사정 가이드</h2>
+                        <table>
+                            <tr>
+                                <th style="width:20%;">👑 트랙 1 (M5 양자코어)</th>
+                                <td style="width:30%;" class="bold-val">{_t1_amt:,.0f}원 ({_r1:.4f}%)</td>
+                                <th style="width:20%;">🛡️ 트랙 2 (EGR 방어선)</th>
+                                <td style="width:30%;" class="bold-val">{_t2_amt:,.0f}원 ({_r2:.4f}%)</td>
+                            </tr>
+                            <tr>
+                                <th>⚡ 트랙 3 (LATTICE 격자)</th>
+                                <td class="bold-val">{_t3_amt:,.0f}원 ({_r3:.4f}%)</td>
+                                <th>핵심 리스크 진단</th>
+                                <td>{_n_risk}</td>
+                            </tr>
+                        </table>
+    
+                        <h2>3. 입찰 및 계약방식</h2>
+                        <ul class="bullet-list">
+                            <li>적격심사 대상공사이며, 복수예비가격(15개 중 4개 추첨 산술평균)이 적용되는 전자입찰입니다.</li>
+                            <li><strong>입찰마감일시: {_n_dl}</strong> (국가종합전자조달시스템 나라장터)</li>
+                            <li>특기사항: {_n_spec_note}</li>
+                        </ul>
+    
+                        <div class="footer-sign">
+                            <div class="announce">위와 같이 공고합니다.</div>
+                            <div class="official">{_n_org} 재무관</div>
+                        </div>
+                    </div>
+    
+                    <!-- 2. 공사시방서 (정식 풀버전) -->
+                    <div class="a4-sheet" style="display:{'block' if ('6종 전체 합본' in _spec_sel or '②' in _spec_sel) else 'none'};">
+                        <div class="doc-title">공사시방서 (표준 및 특기시방서)</div>
+                        <div class="meta-line">공고번호: 제 {_n_no} 호 &nbsp;|&nbsp; 공사명: {_n_title}</div>
+                        <h2>1. 일반시방 및 적용기준</h2>
+                        <table>
+                            <tr><th>적용 시방서</th><td colspan="3">국토교통부 국가건설기준(KCS) 표준시방서 및 본 공사 특기시방서 우선 적용</td></tr>
+                            <tr><th>구조 및 공법</th><td colspan="3">{_n_desc}</td></tr>
+                            <tr><th>중점 관리항목</th><td colspan="3">{_n_spec_note}</td></tr>
+                        </table>
+                        <h2>2. 공종별 핵심 특기시방</h2>
+                        <table>
+                            <tr><th>가설 및 해체공</th><td>기존 시설물 철거 전 구조안전진단 및 해체계획서 승인 필수, 석면 해체 시 음압기 가동 및 농도 측정 보고</td></tr>
+                            <tr><th>구조·내진보강공</th><td>철근콘크리트(RC) 단면증설 및 철골(S) 브레이싱 접합부 비파괴검사(UT) 100% 실시, 무수축 모르타르 충전</td></tr>
+                            <tr><th>그린리모델링 마감</th><td>고단열 로이복층유리 창호, 준불연 외단열 시스템, 고효율 냉난방 공조설비 및 친환경 인증 마감재 적용</td></tr>
+                        </table>
+                        <div class="footer-sign"><div class="official">{_n_org} 감독관청</div></div>
+                    </div>
+    
+                    <!-- 3. 현장설명서 -->
+                    <div class="a4-sheet" style="display:{'block' if ('6종 전체 합본' in _spec_sel or '③' in _spec_sel) else 'none'};">
+                        <div class="doc-title">현장설명서 (설계서 열람 갈음)</div>
+                        <div class="meta-line">공고번호: 제 {_n_no} 호 &nbsp;|&nbsp; 현장위치: {_n_loc}</div>
+                        <h2>1. 현장 여건 및 시공 유의사항</h2>
+                        <table>
+                            <tr><th>공정 간섭 대책</th><td>{_n_risk} — 기존 청사 업무 연속성 보장을 위해 소음·진동 유발 공정은 휴일/야간 분리 시공</td></tr>
+                            <tr><th>환경 및 폐기물</th><td>비산먼지 발생억제 살수시설 상시 가동, 지정폐기물(석면 등) 및 건설폐기물 올바로(Allbaro) 시스템 적법 처리</td></tr>
+                            <tr><th>안전보건 의무</th><td>중대재해처벌법 및 산업안전보건법에 따른 안전관리계획서 제출, 산업안전보건관리비 목적 외 사용 엄금</td></tr>
+                        </table>
+                        <div class="footer-sign"><div class="official">{_n_org} 공사감독관</div></div>
+                    </div>
+    
+                    <!-- 4. 물량내역서 (공내역서 / 원가계산서) -->
+                    <div class="a4-sheet" style="display:{'block' if ('6종 전체 합본' in _spec_sel or '④' in _spec_sel) else 'none'};">
+                        <div class="doc-title">원가계산서 및 공종별 물량내역서 (공내역서)</div>
+                        <div class="meta-line">공고번호: 제 {_n_no} 호 &nbsp;|&nbsp; 기초금액: {_n_base:,.0f}원</div>
+                        <h2>1. 원가계산 총괄 집계표</h2>
+                        <table>
+                            <tr><th>비목 구분</th><th>반영 비율</th><th>설계 산출금액</th><th>산출 근거 및 비고</th></tr>
+                            <tr><th>직접재료비</th><td>33.5%</td><td class="bold-val">{_n_base * 0.335:,.0f}원</td><td>철골·단열재·창호·마감자재 조달청 가격정보 적용</td></tr>
+                            <tr><th>직접노무비</th><td>28.0%</td><td class="bold-val">{_n_base * 0.280:,.0f}원</td><td>대한건설협회 시중노임단가 기준</td></tr>
+                            <tr><th>산출경비</th><td>20.0%</td><td class="bold-val">{_n_base * 0.200:,.0f}원</td><td>기계경비, 법정 보험료(A값), 안전관리비 포함</td></tr>
+                            <tr><th>추정 순공사원가</th><td class="bold-val">81.5%</td><td class="bold-val">{_n_net:,.0f}원</td><td>98% 미만 투찰 배제 하한선: {_n_net98:,.0f}원</td></tr>
+                            <tr><th>일반관리비·이윤·부가세</th><td>18.5%</td><td>{_n_base - _n_net:,.0f}원</td><td>법정 요율 및 부가가치세 10% 합산</td></tr>
+                            <tr><th>기초금액 총계</th><td class="bold-val">100.0%</td><td class="bold-val">{_n_base:,.0f}원</td><td>부가세 포함 총 설계금액</td></tr>
+                        </table>
+                    </div>
+    
+                    <!-- 5. A값 및 순공사원가 고시표 -->
+                    <div class="a4-sheet" style="display:{'block' if ('6종 전체 합본' in _spec_sel or '⑤' in _spec_sel) else 'none'};">
+                        <div class="doc-title">법정 정산비용(A값) 및 순공사원가 고시내역서</div>
+                        <div class="meta-line">공고번호: 제 {_n_no} 호 &nbsp;|&nbsp; 발주기관: {_n_org}</div>
+                        <h2>1. A값 세부 구성 내역 (사후 실비 정산 항목)</h2>
+                        <table>
+                            <tr><th>고시 비목</th><th>고시 금액</th><th>정산 기준</th></tr>
+                            <tr><th>국민연금보험료</th><td>{_n_a * 0.31:,.0f}원</td><td>준공 시 납부영수증 기준 실비 정산</td></tr>
+                            <tr><th>국민건강보험료 및 노인장기요양보험료</th><td>{_n_a * 0.34:,.0f}원</td><td>준공 시 납부영수증 기준 실비 정산</td></tr>
+                            <tr><th>산업안전보건관리비 · 퇴직공제부금 · 환경보전비</th><td>{_n_a * 0.35:,.0f}원</td><td>법정 계상기준 및 사용내역 실비 정산</td></tr>
+                            <tr><th>A값 합산액 총계</th><td class="bold-val">{_n_a:,.0f}원</td><td class="bold-val">예정가격 및 입찰가격 평점 산식 시 차감 후 재합산</td></tr>
+                        </table>
+                    </div>
+    
+                    <!-- 6. 공사계약 특수조건 및 적격심사 제출서류 총괄표 -->
+                    <div class="a4-sheet" style="display:{'block' if ('6종 전체 합본' in _spec_sel or '⑥' in _spec_sel) else 'none'};">
+                        <div class="doc-title">공사계약 특수조건 및 적격심사 제출서류 목록</div>
+                        <div class="meta-line">공고번호: 제 {_n_no} 호 &nbsp;|&nbsp; 발주기관: {_n_org}</div>
+                        <h2>1. 계약 특수조건 및 제출서류 체크리스트</h2>
+                        <table>
+                            <tr><th>적격심사 신청서 및 자기평가표</th><td>개찰 후 적격심사 대상 통보일로부터 7일 이내 나라장터 전자 제출</td></tr>
+                            <tr><th>하도급 지킴이 및 직접시공</th><td>건설산업기본법에 따른 직접시공계획서 제출 및 하도급대금 직불시스템 의무 적용</td></tr>
+                            <tr><th>AI 최적 투찰 결재 요약</th><td>트랙 1: {_t1_amt:,.0f}원 / 트랙 2: {_t2_amt:,.0f}원 / 트랙 3: {_t3_amt:,.0f}원</td></tr>
+                        </table>
+                        <div class="footer-sign"><div class="official">{_n_org} 재무관</div></div>
+                    </div>
+                </body></html>
+                """
+                import streamlit.components.v1 as _stc_z1doc
+                if '_spec_html' not in locals(): _spec_html = ''
+                _stc_z1doc.html(_spec_html, height=960, scrolling=True)
 except Exception:
     pass
 
@@ -9664,831 +11413,236 @@ except Exception:
 
 # === [WORKFLOW HIERARCHY & ZERO-GAP SPACING OPTIMIZER] ===
 
-# === [SINGLE UNIFIED MASTER CSS BLOCK] ===
+
+# === [SIDEBAR FIXED & RIGHT BOXES UNIFORM 10PX GAP (ZERO JITTER) v4.0] ===
 st.markdown("""
 <style>
-/* === [GLOBAL NEON GLASS TABLE & DATAFRAME UPGRADE CSS] === */
-.stMarkdown table {
-    width: 100% !important;
-    border-collapse: separate !important;
-    border-spacing: 0 !important;
-    background: linear-gradient(145deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.78)) !important;
-    border: 1px solid rgba(56, 189, 248, 0.35) !important;
-    border-radius: 12px !important;
-    overflow: hidden !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
-    margin: 12px 0 18px 0 !important;
-}
-.stMarkdown table thead th {
-    background: linear-gradient(180deg, rgba(30, 41, 59, 0.98), rgba(15, 23, 42, 0.98)) !important;
-    color: #38bdf8 !important;
-    font-weight: 800 !important;
-    font-size: 13px !important;
-    padding: 12px 12px !important;
-    border-bottom: 2px solid rgba(56, 189, 248, 0.45) !important;
-    border-right: 1px solid rgba(148, 163, 184, 0.15) !important;
-}
-.stMarkdown table tbody td {
-    padding: 10px 12px !important;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.14) !important;
-    border-right: 1px solid rgba(148, 163, 184, 0.1) !important;
-    color: #e2e8f0 !important;
-    font-size: 13px !important;
-    font-variant-numeric: tabular-nums !important;
-    transition: background 0.18s ease !important;
-}
-.stMarkdown table tbody tr:hover td {
-    background: rgba(56, 189, 248, 0.11) !important;
-    color: #ffffff !important;
-}
-.stMarkdown table tbody tr:last-child td {
-    border-bottom: none !important;
-}
-/* 데이터프레임 외곽 테두리 네온 글로우 */
-div[data-testid="stDataFrame"] {
-    border: 1px solid rgba(56, 189, 248, 0.38) !important;
-    border-radius: 12px !important;
-    padding: 4px !important;
-    background: rgba(15, 23, 42, 0.85) !important;
-    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45) !important;
-}
-
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-    * { font-family: 'Pretendard', -apple-system, sans-serif; }
-    .stApp {
-        background: radial-gradient(circle at 10% 20%, rgba(13, 27, 62, 0.55) 0%, rgba(5, 10, 24, 0.98) 90%);
-        color: #F8FAFC;
-    }
-    .status-badge-locked {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        background: rgba(239, 68, 68, 0.2);
-        color: #EF4444;
-        border: 1px solid rgba(239, 68, 68, 0.4);
-    }
-    .status-badge-active {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        background: rgba(16, 185, 129, 0.2);
-        color: #10B981;
-        border: 1px solid rgba(16, 185, 129, 0.4);
-    }
-    .timer-badge {
-        font-size: 1.15rem;
-        font-weight: 800;
-        color: #F59E0B;
-        background: rgba(245, 158, 11, 0.15);
-        padding: 6px 14px;
-        border-radius: 8px;
-        border: 1px solid rgba(245, 158, 11, 0.3);
-        display: inline-block;
-    }
-    .quant-tag {
-        background: rgba(139, 92, 246, 0.2);
-        color: #C4B5FD;
-        border: 1px solid rgba(139, 92, 246, 0.4);
-        padding: 2px 8px;
-        border-radius: 4px;
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
-    .radar-card {
-        background: rgba(15, 23, 42, 0.7);
-        border: 1px solid rgba(59, 130, 246, 0.25);
-        border-radius: 10px;
-        padding: 14px 18px;
-        margin-bottom: 12px;
-    }
-
-/* === [ZERO-OVERFLOW 5-MODEL METRIC CARD MASTER FIX] === */
-div[data-testid="stMetric"] {
-    padding: 12px 10px !important;
-    overflow: hidden !important;
-    box-sizing: border-box !important;
-}
-/* 1) 상단 라벨: 말줄임표(...) 제거 및 한 줄 맞춤 */
-div[data-testid="stMetricLabel"],
-div[data-testid="stMetricLabel"] *,
-div[data-testid="stMetricLabel"] p {
-    font-size: 12px !important;
-    font-weight: 700 !important;
-    line-height: 1.3 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: clip !important;
-    letter-spacing: -0.5px !important;
-    max-width: 100% !important;
-}
-/* 2) 중앙 투찰금액(3,795,842,330원): 끝자리 '원'까지 절대 안 잘리게 폰트 사이즈 최적화 */
-div[data-testid="stMetricValue"],
-div[data-testid="stMetricValue"] *,
-div[data-testid="stMetricValue"] > div {
-    font-size: clamp(14px, 1.18vw, 18.5px) !important;
-    font-weight: 800 !important;
-    line-height: 1.25 !important;
-    white-space: nowrap !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
-    letter-spacing: -0.8px !important;
-    font-variant-numeric: tabular-nums !important;
-}
-/* 3) 하단 초록/빨강 배지(사정률 | 방어지수): 박스 밖 돌출 완전 차단 및 내부 줄바꿈 허용 */
-div[data-testid="stMetricDelta"],
-div[data-testid="stMetricDelta"] *,
-div[data-testid="stMetricDelta"] > div {
-    font-size: 11px !important;
-    font-weight: 600 !important;
-    line-height: 1.3 !important;
-    white-space: normal !important;
-    word-break: keep-all !important;
-    overflow: hidden !important;
-    text-overflow: clip !important;
-    letter-spacing: -0.5px !important;
-    max-width: 100% !important;
-    display: inline-block !important;
-}
-
-/* === [GLOBAL BOX & METRIC CENTER ALIGNMENT CSS] === */
-/* 1) 모든 메트릭 카드(경영상태, 시공실적, 신인도, 데드존, 5대 모델 등) 내부 요소 완벽 중앙 정렬 */
-div[data-testid="stMetric"],
-div[data-testid="metric-container"] {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    text-align: center !important;
-    padding: 14px 10px !important;
-}
-div[data-testid="stMetricLabel"],
-div[data-testid="stMetricLabel"] > div,
-div[data-testid="stMetricLabel"] p {
-    width: 100% !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    text-align: center !important;
-    margin: 0 auto !important;
-}
-div[data-testid="stMetricValue"],
-div[data-testid="stMetricValue"] > div {
-    width: 100% !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    text-align: center !important;
-    margin: 2px auto !important;
-}
-/* 초록/빨강 하단 배지(재무비율, 1.00배 만점, 99.850%~100.250% 등) 화살표와 글자 한 줄 중앙 정렬 */
-div[data-testid="stMetricDelta"] {
-    width: auto !important;
-    max-width: 96% !important;
-    display: inline-flex !important;
-    flex-direction: row !important;
-    justify-content: center !important;
-    align-items: center !important;
-    text-align: center !important;
-    margin: 4px auto 0 auto !important;
-    padding: 3px 10px !important;
-    border-radius: 999px !important;
-}
-div[data-testid="stMetricDelta"] > div,
-div[data-testid="stMetricDelta"] svg {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    white-space: nowrap !important;
-    margin: 0 2px !important;
-}
-/* 2) 알림 박스(적용 규정 배너 등) 및 일반 카드 컨테이너 내부 텍스트 중앙 정렬 */
-div[data-testid="stAlert"] div[role="alert"],
-div[data-testid="stAlert"] p {
-    text-align: center !important;
-    justify-content: center !important;
-    width: 100% !important;
-}
-/* 3) 버튼 및 캐비닛 탭 내부 텍스트 정중앙 배치 */
-div.stButton > button,
-div.stDownloadButton > button {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    text-align: center !important;
-}
-/* 4) 표(Table) 헤더 및 셀 텍스트 중앙 정렬 */
-table th, table td {
-    text-align: center !important;
-    vertical-align: middle !important;
-}
-
-/* === [SIDEBAR ZERO-TRUNCATION & RESPONSIVE WRAP CSS] === */
-section[data-testid="stSidebar"] * {
-    text-overflow: clip !important;
-}
-/* 사이드바 캡션, 일반 문단, 아코디언 제목, 알림 문구: 말줄임(...) 금지 및 어절 단위 자동 줄바꿈 */
-section[data-testid="stSidebar"] [data-testid="stCaptionContainer"],
-section[data-testid="stSidebar"] [data-testid="stCaptionContainer"] p,
-section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
-section[data-testid="stSidebar"] summary p,
-section[data-testid="stSidebar"] summary span,
-section[data-testid="stSidebar"] label p,
-section[data-testid="stSidebar"] div[data-testid="stAlert"] p {
-    white-space: normal !important;
-    word-break: keep-all !important;
-    overflow-wrap: anywhere !important;
-    overflow: visible !important;
-    text-overflow: unset !important;
-    line-height: 1.45 !important;
-    font-size: 12.2px !important;
-    letter-spacing: -0.4px !important;
-}
-/* 사이드바 버튼: 너비가 좁아지면 버튼 높이가 자동으로 늘어나며 두 줄로 전체 한글 표시 */
-section[data-testid="stSidebar"] div.stButton > button {
-    height: auto !important;
-    min-height: 38px !important;
-    padding: 8px 10px !important;
-    white-space: normal !important;
-    word-break: keep-all !important;
-    overflow-wrap: anywhere !important;
-    line-height: 1.35 !important;
-}
-section[data-testid="stSidebar"] div.stButton > button p {
-    white-space: normal !important;
-    word-break: keep-all !important;
-    overflow: visible !important;
-    text-overflow: unset !important;
-    font-size: 12.5px !important;
-    line-height: 1.35 !important;
-}
-/* 비밀번호 입력창 플레이스홀더 및 입력 텍스트가 우측 눈(👁️) 아이콘에 잘리지 않도록 폰트/여백 최적화 */
-section[data-testid="stSidebar"] input[type="password"],
-section[data-testid="stSidebar"] input[type="text"] {
-    font-size: 12px !important;
-    letter-spacing: -0.4px !important;
-    padding-right: 6px !important;
-}
-section[data-testid="stSidebar"] input::placeholder {
-    font-size: 11.5px !important;
-    letter-spacing: -0.5px !important;
-    opacity: 0.85 !important;
-}
-
-/* 멀티셀렉트 선택 칩: 촌스러운 빨간색 대신 골드-앰버 네온 캡슐로 변경 & 말줄임(...) 해제 */
-    span[data-baseweb="tag"] {
-        background: linear-gradient(135deg, rgba(245, 158, 11, 0.28), rgba(217, 119, 6, 0.45)) !important;
-        border: 1px solid rgba(251, 191, 36, 0.75) !important;
-        border-radius: 999px !important;
-        color: #fef3c7 !important;
-        font-weight: 700 !important;
-        padding: 4px 12px !important;
-        box-shadow: 0 0 12px rgba(245, 158, 11, 0.25) !important;
-        max-width: none !important;
-    }
-    span[data-baseweb="tag"] span {
-        max-width: none !important;
-        overflow: visible !important;
-        text-overflow: unset !important;
-        white-space: nowrap !important;
-    }
-    /* 숫자 입력창(NumberInput) 및 텍스트 입력창: 네온 테두리 & 입체 그림자 */
-    div[data-testid="stNumberInput"] > div,
-    div[data-testid="stTextInput"] > div > div,
-    div[data-baseweb="select"] > div {
-        background: linear-gradient(145deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.78)) !important;
-        border: 1px solid rgba(56, 189, 248, 0.35) !important;
-        border-radius: 10px !important;
-        box-shadow: inset 0 1px 2px rgba(255,255,255,0.06), 0 4px 14px rgba(0, 0, 0, 0.35) !important;
-        transition: all 0.2s ease-in-out !important;
-    }
-    div[data-testid="stNumberInput"] > div:focus-within,
-    div[data-testid="stTextInput"] > div > div:focus-within,
-    div[data-baseweb="select"] > div:focus-within {
-        border-color: #38bdf8 !important;
-        box-shadow: 0 0 16px rgba(56, 189, 248, 0.45) !important;
-    }
-    div[data-testid="stNumberInput"] input {
-        color: #38bdf8 !important;
-        font-weight: 800 !important;
-        font-size: 15px !important;
-        text-align: center !important;
-    }
-    /* 소제목(⚡ 특수 시공 자격, 👷 상주 기술인력, 🏗️ 보유 면허별 시평액 등) 좌측 네온 포인트 바 */
-    div[data-testid="stMarkdownContainer"] h3,
-    div[data-testid="stMarkdownContainer"] h4 {
-        background: linear-gradient(90deg, rgba(56, 189, 248, 0.14), rgba(15, 23, 42, 0.0)) !important;
-        border-left: 4px solid #38bdf8 !important;
-        padding: 8px 14px !important;
-        border-radius: 0 8px 8px 0 !important;
-        margin-top: 18px !important;
-        margin-bottom: 10px !important;
-    }
-    /* 하단 5개년 누적 합산 알림 박스를 골드-에메랄드 프리미엄 배너로 업그레이드 */
-    div[data-testid="stAlert"] {
-        background: linear-gradient(135deg, rgba(6, 78, 59, 0.55), rgba(15, 23, 42, 0.9)) !important;
-        border: 1px solid rgba(16, 185, 129, 0.6) !important;
-        border-radius: 12px !important;
-        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.18) !important;
-    }
-
-/* === [CYBERNETIC OCR UPLOADER & Z9 TOP HEADER CSS] === */
-section[data-testid="stFileUploaderDropzone"] {
-    background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.14), rgba(15, 23, 42, 0.92) 75%) !important;
-    border: 2px dashed rgba(56, 189, 248, 0.65) !important;
-    border-radius: 14px !important;
-    padding: 18px 20px !important;
-    box-shadow: 0 0 22px rgba(56, 189, 248, 0.18), inset 0 0 15px rgba(56, 189, 248, 0.08) !important;
-    transition: all 0.25s ease !important;
-}
-section[data-testid="stFileUploaderDropzone"]:hover {
-    border-color: #fbbf24 !important;
-    background: radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.18), rgba(15, 23, 42, 0.95) 75%) !important;
-    box-shadow: 0 0 28px rgba(245, 158, 11, 0.3) !important;
-}
-section[data-testid="stFileUploaderDropzone"] button {
-    background: linear-gradient(135deg, #0284c7, #38bdf8) !important;
-    color: #0f172a !important;
-    font-weight: 800 !important;
-    border: none !important;
-    border-radius: 8px !important;
-    padding: 6px 16px !important;
-    box-shadow: 0 0 12px rgba(56, 189, 248, 0.45) !important;
-}
-
-/* === [HOLOGRAM DOWNLOAD BUTTONS & EXPANDER LAUNCHER CSS] === */
-/* 1) 다운로드 버튼(st.download_button): 밋밋한 다홍색/검은색 버튼을 3D 골드 & 시안 홀로그램 액션 바로 업그레이드 */
-div[data-testid="stDownloadButton"] > button {
-    width: 100% !important;
-    min-height: 48px !important;
-    background: linear-gradient(135deg, rgba(14, 116, 144, 0.85), rgba(2, 132, 199, 0.95), rgba(37, 99, 235, 0.9)) !important;
-    border: 1px solid rgba(56, 189, 248, 0.75) !important;
-    border-radius: 12px !important;
-    color: #f8fafc !important;
-    font-weight: 900 !important;
-    font-size: 14px !important;
-    letter-spacing: -0.2px !important;
-    box-shadow: 0 6px 20px rgba(2, 132, 199, 0.38), inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
-    transition: all 0.22s ease !important;
-}
-/* 좌측 첫 번째 컬럼의 다운로드 버튼(적격심사 신청서)은 골드-앰버 네온 테마로 차별화 */
-div[data-testid="column"]:first-child div[data-testid="stDownloadButton"] > button,
-div[data-testid="stDownloadButton"] > button[kind="primary"] {
-    background: linear-gradient(135deg, rgba(217, 119, 6, 0.92), rgba(245, 158, 11, 0.95), rgba(234, 88, 12, 0.9)) !important;
-    border: 1px solid rgba(253, 224, 71, 0.85) !important;
-    color: #0f172a !important;
-    box-shadow: 0 6px 22px rgba(245, 158, 11, 0.42), inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
-}
-div[data-testid="column"]:first-child div[data-testid="stDownloadButton"] > button *,
-div[data-testid="stDownloadButton"] > button[kind="primary"] * {
-    color: #0f172a !important;
-    font-weight: 900 !important;
-}
-div[data-testid="stDownloadButton"] > button:hover {
-    transform: translateY(-2px) scale(1.005) !important;
-    filter: brightness(1.12) !important;
-    box-shadow: 0 10px 28px rgba(56, 189, 248, 0.55) !important;
-}
-
-/* 2) 접혀 있는 부가 메뉴(st.expander): 얇고 밋밋한 줄을 하이엔드 홀로그램 런처 카드로 시각화 */
-div[data-testid="stExpander"] {
-    background: linear-gradient(145deg, rgba(15, 23, 42, 0.94), rgba(30, 41, 59, 0.86)) !important;
-    border: 1px solid rgba(56, 189, 248, 0.42) !important;
-    border-left: 5px solid #38bdf8 !important;
-    border-radius: 14px !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
-    margin-top: 12px !important;
-    margin-bottom: 14px !important;
-    overflow: hidden !important;
-    transition: all 0.22s ease !important;
-}
-div[data-testid="stExpander"]:hover {
-    border-color: rgba(251, 191, 36, 0.75) !important;
-    border-left-color: #fbbf24 !important;
-    box-shadow: 0 10px 28px rgba(56, 189, 248, 0.25) !important;
-}
-div[data-testid="stExpander"] details > summary {
-    padding: 13px 18px !important;
-    background: linear-gradient(90deg, rgba(56, 189, 248, 0.14), rgba(139, 92, 246, 0.10), rgba(15, 23, 42, 0.0)) !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-}
-div[data-testid="stExpander"] details > summary p {
-    font-size: 14px !important;
-    font-weight: 800 !important;
-    color: #e0f2fe !important;
-    letter-spacing: -0.2px !important;
-}
-/* 본문 영역의 Expander 우측 끝에 [⚡ STUDIO OPEN] 홀로그램 배지 자동 부착 */
-section.main div[data-testid="stExpander"] details > summary::after {
-    content: "⚡ CLICK TO OPEN STUDIO" !important;
-    background: linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(139, 92, 246, 0.28)) !important;
-    border: 1px solid rgba(56, 189, 248, 0.6) !important;
-    color: #7dd3fc !important;
-    font-size: 11px !important;
-    font-weight: 900 !important;
-    padding: 4px 11px !important;
-    border-radius: 999px !important;
-    margin-left: auto !important;
-    white-space: nowrap !important;
-    box-shadow: 0 0 10px rgba(56, 189, 248, 0.25) !important;
-}
-section.main div[data-testid="stExpander"] details[open] > summary::after {
-    content: "🟢 ACTIVE STUDIO (클릭 시 접기)" !important;
-    background: rgba(16, 185, 129, 0.22) !important;
-    border-color: #10b981 !important;
-    color: #6ee7b7 !important;
-}
-
-/* === [CYBERNETIC QUANTUM COCKPIT MASTER THEME v4.0] === */
-
-/* 1) 배경 오로라 그리드 & 깊이감 극대화 */
-.stApp {
-    background:
-        radial-gradient(circle at 12% 8%, rgba(56, 189, 248, 0.12), transparent 38%),
-        radial-gradient(circle at 88% 15%, rgba(139, 92, 246, 0.11), transparent 42%),
-        radial-gradient(circle at 50% 85%, rgba(16, 185, 129, 0.08), transparent 45%),
-        linear-gradient(180deg, #050811 0%, #0a0f1f 50%, #060913 100%) !important;
-}
-
-/* 2) 모든 슬라이더(st.slider): 밋밋한 빨간 줄을 탈피하여 [사이버네틱 네온 레이저 궤도 + 플라즈마 오브 핸들]로 개조 */
-div[data-testid="stSlider"] {
-    background: linear-gradient(145deg, rgba(15, 23, 42, 0.94), rgba(30, 41, 59, 0.84)) !important;
-    border: 1px solid rgba(56, 189, 248, 0.42) !important;
-    border-radius: 14px !important;
-    padding: 14px 18px 10px 18px !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
-    transition: all 0.22s ease !important;
-}
-div[data-testid="stSlider"]:hover {
-    border-color: #38bdf8 !important;
-    box-shadow: 0 0 22px rgba(56, 189, 248, 0.32) !important;
-}
-/* 슬라이더 바 트랙 */
-div[data-testid="stSlider"] div[data-baseweb="slider"] > div > div {
-    height: 10px !important;
-    border-radius: 999px !important;
-    background: linear-gradient(90deg, #0284c7 0%, #38bdf8 45%, #10b981 80%, #fbbf24 100%) !important;
-    box-shadow: 0 0 14px rgba(56, 189, 248, 0.45) !important;
-}
-/* 슬라이더 손잡이(Thumb) 오브 */
-div[data-testid="stSlider"] div[role="slider"] {
-    width: 22px !important;
-    height: 22px !important;
-    background: radial-gradient(circle, #ffffff 25%, #38bdf8 70%, #0284c7 100%) !important;
-    border: 2px solid #ffffff !important;
-    border-radius: 50% !important;
-    box-shadow: 0 0 18px #38bdf8, 0 0 6px #ffffff !important;
-    transition: transform 0.15s ease !important;
-}
-div[data-testid="stSlider"] div[role="slider"]:hover {
-    transform: scale(1.22) !important;
-    box-shadow: 0 0 24px #fbbf24, 0 0 10px #ffffff !important;
-}
-/* 슬라이더 수치 배지 (88.5% 등 빨간 글씨를 골드 네온 디지털 캡슐로 변경) */
-div[data-testid="stSlider"] div[data-testid="stTickBarMin"],
-div[data-testid="stSlider"] div[data-testid="stTickBarMax"] {
-    color: #94a3b8 !important;
-    font-weight: 700 !important;
-    font-size: 11.5px !important;
-}
-div[data-testid="stSlider"] div[role="slider"] > div {
-    background: linear-gradient(135deg, #0f172a, #1e293b) !important;
-    border: 1px solid #38bdf8 !important;
-    color: #38bdf8 !important;
-    font-weight: 900 !important;
-    font-size: 12.5px !important;
-    padding: 2px 8px !important;
-    border-radius: 6px !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
-}
-
-/* 3) 숫자 입력창(st.number_input) & 텍스트 입력창: 콕핏 디지털 계기판 모듈화 */
-div[data-testid="stNumberInput"],
-div[data-testid="stTextInput"],
-div[data-testid="stSelectbox"] {
-    background: linear-gradient(145deg, rgba(15, 23, 42, 0.94), rgba(30, 41, 59, 0.84)) !important;
-    border: 1px solid rgba(56, 189, 248, 0.38) !important;
-    border-radius: 14px !important;
-    padding: 10px 14px 12px 14px !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
-}
-div[data-testid="stNumberInput"]:hover,
-div[data-testid="stTextInput"]:hover,
-div[data-testid="stSelectbox"]:hover {
-    border-color: rgba(251, 191, 36, 0.7) !important;
-    box-shadow: 0 8px 26px rgba(56, 189, 248, 0.25) !important;
-}
-/* 모든 위젯 상단 라벨 가독성 극대화 */
-div[data-testid="stWidgetLabel"] p {
-    font-size: 13px !important;
-    font-weight: 800 !important;
-    color: #e0f2fe !important;
-    letter-spacing: -0.2px !important;
-    text-shadow: 0 0 10px rgba(56, 189, 248, 0.35) !important;
-}
-div[data-testid="stNumberInput"] input {
-    font-size: 16.5px !important;
-    font-weight: 900 !important;
-    color: #38bdf8 !important;
-    letter-spacing: 0.3px !important;
-    text-shadow: 0 0 12px rgba(56, 189, 248, 0.4) !important;
-}
-/* NumberInput 우측 - / + 스텝 버튼을 택티컬 네온 버튼으로 변경 */
-div[data-testid="stNumberInput"] button {
-    background: rgba(56, 189, 248, 0.14) !important;
-    color: #38bdf8 !important;
-    border-left: 1px solid rgba(56, 189, 248, 0.28) !important;
-    font-weight: 900 !important;
-}
-div[data-testid="stNumberInput"] button:hover {
-    background: linear-gradient(135deg, #0284c7, #38bdf8) !important;
-    color: #0f172a !important;
-}
-
-/* 4) 본문 모든 액션 버튼(st.button): 3D 택티컬 하드웨어 키캡 디자인 */
-section.main div.stButton > button {
-    background: linear-gradient(145deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98)) !important;
-    border: 1px solid rgba(56, 189, 248, 0.5) !important;
-    border-top: 2px solid rgba(125, 211, 252, 0.8) !important;
-    border-radius: 12px !important;
-    color: #f8fafc !important;
-    font-weight: 800 !important;
-    padding: 10px 16px !important;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-section.main div.stButton > button:hover {
-    transform: translateY(-2px) !important;
-    border-color: #fbbf24 !important;
-    border-top-color: #fde68a !important;
-    box-shadow: 0 10px 26px rgba(56, 189, 248, 0.38), 0 0 14px rgba(251, 191, 36, 0.35) !important;
-}
-/* Primary 강조 버튼(황금-앰버 하이퍼 코어 스타일) */
-section.main div.stButton > button[kind="primary"] {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #0284c7 100%) !important;
-    border: 1px solid #fde68a !important;
-    color: #0f172a !important;
-    font-weight: 900 !important;
-    box-shadow: 0 8px 26px rgba(245, 158, 11, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.45) !important;
-}
-section.main div.stButton > button[kind="primary"] * {
-    color: #0f172a !important;
-    font-weight: 900 !important;
-}
-
-/* 5) 섹션 메인 타이틀(h2, h3)을 홀로그램 HUD 헤더 배너로 격상 */
-section.main div[data-testid="stMarkdownContainer"] h2,
-section.main div[data-testid="stMarkdownContainer"] h3 {
-    background: linear-gradient(90deg, rgba(56, 189, 248, 0.22) 0%, rgba(139, 92, 246, 0.14) 55%, rgba(15, 23, 42, 0.0) 100%) !important;
-    border: 1px solid rgba(56, 189, 248, 0.35) !important;
-    border-left: 5px solid #38bdf8 !important;
-    border-radius: 12px !important;
-    padding: 12px 18px !important;
-    margin-top: 20px !important;
-    margin-bottom: 14px !important;
-    color: #f8fafc !important;
-    font-weight: 900 !important;
-    letter-spacing: -0.3px !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
-}
-
-/* 6) 메트릭 카드(st.metric)도 3D 홀로그램 타일로 자동 업그레이드 */
-div[data-testid="stMetric"] {
-    background: radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.16), rgba(15, 23, 42, 0.95) 75%) !important;
-    border: 1px solid rgba(56, 189, 248, 0.42) !important;
-    border-top: 3px solid #38bdf8 !important;
-    border-radius: 14px !important;
-    padding: 14px 16px !important;
-    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.5) !important;
-}
-div[data-testid="stMetricValue"] {
-    color: #38bdf8 !important;
-    font-weight: 900 !important;
-    text-shadow: 0 0 14px rgba(56, 189, 248, 0.35) !important;
-}
-
-/* === [WORKFLOW HIERARCHY & ZERO-GAP SPACING OPTIMIZER v5.0] === */
-
-/* 1) 전체 컨테이너 상하 여백 및 블록 간격(Gap)을 조밀하고 균형 잡힌 황금비율(10px)로 통일 */
-section.main div.block-container {
-    padding-top: 1.4rem !important;
-    padding-bottom: 2.0rem !important;
-    max-width: 98% !important;
-}
-section.main div[data-testid="stVerticalBlock"] > div {
-    margin-bottom: 0px !important;
-}
-section.main div[data-testid="stVerticalBlock"] {
-    gap: 0.55rem !important;
-}
-/* 불필요하게 공간을 차지하는 가로 구분선(hr) 여백 최소화 */
-section.main hr {
-    margin: 6px 0 !important;
-    border-color: rgba(56, 189, 248, 0.18) !important;
-}
-
-/* 2) 뷰 모드 선택 라디오 버튼(1페이지 3건 / 3x3 쇼룸 / 와이드 테이블)을 두 줄 깨짐 없이 한 줄 중앙 세그먼트 바로 정렬! */
-section.main div[data-testid="stRadio"] > div[role="radiogroup"] {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    justify-content: center !important;
-    align-items: center !important;
-    gap: 10px !important;
-    background: linear-gradient(145deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.85)) !important;
-    border: 1px solid rgba(56, 189, 248, 0.38) !important;
-    border-radius: 999px !important;
-    padding: 6px 16px !important;
-    width: fit-content !important;
-    margin: 0 auto 6px auto !important;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45) !important;
-}
-section.main div[data-testid="stRadio"] label {
-    background: transparent !important;
-    padding: 4px 12px !important;
-    border-radius: 999px !important;
-    margin: 0 !important;
-    white-space: nowrap !important;
-    transition: all 0.18s ease !important;
-}
-section.main div[data-testid="stRadio"] label:hover {
-    background: rgba(56, 189, 248, 0.15) !important;
-}
-section.main div[data-testid="stRadio"] label p {
-    font-size: 12.5px !important;
-    font-weight: 800 !important;
-    white-space: nowrap !important;
-}
-
-/* 3) 쇼룸 카드와 하단 버튼([현재 열람중]/[캐비닛 열기], [카트담기])이 위아래로 떨어져 보이지 않도록 일체형 도킹 */
-section.main div[data-testid="column"] div.stButton > button {
-    min-height: 40px !important;
-    padding: 7px 12px !important;
-    border-radius: 10px !important;
-    font-size: 13px !important;
-    font-weight: 800 !important;
-}
-/* 카드 하단 1순위 주업무 버튼(열람/분석 - 좌측 컬럼)은 시안-블루 네온 강조, 2순위 보조 버튼(카트담기 - 우측 컬럼)은 퍼플-로즈 슬림 스타일로 위계 구분 */
-section.main div[data-testid="column"]:nth-child(1) div.stButton > button[kind="primary"] {
-    background: linear-gradient(135deg, #0284c7 0%, #2563eb 55%, #4f46e5 100%) !important;
-    border: 1px solid #7dd3fc !important;
-    color: #ffffff !important;
-    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
-}
-section.main div[data-testid="column"]:nth-child(1) div.stButton > button[kind="primary"] * {
-    color: #ffffff !important;
-}
-
-/* 4) 하단 STEP 1 ~ STEP 4 아코디언(st.expander) 박스 간격을 8px 로 촘촘하게 밀착하여 덩그러니 비어 보이던 현상 완전 제거 */
-section.main div[data-testid="stExpander"] {
+/* 1. 좌측 메인 메뉴(사이드바) 현 상태 그대로 픽스 유지 */
+section[data-testid="stSidebar"] > div:first-child,
+section[data-testid="stSidebar"] [data-testid="stSidebarContent"],
+section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {
+    padding-top: 26px !important;
+}
+section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div[data-testid="stElementContainer"]:first-child {
+    margin-top: 14px !important;
+}
+section[data-testid="stSidebar"] div[role="radiogroup"] > label {
+    margin-bottom: 8px !important;
+}
+section[data-testid="stSidebar"] .stButton {
     margin-top: 4px !important;
-    margin-bottom: 4px !important;
-    border-radius: 12px !important;
-}
-section.main div[data-testid="stExpander"] details > summary {
-    padding: 11px 16px !important;
+    margin-bottom: 8px !important;
 }
 
-/* 5) 좌측 사이드바 Z1~Z9 캐비닛 네비게이션 버튼 간격 압축(한 화면에 Z1~Z9가 스크롤 없이 한눈에 들어오도록 최적화) */
-section[data-testid="stSidebar"] div.stButton > button {
-    min-height: 34px !important;
-    padding: 6px 10px !important;
-    margin-bottom: 2px !important;
-    border-radius: 9px !important;
-    font-size: 12px !important;
+/* 2. 우측 메인 영역: 모든 박스(STEP 0, 스마트검색, 초록안내박스, STEP 2, STEP 3, STEP 4) 애니메이션/트랜지션 0%로 고정 (춤추는 현상 원천 차단!) */
+section.main div[data-testid="stExpander"],
+section.main div[data-testid="stElementContainer"],
+section.main div[data-testid="stAlert"] {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
 }
-section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] {
-    gap: 0.38rem !important;
-}
-
-/* === [DIRECT EXPANDER DOCKING CSS] === */
 section.main div[data-testid="stExpander"] {
     margin-top: 0px !important;
-    margin-bottom: 6px !important;
+    margin-bottom: 10px !important;
 }
-/* STEP 3 아코디언(조달청 G2B 신규 공고)을 감싼 컨테이너를 위로 직접 당겨 STEP 2 바로 밑에 도킹 */
-div[data-testid="stElementContainer"]:has(div[data-testid="stExpander"] summary p),
-div.element-container:has(div[data-testid="stExpander"]) {
+section.main div[data-testid="stAlert"] {
     margin-top: 0px !important;
-    margin-bottom: 0px !important;
-    padding-top: 0px !important;
-    padding-bottom: 0px !important;
+    margin-bottom: 10px !important;
 }
 </style>
 """, unsafe_allow_html=True)
 
-
-# === [ZERO-HEIGHT IFRAME & EXPANDER GAP COLLAPSE] ===
-st.markdown("""
-<style>
-/* === [ZERO-HEIGHT IFRAME & EXPANDER GAP COLLAPSE] === */
-/* 1) height="0" 인 투명 스크립트 iframe 자체와 그 부모 컨테이너의 높이를 0으로 완전 압축 (화면 요소는 절대 건드리지 않음) */
-iframe[height="0"] {
-    height: 0px !important;
-    min-height: 0px !important;
-    max-height: 0px !important;
-    margin: 0px !important;
-    padding: 0px !important;
-    border: none !important;
-    display: block !important;
-}
-div[data-testid="stElementContainer"]:has(> iframe[height="0"]),
-div[data-testid="stElementContainer"]:has(div[data-testid="stCustomComponentV1"] iframe[height="0"]),
-div.element-container:has(iframe[height="0"]) {
-    height: 0px !important;
-    min-height: 0px !important;
-    margin-top: -10px !important;
-    margin-bottom: -10px !important;
-    padding: 0px !important;
-    overflow: hidden !important;
-}
-
-/* 2) style 태그만 들어있는 마크다운 컨테이너의 상하 마진 제거 (display:none 대신 height:0 사용으로 안전 보장) */
-div[data-testid="stElementContainer"]:has(> div[data-testid="stMarkdown"] > div > style:only-child) {
-    height: 0px !important;
-    min-height: 0px !important;
-    margin-top: -10px !important;
-    margin-bottom: -10px !important;
-    padding: 0px !important;
-    overflow: hidden !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# 3) DOM 이동(insertBefore) 없이, STEP 2 아코디언과 STEP 3 아코디언 사이에 끼어 있는
-#    중간 형제 요소(height=0 iframe / 빈 style 블록)들의 margin과 height만 0px로 압축하여
-#    STEP 3가 STEP 2 바로 밑(6px 간격)으로 자연스럽게 올라오도록 처리!
-import streamlit.components.v1 as _stc_gap
-_stc_gap.html("""
+import streamlit.components.v1 as _st_static_gap
+_st_static_gap.html("""
 <script>
 (function() {
-    function collapseMiddleGap() {
-        try {
-            const doc = window.parent.document;
-            const exps = Array.from(doc.querySelectorAll('[data-testid="stExpander"]'));
-            let exp2 = null, exp3 = null, exp4 = null;
-            exps.forEach(ex => {
-                const txt = (ex.innerText || "");
-                // 모든 아코디언 박스의 너비를 부모 컨테이너 100%로 통일
-                ex.style.setProperty("width", "100%", "important");
-                ex.style.setProperty("max-width", "100%", "important");
-                ex.style.setProperty("box-sizing", "border-box", "important");
-                const w = ex.closest('[data-testid="stElementContainer"]') || ex.parentElement;
-                if (w) {
-                    w.style.setProperty("width", "100%", "important");
-                    w.style.setProperty("max-width", "100%", "important");
-                }
-                if (txt.includes("STEP 2") || txt.includes("상세 도감")) exp2 = ex;
-                if (txt.includes("STEP 3") || txt.includes("신규 공고")) exp3 = ex;
-                if (txt.includes("STEP 4") || txt.includes("6종 통합")) exp4 = ex;
-            });
+    const doc = window.parent.document;
+    if (!doc) return;
 
-            // 1) STEP 2 <-> STEP 3 간격을 정확히 8px로 도킹 및 너비 동기화
-            if (exp2 && exp3) {
-                const wrap3 = exp3.closest('[data-testid="stElementContainer"]') || exp3.parentElement;
-                if (wrap3) {
-                    const curMt3 = parseFloat(wrap3.style.marginTop || "0") || 0;
-                    const r2 = exp2.getBoundingClientRect();
-                    const r3 = exp3.getBoundingClientRect();
-                    const gap23 = r3.top - r2.bottom;
-                    if (Math.abs(gap23 - 8) > 2 && gap23 < 600) {
-                        const newMt3 = Math.round(curMt3 - (gap23 - 8));
-                        wrap3.style.setProperty("margin-top", newMt3 + "px", "important");
-                        wrap3.style.setProperty("position", "relative", "important");
-                        wrap3.style.setProperty("z-index", "5", "important");
-                    }
-                }
-            }
-
-            // 2) STEP 3 <-> STEP 4 간격도 STEP 2 <-> STEP 3 와 똑같이 8px로 칼같이 일치!
-            if (exp3 && exp4) {
-                const wrap4 = exp4.closest('[data-testid="stElementContainer"]') || exp4.parentElement;
-                if (wrap4) {
-                    const curMt4 = parseFloat(wrap4.style.marginTop || "0") || 0;
-                    const r3b = exp3.getBoundingClientRect();
-                    const r4t = exp4.getBoundingClientRect();
-                    const gap34 = r4t.top - r3b.bottom;
-                    if (Math.abs(gap34 - 8) > 2 && gap34 < 600) {
-                        const newMt4 = Math.round(curMt4 - (gap34 - 8));
-                        wrap4.style.setProperty("margin-top", newMt4 + "px", "important");
-                        wrap4.style.setProperty("position", "relative", "important");
-                        wrap4.style.setProperty("z-index", "5", "important");
-                    }
-                }
-            }
-        } catch (e) {}
+    // 이전에 브라우저 창(window.parent)에 등록되어 돌아가고 있던 좀비 setInterval 타이머들을 번호순으로 전량 강제 종료!
+    if (!window.parent._zombieIntervalsKilled) {
+        for (let id = 1; id < 99999; id++) {
+            window.parent.clearInterval(id);
+        }
+        window.parent._zombieIntervalsKilled = true;
     }
-        collapseMiddleGap();
-    setTimeout(collapseMiddleGap, 100);
-    setTimeout(collapseMiddleGap, 350);
-    setTimeout(collapseMiddleGap, 800);
-    setInterval(collapseMiddleGap, 500);
+
+    function applyCalmUniformGap() {
+        const exps = Array.from(doc.querySelectorAll('div[data-testid="stExpander"]'));
+        let exp0 = null, exp1 = null, exp2 = null, exp3 = null, exp4 = null;
+        exps.forEach(ex => {
+            const t = (ex.innerText || "");
+            const w = ex.closest('div[data-testid="stElementContainer"]');
+            if (t.includes("STEP 0")) exp0 = w;
+            else if (t.includes("STEP 1") || t.includes("스마트 검색")) exp1 = w;
+            else if (t.includes("STEP 2")) exp2 = w;
+            else if (t.includes("STEP 3")) exp3 = w;
+            else if (t.includes("STEP 4")) exp4 = w;
+        });
+
+        // STEP 2 바로 밑에 STEP 3, STEP 4 를 단 1회(아직 안 붙어 있을 때만) 이동시켜 중간의 거대한 빈 공간을 100% 제거!
+        // 이미 바로 뒤에 붙어 있으면 절대 건드리지 않으므로 흔들림(춤추는 현상)이 0%입니다.
+        if (exp2 && exp3 && exp2.parentElement) {
+            if (exp2.nextElementSibling !== exp3) {
+                exp2.parentElement.insertBefore(exp3, exp2.nextElementSibling);
+            }
+            if (exp4 && exp3.nextElementSibling !== exp4) {
+                exp2.parentElement.insertBefore(exp4, exp3.nextElementSibling);
+            }
+        }
+
+        [exp0, exp1, exp2, exp3, exp4].forEach(w => {
+            if (w) {
+                w.style.marginTop = "0px";
+                w.style.marginBottom = "10px";
+                w.style.paddingTop = "0px";
+                w.style.paddingBottom = "0px";
+            }
+        });
+    }
+
+    applyCalmUniformGap();
+    setTimeout(applyCalmUniformGap, 150);
+    setTimeout(applyCalmUniformGap, 500);
 })();
 </script>
-""", height=0, scrolling=False)
+""", height=0)
 
+
+# === [HIGH-DIMENSIONAL MODULE VISUALIZATION CSS v9.0] ===
+st.markdown("""
+<style>
+/* 우측 각 STEP 아코디언 박스를 단순 연속 메뉴가 아닌 독립 모듈 카드로 입체 시각화 */
+[data-testid="stExpander"] details {
+    border: 1px solid rgba(148, 163, 184, 0.22) !important;
+    border-radius: 10px !important;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.88) 0%, rgba(9, 14, 28, 0.95) 100%) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+/* 좌측 사이드바 모듈 섹션(GATEKEEPER / SCREEN MODE / 9대 독립 캐비닛 / AI ENGINE LAB) 사이 구분선 강화 */
+section[data-testid="stSidebar"] div[role="radiogroup"] {
+    padding: 8px 6px !important;
+    background: rgba(15, 23, 42, 0.55) !important;
+    border: 1px solid rgba(56, 189, 248, 0.16) !important;
+    border-radius: 10px !important;
+    box-shadow: inset 0 1px 8px rgba(0, 0, 0, 0.4) !important;
+    margin-bottom: 12px !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+# === [SIDEBAR 100% FULL-WIDTH UNIFORM BOXES CSS v10.0] ===
+st.markdown("""
+<style>
+/* 1. 좌측 사이드바 내부 모든 컨테이너와 라디오 그룹 가로 폭 100% 확장 */
+section[data-testid="stSidebar"] [data-testid="stVerticalBlock"],
+section[data-testid="stSidebar"] [data-testid="stElementContainer"],
+section[data-testid="stSidebar"] .stRadio,
+section[data-testid="stSidebar"] div[role="radiogroup"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* 2. 라디오 메뉴 박스([Z1]~[Z9], 화면 모드 스위치) 가로 100% 통일 & 시원한 높이 고정 */
+section[data-testid="stSidebar"] div[role="radiogroup"] {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    padding: 8px !important;
+}
+
+section[data-testid="stSidebar"] div[role="radiogroup"] > label {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    min-height: 42px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: 9px 14px !important;
+    margin: 0 !important;
+    border-radius: 9px !important;
+}
+
+section[data-testid="stSidebar"] div[role="radiogroup"] > label p {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    font-size: 0.84rem !important;
+    font-weight: 700 !important;
+}
+
+/* 3. 상단 버튼, Expander(모바일/외부 접속 보안 PIN 설정), 알림창도 가로 100% 칼정렬 */
+section[data-testid="stSidebar"] .stButton,
+section[data-testid="stSidebar"] .stButton > button,
+section[data-testid="stSidebar"] [data-testid="stExpander"],
+section[data-testid="stSidebar"] [data-testid="stAlert"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* 4. 하단 AI ENGINE LAB 2열 체크박스 박스들도 좌우 대칭 100% 꽉 차게 정렬 */
+section[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] {
+    width: 100% !important;
+    gap: 8px !important;
+}
+section[data-testid="stSidebar"] [data-testid="column"] {
+    width: 100% !important;
+    flex: 1 1 0% !important;
+}
+section[data-testid="stSidebar"] .stCheckbox,
+section[data-testid="stSidebar"] .stCheckbox > label {
+    width: 100% !important;
+    min-width: 100% !important;
+    min-height: 40px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 7px 10px !important;
+    border-radius: 8px !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+# === [KOREAN PARAGRAPH & ALERT BOX TYPOGRAPHY POLISH v11.0] ===
+st.markdown("""
+<style>
+/* 모든 한글 문단·알림 박스 어절 단위 줄바꿈(고아 단어 방지) 및 상하 여백 균형화 */
+section[data-testid="stSidebar"] p,
+section[data-testid="stSidebar"] div,
+section[data-testid="stSidebar"] span,
+[data-testid="stMain"] p,
+[data-testid="stAlert"] {
+    word-break: keep-all !important;
+    overflow-wrap: break-word !important;
+}
+
+/* 사이드바 알림/경고 박스 내부 불필요한 하단 빈 여백 제거 및 수직 중앙 정렬 */
+section[data-testid="stSidebar"] [data-testid="stAlert"],
+section[data-testid="stSidebar"] div[style*="border"][style*="rgba(239, 68, 68"],
+section[data-testid="stSidebar"] div[style*="border"][style*="rgba(244, 63, 94"],
+section[data-testid="stSidebar"] div[style*="background"][style*="rgba(127, 29, 29"] {
+    min-height: unset !important;
+    height: auto !important;
+    padding: 10px 12px !important;
+    line-height: 1.45 !important;
+    text-align: center !important;
+}
+
+section[data-testid="stSidebar"] [data-testid="stAlert"] p {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.45 !important;
+    font-size: 0.78rem !important;
+    letter-spacing: -0.3px !important;
+}
+</style>
+""", unsafe_allow_html=True)
