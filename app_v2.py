@@ -3391,7 +3391,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
     if "_sx_w_low" not in st.session_state:
         st.session_state["_sx_w_low"] = float(st.session_state["_sx_active_low"])
 
-    with st.expander("🎯 [SNIPER-X v8.5 궁극 비밀병기] 15C4 진공 타점 · 몬테카를로 워게임 · 개찰DB 경쟁사 자동추출 · 즉석 모의 타격기 — [클릭 시 열림]", expanded=False):
+    with st.expander("🎯 [SNIPER-X v9.0 통합 작전 사령부] 15C4 진공 타점 · 몬테카를로 워게임 · 개찰DB 경쟁사 자동추출 · 즉석 모의 타격기 — [클릭 시 열림]", expanded=False):
         # [ROW 1] 즉석 모의 타격 기초금액 입력기
         _qs_c1, _qs_c2, _qs_c3, _qs_c4, _qs_c5 = st.columns([2.0, 1.5, 1.3, 1.2, 1.2])
         with _qs_c1:
@@ -3526,7 +3526,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
         <div style="background:linear-gradient(135deg, rgba(15,23,42,0.96), rgba(9,13,24,0.98));border:1.5px solid rgba(16,185,129,0.60);border-radius:12px;padding:14px 18px;margin:8px 0 12px 0;">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;border-bottom:1px solid rgba(56,189,248,0.2);padding-bottom:8px;">
                 <div>
-                    <span style="background:rgba(16,185,129,0.25);color:#34D399;font-size:11px;font-weight:900;padding:3px 8px;border-radius:4px;border:1px solid rgba(16,185,129,0.5);">SNIPER-X v8.5 AUTO-INTELLIGENCE</span>
+                    <span style="background:rgba(16,185,129,0.25);color:#34D399;font-size:11px;font-weight:900;padding:3px 8px;border-radius:4px;border:1px solid rgba(16,185,129,0.5);">SNIPER-X v9.0 SUPREME COMMAND</span>
                     <span style="color:#F8FAFC;font-size:13.5px;font-weight:800;margin-left:8px;">{_kv7_res.get("tactical_stance")} (켈리 비중 {_kv7_res.get("kelly_fraction_pct", 0.0):.1f}%) | {_sg8_res.get("surge_badge")}</span>
                 </div>
                 <div style="color:#38BDF8;font-size:12px;font-weight:700;">
@@ -3563,6 +3563,52 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                     <div style="color:#94A3B8;font-size:10.5px;font-weight:700;">📈 발주처 최근성 드리프트</div>
                     <div style="color:#C084FC;font-size:15.5px;font-weight:900;margin:4px 0;">{_sx_res.get("ewma_drift", 0.0):+.4f}%p</div>
                     <div style="color:#E9D5FF;font-size:10.5px;">중심: {_sx_res.get("ewma_center", 0.0):.4f}%</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        _wp9_res = _run_wolfpack_v9(
+            agency=_sx_ag,
+            base_amt=_sx_base,
+            a_val=_sx_aval,
+            lower_limit=_sx_low,
+            center_rate=float(_sg8_res.get("final_trigger_rate", 0.0) or 100.0317),
+            vacuum_rate=float(_sx_res.get("vacuum_rate", 0.0) or 99.9840),
+            front_rate=float(_kv7_res.get("front_run_rate", 0.0) or 100.0421)
+        )
+        st.markdown(f"""
+        <div style="background:linear-gradient(90deg, rgba(15,23,42,0.95), rgba(30,27,75,0.85));border:1px solid rgba(168,85,247,0.45);border-radius:10px;padding:10px 16px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
+                <div>
+                    <span style="background:rgba(168,85,247,0.25);color:#DDD6FE;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:4px;border:1px solid rgba(168,85,247,0.5);">WOLF-PACK v9.0 포위망 & 백테스팅</span>
+                    <span style="color:#E2E8F0;font-size:12.5px;font-weight:800;margin-left:6px;">다중 법인/컨소시엄 3각 포위 타점 (동가 추첨 회피 프라임 끝자리 +3·+7·+9원 자동 주입)</span>
+                </div>
+                <div style="color:#34D399;font-size:11.5px;font-weight:800;">
+                    📊 AI 백테스팅 검증: 평균오차 ±{_wp9_res.get("bt_mae", 0.015):.4f}%p | 단독/TOP3 포착률 {_wp9_res.get("bt_hit_rate", 72.0):.1f}% (합산 포위 승률 {_wp9_res.get("combined_win_prob", 0.0):.1f}%)
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;">
+                <div style="background:rgba(15,23,42,0.85);border:1px solid rgba(52,211,153,0.4);border-radius:7px;padding:7px 12px;display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <div style="color:#6EE7B7;font-size:10.5px;font-weight:800;">🐺 제1호기 (본사 주력 · 끝자리 3원)</div>
+                        <div style="color:#94A3B8;font-size:10px;">사정률 {_wp9_res.get("wp_alpha_rate", 0.0):.4f}%</div>
+                    </div>
+                    <div style="color:#34D399;font-size:14.5px;font-weight:900;">{_wp9_res.get("wp_alpha_bid", 0):,}원</div>
+                </div>
+                <div style="background:rgba(15,23,42,0.85);border:1px solid rgba(56,189,248,0.4);border-radius:7px;padding:7px 12px;display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <div style="color:#7DD3FC;font-size:10.5px;font-weight:800;">🐺 제2호기 (하단 진공매복 · 끝자리 7원)</div>
+                        <div style="color:#94A3B8;font-size:10px;">사정률 {_wp9_res.get("wp_beta_rate", 0.0):.4f}%</div>
+                    </div>
+                    <div style="color:#38BDF8;font-size:14.5px;font-weight:900;">{_wp9_res.get("wp_beta_bid", 0):,}원</div>
+                </div>
+                <div style="background:rgba(15,23,42,0.85);border:1px solid rgba(244,114,182,0.4);border-radius:7px;padding:7px 12px;display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <div style="color:#F9A8D4;font-size:10.5px;font-weight:800;">🐺 제3호기 (상단 라이벌차단 · 끝자리 9원)</div>
+                        <div style="color:#94A3B8;font-size:10px;">사정률 {_wp9_res.get("wp_gamma_rate", 0.0):.4f}%</div>
+                    </div>
+                    <div style="color:#F472B6;font-size:14.5px;font-weight:900;">{_wp9_res.get("wp_gamma_bid", 0):,}원</div>
                 </div>
             </div>
         </div>
