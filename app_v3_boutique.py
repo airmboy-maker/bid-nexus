@@ -3209,7 +3209,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             ])
             with _at_tab1:
                 st.markdown("""<div style="padding:10px 14px;margin-bottom:10px;border-radius:8px;background:linear-gradient(90deg,rgba(14,165,233,0.16),rgba(16,185,129,0.12));border-left:4px solid #38BDF8;font-size:0.82rem;color:#E2E8F0;">
-                <b>🔄 베이지안 + Ridge(L2) + Gradient Boosting 트리 3중 결합 가동 중:</b> 누적 학습된 개찰 표본은 <b>STEP 0 · Z3 · Z4 · Z5 · Z6 · Z7 · Z8(통합보고서)</b> 전 구간에 실시간 반영됩니다.</div>""", unsafe_allow_html=True)
+                <b>🔄 베이지안 + Ridge(L2) + Gradient Boosting 트리 3중 결합 가동 중:</b> 누적 학습된 개찰 표본은 <b>STEP 0 · Z2(적격심사) · Z3 · Z4 · Z5 · Z6 · Z7 · Z8(통합보고서)</b> 전 구간에 실시간 반영됩니다.</div>""", unsafe_allow_html=True)
                 _ac1, _ac2, _ac3 = st.columns([1.4, 1.2, 1.4])
                 with _ac1:
                     _auto_ag = st.selectbox("🎯 집중 자동수집 타겟 발주처", ["전체 (전 기관 일괄)", "강원특별자치도", "조달청", "경기도", "서울특별시", "교육청", "한국도로공사", "한국토지주택공사"], key="_auto_harv_ag")
@@ -3263,10 +3263,10 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                         st.success(f"[{_in_ag}] {_in_rate:.4f}% 학습 완료")
 
         _cur_cab_str = str(st.session_state.get("boutique_active_cabinet", st.session_state.get("active_cabinet", "")))
-        if any(_k in _cur_cab_str for _k in ["Z3", "15C4", "Z4", "감도", "Z5", "5대", "홀로그램", "Z6", "7-BAY", "전술", "Z7", "EGR", "LATTICE", "번외", "Z8", "증빙", "출력"]):
+        if any(_k in _cur_cab_str for _k in ["Z2", "적격", "산출물", "Z3", "15C4", "Z4", "감도", "Z5", "5대", "홀로그램", "Z6", "7-BAY", "전술", "Z7", "EGR", "LATTICE", "번외", "Z8", "증빙", "출력"]):
             st.markdown("""<div style="display:flex;align-items:center;gap:10px;margin:8px 0 6px 0;padding:6px 14px;background:linear-gradient(90deg,rgba(16,185,129,0.18) 0%,rgba(15,23,42,0.5) 70%,transparent 100%);border-left:4px solid #10B981;border-radius:6px;">
             <span style="font-size:0.72rem;font-weight:900;color:#34D399;background:rgba(16,185,129,0.16);padding:2px 8px;border-radius:4px;border:1px solid rgba(16,185,129,0.4);">BAYESIAN + RIDGE + GRADIENT BOOSTING LIVE</span>
-            <span style="font-size:0.84rem;font-weight:800;color:#ECFDF5;">로컬 SQLite DB & 15C4 베이즈 + Ridge/GBM 회귀 엔진 실시간 직결 가동 중 (Z3 ~ Z8 전 구간 통합)</span></div>""", unsafe_allow_html=True)
+            <span style="font-size:0.84rem;font-weight:800;color:#ECFDF5;">로컬 SQLite DB & 15C4 베이즈 + Ridge/GBM 회귀 엔진 실시간 직결 가동 중 (Z2 ~ Z8 전 구간 통합)</span></div>""", unsafe_allow_html=True)
 
             _z34_c1, _z34_c2, _z34_c3, _z34_c4, _z34_c5 = st.columns([1.3, 1.4, 1.2, 1.0, 0.9])
             with _z34_c1:
@@ -3286,7 +3286,6 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             _zs1, _zs2, _zs3 = _z_sim["strategies"][0], _z_sim["strategies"][1], _z_sim["strategies"][2]
             _ml_boost = _eng_z34.fit_predict_ml_boost(_z_base, _z_aval, _z_low, _z_ag, expected_bidders=_z_bi["avg_bidders"])
 
-            # 모든 분석 캐비닛 상단에 Ridge + Gradient Boosting 다변량 회귀 예측 바 표시
             st.markdown(f"""<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:4px 0 10px 0;">
             <div style="padding:8px 12px;border-radius:8px;background:rgba(30,41,59,0.78);border:1px solid rgba(56,189,248,0.28);">
             <span style="font-size:0.72rem;color:#93C5FD;font-weight:800;">📉 Ridge(L2) 다변량 선형회귀 예측</span>
@@ -3298,6 +3297,41 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             <span style="font-size:0.72rem;color:#F9A8D4;font-weight:800;">👑 ML 부스팅 하이브리드 통합해 (RMSE ±{_ml_boost['rmse']:.3f}%)</span>
             <div style="font-size:0.95rem;font-weight:900;color:#FBBF24;">{_ml_boost['hybrid_rate']:.4f}% <span style="font-size:0.82rem;color:#FFF;">({_ml_boost['hybrid_bid']:,}원)</span></div></div>
             </div>""", unsafe_allow_html=True)
+
+            if any(_k in _cur_cab_str for _k in ["Z2", "적격", "산출물"]):
+                _z2_sc1, _z2_sc2, _z2_sc3 = st.columns(3)
+                with _z2_sc1:
+                    _z2_perf = st.number_input("🏗️ 시공경험 평점 (만점 15.0)", min_value=0.0, max_value=15.0, value=15.0, step=0.1, format="%.2f", key="_z2_perf_in")
+                with _z2_sc2:
+                    _z2_fin = st.number_input("🏦 경영상태 평점 (만점 15.0)", min_value=0.0, max_value=15.0, value=15.0, step=0.1, format="%.2f", key="_z2_fin_in")
+                with _z2_sc3:
+                    _z2_cred = st.number_input("🎖️ 신인도 가점 (보정점수)", min_value=-5.0, max_value=5.0, value=0.0, step=0.25, format="%.2f", key="_z2_cred_in")
+
+                _z2_pack = _eng_z34.build_z2_qualification_scorecard(_z_base, _z_aval, _z_low, _z_ag, spread_pct=float(_z_sp), perf_score=_z2_perf, fin_score=_z2_fin, cred_score=_z2_cred)
+                _z2_tr = ""
+                for _idx_r, _zr in enumerate(_z2_pack["eval_rows"]):
+                    _bg = "rgba(236,72,153,0.18)" if _idx_r == 0 else "rgba(15,23,42,0.78)"
+                    _fw = "900" if _idx_r == 0 else "600"
+                    _z2_tr += (
+                        f'<tr style="background:{_bg};font-weight:{_fw};border-bottom:1px solid rgba(148,163,184,0.16);">'
+                        f'<td style="padding:8px 10px;color:{_zr["color"]};font-weight:900;">{_zr["label"]}</td>'
+                        f'<td style="padding:8px 10px;color:#38BDF8;">{_zr["target_rate"]:.4f}%</td>'
+                        f'<td style="padding:8px 10px;color:#FBBF24;font-size:0.88rem;font-weight:900;">{_zr["bid_amount"]:,}원</td>'
+                        f'<td style="padding:8px 10px;color:#CBD5E1;">{_zr["diff_from_cut"]:+,}원</td>'
+                        f'<td style="padding:8px 10px;color:#E2E8F0;">{_zr["non_price_score"]:.2f}점</td>'
+                        f'<td style="padding:8px 10px;color:#34D399;font-weight:800;">{_zr["price_score"]:.2f}점 / 70.00</td>'
+                        f'<td style="padding:8px 10px;color:#FFF;font-size:0.90rem;font-weight:900;">{_zr["total_score"]:.2f}점</td>'
+                        f'<td style="padding:8px 10px;color:#A7F3D0;font-size:0.78rem;">{_zr["pass_flag"]}</td></tr>'
+                    )
+
+                st.markdown(f"""<div style="margin:6px 0 14px 0;padding:14px 16px;border-radius:10px;background:rgba(15,23,42,0.95);border:1px solid rgba(16,185,129,0.38);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <span style="font-size:0.92rem;font-weight:900;color:#34D399;">🎯 [Z2 로컬 ML 직결] 추천 투찰금액별 입찰가격 평점(70점 만점) & 적격심사 95.0점 통과 자동 시뮬레이션</span>
+                <span style="font-size:0.78rem;color:#FBBF24;font-weight:800;">ML 부스팅 기준 예정가격: {_z2_pack['expected_est_price']:,}원 | 낙찰하한선: {_z2_pack['cutline_bid']:,}원</span></div>
+                <table style="width:100%;border-collapse:collapse;font-size:0.80rem;text-align:left;">
+                <thead><tr style="background:rgba(30,41,59,0.95);color:#94A3B8;border-bottom:2px solid rgba(16,185,129,0.35);">
+                <th style="padding:8px 10px;">투찰 전술 모델</th><th style="padding:8px 10px;">추천 사정률</th><th style="padding:8px 10px;">최적 투찰금액</th><th style="padding:8px 10px;">하한선 대비 여유액</th><th style="padding:8px 10px;">수행능력(30점)</th><th style="padding:8px 10px;">입찰가격 평점(70점)</th><th style="padding:8px 10px;">적격심사 총점</th><th style="padding:8px 10px;">적격 통과 판정</th>
+                </tr></thead><tbody>{_z2_tr}</tbody></table></div>""", unsafe_allow_html=True)
 
             if "Z3" in _cur_cab_str or "15C4" in _cur_cab_str:
                 _bars_html = "".join([

@@ -797,3 +797,73 @@ class LocalBidIntelligenceEngine:
             "feature_weights": [round(w, 4) for w in weights]
         }
 
+    def build_z2_qualification_scorecard(self, base_amount: int, a_value: int, lower_limit_rate: float, agency_keyword: str = "조달청", spread_pct: float = 2.0, perf_score: float = 15.0, fin_score: float = 15.0, cred_score: float = 0.0) -> dict:
+        """
+        [Z2 적격심사 입찰가격 평점 & 종합 통과 판정(95.0점) 정량 시뮬레이터]
+        - 로컬 ML 부스팅 추천 투찰가 4종 각각에 대해 조달청 적격심사 입찰가격 산식 적용
+        """
+        base_amount = max(10_000_000, int(base_amount or 1_500_000_000))
+        a_value = max(0, int(a_value or int(base_amount * 0.055)))
+        lower_limit_rate = float(lower_limit_rate or round(89.745 - 2.0, 3))
+
+        sim = self.simulate_15c4_sweet_spots(base_amount, a_value, lower_limit_rate, agency_keyword, spread_pct=spread_pct)
+        bi = sim["agency_analysis"]
+        s1, s2, s3 = sim["strategies"][0], sim["strategies"][1], sim["strategies"][2]
+        ml_b = self.fit_predict_ml_boost(base_amount, a_value, lower_limit_rate, agency_keyword, expected_bidders=bi["avg_bidders"])
+
+        # 기준 예정가격 (ML 부스팅 통합 사정률 기준)
+        expected_est_price = base_amount * (ml_b["hybrid_rate"] / 100.0)
+        cutline_bid = int(math.ceil((((expected_est_price - a_value) * (lower_limit_rate / 100.0)) + a_value) / 10.0) * 10)
+
+        # 배점 한도 설정 (기본 70점 만점 기준: 10억~50억 구간 표준)
+        max_price_score = 70.0
+        non_price_total = round(min(30.0, float(perf_score) + float(fin_score) + float(cred_score)), 2)
+
+        candidates = [
+            ("👑 ML 부스팅 통합해 (MAIN)", ml_b["hybrid_rate"], ml_b["hybrid_bid"], "#EC4899"),
+            (s1["tier"], s1["target_assess_rate"], s1["recommended_bid_amount"], "#38BDF8"),
+            (s2["tier"], s2["target_assess_rate"], s2["recommended_bid_amount"], "#10B981"),
+            (s3["tier"], s3["target_assess_rate"], s3["recommended_bid_amount"], "#F59E0B"),
+        ]
+
+        eval_rows = []
+        for label, t_rate, bid_amt, col in candidates:
+            eff_bid_rate = ((bid_amt - a_value) / max(1.0, (expected_est_price - a_value))) * 100.0
+            diff_from_cut = bid_amt - cutline_bid
+
+            # 하한율 이상이면 입찰가격 만점(70.00점) 근처, 하한율 미달이면 급격 감점
+            if bid_amt >= cutline_bid:
+                over_gap = max(0.0, eff_bid_rate - lower_limit_rate)
+                price_score = round(max(60.0, max_price_score - (over_gap * 0.45)), 2)
+                if over_gap <= 0.08:
+                    price_score = max_price_score
+                cut_status = "✅ 커트라인 통과 (안정)"
+            else:
+                under_gap = lower_limit_rate - eff_bid_rate
+                price_score = round(max(0.0, max_price_score - 2.0 - (under_gap * 12.0)), 2)
+                cut_status = "⚠️ 예가 상향 시 하한 미달 주의"
+
+            total_score = round(non_price_total + price_score, 2)
+            pass_flag = "✅ 적격 통과 (≥95.0)" if total_score >= 95.0 and bid_amt >= cutline_bid else ("⚡ 조건부 통과 (신인도 보완)" if total_score >= 94.5 else "🚨 미달 위험")
+
+            eval_rows.append({
+                "label": label,
+                "target_rate": t_rate,
+                "bid_amount": bid_amt,
+                "diff_from_cut": diff_from_cut,
+                "non_price_score": non_price_total,
+                "price_score": price_score,
+                "total_score": total_score,
+                "cut_status": cut_status,
+                "pass_flag": pass_flag,
+                "color": col
+            })
+
+        return {
+            "expected_est_price": int(round(expected_est_price)),
+            "cutline_bid": cutline_bid,
+            "non_price_total": non_price_total,
+            "max_price_score": max_price_score,
+            "eval_rows": eval_rows
+        }
+
