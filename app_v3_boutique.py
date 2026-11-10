@@ -1,3 +1,4 @@
+import streamlit as st
 
 # === [CLOUD & LOCAL ABSOLUTE ZERO-BOOT ENFORCER v12.0] ===
 import streamlit as _st_zboot
@@ -51,6 +52,7 @@ if not _st_zboot.session_state.get("_strict_zero_boot_v15", False):
         pass
 # === [END ZERO-BOOT ENFORCER] ===
 # === [GLOBAL ZERO-MASK INTERCEPTOR v16.0] ===
+import streamlit as st
 import re as _re_zmask
 if not getattr(st, "_zmask_hooked_v16", False):
     _orig_st_markdown = st.markdown
