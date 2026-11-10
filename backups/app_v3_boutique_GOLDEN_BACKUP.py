@@ -1,4 +1,14 @@
 import streamlit as st
+def _z4_clean_zero_html(_html_str: str) -> str:
+    import re as _re_z4
+    _has_notice = bool(st.session_state.get("selected_notice_no", "")) or (int(st.session_state.get("_z34_base", 0) or 0) > 0)
+    if not _has_notice:
+        _html_str = _re_z4.sub(r'[+-]?\s*\d[\d,]*\s*원', lambda m: '+0원' if '+' in m.group(0) else '0원', _html_str)
+        _html_str = _re_z4.sub(r'사정률\s*[\d.]+%\s*적용', '사정률 0.000% 대기', _html_str)
+        _html_str = _re_z4.sub(r'실행\s*마진율\s*[+-]?[\d.]+%', '실행 마진율 0.00%', _html_str)
+        _html_str = _html_str.replace('총 투찰가 100.0%', '총 투찰가 0.0%')
+    return _html_str
+
 
 
 
@@ -469,6 +479,40 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+st.markdown("""
+<style>
+/* === [SAFARI SIDEBAR WIDTH & KOREAN TYPOGRAPHY FIX v19.0] === */
+section[data-testid="stSidebar"] {
+    width: 332px !important;
+    min-width: 332px !important;
+    max-width: 332px !important;
+}
+section[data-testid="stSidebar"] > div:first-child {
+    width: 332px !important;
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+}
+/* 좌측 사이드바 내부 모든 한글 문단 단어 단위 줄바꿈(글자 쪼개짐 방지) 및 라디오 메뉴 한 줄 표시 */
+section[data-testid="stSidebar"] * {
+    word-break: keep-all !important;
+    overflow-wrap: break-word !important;
+}
+section[data-testid="stSidebar"] div[role="radiogroup"] label p {
+    font-size: 0.81rem !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    letter-spacing: -0.02em !important;
+}
+/* 우측 메인 컨텐츠 영역이 너무 넓어 퍼져 보이지 않도록 최대 폭 및 여백 균형 조정 */
+.main .block-container {
+    max-width: 1440px !important;
+    padding-left: 2.2rem !important;
+    padding-right: 2.2rem !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 _boot_restore_full_state()  # AUTO-RESTORE ALL 7 ZONES
 
 # === [GLOBAL DATAFRAME & SQLITE LEDGER HOLOGRAM VISUALIZER] ===
@@ -5229,7 +5273,7 @@ with tab_dox:
     st.dataframe(pd.DataFrame(dox_checklist), use_container_width=True, hide_index=True)
 
     st.markdown("---")
-    st.markdown("""
+    st.markdown(_z4_clean_zero_html("""
 <div style="background:radial-gradient(circle at 15% 20%, rgba(56,189,248,0.16), rgba(15,23,42,0.96) 72%); border:1px solid rgba(56,189,248,0.42); border-radius:16px; padding:18px 20px 14px 20px; margin-top:14px; margin-bottom:10px; box-shadow:0 12px 30px rgba(0,0,0,0.55);">
     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(148,163,184,0.2); padding-bottom:10px; margin-bottom:14px;">
         <div style="display:flex; align-items:center; gap:10px;">
@@ -5255,7 +5299,7 @@ with tab_dox:
         </div>
     </div>
 </div>
-""", unsafe_allow_html=True)
+"""), unsafe_allow_html=True)
     d_c1, d_c2 = st.columns(2)
     d_c1.download_button(
         label="📥 적격심사 신청서 및 자기평가표 (.html)",
