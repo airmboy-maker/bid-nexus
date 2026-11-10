@@ -1223,3 +1223,43 @@ def run_monte_carlo_wargame_v5(
         "trials": trials
     }
 
+
+def bulk_ingest_bid_records(records: list) -> dict:
+    """
+    [SNIPER-X v6.0] 과거 개찰 결과 CSV/엑셀 데이터 대량 흡수 및 즉시 학습
+    records: [{"agency": ..., "base_amt": ..., "a_val": ..., "lower_limit": ..., "yega_rate": ..., "participants": ...}, ...]
+    """
+    import datetime
+    conn = _get_conn()
+    cur = conn.cursor()
+    inserted = 0
+    now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    for idx, r in enumerate(records):
+        try:
+            ag = str(r.get("agency") or "조달청").strip()
+            rate = float(r.get("yega_rate") or 100.0)
+            if not (90.0 <= rate <= 110.0):
+                continue
+            base = int(float(r.get("base_amt") or 1000000000))
+            aval = int(float(r.get("a_val") or int(base * 0.06)))
+            low = float(r.get("lower_limit") or 87.745)
+            part = int(float(r.get("participants") or 45))
+            exp_p = float(base) * (rate / 100.0)
+            bid = int(((exp_p - float(aval)) * (low / 100.0)) + float(aval))
+            n_no = str(r.get("notice_no") or f"BULK-{datetime.datetime.now().strftime('%m%d%H%M')}-{idx}")
+            cur.execute(
+                """
+                INSERT INTO bid_history (notice_no, agency, base_amt, a_val, lower_limit, yega_rate, bid_amt, participants, opened_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (n_no, ag, base, aval, low, rate, bid, part, now_str)
+            )
+            inserted += 1
+        except Exception:
+            continue
+    conn.commit()
+    cur.execute("SELECT COUNT(*) FROM bid_history")
+    total_cnt = cur.fetchone()[0]
+    conn.close()
+    return {"inserted": inserted, "total_learned": total_cnt}
+

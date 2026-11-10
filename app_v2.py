@@ -3282,7 +3282,14 @@ _ndc_mod.render_top_cabinet_switcher_bar(_is_cab_mode, _cur_cab_zone)
 with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
     # === [SNIPER-X SECRET WEAPON CONSOLE v4.0] ===
     import datetime as _dt_sx
-    from lattice1365.local_ml_engine import compute_sniper_x_secret_weapon as _run_sniper_x, record_new_bid_observation as _learn_real_bid
+    import io as _io_sx
+    import csv as _csv_sx
+    from lattice1365.local_ml_engine import (
+        compute_sniper_x_secret_weapon as _run_sniper_x,
+        record_new_bid_observation as _learn_real_bid,
+        run_monte_carlo_wargame_v5 as _run_wargame_v5,
+        bulk_ingest_bid_records as _bulk_learn_v6
+    )
 
     _sx_has_notice = bool(st.session_state.get("selected_notice_no", "")) or (int(st.session_state.get("_z34_base", 0) or 0) > 0)
     _sx_base = int(st.session_state.get("_z34_base", 0) or 0) if _sx_has_notice else 0
@@ -3293,38 +3300,53 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
 
     _sx_res = _run_sniper_x(agency=_sx_ag, base_amt=_sx_base, a_val=_sx_aval, lower_limit=_sx_low)
 
-    with st.expander("🎯 [SNIPER-X v4.0 실전 비밀병기] 비대칭 15C4 컨볼루션 · 경쟁사 과밀 회피(Blind-Spot) · 개찰 복기 자가진화 엔진 — [클릭 시 열림]", expanded=False):
+    with st.expander("🎯 [SNIPER-X v6.0 실전 비밀병기] 15C4 진공 타점 · 2,500회 몬테카를로 개찰 워게임 · 실전 복기 & CSV 대량 학습기 — [클릭 시 열림]", expanded=False):
+        _wg_rivals = int(st.session_state.get("_sx_pm_part", 45) or 45)
+        _wg_res = _run_wargame_v5(
+            agency=_sx_ag,
+            base_amt=_sx_base,
+            a_val=_sx_aval,
+            lower_limit=_sx_low,
+            est_rivals=_wg_rivals,
+            my_target_rate=float(_sx_res.get("sniper_rate", 0.0) or 0.0)
+        )
+
         st.markdown(f"""
         <div style="background:linear-gradient(135deg, rgba(15,23,42,0.96), rgba(9,13,24,0.98));border:1px solid rgba(16,185,129,0.55);border-radius:12px;padding:14px 18px;margin-bottom:10px;">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;border-bottom:1px solid rgba(56,189,248,0.2);padding-bottom:8px;">
                 <div>
-                    <span style="background:rgba(16,185,129,0.22);color:#34D399;font-size:11px;font-weight:800;padding:3px 8px;border-radius:4px;border:1px solid rgba(16,185,129,0.45);">SNIPER-X QUANTUM CORE</span>
-                    <span style="color:#F8FAFC;font-size:14px;font-weight:800;margin-left:8px;">실전 단독 1순위 타격 & 경쟁사 밀집 구간 회피(Vacuum Pocket) 솔루션</span>
+                    <span style="background:rgba(16,185,129,0.22);color:#34D399;font-size:11px;font-weight:800;padding:3px 8px;border-radius:4px;border:1px solid rgba(16,185,129,0.45);">SNIPER-X v6.0 WARGAME & PROFILER</span>
+                    <span style="color:#F8FAFC;font-size:14px;font-weight:800;margin-left:8px;">단독 1순위 진공 타점 & 2,500회 몬테카를로 가상 개찰 워게임</span>
                 </div>
                 <div style="color:#38BDF8;font-size:12px;font-weight:700;">
-                    타겟: {_sx_title[:36]} | 레짐: <span style="color:#FBBF24;">{_sx_res.get("regime_state")}</span>
+                    타겟: {_sx_title[:34]} | 레짐: <span style="color:#FBBF24;">{_sx_res.get("regime_state")}</span>
                 </div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:10px;">
+            <div style="display:grid;grid-template-columns:repeat(5, 1fr);gap:10px;">
                 <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.35);border-radius:8px;padding:10px;text-align:center;">
-                    <div style="color:#94A3B8;font-size:11px;font-weight:700;">🎯 1순위 스나이퍼 타점 (최고 기댓값)</div>
-                    <div style="color:#34D399;font-size:18px;font-weight:900;margin:4px 0;">{_sx_res.get("sniper_bid", 0):,}원</div>
-                    <div style="color:#A7F3D0;font-size:11px;">목표 사정률: {_sx_res.get("sniper_rate", 0.0):.4f}% (프라임 오프셋)</div>
+                    <div style="color:#94A3B8;font-size:11px;font-weight:700;">🎯 1순위 스나이퍼 타점</div>
+                    <div style="color:#34D399;font-size:17px;font-weight:900;margin:4px 0;">{_sx_res.get("sniper_bid", 0):,}원</div>
+                    <div style="color:#A7F3D0;font-size:11px;">사정률: {_sx_res.get("sniper_rate", 0.0):.4f}%</div>
                 </div>
                 <div style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.35);border-radius:8px;padding:10px;text-align:center;">
-                    <div style="color:#94A3B8;font-size:11px;font-weight:700;">🕳️ 블라인드 스팟 (경쟁사 진공 타점)</div>
-                    <div style="color:#38BDF8;font-size:18px;font-weight:900;margin:4px 0;">{_sx_res.get("vacuum_bid", 0):,}원</div>
-                    <div style="color:#BAE6FD;font-size:11px;">진공 사정률: {_sx_res.get("vacuum_rate", 0.0):.4f}% | 과밀회피 {_sx_res.get("crowd_avoid_score", 0.0):.1f}%</div>
+                    <div style="color:#94A3B8;font-size:11px;font-weight:700;">🕳️ 블라인드 스팟 (진공 타점)</div>
+                    <div style="color:#38BDF8;font-size:17px;font-weight:900;margin:4px 0;">{_sx_res.get("vacuum_bid", 0):,}원</div>
+                    <div style="color:#BAE6FD;font-size:11px;">사정률: {_sx_res.get("vacuum_rate", 0.0):.4f}% (회피 {_sx_res.get("crowd_avoid_score", 0.0):.0f}%)</div>
+                </div>
+                <div style="background:rgba(236,72,153,0.08);border:1px solid rgba(236,72,153,0.40);border-radius:8px;padding:10px;text-align:center;">
+                    <div style="color:#94A3B8;font-size:11px;font-weight:700;">⚔️ 워게임 최적 타점 ({_wg_rivals}개사 기준)</div>
+                    <div style="color:#F472B6;font-size:17px;font-weight:900;margin:4px 0;">{_wg_res.get("optimal_war_bid", 0):,}원</div>
+                    <div style="color:#FBCFE8;font-size:11px;">사정률: {_wg_res.get("optimal_war_rate", 0.0):.4f}% | TOP3 진입 {_wg_res.get("top3_zone_prob", 0.0):.1f}%</div>
                 </div>
                 <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.35);border-radius:8px;padding:10px;text-align:center;">
-                    <div style="color:#94A3B8;font-size:11px;font-weight:700;">🛡️ A값 레버리지 & 98% 방어 타점</div>
-                    <div style="color:#FBBF24;font-size:18px;font-weight:900;margin:4px 0;">{_sx_res.get("safe_floor_bid", 0):,}원</div>
-                    <div style="color:#FDE68A;font-size:11px;">방어 사정률: {_sx_res.get("safe_floor_rate", 0.0):.4f}% | A값 비중 {_sx_res.get("a_leverage_pct", 0.0):.1f}%</div>
+                    <div style="color:#94A3B8;font-size:11px;font-weight:700;">🛡️ A값 & 98% 방어 타점</div>
+                    <div style="color:#FBBF24;font-size:17px;font-weight:900;margin:4px 0;">{_sx_res.get("safe_floor_bid", 0):,}원</div>
+                    <div style="color:#FDE68A;font-size:11px;">방어율: {_sx_res.get("safe_floor_rate", 0.0):.4f}% | 미달위험 {_wg_res.get("under_cut_risk", 0.0):.1f}%</div>
                 </div>
                 <div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.35);border-radius:8px;padding:10px;text-align:center;">
-                    <div style="color:#94A3B8;font-size:11px;font-weight:700;">📈 발주처 최근성 드리프트 (EWMA)</div>
-                    <div style="color:#C084FC;font-size:18px;font-weight:900;margin:4px 0;">{_sx_res.get("ewma_drift", 0.0):+.4f}%p</div>
-                    <div style="color:#E9D5FF;font-size:11px;">최근 수렴 중심: {_sx_res.get("ewma_center", 0.0):.4f}%</div>
+                    <div style="color:#94A3B8;font-size:11px;font-weight:700;">📈 발주처 최근성 드리프트</div>
+                    <div style="color:#C084FC;font-size:17px;font-weight:900;margin:4px 0;">{_sx_res.get("ewma_drift", 0.0):+.4f}%p</div>
+                    <div style="color:#E9D5FF;font-size:11px;">수렴 중심: {_sx_res.get("ewma_center", 0.0):.4f}%</div>
                 </div>
             </div>
         </div>
@@ -3336,7 +3358,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
         with _pm_c2:
             _pm_rate = st.number_input("실제 당첨 사정률 (%)", min_value=94.0000, max_value=106.0000, value=100.0350, step=0.0050, format="%.4f", key="_sx_pm_rate")
         with _pm_c3:
-            _pm_part = st.number_input("참여 경쟁사 수 (개사)", min_value=1, max_value=5000, value=45, step=1, key="_sx_pm_part")
+            _pm_part = st.number_input("예상/실제 경쟁사 수 (워게임 연동)", min_value=1, max_value=5000, value=45, step=5, key="_sx_pm_part")
         with _pm_c4:
             st.markdown("<div style='height:27px;'></div>", unsafe_allow_html=True)
             if st.button("🧠 개찰 결과 즉시 학습", key="_sx_pm_btn"):
@@ -3353,7 +3375,23 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                     bid_amt=_calc_win_bid,
                     participants=int(_pm_part)
                 )
-                st.success(f"학습 완료: [{_pm_ag}] 실전 당첨 사정률 {_pm_rate:.4f}% (참여 {_pm_part}개사) 로컬 SQLite 영구 기록 반영")
+                st.success(f"학습 완료: [{_pm_ag}] 당첨 사정률 {_pm_rate:.4f}% (참여 {_pm_part}개사) 로컬 SQLite 영구 기록 반영")
+
+        _csv_file = st.file_uploader("📂 [대량 학습] 과거 개찰 결과 CSV 파일 업로드 (발주처/사정률/기초금액/참여업체수 자동 인식)", type=["csv"], key="_sx_bulk_csv")
+        if _csv_file is not None:
+            if st.button("🚀 업로드된 개찰 기록 일괄 흡수 학습", key="_sx_bulk_btn"):
+                _raw_bytes = _csv_file.getvalue()
+                _txt = _raw_bytes.decode("utf-8-sig", errors="replace")
+                _reader = _csv_sx.DictReader(_io_sx.StringIO(_txt))
+                _batch = []
+                for _row in _reader:
+                    _ag_v = _row.get("발주처") or _row.get("agency") or _row.get("기관명") or _pm_ag
+                    _rt_v = _row.get("사정률") or _row.get("yega_rate") or _row.get("당첨사정률") or 100.035
+                    _bs_v = _row.get("기초금액") or _row.get("base_amt") or 1000000000
+                    _pt_v = _row.get("참여수") or _row.get("participants") or 45
+                    _batch.append({"agency": _ag_v, "yega_rate": _rt_v, "base_amt": _bs_v, "participants": _pt_v})
+                _b_res = _bulk_learn_v6(_batch)
+                st.success(f"대량 학습 완료: 신규 {_b_res.get('inserted')}건 흡수 (누적 학습 표본 {_b_res.get('total_learned'):,}건)")
     # === [END SNIPER-X SECRET WEAPON CONSOLE] ===
 
     st.markdown("""<!-- NEXUS_ZONE_DIVIDER --><div style="display:flex;align-items:center;gap:10px;margin:6px 0 4px 0;padding:5px 12px;background:linear-gradient(90deg,rgba(14,165,233,0.16) 0%,rgba(15,23,42,0.4) 60%,transparent 100%);border-left:3px solid #38BDF8;border-radius:4px;"><span style="font-size:0.70rem;font-weight:900;letter-spacing:1.2px;color:#38BDF8;background:rgba(56,189,248,0.14);padding:2px 7px;border-radius:3px;border:1px solid rgba(56,189,248,0.35);">PIPELINE 01</span><span style="font-size:0.80rem;font-weight:700;color:#E2E8F0;letter-spacing:-0.2px;">타겟 공고 브리핑 & 5대 다차원 조건 컨트롤러 (STEP 0 · STEP 1)</span><div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(56,189,248,0.4),transparent);"></div></div>""", unsafe_allow_html=True)
