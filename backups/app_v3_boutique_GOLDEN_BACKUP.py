@@ -1,28 +1,33 @@
 import streamlit as st
-# === [GLOBAL ZERO-MASK INTERCEPTOR v17.0] ===
+# === [GLOBAL ZERO-MASK INTERCEPTOR v18.0] ===
 import streamlit as _st_root
+from streamlit.delta_generator import DeltaGenerator as _DG_Core
 import re as _re_zmask
 
-if not getattr(_st_root, "_abs_zero_hooked_v17", False):
-    _real_md = _st_root.markdown
-    def _abs_zero_markdown(body, *args, **kwargs):
-        try:
-            # Z1에서 실제 공고를 선택하기 전(초기 부팅/초기화 상태)에는 모든 원화 금액과 마진율을 100% 0원으로 강제 치환
-            _sel_no = str(_st_root.session_state.get("selected_notice_no", "") or "").strip()
-            _manual_base = int(_st_root.session_state.get("_z34_base", 0) or 0)
-            if (not _sel_no and _manual_base == 0) and isinstance(body, str):
-                body = _re_zmask.sub(r'[+-]?\s*\d{1,3}(?:,\d{3})+\s*원', '0원', body)
-                body = _re_zmask.sub(r'[+-]?\s*\d+\s*원', '0원', body)
-                body = _re_zmask.sub(r'사정률\s*\d+\.\d+%\s*적용', '사정률 0.000% 대기', body)
-                body = _re_zmask.sub(r'실행\s*마진율\s*[+-]?\d+\.\d+%', '실행 마진율 0.00%', body)
-                body = body.replace("100.0% (0원)", "0.0% (0원)")
-        except Exception:
-            pass
-        return _real_md(body, *args, **kwargs)
+def _apply_strict_zero_mask(body):
+    try:
+        _sel_no = str(_st_root.session_state.get("selected_notice_no", "") or "").strip()
+        _pulled = _st_root.session_state.get("pulled_notices", []) or []
+        _manual_b = int(_st_root.session_state.get("_z34_base", 0) or 0)
+        # 공고가 실제로 선택되지 않은 초기 상태면 모든 원화 금액/비율 숫자를 100% 0원으로 강제 치환!
+        if (not _sel_no and len(_pulled) == 0 and _manual_b == 0) and isinstance(body, str):
+            body = _re_zmask.sub(r'[+-]?\s*\d{1,3}(?:,\d{3})+\s*원', '0원', body)
+            body = _re_zmask.sub(r'[+-]?\s*\d+\s*원', '0원', body)
+            body = _re_zmask.sub(r'사정률\s*\d+\.\d+%\s*적용', '사정률 0.000% 대기', body)
+            body = _re_zmask.sub(r'실행\s*마진율\s*[+-]?\d+\.\d+%', '실행 마진율 0.00%', body)
+            body = body.replace("총 투찰가 100.0%", "총 투찰가 0.0%")
+    except Exception:
+        pass
+    return body
 
-    _st_root.markdown = _abs_zero_markdown
-    _st_root._abs_zero_hooked_v17 = True
+if not getattr(_DG_Core, "_dg_zero_hooked_v18", False):
+    _orig_dg_md = _DG_Core.markdown
+    def _hooked_dg_markdown(self, body, *args, **kwargs):
+        return _orig_dg_md(self, _apply_strict_zero_mask(body), *args, **kwargs)
+    _DG_Core.markdown = _hooked_dg_markdown
+    _DG_Core._dg_zero_hooked_v18 = True
 # === [END GLOBAL ZERO-MASK INTERCEPTOR] ===
+
 
 
 # === [CLOUD & LOCAL ABSOLUTE ZERO-BOOT ENFORCER v12.0] ===
@@ -5080,8 +5085,8 @@ with tab_sim:
     try:
         import streamlit.components.v1 as _stc_z4
         _z4_base = float(st.session_state.get("base_amount", 0) or 0)
-        _z4_a = float(st.session_state.get("a_value", 195400000) or 195400000)
-        _z4_net = float(st.session_state.get("net_cost", 3463750000) or 3463750000)
+        _z4_a = float(st.session_state.get("a_value", 0) or 0)
+        _z4_net = float(st.session_state.get("net_cost", 0) or 0)
         _z4_lim = float(st.session_state.get("lower_limit_rate", 88.745) or 88.745)
         _z4_rate = 100.050
         _z4_exec_pct = 88.5
