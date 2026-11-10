@@ -3194,10 +3194,59 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
         from lattice1365.local_ml_engine import LocalBidIntelligenceEngine as _LBIE_Z34
         _eng_z34 = _LBIE_Z34()
 
-        # [공통 상단 서랍] 새로운 개찰 결과(사정률) 단건 입력 & CSV 업로드 누적 학습기
-        with st.expander("📥 [로컬 AI 사정률 누적 학습기] — 신규 개찰 결과(당첨 사정률) 즉시 입력 & 엑셀(CSV) 대량 학습 (클릭 시 열림)", expanded=False):
-            _tr_tab1, _tr_tab2 = st.tabs(["✍️ 단건 개찰 결과 즉시 학습", "📂 개찰 결과 CSV 일괄 업로드 학습"])
-            with _tr_tab1:
+        # 세션 최초 시작 시 백그라운드에서 자동으로 150건 신규 개찰 사정률 일괄 학습 실행 (무조작 완전 자동화)
+        if not st.session_state.get("_auto_ml_boot_harvested", False):
+            _boot_harv = _eng_z34.auto_harvest_and_train(batch_size=150, target_agency="전체")
+            st.session_state["_auto_ml_boot_harvested"] = True
+            st.session_state["_last_auto_harvest_info"] = _boot_harv
+
+        _cur_total_db = _eng_z34.analyze_agency_bias("조달청")["sample_count"]
+        _last_info = st.session_state.get("_last_auto_harvest_info", {"added_count": 150, "after_total": 500})
+
+        with st.expander(f"🤖 [완전 자동화 개찰 사정률 학습 파이프라인] — 현재 누적 {_last_info.get('after_total', 500):,}건 자동 학습 완료 (클릭 시 대량 자동수집·학습 제어)", expanded=False):
+            _at_tab1, _at_tab2, _at_tab3 = st.tabs([
+                "⚡ G2B 개찰결과 일괄 완전 자동 학습 (메인)",
+                "📂 대용량 CSV 드롭 자동 학습",
+                "✍️ 단건 수동 보정"
+            ])
+            with _at_tab1:
+                st.markdown("""<div style="padding:10px 14px;margin-bottom:10px;border-radius:8px;background:linear-gradient(90deg,rgba(14,165,233,0.16),rgba(16,185,129,0.12));border-left:4px solid #38BDF8;font-size:0.82rem;color:#E2E8F0;">
+                <b>🔄 무인 자동 학습 가동 중:</b> 앱 부팅 시 자동으로 최신 개찰 사정률을 수집·역산하여 SQLite DB를 갱신합니다. 아래 버튼으로 원하는 발주처의 개찰 이력을 수백 건씩 즉시 일괄 추가 학습시킬 수 있습니다.</div>""", unsafe_allow_html=True)
+                _ac1, _ac2, _ac3 = st.columns([1.4, 1.2, 1.4])
+                with _ac1:
+                    _auto_ag = st.selectbox("🎯 집중 자동수집 타겟 발주처", ["전체 (전 기관 일괄)", "강원특별자치도", "조달청", "경기도", "서울특별시", "교육청", "한국도로공사", "한국토지주택공사"], key="_auto_harv_ag")
+                with _ac2:
+                    _auto_cnt = st.selectbox("📦 1회 일괄 자동학습 규모", [100, 300, 500, 1000], format_func=lambda x: f"{x:,}건 일괄 자동 수집·학습", index=1, key="_auto_harv_cnt")
+                with _ac3:
+                    st.markdown("<div style='height:18px;'></div>", unsafe_allow_html=True)
+                    if st.button("🚀 원클릭 일괄 완전 자동 수집·학습 실행", key="_btn_full_auto_harv", use_container_width=True):
+                        _ag_param = "전체" if "전체" in _auto_ag else _auto_ag
+                        _harv_res = _eng_z34.auto_harvest_and_train(batch_size=int(_auto_cnt), target_agency=_ag_param)
+                        st.session_state["_last_auto_harvest_info"] = _harv_res
+                        st.success(f"⚡ 일괄 자동 학습 완료: 신규 개찰 데이터 {_harv_res['added_count']:,}건 역산 적재 (총 누적 표본: {_harv_res['before_total']:,}건 ➔ {_harv_res['after_total']:,}건)")
+
+                _rec_rows = _eng_z34.get_recent_records(5)
+                if _rec_rows:
+                    _rec_html = "".join([
+                        f"<span style='display:inline-block;margin:2px 6px 2px 0;padding:3px 8px;border-radius:4px;background:rgba(15,23,42,0.85);border:1px solid rgba(56,189,248,0.28);font-size:0.74rem;color:#CBD5E1;'>"
+                        f"#{r[0]} <b>{r[1]}</b> ({r[2]}) | 기초 {int(r[3])//100000000}억 | 당첨사정률 <b style='color:#34D399;'>{r[4]:.4f}%</b> ({r[5]}개사)</span>"
+                        for r in _rec_rows
+                    ])
+                    st.markdown(f"<div style='margin-top:6px;'><span style='font-size:0.75rem;color:#94A3B8;font-weight:700;'>최근 자동 학습된 개찰 표본:</span><br>{_rec_html}</div>", unsafe_allow_html=True)
+
+            with _at_tab2:
+                st.caption("CSV 파일을 올려두기만 하면 컬럼(발주처, 기초금액, 예정가격/사정률, 참여업체수)을 자동 인식해 일괄 적재합니다.")
+                _up_csv = st.file_uploader("개찰 결과 CSV 파일 선택", type=["csv"], key="_tr_csv_up")
+                if _up_csv is not None:
+                    import csv as _csv_mod
+                    import io as _io_mod
+                    _decoded = _up_csv.getvalue().decode("utf-8-sig", errors="ignore")
+                    _reader = _csv_mod.DictReader(_io_mod.StringIO(_decoded))
+                    _rows_to_add = list(_reader)
+                    _added_n = _eng_z34.bulk_import_records(_rows_to_add)
+                    st.success(f"⚡ 파일 감지 즉시 총 {_added_n:,}건의 개찰 사정률 데이터가 자동 학습 완료되었습니다.")
+
+            with _at_tab3:
                 _tc1, _tc2, _tc3, _tc4, _tc5, _tc6 = st.columns([1.2, 1.1, 1.3, 1.1, 0.9, 0.9])
                 with _tc1:
                     _in_ag = st.selectbox("발주처", ["강원특별자치도", "조달청", "경기도", "서울특별시", "교육청", "한국도로공사", "한국토지주택공사"], key="_tr_in_ag")
@@ -3211,21 +3260,9 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                     _in_bid_cnt = st.number_input("참여업체 수", min_value=1, max_value=5000, value=85, step=5, key="_tr_in_cnt")
                 with _tc6:
                     st.markdown("<div style='height:18px;'></div>", unsafe_allow_html=True)
-                    if st.button("🧠 DB 즉시 학습", key="_tr_btn_save", use_container_width=True):
+                    if st.button("🧠 단건 추가", key="_tr_btn_save", use_container_width=True):
                         _eng_z34.record_opening_result(_in_ag, _in_lic, _in_base, int(_in_base * 0.055), round(89.745 - 2.0, 3), _in_rate, _in_bid_cnt)
-                        st.success(f"[{_in_ag}] 당첨 사정률 {_in_rate:.4f}% 데이터가 로컬 SQLite DB에 누적 학습되었습니다.")
-            with _tr_tab2:
-                st.caption("CSV 컬럼 형식 예시: agency_name, license_name, base_amount, winning_assess_rate, bidder_count")
-                _up_csv = st.file_uploader("과거 개찰 결과 CSV 파일 선택", type=["csv"], key="_tr_csv_up")
-                if _up_csv is not None:
-                    import csv as _csv_mod
-                    import io as _io_mod
-                    _decoded = _up_csv.getvalue().decode("utf-8-sig", errors="ignore")
-                    _reader = _csv_mod.DictReader(_io_mod.StringIO(_decoded))
-                    _rows_to_add = list(_reader)
-                    if st.button(f"🚀 {len(_rows_to_add)}건 일괄 DB 학습 실행", key="_tr_csv_btn"):
-                        _added_n = _eng_z34.bulk_import_records(_rows_to_add)
-                        st.success(f"총 {_added_n}건의 과거 개찰 사정률 데이터가 로컬 ML 엔진에 학습 완료되었습니다.")
+                        st.success(f"[{_in_ag}] {_in_rate:.4f}% 학습 완료")
 
         _cur_cab_str = str(st.session_state.get("boutique_active_cabinet", st.session_state.get("active_cabinet", "")))
         if any(_k in _cur_cab_str for _k in ["Z3", "15C4", "Z4", "감도"]):
@@ -3261,7 +3298,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                 ])
                 _p15_tags = " ".join([f'<span style="display:inline-block;padding:2px 6px;margin:2px;border-radius:4px;background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.3);font-size:0.74rem;color:#E0F2FE;">P{i+1}: {v:.3f}%</span>' for i, v in enumerate(_z3_pack["prelim_15"])])
                 st.markdown(f"""<div style="margin:6px 0 14px 0;padding:14px 16px;border-radius:10px;background:rgba(15,23,42,0.92);border:1px solid rgba(56,189,248,0.32);">
-                <div style="font-size:0.90rem;font-weight:900;color:#38BDF8;margin-bottom:8px;">⚡ [Z3 로컬 ML 직결] {_z_ag} 15C4(1,365조합) 베이지안 확률 밀도 분포 & 15개 복수예가 배열 (학습 표본 {_z_bi['sample_count']}건)</div>
+                <div style="font-size:0.90rem;font-weight:900;color:#38BDF8;margin-bottom:8px;">⚡ [Z3 로컬 ML 직결] {_z_ag} 15C4(1,365조합) 베이지안 확률 밀도 분포 & 15개 복수예가 배열 (학습 표본 {_z_bi['sample_count']:,}건)</div>
                 <div style="margin-bottom:10px;">{_p15_tags}</div>
                 <div style="padding:10px 12px;border-radius:8px;background:rgba(9,14,28,0.85);border:1px solid rgba(148,163,184,0.18);">{_bars_html}</div>
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px;">
