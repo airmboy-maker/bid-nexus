@@ -3750,28 +3750,46 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             if "_weekly_bid_cart_v95" not in st.session_state:
                 st.session_state["_weekly_bid_cart_v95"] = []
 
-            _ct_b1, _ct_b2, _ct_b3 = st.columns([2.0, 1.5, 1.5])
-            with _ct_b1:
-                if st.button("➕ 현재 타겟 공고 & 6대 타점을 주간 장바구니에 담기", key="_cart_add_btn", use_container_width=True):
+            _ct_top1, _ct_top2, _ct_top3, _ct_top4 = st.columns([1.4, 1.8, 1.5, 1.1])
+            with _ct_top1:
+                _cost_ratio_pct = st.number_input(
+                    "📐 당사 실행원가율 (기초대비 %)",
+                    min_value=50.0,
+                    max_value=99.0,
+                    value=81.5,
+                    step=0.5,
+                    format="%.1f",
+                    key="_cart_cost_ratio_in"
+                )
+            with _ct_top2:
+                st.markdown("<div style='height:27px;'></div>", unsafe_allow_html=True)
+                if st.button("➕ 현재 타겟 공고 장바구니 담기", key="_cart_add_btn", use_container_width=True):
                     _use_b_cart = _sx_base if _sx_base > 0 else 1500000000
                     _use_a_cart = _sx_aval if _sx_aval > 0 else 90000000
                     _s1 = _run_sniper_x(agency=(_sx_ag or "조달청"), base_amt=_use_b_cart, a_val=_use_a_cart, lower_limit=_sx_low)
                     _w1 = _run_wolfpack_v9(agency=(_sx_ag or "조달청"), base_amt=_use_b_cart, a_val=_use_a_cart, lower_limit=_sx_low, center_rate=float(_s1.get("sniper_rate", 100.0317)), vacuum_rate=float(_s1.get("vacuum_rate", 99.9840)))
+                    _sniper_amt = int(_s1.get("sniper_bid", 0))
+                    _est_cost = int(_use_b_cart * (float(_cost_ratio_pct) / 100.0))
+                    _net_margin = _sniper_amt - _est_cost
+                    _margin_rate = (_net_margin / _sniper_amt * 100.0) if _sniper_amt > 0 else 0.0
                     st.session_state["_weekly_bid_cart_v95"].append({
                         "순번": len(st.session_state["_weekly_bid_cart_v95"]) + 1,
-                        "공고명": _sx_title[:28] if _sx_base > 0 else f"표준공고 #{len(st.session_state['_weekly_bid_cart_v95'])+1} (15억)",
+                        "공고명": _sx_title[:24] if _sx_base > 0 else f"표준공고 #{len(st.session_state['_weekly_bid_cart_v95'])+1} (15억)",
                         "발주처": _sx_ag if _sx_ag else "조달청",
                         "기초금액(원)": f"{_use_b_cart:,}",
-                        "1순위스나이퍼(원)": f"{int(_s1.get('sniper_bid', 0)):,}",
+                        "1순위스나이퍼(원)": f"{_sniper_amt:,}",
                         "목표사정률(%)": f"{float(_s1.get('sniper_rate', 0.0)):.4f}%",
+                        "추정실행원가(원)": f"{_est_cost:,} ({_cost_ratio_pct:.1f}%)",
+                        "예상순이익(원)": f"{_net_margin:+,}원",
+                        "실행마진율(%)": f"{_margin_rate:+.2f}%",
                         "진공타점(원)": f"{int(_s1.get('vacuum_bid', 0)):,}",
                         "울프팩1호기(원)": f"{int(_w1.get('wp_alpha_bid', 0)):,}",
-                        "울프팩2호기(원)": f"{int(_w1.get('wp_beta_bid', 0)):,}",
-                        "울프팩3호기(원)": f"{int(_w1.get('wp_gamma_bid', 0)):,}"
+                        "울프팩2호기(원)": f"{int(_w1.get('wp_beta_bid', 0)):,}"
                     })
-                    st.success("✅ 주간 다중 공고 장바구니에 추가되었습니다!")
-            with _ct_b2:
-                if st.button("⚡ 이번 주 샘플 3개 공고 일괄 생성 비교", key="_cart_sample3_btn", use_container_width=True):
+                    st.success(f"✅ 장바구니 추가 완료! (예상 순이익: {_net_margin:+,}원 / 마진율 {_margin_rate:+.2f}%)")
+            with _ct_top3:
+                st.markdown("<div style='height:27px;'></div>", unsafe_allow_html=True)
+                if st.button("⚡ 샘플 3개 공고 + 마진 비교 생성", key="_cart_sample3_btn", use_container_width=True):
                     _samples_cfg = [
                         ("조달청", "교육시설 환경개선 전기공사", 1500000000, 90000000, 87.745),
                         ("경기도", "관내 복합문화센터 실내건축공사", 2400000000, 140000000, 87.745),
@@ -3781,21 +3799,28 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                     for _i_s, (_ag_s, _tit_s, _bs_s, _av_s, _lw_s) in enumerate(_samples_cfg, 1):
                         _s_tmp = _run_sniper_x(agency=_ag_s, base_amt=_bs_s, a_val=_av_s, lower_limit=_lw_s)
                         _w_tmp = _run_wolfpack_v9(agency=_ag_s, base_amt=_bs_s, a_val=_av_s, lower_limit=_lw_s, center_rate=float(_s_tmp.get("sniper_rate", 100.0317)), vacuum_rate=float(_s_tmp.get("vacuum_rate", 99.9840)))
+                        _s_bid_v = int(_s_tmp.get("sniper_bid", 0))
+                        _c_amt_v = int(_bs_s * (float(_cost_ratio_pct) / 100.0))
+                        _m_krw_v = _s_bid_v - _c_amt_v
+                        _m_pct_v = (_m_krw_v / _s_bid_v * 100.0) if _s_bid_v > 0 else 0.0
                         st.session_state["_weekly_bid_cart_v95"].append({
                             "순번": _i_s,
                             "공고명": _tit_s,
                             "발주처": _ag_s,
                             "기초금액(원)": f"{_bs_s:,}",
-                            "1순위스나이퍼(원)": f"{int(_s_tmp.get('sniper_bid', 0)):,}",
+                            "1순위스나이퍼(원)": f"{_s_bid_v:,}",
                             "목표사정률(%)": f"{float(_s_tmp.get('sniper_rate', 0.0)):.4f}%",
+                            "추정실행원가(원)": f"{_c_amt_v:,} ({_cost_ratio_pct:.1f}%)",
+                            "예상순이익(원)": f"{_m_krw_v:+,}원",
+                            "실행마진율(%)": f"{_m_pct_v:+.2f}%",
                             "진공타점(원)": f"{int(_s_tmp.get('vacuum_bid', 0)):,}",
                             "울프팩1호기(원)": f"{int(_w_tmp.get('wp_alpha_bid', 0)):,}",
-                            "울프팩2호기(원)": f"{int(_w_tmp.get('wp_beta_bid', 0)):,}",
-                            "울프팩3호기(원)": f"{int(_w_tmp.get('wp_gamma_bid', 0)):,}"
+                            "울프팩2호기(원)": f"{int(_w_tmp.get('wp_beta_bid', 0)):,}"
                         })
                     st.rerun()
-            with _ct_b3:
-                if st.button("🗑️ 장바구니 비우기", key="_cart_clear_btn", use_container_width=True):
+            with _ct_top4:
+                st.markdown("<div style='height:27px;'></div>", unsafe_allow_html=True)
+                if st.button("🗑️ 비우기", key="_cart_clear_btn", use_container_width=True):
                     st.session_state["_weekly_bid_cart_v95"] = []
                     st.rerun()
 
@@ -3806,14 +3831,14 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                 _w_csv.writeheader()
                 _w_csv.writerows(st.session_state["_weekly_bid_cart_v95"])
                 st.download_button(
-                    "📥 주간 다중 공고 일괄 타격 비교표 CSV(엑셀) 다운로드",
+                    "📥 주간 다중 공고 일괄 타격 & 예상순이익 비교표 CSV(엑셀) 다운로드",
                     data=_csv_buf.getvalue().encode("utf-8-sig"),
-                    file_name=f"BID_NEXUS_주간타격비교표_{_dt_sx.datetime.now().strftime('%Y%m%d')}.csv",
+                    file_name=f"BID_NEXUS_주간타격_마진비교표_{_dt_sx.datetime.now().strftime('%Y%m%d')}.csv",
                     mime="text/csv",
                     key="_cart_dl_csv_btn"
                 )
             else:
-                st.info("현재 장바구니가 비어 있습니다. 위의 [➕ 현재 타겟 공고 담기] 또는 [⚡ 이번 주 샘플 3개 공고 일괄 생성 비교] 버튼을 눌러보세요.")
+                st.info("현재 장바구니가 비어 있습니다. 좌측에서 [당사 실행원가율(%)]을 설정한 뒤 [➕ 현재 타겟 공고 장바구니 담기] 또는 [⚡ 샘플 3개 공고 + 마진 비교 생성] 버튼을 눌러보세요.")
     # === [END SNIPER-X SECRET WEAPON CONSOLE] ===
 
     st.markdown("""<!-- NEXUS_ZONE_DIVIDER --><div style="display:flex;align-items:center;gap:10px;margin:6px 0 4px 0;padding:5px 12px;background:linear-gradient(90deg,rgba(14,165,233,0.16) 0%,rgba(15,23,42,0.4) 60%,transparent 100%);border-left:3px solid #38BDF8;border-radius:4px;"><span style="font-size:0.70rem;font-weight:900;letter-spacing:1.2px;color:#38BDF8;background:rgba(56,189,248,0.14);padding:2px 7px;border-radius:3px;border:1px solid rgba(56,189,248,0.35);">PIPELINE 01</span><span style="font-size:0.80rem;font-weight:700;color:#E2E8F0;letter-spacing:-0.2px;">타겟 공고 브리핑 & 5대 다차원 조건 컨트롤러 (STEP 0 · STEP 1)</span><div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(56,189,248,0.4),transparent);"></div></div>""", unsafe_allow_html=True)
