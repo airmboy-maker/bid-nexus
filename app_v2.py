@@ -3201,7 +3201,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
 
         _last_info = st.session_state.get("_last_auto_harvest_info", {"added_count": 150, "after_total": 800})
 
-        with st.expander(f"🤖 [완전 자동화 개찰 사정률 학습 파이프라인] — 현재 누적 {_last_info.get('after_total', 800):,}건 자동 학습 완료 (클릭 시 대량 자동수집·학습 제어)", expanded=False):
+        with st.expander(f"🤖 [완전 자동화 개찰 학습 & Ridge · Gradient Boosting 엔진] — 누적 {_last_info.get('after_total', 800):,}건 학습 완료 (클릭 시 열림)", expanded=False):
             _at_tab1, _at_tab2, _at_tab3 = st.tabs([
                 "⚡ G2B 개찰결과 일괄 완전 자동 학습 (메인)",
                 "📂 대용량 CSV 드롭 자동 학습",
@@ -3209,7 +3209,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             ])
             with _at_tab1:
                 st.markdown("""<div style="padding:10px 14px;margin-bottom:10px;border-radius:8px;background:linear-gradient(90deg,rgba(14,165,233,0.16),rgba(16,185,129,0.12));border-left:4px solid #38BDF8;font-size:0.82rem;color:#E2E8F0;">
-                <b>🔄 무인 자동 학습 가동 중:</b> 앱 부팅 시 자동으로 최신 개찰 사정률을 수집·역산하여 SQLite DB를 갱신하며, 학습된 사정률은 <b>STEP 0 · Z3 · Z4 · Z5 · Z6 · Z7</b> 전 캐비닛에 즉시 반영됩니다.</div>""", unsafe_allow_html=True)
+                <b>🔄 베이지안 + Ridge(L2) + Gradient Boosting 트리 3중 결합 가동 중:</b> 누적 학습된 개찰 표본은 <b>STEP 0 · Z3 · Z4 · Z5 · Z6 · Z7 · Z8(통합보고서)</b> 전 구간에 실시간 반영됩니다.</div>""", unsafe_allow_html=True)
                 _ac1, _ac2, _ac3 = st.columns([1.4, 1.2, 1.4])
                 with _ac1:
                     _auto_ag = st.selectbox("🎯 집중 자동수집 타겟 발주처", ["전체 (전 기관 일괄)", "강원특별자치도", "조달청", "경기도", "서울특별시", "교육청", "한국도로공사", "한국토지주택공사"], key="_auto_harv_ag")
@@ -3263,10 +3263,10 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                         st.success(f"[{_in_ag}] {_in_rate:.4f}% 학습 완료")
 
         _cur_cab_str = str(st.session_state.get("boutique_active_cabinet", st.session_state.get("active_cabinet", "")))
-        if any(_k in _cur_cab_str for _k in ["Z3", "15C4", "Z4", "감도", "Z5", "5대", "홀로그램", "Z6", "7-BAY", "전술", "Z7", "EGR", "LATTICE", "번외"]):
+        if any(_k in _cur_cab_str for _k in ["Z3", "15C4", "Z4", "감도", "Z5", "5대", "홀로그램", "Z6", "7-BAY", "전술", "Z7", "EGR", "LATTICE", "번외", "Z8", "증빙", "출력"]):
             st.markdown("""<div style="display:flex;align-items:center;gap:10px;margin:8px 0 6px 0;padding:6px 14px;background:linear-gradient(90deg,rgba(16,185,129,0.18) 0%,rgba(15,23,42,0.5) 70%,transparent 100%);border-left:4px solid #10B981;border-radius:6px;">
-            <span style="font-size:0.72rem;font-weight:900;color:#34D399;background:rgba(16,185,129,0.16);padding:2px 8px;border-radius:4px;border:1px solid rgba(16,185,129,0.4);">LOCAL ML ENGINE DIRECT LINK</span>
-            <span style="font-size:0.84rem;font-weight:800;color:#ECFDF5;">로컬 SQLite 개찰 학습 DB & 15C4(1,365조합) 정량 추론 엔진 실시간 직결 가동 중 (STEP 0 · Z3 · Z4 · Z5 · Z6 · Z7 전 구간 통합)</span></div>""", unsafe_allow_html=True)
+            <span style="font-size:0.72rem;font-weight:900;color:#34D399;background:rgba(16,185,129,0.16);padding:2px 8px;border-radius:4px;border:1px solid rgba(16,185,129,0.4);">BAYESIAN + RIDGE + GRADIENT BOOSTING LIVE</span>
+            <span style="font-size:0.84rem;font-weight:800;color:#ECFDF5;">로컬 SQLite DB & 15C4 베이즈 + Ridge/GBM 회귀 엔진 실시간 직결 가동 중 (Z3 ~ Z8 전 구간 통합)</span></div>""", unsafe_allow_html=True)
 
             _z34_c1, _z34_c2, _z34_c3, _z34_c4, _z34_c5 = st.columns([1.3, 1.4, 1.2, 1.0, 0.9])
             with _z34_c1:
@@ -3284,6 +3284,20 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             _z_sim = _z3_pack["sim"]
             _z_bi = _z_sim["agency_analysis"]
             _zs1, _zs2, _zs3 = _z_sim["strategies"][0], _z_sim["strategies"][1], _z_sim["strategies"][2]
+            _ml_boost = _eng_z34.fit_predict_ml_boost(_z_base, _z_aval, _z_low, _z_ag, expected_bidders=_z_bi["avg_bidders"])
+
+            # 모든 분석 캐비닛 상단에 Ridge + Gradient Boosting 다변량 회귀 예측 바 표시
+            st.markdown(f"""<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:4px 0 10px 0;">
+            <div style="padding:8px 12px;border-radius:8px;background:rgba(30,41,59,0.78);border:1px solid rgba(56,189,248,0.28);">
+            <span style="font-size:0.72rem;color:#93C5FD;font-weight:800;">📉 Ridge(L2) 다변량 선형회귀 예측</span>
+            <div style="font-size:0.95rem;font-weight:900;color:#F8FAFC;">{_ml_boost['ridge_rate']:.4f}% <span style="font-size:0.82rem;color:#38BDF8;">({_ml_boost['ridge_bid']:,}원)</span></div></div>
+            <div style="padding:8px 12px;border-radius:8px;background:rgba(30,41,59,0.78);border:1px solid rgba(16,185,129,0.32);">
+            <span style="font-size:0.72rem;color:#6EE7B7;font-weight:800;">🌲 Gradient Boosting(5-Stage 트리) 예측</span>
+            <div style="font-size:0.95rem;font-weight:900;color:#F8FAFC;">{_ml_boost['gbm_rate']:.4f}% <span style="font-size:0.82rem;color:#34D399;">({_ml_boost['gbm_bid']:,}원)</span></div></div>
+            <div style="padding:8px 12px;border-radius:8px;background:linear-gradient(90deg,rgba(236,72,153,0.18),rgba(139,92,246,0.18));border:1px solid rgba(236,72,153,0.45);">
+            <span style="font-size:0.72rem;color:#F9A8D4;font-weight:800;">👑 ML 부스팅 하이브리드 통합해 (RMSE ±{_ml_boost['rmse']:.3f}%)</span>
+            <div style="font-size:0.95rem;font-weight:900;color:#FBBF24;">{_ml_boost['hybrid_rate']:.4f}% <span style="font-size:0.82rem;color:#FFF;">({_ml_boost['hybrid_bid']:,}원)</span></div></div>
+            </div>""", unsafe_allow_html=True)
 
             if "Z3" in _cur_cab_str or "15C4" in _cur_cab_str:
                 _bars_html = "".join([
@@ -3306,7 +3320,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                 </div></div>""", unsafe_allow_html=True)
 
             if "Z4" in _cur_cab_str or "감도" in _cur_cab_str:
-                _z4_center = st.slider("🎛️ 0.001% 감도 시뮬레이션 중심 사정률 (%)", min_value=98.000, max_value=102.000, value=float(_zs1["target_assess_rate"]), step=0.001, format="%.4f", key="_z4_center_sl")
+                _z4_center = st.slider("🎛️ 0.001% 감도 시뮬레이션 중심 사정률 (%)", min_value=98.000, max_value=102.000, value=float(_ml_boost["hybrid_rate"]), step=0.001, format="%.4f", key="_z4_center_sl")
                 _z4_rows = _eng_z34.build_z4_micro_sensitivity_table(_z_base, _z_aval, _z_low, _z4_center)
                 _tr_html = ""
                 for _r in _z4_rows:
@@ -3323,7 +3337,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                         f'<td style="padding:7px 10px;">{_r["zone_tag"]}</td></tr>'
                     )
                 st.markdown(f"""<div style="margin:6px 0 14px 0;padding:14px 16px;border-radius:10px;background:rgba(15,23,42,0.94);border:1px solid rgba(16,185,129,0.35);">
-                <div style="font-size:0.90rem;font-weight:900;color:#34D399;margin-bottom:8px;">🎛️ [Z4 로컬 ML 직결] 0.001% 초정밀 감도 매트릭스 (기준 사정률 {_z4_center:.4f}% 전후 11단계 원 단위 시뮬레이션)</div>
+                <div style="font-size:0.90rem;font-weight:900;color:#34D399;margin-bottom:8px;">🎛️ [Z4 로컬 ML 직결] 0.001% 초정밀 감도 매트릭스 (ML 부스팅 중심 사정률 {_z4_center:.4f}% 전후 11단계 시뮬레이션)</div>
                 <table style="width:100%;border-collapse:collapse;font-size:0.80rem;text-align:left;">
                 <thead><tr style="background:rgba(30,41,59,0.95);color:#94A3B8;border-bottom:2px solid rgba(56,189,248,0.3);">
                 <th style="padding:8px 10px;">감도 오프셋</th><th style="padding:8px 10px;">적용 사정률</th><th style="padding:8px 10px;">예상 예정가격</th><th style="padding:8px 10px;">최적 투찰금액 (10원 절상)</th><th style="padding:8px 10px;">기준점 대비 차액</th><th style="padding:8px 10px;">전술 포지션 판정</th>
@@ -3411,6 +3425,49 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                 <span style="font-size:0.92rem;font-weight:900;color:#38BDF8;">⚡ [Z7 번외 2 · LATTICE 1365 직결] 15C4(1,365 격자) 중 당첨 밀도 최상위 Top 6 골든 격자</span>
                 <span style="font-size:0.80rem;color:#34D399;font-weight:800;">👑 최우선 타격 격자: #{_z7_pack['prime_grid_no']:04d} ({_z7_pack['prime_rate']:.4f}%)</span></div>
                 <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;">{_lat_cards}</div></div>""", unsafe_allow_html=True)
+
+            if any(_k in _cur_cab_str for _k in ["Z8", "증빙", "출력"]):
+                _z5_rep = _eng_z34.build_z5_5models_anatomy(_z_base, _z_aval, _z_low, _z_ag, spread_pct=float(_z_sp))
+                _z6_rep = _eng_z34.build_z6_7bay_tactical_machine(_z_base, _z_aval, _z_low, _z_ag, spread_pct=float(_z_sp))
+                st.markdown(f"""<div style="margin:6px 0 12px 0;padding:16px 18px;border-radius:10px;background:rgba(15,23,42,0.96);border:1px solid rgba(56,189,248,0.42);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;border-bottom:1px solid rgba(148,163,184,0.2);padding-bottom:8px;">
+                <span style="font-size:0.96rem;font-weight:900;color:#38BDF8;">📄 [Z8 로컬 ML 최종 결재 리포트] {_z_ag} 맞춤형 3대 타격 투찰가 & ML 부스팅 통합 요약표</span>
+                <span style="font-size:0.78rem;color:#34D399;font-weight:800;">기준 기초금액: {_z_base:,}원 | A값: {_z_aval:,}원 | 하한율: {_z_low:.3f}%</span></div>
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px;">
+                <div style="padding:10px 12px;border-radius:8px;background:rgba(14,165,233,0.14);border-left:4px solid #38BDF8;">
+                <div style="font-size:0.74rem;color:#93C5FD;font-weight:800;">1안 · {_zs1['tier']}</div>
+                <div style="font-size:1.08rem;font-weight:900;color:#FFF;margin:3px 0;">{_zs1['recommended_bid_amount']:,}원</div>
+                <div style="font-size:0.75rem;color:#38BDF8;">사정률 {_zs1['target_assess_rate']:.4f}%</div></div>
+                <div style="padding:10px 12px;border-radius:8px;background:rgba(16,185,129,0.14);border-left:4px solid #10B981;">
+                <div style="font-size:0.74rem;color:#6EE7B7;font-weight:800;">2안 · {_zs2['tier']}</div>
+                <div style="font-size:1.08rem;font-weight:900;color:#FFF;margin:3px 0;">{_zs2['recommended_bid_amount']:,}원</div>
+                <div style="font-size:0.75rem;color:#34D399;">사정률 {_zs2['target_assess_rate']:.4f}%</div></div>
+                <div style="padding:10px 12px;border-radius:8px;background:rgba(245,158,11,0.14);border-left:4px solid #F59E0B;">
+                <div style="font-size:0.74rem;color:#FDE68A;font-weight:800;">3안 · {_zs3['tier']}</div>
+                <div style="font-size:1.08rem;font-weight:900;color:#FFF;margin:3px 0;">{_zs3['recommended_bid_amount']:,}원</div>
+                <div style="font-size:0.75rem;color:#FBBF24;">사정률 {_zs3['target_assess_rate']:.4f}%</div></div>
+                <div style="padding:10px 12px;border-radius:8px;background:rgba(236,72,153,0.16);border-left:4px solid #EC4899;">
+                <div style="font-size:0.74rem;color:#F9A8D4;font-weight:800;">👑 최종 결재안 · ML 부스팅 통합해</div>
+                <div style="font-size:1.08rem;font-weight:900;color:#FBBF24;margin:3px 0;">{_ml_boost['hybrid_bid']:,}원</div>
+                <div style="font-size:0.75rem;color:#F472B6;">사정률 {_ml_boost['hybrid_rate']:.4f}% (M5: {_z5_rep['ensemble_rate']:.4f}%)</div></div>
+                </div></div>""", unsafe_allow_html=True)
+
+                _csv_report = "구분,전술명,적용사정률(%),추천투찰금액(원),비고\n"
+                _csv_report += f"1안,{_zs1['tier']},{_zs1['target_assess_rate']:.4f},{_zs1['recommended_bid_amount']},15C4 최빈 피크\n"
+                _csv_report += f"2안,{_zs2['tier']},{_zs2['target_assess_rate']:.4f},{_zs2['recommended_bid_amount']},군집 회피 마진\n"
+                _csv_report += f"3안,{_zs3['tier']},{_zs3['target_assess_rate']:.4f},{_zs3['recommended_bid_amount']},하한 돌파 스나이퍼\n"
+                _csv_report += f"최종결재안,Ridge+GBM 하이브리드,{_ml_boost['hybrid_rate']:.4f},{_ml_boost['hybrid_bid']},다변량 회귀 부스팅\n"
+                for _b in _z6_rep["bays"]:
+                    _csv_report += f"{_b['bay_code']},{_b['title']},{_b['assess_rate']:.4f},{_b['bid_price']},{_b['tactic_desc']}\n"
+
+                st.download_button(
+                    label="📥 [Z8 결재용 요약표] 로컬 ML 3대 전략 & 7-BAY 최종 투찰가 리포트 다운로드 (CSV)",
+                    data=_csv_report.encode("utf-8-sig"),
+                    file_name=f"BID_NEXUS_ML_REPORT_{_z_ag}.csv",
+                    mime="text/csv",
+                    use_container_width=True,
+                    key="_z8_dl_ml_csv"
+                )
     except Exception as _e_z34:
         pass
     # === [END_LOCAL_ML_Z3_Z4_SYNC] ===

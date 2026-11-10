@@ -697,3 +697,103 @@ class LocalBidIntelligenceEngine:
             "prime_rate": indexed_combos[best_pos][0]
         }
 
+    def fit_predict_ml_boost(self, base_amount: int, a_value: int, lower_limit_rate: float, agency_keyword: str = "조달청", expected_bidders: int = 65) -> dict:
+        """
+        [순수 파이썬 내장 Ridge(L2) 다변량 회귀 + Gradient Boosting 5-Stage 잔차 트리 학습기]
+        - 피처(X): x1=ln(기초금액), x2=A값비율, x3=ln(참여업체수), x4=하한율스케일
+        - 타겟(y): 실제 당첨 사정률(winning_assess_rate)
+        """
+        conn = sqlite3.connect(self.db_path)
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT base_amount, a_value, bidder_count, lower_limit_rate, winning_assess_rate
+            FROM opening_history
+            WHERE agency_name LIKE ? OR agency_type LIKE ?
+            ORDER BY id DESC LIMIT 400
+        """, (f"%{agency_keyword}%", f"%{agency_keyword}%"))
+        rows = cur.fetchall()
+        if len(rows) < 20:
+            cur.execute("""
+                SELECT base_amount, a_value, bidder_count, lower_limit_rate, winning_assess_rate
+                FROM opening_history ORDER BY id DESC LIMIT 400
+            """)
+            rows = cur.fetchall()
+        conn.close()
+
+        def extract_features(b_amt, a_val, b_cnt, l_rate):
+            b_amt = max(10_000_000, float(b_amt or 1_500_000_000))
+            a_ratio = float(a_val or 0) / b_amt
+            b_cnt = max(1.0, float(b_cnt or 50))
+            return [
+                math.log10(b_amt) - 9.0,
+                (a_ratio - 0.05) * 10.0,
+                math.log10(b_cnt) - 1.7,
+                (float(l_rate or round(89.745 - 2.0, 3)) - 87.0) * 0.5
+            ]
+
+        X = [extract_features(r[0], r[1], r[2], r[3]) for r in rows]
+        y = [float(r[4]) for r in rows]
+        n = max(1, len(y))
+        y_mean = sum(y) / n
+
+        # 1단계: Ridge (L2 Regularized Coordinate Descent, alpha=1.2)
+        weights = [0.0, 0.0, 0.0, 0.0]
+        l2_alpha = 1.2
+        for _ in range(25):
+            for j in range(4):
+                num = 0.0
+                den = l2_alpha
+                for i in range(n):
+                    pred_no_j = y_mean + sum(weights[k] * X[i][k] for k in range(4) if k != j)
+                    num += X[i][j] * (y[i] - pred_no_j)
+                    den += X[i][j] * X[i][j]
+                weights[j] = num / max(1e-6, den)
+
+        x_target = extract_features(base_amount, a_value, expected_bidders, lower_limit_rate)
+        ridge_pred = y_mean + sum(weights[j] * x_target[j] for j in range(4))
+
+        # 2단계: Gradient Boosting (5-Stage Residual Decision Stumps, lr=0.18)
+        residuals = [y[i] - (y_mean + sum(weights[j] * X[i][j] for j in range(4))) for i in range(n)]
+        gb_adjust = 0.0
+        lr = 0.18
+        for stage in range(5):
+            feat_idx = stage % 4
+            vals = [X[i][feat_idx] for i in range(n)]
+            split_thr = sorted(vals)[n // 2]
+            left_res = [residuals[i] for i in range(n) if X[i][feat_idx] <= split_thr]
+            right_res = [residuals[i] for i in range(n) if X[i][feat_idx] > split_thr]
+            l_val = (sum(left_res) / len(left_res)) if left_res else 0.0
+            r_val = (sum(right_res) / len(right_res)) if right_res else 0.0
+
+            for i in range(n):
+                step_pred = l_val if X[i][feat_idx] <= split_thr else r_val
+                residuals[i] -= lr * step_pred
+
+            target_step = l_val if x_target[feat_idx] <= split_thr else r_val
+            gb_adjust += lr * target_step
+
+        gbm_pred = round(max(98.2, min(101.8, ridge_pred + gb_adjust)), 4)
+        ridge_pred = round(max(98.2, min(101.8, ridge_pred)), 4)
+        hybrid_pred = round((ridge_pred * 0.40) + (gbm_pred * 0.60), 4)
+
+        # 학습 잔차 RMSE 산출
+        mse = sum(r * r for r in residuals) / n
+        rmse = round(math.sqrt(mse), 4)
+
+        def calc_bid(r: float) -> int:
+            est = max(10_000_000, int(base_amount or 1_500_000_000)) * (r / 100.0)
+            raw = ((est - int(a_value or 0)) * (float(lower_limit_rate or round(89.745 - 2.0, 3)) / 100.0)) + int(a_value or 0)
+            return int(math.ceil(raw / 10.0) * 10)
+
+        return {
+            "sample_count": n,
+            "ridge_rate": ridge_pred,
+            "ridge_bid": calc_bid(ridge_pred),
+            "gbm_rate": gbm_pred,
+            "gbm_bid": calc_bid(gbm_pred),
+            "hybrid_rate": hybrid_pred,
+            "hybrid_bid": calc_bid(hybrid_pred),
+            "rmse": rmse,
+            "feature_weights": [round(w, 4) for w in weights]
+        }
+
