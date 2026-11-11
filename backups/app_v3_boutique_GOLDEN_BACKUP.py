@@ -496,6 +496,7 @@ from lattice1365.local_ml_engine import (
     render_interactive_3d_library_html_v12 as _render_3d_html_v12,
     render_ultra_matrix_view_html_v12 as _render_matrix_html_v12,
     render_sector_board_visual_v12 as _render_sec_vis_v12,
+    render_sector_board_from_books_v12 as _render_sec_from_books_v12,
     render_arena_ranked_board_visual_v12 as _render_arena_vis_v12,
     parse_and_render_g2b_opening_visual_v12 as _parse_g2b_vis_v12,
 fetch_recent_selected_bid_packages_v12 as _fetch_bid_pkgs_v12
@@ -637,7 +638,7 @@ if st.session_state["_standalone_academy_mode"]:
                 _html_3d = _render_3d_html_v12(_books, active_code=_active_bk["book_code"])
                 _stc_v12.html(_html_3d, height=_canvas_h, scrolling=True)
             else:
-                _mx_h = 330 + (len(_books) * 68)
+                _mx_h = 240 + (len(_books) * 56)
                 _stc_v12.html(_render_matrix_html_v12(_books), height=_mx_h, scrolling=True)
 
             if _lib_res.get("sector_board"):

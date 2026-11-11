@@ -3521,6 +3521,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
             window.parent.localStorage.setItem('v12_reanalyze_ts', nowD.toLocaleTimeString('ko-KR') + '.' + String(nowD.getMilliseconds()).slice(0,2));
         } catch (e) {}
         applyBookToParentTabs(b);
+        setTimeout(() => { try { if (window.frameElement) window.frameElement.style.height = (document.body.scrollHeight + 16) + 'px'; } catch(e){} }, 60);
     }
 
     setInterval(() => {
@@ -3933,12 +3934,24 @@ def render_ultra_matrix_view_html_v12(books: list) -> str:
         }
         .detail-card-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            background: linear-gradient(90deg, #0F172A, #1E293B);
+            grid-template-columns: 1.25fr 1fr 1fr 1.35fr;
+            gap: 10px;
+            background: linear-gradient(90deg, rgba(6,78,59,0.35) 0%, rgba(15,23,42,0.98) 50%, rgba(30,41,59,0.95) 100%);
             border: 2px solid #10B981;
             border-radius: 12px;
-            padding: 14px 18px;
+            padding: 12px 14px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.75), inset 0 0 20px rgba(16,185,129,0.15);
+        }
+        .mini-lot-orb {
+            display: inline-block;
+            background: radial-gradient(circle at 30% 30%, #FEF08A, #D97706 75%, #78350F 100%);
+            color: #090D16;
+            font-size: 10.5px;
+            font-weight: 900;
+            padding: 2px 8px;
+            border-radius: 99px;
+            margin-right: 4px;
+            box-shadow: 0 0 8px rgba(251,191,36,0.6);
         }
     </style>
     </head>
@@ -4006,10 +4019,12 @@ def render_ultra_matrix_view_html_v12(books: list) -> str:
         </table>
     </div>
 
-    <!-- 하단 선택 행 상세 브리핑 뷰어 -->
+    <!-- 하단 선택 행 4면 홀로그램 텔레메트리 뷰어 -->
     <div class="detail-card-grid">
-        <div id="mx-detail-left"></div>
-        <div id="mx-detail-right"></div>
+        <div id="mx-detail-c1"></div>
+        <div id="mx-detail-c2"></div>
+        <div id="mx-detail-c3"></div>
+        <div id="mx-detail-c4"></div>
     </div>
 
     <script>
@@ -4070,14 +4085,52 @@ def render_ultra_matrix_view_html_v12(books: list) -> str:
         document.getElementById('mx-hud-sub').innerHTML =
             '🏛️ ' + b.agency + ' | 🏗️ ' + b.sector + ' | 💰 기초금액: ' + b.base_amt + ' (A값 ' + b.a_val + ' · ' + b.a_ratio + ') | 🎯 개찰예가: ' + b.true_rate + ' | 👤 내 사정: ' + b.user_rate;
 
-        document.getElementById('mx-detail-left').innerHTML =
-            '<div style="color:#38BDF8;font-size:12.5px;font-weight:900;margin-bottom:6px;">📄 [선택 행 공고문 원문 & 핵심 스펙] ' + b.code + '</div>' +
-            '<div style="color:#E2E8F0;font-size:11.5px;line-height:1.55;background:rgba(9,13,22,0.85);padding:9px 12px;border-radius:8px;border-left:3px solid #38BDF8;">' + b.raw_txt + '</div>';
-
-        document.getElementById('mx-detail-right').innerHTML =
-            '<div style="color:#FBBF24;font-size:12.5px;font-weight:900;margin-bottom:6px;">💬 [AI 사정관 총평 & 대표님 비전 각주] 추첨번호: ' + b.lots + '</div>' +
-            '<div style="color:#FDE68A;font-size:12px;font-weight:900;margin-bottom:4px;">✍️ "' + b.footnote + '"</div>' +
-            '<div style="color:#CBD5E1;font-size:11.5px;line-height:1.5;">' + b.ai_comm + '</div>';
+        const orbsHtml = String(b.lots || '').split('·').map(s => '<span class="mini-lot-orb">🔮 ' + s.trim() + '</span>').join('');
+        const c1El = document.getElementById('mx-detail-c1');
+        if (c1El) {
+            c1El.innerHTML =
+                '<div style="color:#38BDF8;font-size:11.5px;font-weight:900;margin-bottom:5px;">📄 [제1면] 공고 원문 & 핵심 스펙 (' + b.code + ')</div>' +
+                '<div style="background:rgba(9,13,22,0.9);border-left:3px solid #38BDF8;padding:8px 10px;border-radius:7px;color:#E2E8F0;font-size:11px;line-height:1.5;">' + b.raw_txt + '</div>';
+        }
+        const c2El = document.getElementById('mx-detail-c2');
+        if (c2El) {
+            c2El.innerHTML =
+                '<div style="color:#C084FC;font-size:11.5px;font-weight:900;margin-bottom:5px;">💰 [제2면] 기초금액 · A값 · 하한율 구조</div>' +
+                '<div style="background:rgba(9,13,22,0.9);border-left:3px solid #C084FC;padding:8px 10px;border-radius:7px;font-size:11px;line-height:1.6;">' +
+                    '• 기초금액: <b style="color:#38BDF8;">' + b.base_amt + '</b><br>' +
+                    '• A값 합산: <b style="color:#FDE68A;">' + b.a_val + ' (' + b.a_ratio + ')</b><br>' +
+                    '• 적격하한율: <b style="color:#34D399;">' + b.low_lim + '</b> (응찰 ' + b.participants + ')' +
+                '</div>';
+        }
+        const c3El = document.getElementById('mx-detail-c3');
+        if (c3El) {
+            c3El.innerHTML =
+                '<div style="color:#34D399;font-size:11.5px;font-weight:900;margin-bottom:5px;">🎯 [제3면] 개찰예가 vs AI vs 내 사정 대조</div>' +
+                '<div style="background:rgba(9,13,22,0.9);border-left:3px solid #34D399;padding:8px 10px;border-radius:7px;font-size:11px;line-height:1.6;">' +
+                    '• 실제 개찰예가: <b style="color:#FBBF24;font-size:12px;">' + b.true_rate + '</b><br>' +
+                    '• 🤖 AI 사정률: <b style="color:#38BDF8;">' + b.ai_rate + '</b> | 👤 내 사정: <b style="color:#C084FC;">' + b.user_rate + '</b><br>' +
+                    '• 🏆 1순위: <b style="color:#34D399;">' + b.winner + '</b> (' + b.winner_bid + ')' +
+                '</div>';
+        }
+        const c4El = document.getElementById('mx-detail-c4');
+        if (c4El) {
+            c4El.innerHTML =
+                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">' +
+                    '<span style="color:#FBBF24;font-size:11.5px;font-weight:900;">💬 [제4면] 대표님 비전 각주 & 추첨구체</span>' +
+                    '<div>' + orbsHtml + '</div>' +
+                '</div>' +
+                '<div style="background:rgba(9,13,22,0.9);border:1px solid rgba(251,191,36,0.45);padding:8px 10px;border-radius:7px;">' +
+                    '<div style="color:#FDE68A;font-size:11.5px;font-weight:900;margin-bottom:3px;">✍️ "' + b.footnote + '"</div>' +
+                    '<div style="color:#CBD5E1;font-size:10.5px;line-height:1.45;">' + b.ai_comm + '</div>' +
+                '</div>';
+        }
+        setTimeout(() => {
+            try {
+                if (window.frameElement) {
+                    window.frameElement.style.height = (document.body.scrollHeight + 14) + 'px';
+                }
+            } catch (e) {}
+        }, 50);
 
         try {
             const nowD = new Date();
@@ -4435,4 +4488,67 @@ def parse_and_render_g2b_opening_visual_v12(raw_text: str) -> dict:
         "html": dashboard_html,
         "default_sample": default_sample
     }
+
+
+def render_sector_board_from_books_v12(books: list) -> str:
+    """현재 서재 장서(books)로부터 공종별 AI 평균오차, 나의 평균오차, 맞춤형 영점 보정치를 즉시 계산하여 홀로그램 카드로 시각화"""
+    if not books:
+        return ""
+    sec_map = {}
+    for b in books:
+        sec_nm = str(b.get("sector", "건설공사"))
+        t_r = float(b.get("true_yega_rate", 100.03) or 100.03)
+        a_r = float(b.get("ai_rate", 100.03) or 100.03)
+        u_r = float(b.get("user_rate", 100.03) or 100.03)
+        tier = str(b.get("grade_tier", "GOLD"))
+        if sec_nm not in sec_map:
+            sec_map[sec_nm] = {"cnt": 0, "gold": 0, "ai_err": 0.0, "us_err": 0.0, "drift": 0.0}
+        sec_map[sec_nm]["cnt"] += 1
+        if tier == "GOLD":
+            sec_map[sec_nm]["gold"] += 1
+        sec_map[sec_nm]["ai_err"] += abs(a_r - t_r)
+        sec_map[sec_nm]["us_err"] += abs(u_r - t_r)
+        sec_map[sec_nm]["drift"] += (t_r - u_r)
+
+    cards_html = ""
+    for sec_nm, st_v in list(sec_map.items())[:6]:
+        c_n = max(1, st_v["cnt"])
+        ai_mae = st_v["ai_err"] / c_n
+        us_mae = st_v["us_err"] / c_n
+        drift_avg = st_v["drift"] / c_n
+        act_word = "상향 타격 권장" if drift_avg >= 0 else "하향 제어 권장"
+        badge_col = "#34D399" if abs(drift_avg) <= 0.005 else "#38BDF8"
+
+        cards_html += (
+            f"<div style='background:linear-gradient(135deg, rgba(15,23,42,0.96), rgba(30,41,59,0.9));"
+            f"border:1.5px solid rgba(56,189,248,0.4);border-radius:10px;padding:10px 12px;'>"
+            f"<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;'>"
+            f"<span style='color:#FFFFFF;font-size:12px;font-weight:900;'>🏗️ {sec_nm}</span>"
+            f"<span style='background:rgba(251,191,36,0.18);color:#FDE68A;font-size:10px;font-weight:900;padding:2px 7px;border-radius:99px;border:1px solid #FBBF24;'>📚 {c_n}권 (🏆{st_v['gold']})</span>"
+            f"</div>"
+            f"<div style='display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;font-size:10.5px;'>"
+            f"<div style='background:rgba(9,13,22,0.88);padding:5px 7px;border-radius:6px;border-left:2.5px solid #38BDF8;'>"
+            f"<span style='color:#94A3B8;'>🤖 AI 오차:</span> <b style='color:#38BDF8;'>±{ai_mae:.4f}%p</b>"
+            f"</div>"
+            f"<div style='background:rgba(9,13,22,0.88);padding:5px 7px;border-radius:6px;border-left:2.5px solid #C084FC;'>"
+            f"<span style='color:#94A3B8;'>👤 내 오차:</span> <b style='color:#C084FC;'>±{us_mae:.4f}%p</b>"
+            f"</div>"
+            f"</div>"
+            f"<div style='background:rgba(6,78,59,0.35);border:1px solid {badge_col};border-radius:6px;padding:4px 8px;text-align:center;color:{badge_col};font-size:11px;font-weight:900;'>"
+            f"🎯 맞춤 영점 보정: {drift_avg:+.4f}%p ({act_word})"
+            f"</div>"
+            f"</div>"
+        )
+
+    return (
+        "<div style='background:linear-gradient(90deg, rgba(15,23,42,0.96), rgba(28,25,23,0.92));"
+        "border:1.5px solid rgba(251,191,36,0.5);border-radius:12px;padding:12px 16px;margin:6px 0 10px 0;"
+        "box-shadow:0 8px 22px rgba(0,0,0,0.65);'>"
+        "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;'>"
+        "<span style='color:#FDE68A;font-size:13px;font-weight:900;'>📈 [공종별 레거시 영점 정밀도 성적표 & 실전 자동 보정 가이드]</span>"
+        "<span style='color:#34D399;font-size:11px;font-weight:800;'>● 축적된 장서 기반 공종별 영점 편차 실시간 산출</span>"
+        "</div>"
+        f"<div style='display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;'>{cards_html}</div>"
+        "</div>"
+    )
 
