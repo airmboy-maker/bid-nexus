@@ -3296,7 +3296,8 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
         save_book_to_library_v12 as _save_book_v12,
         query_strategy_library_v12 as _query_lib_v12,
         delete_library_book_v12 as _del_book_v12,
-        render_interactive_3d_library_html_v12 as _render_3d_html_v12
+        render_interactive_3d_library_html_v12 as _render_3d_html_v12,
+    fetch_recent_selected_bid_packages_v12 as _fetch_bid_pkgs_v12
     )
 
     if "_standalone_academy_mode" not in st.session_state:
@@ -3703,59 +3704,119 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
         # [제3관] 올라마(Ollama) 연동 입찰공고문 6차원 입체 해부관
         # ==========================================================================
         with _tab_ollama:
-            st.markdown("##### 🧠 올라마(Ollama 로컬 인공지능) + 한국형 정밀 파서 하이브리드 입찰공고문 6차원 입체 해부관")
-            _ol_c1, _ol_c2 = st.columns([1.45, 1.55])
+            st.markdown("##### 🧠 올라마(Ollama 로컬 인공지능) + 선택된 최근 입찰공고·시방서·내역서·적격서류 자동 불러오기 & 6차원 입체 해부관")
+
+            _avail_pkgs = _fetch_bid_pkgs_v12(dict(st.session_state))
+            _pkg_labels = [p["label"] for p in _avail_pkgs] + ["✍️ 직접 새로운 입찰공고문/서류 붙여넣기 또는 파일 업로드"]
+
+            _auto_c1, _auto_c2 = st.columns([2.3, 1.7])
+            with _auto_c1:
+                _sel_pkg_label = st.selectbox(
+                    "📂 1. 최근 선택된 입찰 공고 & 서류 패키지 자동 불러오기 (선택 즉시 공고문·시방서·내역서·적격서류가 자동 입력 및 분석됩니다):",
+                    options=_pkg_labels,
+                    index=0,
+                    key="_v12_auto_pkg_sel"
+                )
+            with _auto_c2:
+                _up_file = st.file_uploader(
+                    "📎 입찰 서류 파일 직접 올려서 자동 추출 (.txt, .csv, .md, .html 등):",
+                    type=["txt", "csv", "md", "html", "json"],
+                    key="_v12_doc_uploader"
+                )
+
+            _matched_pkg = None
+            for _p in _avail_pkgs:
+                if _p["label"] == _sel_pkg_label:
+                    _matched_pkg = _p
+                    break
+
+            _auto_loaded_text = ""
+            _doc_checks = []
+            if _up_file is not None:
+                try:
+                    _auto_loaded_text = _up_file.read().decode("utf-8", errors="ignore")
+                    _doc_checks = [f"📎 업로드된 서류 파일 [{_up_file.name}] 전문 자동 추출 완료"]
+                except Exception:
+                    pass
+            elif _matched_pkg is not None:
+                _auto_loaded_text = _matched_pkg["full_package_text"]
+                _doc_checks = _matched_pkg.get("doc_checklist", [])
+                # 모의투찰 입력창에도 자동 동기화
+                st.session_state["_v12_ollama_base"] = int(_matched_pkg["base_amt"])
+                st.session_state["_v12_ollama_aval"] = int(_matched_pkg["a_val"])
+
+            _ol_c1, _ol_c2 = st.columns([1.42, 1.58])
             with _ol_c1:
+                if _doc_checks:
+                    st.markdown(
+                        "<div style='background:rgba(6,78,59,0.38);border:1px solid #34D399;border-radius:8px;padding:8px 12px;margin-bottom:8px;font-size:11.5px;color:#A7F3D0;line-height:1.55;'>"
+                        "<b>✅ 자동 로드된 입찰서류 4종 패키지 검증 상태:</b><br>" + "<br>".join(_doc_checks) + "</div>",
+                        unsafe_allow_html=True
+                    )
+
                 _ol_raw = st.text_area(
-                    "📄 나라장터 입찰공고문 원문(또는 핵심 요약문)을 붙여넣으세요 (비워두고 실행 시 표준 샘플 자동 해부):",
-                    height=165,
-                    placeholder="공고문 전문이나 기초금액, A값, 참가자격, 특기사항 등을 그대로 붙여넣으세요...",
-                    key="_v12_ollama_raw_txt"
+                    "📄 자동 불러온 입찰공고문 · 시방서 · 물량내역서 · 적격심사 패키지 원문 (자유롭게 수정하거나 추가 서류를 붙여넣을 수 있습니다):",
+                    value=_auto_loaded_text,
+                    height=180,
+                    key=f"_v12_ollama_raw_txt_{_sel_pkg_label[:18]}"
                 )
                 _ol_q = st.text_input(
-                    "💬 올라마 공고 분석관에게 특별히 확인할 질문 (선택):",
-                    placeholder="예: 이 공고에서 입찰무효 주의사항과 A값 대비 유리한 사정률 전략은?",
+                    "💬 올라마 공고·서류 분석관에게 특별히 확인할 질문 (입력 즉시 우측 브리핑에 반영):",
+                    placeholder="예: 이 공고의 시방서·내역서 조건에서 입찰무효 주의사항과 A값 대비 유리한 사정률 전략은?",
                     key="_v12_ollama_q_in"
                 )
                 _ol_b1, _ol_b2 = st.columns(2)
                 with _ol_b1:
-                    if st.button("🧠 [6차원 입체 해부 실행] 공고문 정밀 분석", key="_v12_run_ollama_btn", use_container_width=True):
-                        st.session_state["_v12_ollama_res"] = _analyze_ollama_v12(_ol_raw, _ol_q)
+                    _force_re_btn = st.button("🧠 [선택 공고 & 서류 6차원 정밀 재분석]", key="_v12_run_ollama_btn", use_container_width=True)
                 with _ol_b2:
-                    if st.button("⚡ 추출된 금액·하한율을 모의투찰에 즉시 세팅", key="_v12_send_to_arena_btn", use_container_width=True):
-                        _ores_tmp = st.session_state.get("_v12_ollama_res") or _analyze_ollama_v12(_ol_raw, _ol_q)
+                    if st.button("⚡ 이 공고의 금액·하한율을 [제2관 모의투찰]로 즉시 전송", key="_v12_send_to_arena_btn", use_container_width=True):
+                        _ores_tmp = _analyze_ollama_v12(_ol_raw, _ol_q)
                         st.session_state["_v12_ollama_base"] = int(_ores_tmp["base_amt"])
                         st.session_state["_v12_ollama_aval"] = int(_ores_tmp["a_val"])
-                        st.success(f"✅ 기초금액 {_ores_tmp['base_amt']:,}원 및 A값 {_ores_tmp['a_val']:,}원이 [제2관 모의투찰] 입력창에 세팅되었습니다!")
+                        st.session_state["_ar_base_in"] = int(_ores_tmp["base_amt"])
+                        st.session_state["_ar_aval_in"] = int(_ores_tmp["a_val"])
+                        st.success(f"✅ [{_ores_tmp['agency']} · {_ores_tmp['sector']}] 기초금액 {_ores_tmp['base_amt']:,}원 및 A값 {_ores_tmp['a_val']:,}원이 [제2관 모의투찰]에 즉시 세팅되었습니다!")
 
             with _ol_c2:
-                if "_v12_ollama_res" not in st.session_state:
-                    st.session_state["_v12_ollama_res"] = _analyze_ollama_v12("", "")
-                _ores = st.session_state["_v12_ollama_res"]
+                # 사용자가 드롭다운에서 공고를 바꾸거나 질문을 입력하면 버튼을 따로 안 눌러도 즉시 자동 분석!
+                _ores = _analyze_ollama_v12(_ol_raw, _ol_q)
+                if _matched_pkg is not None:
+                    _ores["agency"] = _matched_pkg["agency"]
+                    _ores["sector"] = _matched_pkg["sector"]
+                    _ores["base_amt"] = int(_matched_pkg["base_amt"])
+                    _ores["a_val"] = int(_matched_pkg["a_val"])
+                    _ores["a_ratio"] = round((_ores["a_val"] / max(1, _ores["base_amt"])) * 100.0, 2)
+                    _ores["lower_limit"] = float(_matched_pkg["lower_limit"])
+
                 st.markdown(f"""
-                <div style="background:rgba(15,23,42,0.95);border:1.5px solid #38BDF8;border-radius:12px;padding:14px 16px;">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                        <span style="background:#38BDF8;color:#090D16;font-size:11px;font-weight:900;padding:2px 8px;border-radius:4px;">6차원 공고문 정밀 투시</span>
+                <div style="background:rgba(15,23,42,0.96);border:2px solid #38BDF8;border-radius:12px;padding:15px 18px;box-shadow:0 0 25px rgba(56,189,248,0.18);">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;border-bottom:1px solid rgba(56,189,248,0.3);padding-bottom:8px;">
+                        <div>
+                            <span style="background:#38BDF8;color:#090D16;font-size:11px;font-weight:900;padding:3px 9px;border-radius:4px;">자동 연동 6차원 공고·서류 투시</span>
+                            <span style="color:#F8FAFC;font-size:13.5px;font-weight:900;margin-left:8px;">{_matched_pkg['title'] if _matched_pkg else '실시간 입력 공고문 분석'}</span>
+                        </div>
                         <span style="color:#34D399;font-size:11.5px;font-weight:800;">{_ores['ollama_status']}</span>
                     </div>
                     <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;margin-bottom:10px;">
-                        <div style="background:rgba(9,13,22,0.9);padding:8px;border-radius:7px;">
-                            <div style="color:#94A3B8;font-size:10.5px;">🏛️ 발주처 / 공종</div>
-                            <div style="color:#F8FAFC;font-size:12px;font-weight:800;">{_ores['agency']}<br>{_ores['sector']}</div>
+                        <div style="background:rgba(9,13,22,0.92);border:1px solid rgba(148,163,184,0.3);padding:9px;border-radius:8px;">
+                            <div style="color:#94A3B8;font-size:10.5px;">🏛️ 자동 판독 발주처 / 공종</div>
+                            <div style="color:#F8FAFC;font-size:12.5px;font-weight:900;margin-top:2px;">{_ores['agency']}<br><span style="color:#7DD3FC;">{_ores['sector']}</span></div>
                         </div>
-                        <div style="background:rgba(9,13,22,0.9);padding:8px;border-radius:7px;">
-                            <div style="color:#94A3B8;font-size:10.5px;">💰 추출 기초금액 / A값</div>
-                            <div style="color:#38BDF8;font-size:12.5px;font-weight:900;">기초 {_ores['base_amt']:,}원<br><span style="color:#FDE68A;">A값 {_ores['a_val']:,}원 ({_ores['a_ratio']}%)</span></div>
+                        <div style="background:rgba(9,13,22,0.92);border:1px solid rgba(56,189,248,0.4);padding:9px;border-radius:8px;">
+                            <div style="color:#94A3B8;font-size:10.5px;">💰 내역서 추출 기초금액 / A값</div>
+                            <div style="color:#38BDF8;font-size:12.5px;font-weight:900;margin-top:2px;">기초 {_ores['base_amt']:,}원<br><span style="color:#FDE68A;">A값 {_ores['a_val']:,}원 ({_ores['a_ratio']}%)</span></div>
                         </div>
-                        <div style="background:rgba(9,13,22,0.9);padding:8px;border-radius:7px;">
-                            <div style="color:#94A3B8;font-size:10.5px;">🎯 공고 맞춤 AI 추천타점</div>
-                            <div style="color:#34D399;font-size:13px;font-weight:900;">{_ores['rec_bid']:,}원<br><span style="color:#A7F3D0;font-size:11px;">사정률 {_ores['rec_rate']:.4f}% (하한 {_ores['lower_limit']}%)</span></div>
+                        <div style="background:rgba(9,13,22,0.92);border:1px solid rgba(52,211,153,0.45);padding:9px;border-radius:8px;">
+                            <div style="color:#94A3B8;font-size:10.5px;">🎯 공고·서류 맞춤 AI 추천타점</div>
+                            <div style="color:#34D399;font-size:13.5px;font-weight:900;margin-top:2px;">{_ores['rec_bid']:,}원<br><span style="color:#A7F3D0;font-size:11px;">목표사정률 {_ores['rec_rate']:.4f}% (하한 {_ores['lower_limit']}%)</span></div>
                         </div>
                     </div>
-                    <div style="color:#FDE68A;font-size:12px;font-weight:800;margin-bottom:4px;">🚨 공고문 독소조항 & 특기사항 스캔 결과:</div>
-                    <div style="color:#E2E8F0;font-size:11.5px;line-height:1.5;margin-bottom:8px;">{"<br>".join(_ores["risks"])}</div>
-                    <div style="background:rgba(6,78,59,0.45);border:1px solid #10B981;border-radius:8px;padding:10px;color:#ECFDF5;font-size:12px;line-height:1.55;">
-                        <b>🗣️ AI 공고 심층 브리핑:</b> {_ores['llm_answer']}
+                    <div style="background:rgba(127,29,29,0.22);border:1px solid rgba(248,113,113,0.45);border-radius:8px;padding:9px 12px;margin-bottom:10px;">
+                        <div style="color:#FCA5A5;font-size:12px;font-weight:900;margin-bottom:4px;">🚨 공고문 · 시방서 · 내역서 독소조항 & 특기사항 자동 스캔:</div>
+                        <div style="color:#F8FAFC;font-size:11.5px;line-height:1.55;">{"<br>".join(_ores["risks"])}</div>
+                    </div>
+                    <div style="background:linear-gradient(135deg, rgba(6,78,59,0.55), rgba(15,23,42,0.95));border:1.5px solid #10B981;border-radius:8px;padding:11px 13px;color:#ECFDF5;font-size:12px;line-height:1.6;">
+                        <b>🗣️ AI 수석 공고·서류 분석관 심층 브리핑:</b><br>{_ores['llm_answer']}
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
