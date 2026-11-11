@@ -551,7 +551,13 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 import streamlit.components.v1 as _stc_top_guard
-_stc_top_guard.html("""
+import json as _json_gk_top
+_cur_af_top_json = _json_gk_top.dumps(st.session_state.get("_selected_autofill_corp") or None, ensure_ascii=False)
+_stc_top_guard.html(f"""
+<script>
+window.parent._v12ActiveAutofillCorp = {_cur_af_top_json};
+</script>
+""" + """
 <script>
 (function() {
     const pWin = window.parent;
@@ -560,17 +566,19 @@ _stc_top_guard.html("""
     
     // [좌측 사이드바 GATEKEEPER STATUS & Z9 기업마스터 실시간 등록 연동]
     function applyGatekeeperMasterUnlock() {
-        let afCorp = null;
-        try {
-            const rawAf = pWin.localStorage.getItem('v12_autofill_corp_json');
-            if (rawAf) afCorp = JSON.parse(rawAf);
-        } catch (e) {}
+        let afCorp = pWin._v12ActiveAutofillCorp || null;
+        if (!afCorp) {
+            try {
+                const rawAf = pWin.localStorage.getItem('v12_autofill_corp_json');
+                if (rawAf) afCorp = JSON.parse(rawAf);
+            } catch (e) {}
+        }
         if (!afCorp) return;
 
-        // 1) 좌측 사이드바의 잠금 박스(미등록 마스터 미충족 / 기업 마스터 스펙 미입력 시...)를 찾아 초록색 마스터 등록 완료 카드로 즉시 변환!
+        // 1) 좌측 사이드바의 '🔒 퀵락 마스터 미충족 (잠김)' 및 '⚠️ 기업 마스터 스펙 미입력 시...' 박스를 찾아 초록색 마스터 등록 카드로 즉시 변환!
         pDoc.querySelectorAll('[data-testid="stSidebar"] div, [data-testid="stSidebar"] span, [data-testid="stSidebar"] p').forEach(function(el) {
             const txt = (el.innerText || '').trim();
-            if (el.children.length <= 2 && txt.includes('미등록 마스터 미충족')) {
+            if (el.children.length <= 3 && (txt.includes('퀵락 마스터 미충족') || txt.includes('마스터 미충족'))) {
                 el.style.setProperty('background', 'linear-gradient(90deg, #065F46, #047857)', 'important');
                 el.style.setProperty('border', '1.5px solid #34D399', 'important');
                 el.style.setProperty('color', '#FFFFFF', 'important');
@@ -660,7 +668,7 @@ _stc_top_guard.html("""
             pDoc.querySelectorAll('div, span, p').forEach(function(el) {
                 if (el.children.length === 0) {
                     const t = (el.innerText || '').trim();
-                    if (t.includes('미등록 마스터 미충족')) {
+                    if (t.includes('퀵락 마스터 미충족')) {
                         el.innerText = '🔓 기업 마스터 자동입력 완료 (열림)';
                         el.style.setProperty('color', '#34D399', 'important');
                     } else if (t.includes('기업 마스터 스펙 미입력 시')) {
@@ -680,6 +688,40 @@ _stc_top_guard.html("""
 </script>
 """, height=0)
 
+
+
+def _v12_gk_badge_html(_orig_str: str) -> str:
+    _af = st.session_state.get("_selected_autofill_corp")
+    if not _af:
+        return _orig_str
+    _nm = _af.get("name", "동남아전력(주)")
+    _ceo = _af.get("ceo", "김태호")
+    _biz = _af.get("biz", "124-81-39201")
+    _reg = _af.get("region", "경기도")
+    _lic = _af.get("main_lic", "전기공사업")
+    _r5 = _af.get("r5", 118.5)
+    _debt = _af.get("debt", 48.5)
+    _cred = _af.get("credit", "A+")
+
+    if "퀵락 마스터 미충족" in _orig_str or "마스터 미충족" in _orig_str:
+        return (
+            f"<div style='background:linear-gradient(90deg, #065F46, #047857);border:2px solid #34D399;"
+            f"border-radius:8px;padding:8px 10px;text-align:center;color:#FFFFFF;font-size:12.5px;font-weight:900;"
+            f"margin-bottom:6px;box-shadow:0 0 16px rgba(16,185,129,0.45);'>"
+            f"🔓 퀵락 마스터 등록 완료 (개방됨)</div>"
+        )
+    if "전체 파이프라인이 잠깁니다" in _orig_str:
+        return (
+            f"<div style='background:#0B1324;border:1.5px solid #10B981;border-radius:8px;padding:10px 12px;"
+            f"color:#FFFFFF;font-size:12px;line-height:1.55;margin-bottom:8px;'>"
+            f"<div style='color:#34D399;font-size:13px;font-weight:900;margin-bottom:4px;'>🏢 {_nm}</div>"
+            f"• 대표자: <b>{_ceo}</b> ({_biz})<br>"
+            f"• 면허/지역: <b>{_lic}</b> ({_reg})<br>"
+            f"• 5년실적: <b>{_r5}억 원</b> | 부채: <b>{_debt}%</b><br>"
+            f"• 신용등급: <b style='color:#38BDF8;'>{_cred} (적격심사 만점권)</b>"
+            f"</div>"
+        )
+    return _orig_str
 
 # [Z1 기업 선택 ➔ 좌측 GATEKEEPER 잠금 해제 & Z9 기업 마스터 스펙 100% 정식 등록 브릿지]
 _af_master_corp = st.session_state.get("_selected_autofill_corp")
