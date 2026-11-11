@@ -5097,8 +5097,8 @@ def render_synapse_mastery_view_html_v12(books: list, active_code: str = "") -> 
         50% { box-shadow: 0 0 34px rgba(56,189,248,0.9), inset 0 0 22px rgba(56,189,248,0.4); }
     }
     @keyframes stageZoomIn {
-        0% { opacity: 0; transform: translateY(22px) scale(0.96); filter: blur(4px); }
-        100% { opacity: 1; transform: translateY(0px) scale(1); filter: blur(0px); }
+        0% { opacity: 0; transform: translateY(20px) scale(0.97); }
+        100% { opacity: 1; transform: translateY(0px) scale(1); }
     }
     @keyframes barExpand {
         0% { width: 0%; }
@@ -5112,20 +5112,15 @@ def render_synapse_mastery_view_html_v12(books: list, active_code: str = "") -> 
         65% { transform: scale(1.18) rotate(6deg); opacity: 1; }
         100% { transform: scale(1.04) rotate(0deg); opacity: 1; }
     }
-    @keyframes radarSweep {
-        0% { left: -35%; }
-        100% { left: 120%; }
-    }
     @keyframes crosshairSpin {
         0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
         50% { transform: translate(-50%, -50%) rotate(180deg) scale(1.18); }
         100% { transform: translate(-50%, -50%) rotate(360deg) scale(1); }
     }
     @keyframes stampSlam {
-        0% { transform: scale(3.2) rotate(-28deg); opacity: 0; }
-        60% { transform: scale(0.9) rotate(4deg); opacity: 1; }
-        80% { transform: scale(1.06) rotate(-2deg); opacity: 1; }
-        100% { transform: scale(1.0) rotate(-6deg); opacity: 1; }
+        0% { transform: scale(3.0) rotate(-25deg); opacity: 0; }
+        65% { transform: scale(0.92) rotate(3deg); opacity: 1; }
+        100% { transform: scale(1.0) rotate(-5deg); opacity: 1; }
     }
     @keyframes neuralFlow {
         0% { background-position: 0% 50%; }
@@ -5181,7 +5176,6 @@ def render_synapse_mastery_view_html_v12(books: list, active_code: str = "") -> 
         box-shadow: 0 0 16px rgba(16,185,129,0.85);
     }
 
-    /* 시냅스 광섬유 연결선 + 5단계 노선도 */
     .stepper-wrapper {
         position: relative;
         margin-bottom: 16px;
@@ -5232,7 +5226,6 @@ def render_synapse_mastery_view_html_v12(books: list, active_code: str = "") -> 
         box-shadow: 0 12px 26px rgba(251,191,36,0.45), 0 0 20px rgba(251,191,36,0.5);
     }
 
-    /* 메인 학습 시어터 */
     .stage-theater {
         background: linear-gradient(180deg, rgba(15,23,42,0.97) 0%, rgba(7,11,20,0.99) 100%);
         border: 2px solid #38BDF8;
@@ -5247,27 +5240,18 @@ def render_synapse_mastery_view_html_v12(books: list, active_code: str = "") -> 
         box-shadow: 0 18px 42px rgba(0,0,0,0.85);
     }
     .stage-content-anim {
-        animation: stageZoomIn 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+        animation: stageZoomIn 0.38s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .tutor-guide-box {
         background: linear-gradient(90deg, rgba(8,47,73,0.78), rgba(15,23,42,0.96));
-        border-left: 5px solid #38BDF8;
+        border: 1.5px solid #38BDF8;
+        border-left: 5px solid #FBBF24;
         border-radius: 10px;
         padding: 12px 16px;
         margin-bottom: 14px;
         position: relative;
         overflow: hidden;
-    }
-    .tutor-guide-box::after {
-        content: '';
-        position: absolute;
-        top: 0; left: -35%;
-        width: 24%; height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(56,189,248,0.2), transparent);
-        transform: skewX(-25deg);
-        animation: radarSweep 3.2s infinite linear;
-        pointer-events: none;
     }
 
     .lot-grid-15 {
@@ -5383,7 +5367,7 @@ def render_synapse_mastery_view_html_v12(books: list, active_code: str = "") -> 
         background: rgba(15,23,42,0.92);
         border: 2px solid #38BDF8;
         border-radius: 12px;
-        padding: 12px 10px;
+        padding: 10px 10px;
         color: #F8FAFC;
         font-size: 12.5px;
         font-weight: 900;
@@ -5394,7 +5378,7 @@ def render_synapse_mastery_view_html_v12(books: list, active_code: str = "") -> 
     .quiz-choice-btn:hover {
         background: rgba(56,189,248,0.22);
         border-color: #FBBF24;
-        transform: translateY(-3px);
+        transform: translateY(-2px);
     }
     .confetti-piece {
         position: absolute;
@@ -5415,7 +5399,7 @@ def render_synapse_mastery_view_html_v12(books: list, active_code: str = "") -> 
             <span style="background:#FBBF24;color:#090D16;font-size:11px;font-weight:900;padding:3px 10px;border-radius:6px;">🧬 AI 시냅스 점진적 각인 학습관 (초격차 인터랙티브 마스터리 뷰)</span>
             <span id="syn-top-title" style="color:#FFFFFF;font-size:15.5px;font-weight:900;margin-left:8px;">공고 로딩 중...</span>
             <div style="color:#A7F3D0;font-size:11.5px;font-weight:700;margin-top:4px;">
-                💡 1단계부터 5단계까지 애니메이션으로 원리를 체득하고, 이해가 안 되면 언제든 <b>[⏪ 이전 단계로 복귀]</b> 또는 <b>[🔄 애니메이션 다시 재생]</b>으로 반복 각인하세요!
+                💡 1단계부터 5단계까지 실시간 타이핑과 애니메이션으로 원리를 체득하고, 이해가 안 되면 언제든 <b>[⏪ 이전 단계로 복귀]</b> 또는 <b>[🔄 애니메이션 다시 재생]</b>으로 반복 각인하세요!
             </div>
         </div>
         <div style="min-width:215px;text-align:right;">
@@ -5464,7 +5448,7 @@ const STEP_META = [
     { num: 1, icon: "🛡️", title: "1단계: 기초체급 & A값 방패", sub: "법정 고정비 분리 애니메이션" },
     { num: 2, icon: "🎰", title: "2단계: 15개 복수예가 추첨", sub: "레이저 스캔 & 4개 구체 합체" },
     { num: 3, icon: "⚡", title: "3단계: 낙찰하한율 절벽", sub: "커트라인 경보 & 레이저 조준경" },
-    { num: 4, icon: "🎯", title: "4단계: 기억 인출 실전 퀴즈", sub: "능동 선택 & 정답 축포 폭발" },
+    { num: 4, icon: "🎯", title: "4단계: 기억 인출 실전 퀴즈", sub: "슬라이더 조준 & 정답 축포 폭발" },
     { num: 5, icon: "👑", title: "5단계: 비전 각주 마스터 인장", sub: "황금 직인 스탬프 & 타이핑 각인" }
 ];
 
@@ -5474,7 +5458,6 @@ function clearAllTimers() {
     countTimers = [];
 }
 
-// 숫자 롤링 카운트업(Odometer) 애니메이션 함수
 function animateCountUp(elId, targetNum, suffix) {
     const el = document.getElementById(elId);
     if (!el) return;
@@ -5491,7 +5474,6 @@ function animateCountUp(elId, targetNum, suffix) {
     countTimers.push(t);
 }
 
-// 정답 시 황금·에메랄드 축포(Confetti) 파티클 폭발 효과
 function triggerConfettiBurst() {
     const box = document.getElementById('syn-theater-box');
     if (!box) return;
@@ -5507,6 +5489,149 @@ function triggerConfettiBurst() {
     }
 }
 
+// 1단계 ~ 5단계 모든 단계의 AI 튜터 가이드(.tutor-guide-box)를 한 글자씩 순차 타이핑하는 전용 엔진
+function runSynapseTutorTypewriter() {
+    const stage = document.getElementById('syn-stage-body');
+    if (!stage) return;
+    const guideBoxes = stage.querySelectorAll('.tutor-guide-box');
+    guideBoxes.forEach(box => {
+        const divs = box.querySelectorAll('div');
+        if (divs.length >= 2) {
+            const titleDiv = divs[0];
+            const bodyDiv = divs[1];
+            const fullHtml = bodyDiv.innerHTML;
+            const plainTxt = bodyDiv.innerText || '';
+            if (!plainTxt) return;
+
+            box.style.transition = 'all 0.3s ease';
+            box.style.boxShadow = '0 0 26px rgba(56,189,248,0.65), inset 0 0 14px rgba(16,185,129,0.3)';
+
+            const badgeId = 'syn-tw-bdg-' + Math.random().toString(36).slice(2, 7);
+            const origTitle = titleDiv.innerHTML;
+            titleDiv.innerHTML =
+                '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+                    '<span>' + origTitle + '</span>' +
+                    '<span id="' + badgeId + '" style="background:linear-gradient(90deg,#FBBF24,#38BDF8);color:#090D16;font-size:10.5px;font-weight:900;padding:2px 9px;border-radius:99px;">⌨️ 실시간 타이핑 가이드 중...</span>' +
+                '</div>';
+
+            bodyDiv.innerHTML = '';
+            let idx = 0;
+            const t = setInterval(() => {
+                idx += 2;
+                if (idx < plainTxt.length) {
+                    bodyDiv.innerHTML = plainTxt.slice(0, idx) + '<span style="color:#FBBF24;font-weight:900;font-size:15px;">▌</span>';
+                } else {
+                    clearInterval(t);
+                    bodyDiv.innerHTML = fullHtml;
+                    const bEl = document.getElementById(badgeId);
+                    if (bEl) {
+                        bEl.style.background = '#10B981';
+                        bEl.style.color = '#022C22';
+                        bEl.innerHTML = '✅ 단계 가이드 타이핑 완료';
+                    }
+                    box.style.boxShadow = 'none';
+                }
+            }, 18);
+            countTimers.push(t);
+        }
+    });
+}
+
+function updateAimSlider(val) {
+    const b = BOOKS[curBookIdx];
+    if (!b) return;
+    const r = parseFloat(val);
+    const lowF = parseFloat(String(b.low_lim).replace('%', '')) || 88.745;
+    const expP = b.base_num * (r / 100.0);
+    const bidP = Math.round(((expP - b.aval_num) * (lowF / 100.0)) + b.aval_num);
+    const diff = bidP - b.cut_num;
+
+    const rEl = document.getElementById('aim-rate-val');
+    const bEl = document.getElementById('aim-bid-val');
+    const dEl = document.getElementById('aim-diff-badge');
+    if (rEl) rEl.innerText = r.toFixed(4) + '%';
+    if (bEl) bEl.innerText = bidP.toLocaleString('ko-KR') + '원';
+    if (dEl) {
+        if (diff < 0) {
+            dEl.style.background = 'rgba(239,68,68,0.25)';
+            dEl.style.color = '#FCA5A5';
+            dEl.innerText = '🚨 하한선 미달 (' + diff.toLocaleString('ko-KR') + '원)';
+        } else if (diff <= b.base_num * 0.00018) {
+            dEl.style.background = 'rgba(16,185,129,0.28)';
+            dEl.style.color = '#6EE7B7';
+            dEl.innerText = '🏆 1순위 골든포켓 명중권 (+' + diff.toLocaleString('ko-KR') + '원)';
+        } else {
+            dEl.style.background = 'rgba(56,189,248,0.22)';
+            dEl.style.color = '#7DD3FC';
+            dEl.innerText = '🛡️ 안전 상위구간 (+' + diff.toLocaleString('ko-KR') + '원)';
+        }
+    }
+}
+
+function setSliderAndCheck(targetRate, choiceIdx) {
+    const sl = document.getElementById('syn-aim-slider');
+    if (sl) {
+        sl.value = targetRate;
+        updateAimSlider(targetRate);
+    }
+    checkQuizAnswer(choiceIdx);
+}
+
+function fireAimedShot() {
+    const b = BOOKS[curBookIdx];
+    const sl = document.getElementById('syn-aim-slider');
+    if (!b || !sl) return;
+    const r = parseFloat(sl.value);
+    const trueR = parseFloat(String(b.true_rate).replace('%', '')) || 100.0342;
+    if (r < trueR) {
+        checkQuizAnswer(1);
+    } else if (r <= trueR + 0.0120) {
+        checkQuizAnswer(2);
+    } else {
+        checkQuizAnswer(3);
+    }
+}
+
+function checkQuizAnswer(choice) {
+    const b = BOOKS[curBookIdx];
+    const fb = document.getElementById('syn-quiz-feedback');
+    if (!fb || !b) return;
+    if (fb._qTimer) clearInterval(fb._qTimer);
+
+    let msgText = '';
+    if (choice === 2) {
+        triggerConfettiBurst();
+        fb.style.border = '2.5px solid #10B981';
+        fb.style.background = 'rgba(6,78,59,0.55)';
+        fb.style.color = '#ECFDF5';
+        fb.style.boxShadow = '0 0 25px rgba(16,185,129,0.6)';
+        msgText = '🎉 [정답 명중! 축포와 함께 완벽한 영점 감각이 뇌에 각인되었습니다!] ▶ 이 공고의 실제 개찰예가는 ' + b.true_rate + ' (커트라인 ' + b.cutline_price + ')였고, 대표님께서는 ' + b.user_rate + '로 정밀 타격하셨습니다. 이제 우측 하단의 [🔓 5단계 오픈하기 ⏩] 버튼을 눌러 최종 비전 각주를 확인하세요!';
+    } else if (choice === 1) {
+        fb.style.border = '2.5px solid #F87171';
+        fb.style.background = 'rgba(127,29,29,0.5)';
+        fb.style.color = '#FECACA';
+        fb.style.boxShadow = '0 0 25px rgba(248,113,113,0.5)';
+        msgText = '🚨 [경보: 하한선 미달 즉시 탈락 위험!] ▶ 커트라인(' + b.cutline_price + ')보다 낮게 조준하면 단 1원 부족으로도 부적격 탈락합니다. 좌측 하단 [⏪ 3단계로 복귀]로 커트라인 절벽을 다시 복습하거나, 슬라이더를 올린 뒤 [②번 골든 포켓]을 눌러보세요!';
+    } else {
+        fb.style.border = '2.5px solid #38BDF8';
+        fb.style.background = 'rgba(8,47,73,0.55)';
+        fb.style.color = '#E0F2FE';
+        fb.style.boxShadow = '0 0 25px rgba(56,189,248,0.5)';
+        msgText = '🛡️ [판정: 미달은 피했지만 1순위 당첨 실패(후순위 밀림)!] ▶ 너무 높게 안전 방어로만 조준하면 ' + b.true_rate + ' 부근에 밀집한 경쟁사들에게 1순위를 빼앗깁니다. 슬라이더를 골든 포켓으로 낮추거나 [②번 골든 포켓]을 다시 클릭해 보세요!';
+    }
+
+    let qIdx = 0;
+    fb._qTimer = setInterval(() => {
+        qIdx += 2;
+        if (qIdx < msgText.length) {
+            fb.innerHTML = msgText.slice(0, qIdx) + '<span style="color:#FBBF24;font-weight:900;">▌</span>';
+        } else {
+            clearInterval(fb._qTimer);
+            fb.innerHTML = msgText;
+        }
+    }, 18);
+}
+
 function syncBookToParent(b) {
     try {
         const nowD = new Date();
@@ -5518,71 +5643,6 @@ function syncBookToParent(b) {
         }
     } catch (e) {}
 }
-
-// 시냅스 5단계 모드가 켜져 있을 때도 제2관·제3관 화면 동기화 및 [선택 공고 & 서류 6차원 정밀 재분석] 버튼 타이핑을 0.25초마다 상시 관장!
-setInterval(() => {
-    try {
-        const pDoc = window.parent.document;
-        if (!pDoc) return;
-        const b = BOOKS[curBookIdx];
-        if (!b) return;
-
-        // 제3관 상단 배너 및 수치 동기화
-        const t3Banner = pDoc.getElementById('v12-t3-active-banner');
-        if (t3Banner) {
-            t3Banner.innerHTML =
-                '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
-                    '<div><span style="background:#10B981;color:#022C22;font-size:12px;font-weight:900;padding:5px 12px;border-radius:6px;">🎯 현재 시냅스 학습관에서 선택·락온된 공고문</span>' +
-                    '<span style="color:#FFFFFF;font-size:16px;font-weight:900;margin-left:10px;">[' + b.code + '] ' + b.title + '</span></div>' +
-                    '<span style="background:rgba(16,185,129,0.2);border:1px solid #34D399;color:#A7F3D0;font-size:11.5px;font-weight:800;padding:4px 10px;border-radius:6px;">✅ 제1관 시냅스 학습관 100% 일치</span>' +
-                '</div>' +
-                '<div style="color:#FDE68A;font-size:12px;font-weight:800;margin-top:6px;">🏛️ 발주처: ' + b.agency + ' | 🏗️ 공종: ' + b.sector + ' | 💰 기초금액: ' + b.base_amt + ' | 🛡️ A값: ' + b.a_val + ' (' + b.a_ratio + ') | 🎯 목표 추천가: ' + b.rec_bid + '</div>';
-        }
-        const tTitle = pDoc.getElementById('v12-t3-title');
-        if (tTitle) tTitle.innerHTML = '[' + b.code + '] ' + b.title;
-        const tAgSec = pDoc.getElementById('v12-t3-ag-sec');
-        if (tAgSec) tAgSec.innerHTML = b.agency + '<br><span style="color:#7DD3FC;">' + b.sector + '</span>';
-        const tBaseA = pDoc.getElementById('v12-t3-base-aval');
-        if (tBaseA) tBaseA.innerHTML = '기초 ' + b.base_amt + '<br><span style="color:#FDE68A;">A값 ' + b.a_val + ' (' + b.a_ratio + ')</span>';
-        const tRec = pDoc.getElementById('v12-t3-rec-target');
-        if (tRec) tRec.innerHTML = b.rec_bid + '<br><span style="color:#A7F3D0;font-size:11px;">목표사정률 ' + b.rec_rate + ' (하한 ' + b.low_lim + ')</span>';
-        const tRawBox = pDoc.getElementById('v12-t3-raw-viewer');
-        if (tRawBox) tRawBox.innerText = b.full_pkg;
-
-        // 제3관 [선택 공고 & 서류 6차원 정밀 재분석] 버튼에 직접 클릭 리스너 장착
-        pDoc.querySelectorAll('button').forEach(btn => {
-            const btxt = (btn.innerText || '');
-            if (btxt.includes('선택 공고 & 서류 6차원 정밀 재분석') && !btn.dataset.v12SynBound) {
-                btn.dataset.v12SynBound = '1';
-                btn.addEventListener('click', () => {
-                    const nowD = new Date();
-                    window.parent.localStorage.setItem('v12_reanalyze_ts', nowD.toLocaleTimeString('ko-KR') + '.' + String(nowD.getMilliseconds()).slice(0,2));
-                    window.parent._v12LastStateKey = '';
-                    if (window.parent._v12TriggerTab3Typewriter) {
-                        setTimeout(() => window.parent._v12TriggerTab3Typewriter(''), 50);
-                        setTimeout(() => window.parent._v12TriggerTab3Typewriter(''), 450);
-                    }
-                });
-            }
-        });
-
-        // 제3관 화면이 현재 열려(Visible) 있고 아직 타이핑되지 않았거나 재분석 버튼이 눌렸다면 즉시 타이프라이터 가동!
-        const tBrief = pDoc.getElementById('v12-t3-llm-brief');
-        if (tBrief && tBrief.offsetParent !== null) {
-            const reTs = window.parent.localStorage.getItem('v12_reanalyze_ts') || '';
-            const curKey = b.code + '|' + reTs + '|VIS';
-            if (window.parent._v12SynTab3Key !== curKey) {
-                window.parent._v12SynTab3Key = curKey;
-                if (window.parent._v12TriggerTab3Typewriter) {
-                    window.parent._v12TriggerTab3Typewriter('');
-                }
-            }
-        } else {
-            // 제3관 탭에서 벗어나 있으면 키를 비워두어, 다시 제3관 탭을 여는 순간 눈앞에서 0글자부터 타이핑되게 함!
-            window.parent._v12SynTab3Key = '';
-        }
-    } catch (e) {}
-}, 250);
 
 function renderBookPills() {
     const root = document.getElementById('syn-book-pills');
@@ -5635,58 +5695,6 @@ function renderStepper() {
     } else {
         nextBtn.innerHTML = '🔓 ' + curStep + '단계 이해 완료! ➔ ' + (curStep + 1) + '단계 오픈하기 ⏩';
     }
-}
-
-
-// 시냅스 학습관 내부의 모든 AI 튜터 가이드 박스(.tutor-guide-box)를 한 글자씩 순차 타이핑하는 전용 엔진
-function runSynapseTutorTypewriter() {
-    const stage = document.getElementById('syn-stage-body');
-    if (!stage) return;
-    const guideBoxes = stage.querySelectorAll('.tutor-guide-box');
-    guideBoxes.forEach(box => {
-        const divs = box.querySelectorAll('div');
-        if (divs.length >= 2) {
-            const titleDiv = divs[0];
-            const bodyDiv = divs[1];
-            const fullHtml = bodyDiv.innerHTML;
-            const plainTxt = bodyDiv.innerText || '';
-            if (!plainTxt) return;
-
-            // 스포트라이트 테두리 점등
-            box.style.transition = 'all 0.3s ease';
-            box.style.boxShadow = '0 0 26px rgba(56,189,248,0.65), inset 0 0 14px rgba(16,185,129,0.3)';
-            box.style.border = '1.5px solid #38BDF8';
-            box.style.borderLeft = '5px solid #FBBF24';
-
-            const badgeId = 'syn-tw-bdg-' + Math.random().toString(36).slice(2, 7);
-            const origTitle = titleDiv.innerHTML;
-            titleDiv.innerHTML =
-                '<div style="display:flex;justify-content:space-between;align-items:center;">' +
-                    '<span>' + origTitle + '</span>' +
-                    '<span id="' + badgeId + '" style="background:linear-gradient(90deg,#FBBF24,#38BDF8);color:#090D16;font-size:10.5px;font-weight:900;padding:2px 9px;border-radius:99px;">⌨️ 실시간 타이핑 가이드 중...</span>' +
-                '</div>';
-
-            bodyDiv.innerHTML = '';
-            let idx = 0;
-            const t = setInterval(() => {
-                idx += 2;
-                if (idx < plainTxt.length) {
-                    bodyDiv.innerHTML = plainTxt.slice(0, idx) + '<span style="color:#FBBF24;font-weight:900;font-size:15px;">▌</span>';
-                } else {
-                    clearInterval(t);
-                    bodyDiv.innerHTML = fullHtml;
-                    const bEl = document.getElementById(badgeId);
-                    if (bEl) {
-                        bEl.style.background = '#10B981';
-                        bEl.style.color = '#022C22';
-                        bEl.innerHTML = '✅ 단계 가이드 타이핑 완료';
-                    }
-                    box.style.boxShadow = 'none';
-                }
-            }, 18);
-            countTimers.push(t);
-        }
-    });
 }
 
 function renderStageContent() {
@@ -5764,7 +5772,6 @@ function renderStageContent() {
                 '</div>' +
             '</div>';
 
-        // 1번~15번 순차 레이저 스캔 후 당첨된 4개 구체가 펑! 튀어 오르는 애니메이션
         let scanIdx = 1;
         const scanTimer = setInterval(() => {
             for (let k = 1; k <= 15; k++) {
@@ -5836,32 +5843,55 @@ function renderStageContent() {
         animateCountUp('cnt-usr', b.ubid_num, '원');
         runSynapseTutorTypewriter();
     } else if (curStep === 4) {
+        const trueR = parseFloat(String(b.true_rate).replace('%', '')) || 100.0342;
         stage.innerHTML =
             '<div class="stage-content-anim">' +
                 '<div class="tutor-guide-box">' +
-                    '<div style="color:#C084FC;font-size:12px;font-weight:900;margin-bottom:4px;">🧠 AI 입찰 튜터의 4단계 기억 인출 퀴즈 (시각 애니메이션: 능동 선택 & 정답 축포 Confetti 폭발!)</div>' +
-                    '<div style="color:#F8FAFC;font-size:13px;line-height:1.6;font-weight:700;">' +
-                        '눈으로만 보면 잊어버리지만, 직접 클릭해 맞히면 뇌 해마에 영구 각인됩니다! 이 공고(<b>' + b.agency + ' · ' + b.sector + '</b>)에서 1순위를 차지하기 위한 최적의 타격 구간을 아래에서 골라 클릭해 보세요!' +
+                    '<div style="color:#C084FC;font-size:12px;font-weight:900;margin-bottom:4px;">🎯 AI 입찰 튜터의 4단계 실전 사정률 조준 사격장 (마우스 슬라이더로 골든 포켓을 직접 조준하세요!)</div>' +
+                    '<div style="color:#F8FAFC;font-size:13px;line-height:1.55;font-weight:700;">' +
+                        '마우스로 아래 <b>사정률 조준 슬라이더</b>를 좌우로 움직여 낙찰하한선(' + b.cutline_price + ') 바로 위의 <b>1순위 골든 포켓(' + b.true_rate + ' ~ ' + (trueR + 0.0080).toFixed(4) + '%)</b>에 맞춘 뒤 <b>[🎯 영점 사격 발사]</b>를 누르거나 아래 3대 전술 카드를 클릭하세요!' +
                     '</div>' +
                 '</div>' +
-                '<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;margin-bottom:14px;">' +
-                    '<div class="quiz-choice-btn" onclick="checkQuizAnswer(1)">' +
-                        '<div style="color:#F87171;font-size:13.5px;margin-bottom:4px;">① 하단 과감 매복 (100.005%)</div>' +
-                        '<div style="color:#94A3B8;font-size:11px;font-weight:600;">남들보다 무조건 낮게 써서 요행을 노린다</div>' +
+                '<div style="background:rgba(9,13,22,0.95);border:2px solid #38BDF8;border-radius:12px;padding:14px 18px;margin-bottom:12px;">' +
+                    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
+                        '<div>' +
+                            '<span style="color:#94A3B8;font-size:11.5px;font-weight:800;">🔭 마우스 조준 사정률: </span>' +
+                            '<span id="aim-rate-val" style="color:#FEF08A;font-size:18px;font-weight:900;">100.0200%</span>' +
+                        '</div>' +
+                        '<div>' +
+                            '<span style="color:#94A3B8;font-size:11.5px;font-weight:800;">💰 실시간 조준 투찰가: </span>' +
+                            '<span id="aim-bid-val" style="color:#38BDF8;font-size:17px;font-weight:900;">계산 중...</span>' +
+                            '<span id="aim-diff-badge" style="margin-left:8px;font-size:11.5px;font-weight:900;padding:3px 8px;border-radius:6px;background:rgba(239,68,68,0.2);color:#FCA5A5;">하한선 비교</span>' +
+                        '</div>' +
+                        '<button onclick="fireAimedShot()" style="background:linear-gradient(90deg,#F59E0B,#FBBF24);color:#090D16;border:none;border-radius:8px;padding:8px 16px;font-size:12.5px;font-weight:900;cursor:pointer;box-shadow:0 0 14px rgba(251,191,36,0.7);">🎯 이 타점으로 영점 사격 발사!</button>' +
                     '</div>' +
-                    '<div class="quiz-choice-btn" style="border-color:#10B981;" onclick="checkQuizAnswer(2)">' +
-                        '<div style="color:#34D399;font-size:13.5px;margin-bottom:4px;">② 골든 포켓 정밀 타격 (' + b.true_rate + ' 부근)</div>' +
-                        '<div style="color:#A7F3D0;font-size:11px;font-weight:600;">발주처·공종 통계와 A값 레버리지 영점 조준</div>' +
-                    '</div>' +
-                    '<div class="quiz-choice-btn" onclick="checkQuizAnswer(3)">' +
-                        '<div style="color:#38BDF8;font-size:13.5px;margin-bottom:4px;">③ 고사정 안전 방어 (100.095%)</div>' +
-                        '<div style="color:#94A3B8;font-size:11px;font-weight:600;">미달 탈락만 피하고 무조건 높게 쓴다</div>' +
+                    '<input type="range" id="syn-aim-slider" min="99.9800" max="100.0900" step="0.0005" value="100.0200" oninput="updateAimSlider(this.value)" style="width:100%;accent-color:#10B981;cursor:pointer;height:8px;">' +
+                    '<div style="display:flex;justify-content:space-between;font-size:10.5px;color:#64748B;font-weight:800;margin-top:4px;">' +
+                        '<span>99.9800% (하한선 미달 위험)</span>' +
+                        '<span style="color:#34D399;">▲ 실제 개찰 커트라인 (' + b.true_rate + ') 골든 포켓 구간 ▲</span>' +
+                        '<span>100.0900% (고사정 안전 방어)</span>' +
                     '</div>' +
                 '</div>' +
-                '<div id="syn-quiz-feedback" style="background:rgba(15,23,42,0.9);border:1.5px dashed #64748B;border-radius:10px;padding:14px;text-align:center;color:#94A3B8;font-size:12.5px;font-weight:800;">' +
-                    '👆 위 3가지 전략 버튼 중 하나를 클릭하면 축포 애니메이션과 함께 정답 해설이 나타납니다!' +
+                '<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;margin-bottom:10px;">' +
+                    '<div class="quiz-choice-btn" onclick="setSliderAndCheck(99.9950, 1)">' +
+                        '<div style="color:#F87171;font-size:12.5px;margin-bottom:2px;">① 하단 과감 매복 (99.9950%)</div>' +
+                        '<div style="color:#94A3B8;font-size:10.5px;">커트라인 아래로 낮게 조준</div>' +
+                    '</div>' +
+                    '<div class="quiz-choice-btn" style="border-color:#10B981;" onclick="setSliderAndCheck(' + (trueR + 0.0010).toFixed(4) + ', 2)">' +
+                        '<div style="color:#34D399;font-size:12.5px;margin-bottom:2px;">② 골든 포켓 정밀 조준 (' + (trueR + 0.0010).toFixed(4) + '%)</div>' +
+                        '<div style="color:#A7F3D0;font-size:10.5px;">커트라인 바로 위 +0.001%p 안착</div>' +
+                    '</div>' +
+                    '<div class="quiz-choice-btn" onclick="setSliderAndCheck(100.0800, 3)">' +
+                        '<div style="color:#38BDF8;font-size:12.5px;margin-bottom:2px;">③ 고사정 안전 방어 (100.0800%)</div>' +
+                        '<div style="color:#94A3B8;font-size:10.5px;">미달만 피하고 높게 조준</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div id="syn-quiz-feedback" style="background:rgba(15,23,42,0.9);border:1.5px dashed #64748B;border-radius:10px;padding:11px;text-align:center;color:#94A3B8;font-size:12px;font-weight:800;">' +
+                    '👆 슬라이더를 움직여 [🎯 이 타점으로 영점 사격 발사!] 버튼을 누르거나 위 3가지 전술 카드를 클릭해 보세요!' +
                 '</div>' +
             '</div>';
+        setTimeout(() => updateAimSlider(100.0200), 30);
+        runSynapseTutorTypewriter();
     } else if (curStep === 5) {
         stage.innerHTML =
             '<div class="stage-content-anim" style="position:relative;">' +
@@ -5877,15 +5907,18 @@ function renderStageContent() {
                         '<span style="background:#FBBF24;color:#090D16;font-size:11px;font-weight:900;padding:3px 10px;border-radius:6px;">🏆 장기기억 각인 완료 · 비전서 핵심 교훈</span>' +
                         '<span style="color:#34D399;font-size:12px;font-weight:900;">실제 개찰예가 ' + b.true_rate + ' | AI 추천 ' + b.rec_rate + '</span>' +
                     '</div>' +
-                    '<div id="syn-final-typewriter" style="color:#FEF08A;font-size:13.5px;font-weight:900;line-height:1.7;min-height:86px;white-space:pre-wrap;"></div>' +
+                    '<div id="syn-final-typewriter" style="color:#FEF08A;font-size:13.5px;font-weight:900;line-height:1.75;min-height:86px;"></div>' +
                 '</div>' +
             '</div>';
 
         triggerConfettiBurst();
-        const fullLesson =
-            '✍️ [대표님 친필 비전 각주]: "' + b.footnote + '"\n' +
-            '📊 [AI 수석 사정관 최종 해부]: ' + b.ai_comm + '\n' +
-            '🎯 [다음 실전 입찰 시 적용할 권장 타점]: 동일 발주처(' + b.agency + ') · 공종(' + b.sector + ') 입찰 시 목표 사정률 ' + b.rec_rate + ' (권장 투찰가 ' + b.rec_bid + ') 조준!';
+        runSynapseTutorTypewriter();
+        const lessonLines = [
+            '✍️ [대표님 친필 비전 각주]: "' + b.footnote + '"',
+            '📊 [AI 수석 사정관 최종 해부]: ' + b.ai_comm,
+            '🎯 [다음 실전 입찰 시 적용할 권장 타점]: 동일 발주처(' + b.agency + ') · 공종(' + b.sector + ') 입찰 시 목표 사정률 ' + b.rec_rate + ' (권장 투찰가 ' + b.rec_bid + ') 조준!'
+        ];
+        const fullLesson = lessonLines.join('<br>');
         let cIdx = 0;
         const twEl = document.getElementById('syn-final-typewriter');
         typeTimer = setInterval(() => {
@@ -5900,55 +5933,10 @@ function renderStageContent() {
     }
 }
 
-function checkQuizAnswer(choice) {
-    const b = BOOKS[curBookIdx];
-    const fb = document.getElementById('syn-quiz-feedback');
-    if (!fb || !b) return;
-    if (fb._qTimer) clearInterval(fb._qTimer);
-
-    let msgText = '';
-    if (choice === 2) {
-        triggerConfettiBurst();
-        fb.style.border = '2.5px solid #10B981';
-        fb.style.background = 'rgba(6,78,59,0.55)';
-        fb.style.color = '#ECFDF5';
-        fb.style.boxShadow = '0 0 25px rgba(16,185,129,0.6)';
-        msgText = '🎉 [정답 명중! 축포와 함께 완벽한 영점 감각이 뇌에 각인되었습니다!]
-▶ 이 공고의 실제 개찰예가는 ' + b.true_rate + ' (커트라인 ' + b.cutline_price + ')였고, 대표님께서는 ' + b.user_rate + '로 정밀 타격하셨습니다. 이제 우측 하단의 [🔓 5단계 오픈하기 ⏩] 버튼을 눌러 최종 비전 각주를 확인하세요!';
-    } else if (choice === 1) {
-        fb.style.border = '2.5px solid #F87171';
-        fb.style.background = 'rgba(127,29,29,0.5)';
-        fb.style.color = '#FECACA';
-        fb.style.boxShadow = '0 0 25px rgba(248,113,113,0.5)';
-        msgText = '🚨 [경보: 하한선 미달 즉시 탈락 위험!]
-▶ 커트라인(' + b.cutline_price + ')보다 낮게 조준하면 단 1원 부족으로도 부적격 탈락합니다. 좌측 하단 [⏪ 3단계로 복귀]로 커트라인 절벽을 다시 복습하거나, 슬라이더를 올린 뒤 [②번 골든 포켓]을 눌러보세요!';
-    } else {
-        fb.style.border = '2.5px solid #38BDF8';
-        fb.style.background = 'rgba(8,47,73,0.55)';
-        fb.style.color = '#E0F2FE';
-        fb.style.boxShadow = '0 0 25px rgba(56,189,248,0.5)';
-        msgText = '🛡️ [판정: 미달은 피했지만 1순위 당첨 실패(후순위 밀림)!]
-▶ 너무 높게 안전 방어로만 조준하면 ' + b.true_rate + ' 부근에 밀집한 경쟁사들에게 1순위를 빼앗깁니다. 슬라이더를 골든 포켓으로 낮추거나 [②번 골든 포켓]을 다시 클릭해 보세요!';
-    }
-
-    let qIdx = 0;
-    fb.style.whiteSpace = 'pre-wrap';
-    fb._qTimer = setInterval(() => {
-        qIdx += 2;
-        if (qIdx < msgText.length) {
-            fb.innerHTML = msgText.slice(0, qIdx) + '<span style="color:#FBBF24;font-weight:900;">▌</span>';
-        } else {
-            clearInterval(fb._qTimer);
-            fb.innerHTML = msgText;
-        }
-    }, 18);
-}
-
 function changeBook(idx) {
     curBookIdx = idx;
     curStep = 1;
     maxUnlockedStep = 1;
-    try { window.parent.localStorage.setItem('v12_active_book_json', JSON.stringify(BOOKS[curBookIdx])); } catch(e){}
     renderBookPills();
     renderStepper();
     renderStageContent();
@@ -5987,6 +5975,37 @@ function nextStep() {
     }
 }
 
+// 시냅스 5단계 모드가 켜져 있을 때도 제2관·제3관 화면 동기화 및 재분석 타이핑을 상시 관장!
+setInterval(() => {
+    try {
+        const pDoc = window.parent.document;
+        if (!pDoc) return;
+        const b = BOOKS[curBookIdx];
+        if (!b) return;
+
+        const t3Banner = pDoc.getElementById('v12-t3-active-banner');
+        if (t3Banner) {
+            t3Banner.innerHTML =
+                '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
+                    '<div><span style="background:#10B981;color:#022C22;font-size:12px;font-weight:900;padding:5px 12px;border-radius:6px;">🎯 현재 시냅스 학습관에서 선택·락온된 공고문</span>' +
+                    '<span style="color:#FFFFFF;font-size:16px;font-weight:900;margin-left:10px;">[' + b.code + '] ' + b.title + '</span></div>' +
+                    '<span style="background:rgba(16,185,129,0.2);border:1px solid #34D399;color:#A7F3D0;font-size:11.5px;font-weight:800;padding:4px 10px;border-radius:6px;">✅ 제1관 시냅스 학습관 100% 일치</span>' +
+                '</div>' +
+                '<div style="color:#FDE68A;font-size:12px;font-weight:800;margin-top:6px;">🏛️ 발주처: ' + b.agency + ' | 🏗️ 공종: ' + b.sector + ' | 💰 기초금액: ' + b.base_amt + ' | 🛡️ A값: ' + b.a_val + ' (' + b.a_ratio + ') | 🎯 목표 추천가: ' + b.rec_bid + '</div>';
+        }
+        const tTitle = pDoc.getElementById('v12-t3-title');
+        if (tTitle) tTitle.innerHTML = '[' + b.code + '] ' + b.title;
+        const tAgSec = pDoc.getElementById('v12-t3-ag-sec');
+        if (tAgSec) tAgSec.innerHTML = b.agency + '<br><span style="color:#7DD3FC;">' + b.sector + '</span>';
+        const tBaseA = pDoc.getElementById('v12-t3-base-aval');
+        if (tBaseA) tBaseA.innerHTML = '기초 ' + b.base_amt + '<br><span style="color:#FDE68A;">A값 ' + b.a_val + ' (' + b.a_ratio + ')</span>';
+        const tRec = pDoc.getElementById('v12-t3-rec-target');
+        if (tRec) tRec.innerHTML = b.rec_bid + '<br><span style="color:#A7F3D0;font-size:11px;">목표사정률 ' + b.rec_rate + ' (하한 ' + b.low_lim + ')</span>';
+        const tRawBox = pDoc.getElementById('v12-t3-raw-viewer');
+        if (tRawBox) tRawBox.innerText = b.full_pkg;
+    } catch (e) {}
+}, 300);
+
 if (BOOKS.length > 0) {
     const forcedCode = '__ACTIVE_CODE__';
     if (forcedCode) {
@@ -6004,12 +6023,43 @@ if (BOOKS.length > 0) {
     return html.replace("__BOOKS_JSON__", books_json).replace("__ACTIVE_CODE__", str(active_code or ""))
 
 
+def find_dna_matching_books_v12(books: list, target_sector: str, target_agency: str, target_base_eok: float, target_a_ratio: float) -> list:
+    scored = []
+    target_base_krw = int(target_base_eok * 100000000)
+    for b in (books or []):
+        score = 55.0
+        b_sec = str(b.get("sector", ""))
+        b_ag = str(b.get("agency", ""))
+        b_base = int(b.get("base_amt", 1500000000) or 1500000000)
+        b_aval = int(b.get("a_val", int(b_base * 0.06)) or int(b_base * 0.06))
+        b_ar = (b_aval / max(1, b_base)) * 100.0
+
+        if target_sector != "전체" and target_sector in b_sec:
+            score += 22.0
+        elif any(w in b_sec for w in target_sector.split()):
+            score += 12.0
+
+        if target_agency != "전체" and target_agency in b_ag:
+            score += 14.0
+
+        ratio_diff = abs(b_base - target_base_krw) / max(1, max(b_base, target_base_krw))
+        score += max(0.0, 6.0 * (1.0 - min(1.0, ratio_diff)))
+
+        ar_diff = abs(b_ar - target_a_ratio)
+        score += max(0.0, 2.8 * (1.0 - min(1.0, ar_diff / 3.0)))
+
+        final_dna = round(min(99.8, score), 1)
+        scored.append({
+            "dna_score": final_dna,
+            "book": b,
+            "b_ar": round(b_ar, 2)
+        })
+
+    scored.sort(key=lambda x: (x["dna_score"], 1 if x["book"].get("grade_tier") == "GOLD" else 0), reverse=True)
+    return scored
+
+
 def render_universal_typewriter_daemon_v12(trigger_seq: int = 0) -> str:
-    """
-    사파리 WebKit의 iframe 타이머 일시정지(Throttling)를 100% 돌파하기 위해
-    window.parent(최상위 브라우저 윈도우)에 직접 타이프라이터 함수와 클릭 리스너를 설치하고,
-    trigger_seq 가 바뀔 때마다 즉시 타이핑 애니메이션을 강제 실행함.
-    """
     html = r"""<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"></head>
@@ -6020,11 +6070,11 @@ def render_universal_typewriter_daemon_v12(trigger_seq: int = 0) -> str:
     const pDoc = pWin.document;
     if (!pDoc) return;
 
-    // 최상위 window.parent 에 범용 박스 타이프라이터 함수 등록 (사파리가 절대 멈추지 않음!)
-    pWin._v12RunBoxTypewriter = function(targetEl, rawText, badgeLabel, borderColor, speedMs, onDone) {
+    pWin._v12RunBoxTypewriter = function(targetEl, linesArray, badgeLabel, borderColor, speedMs, onDone) {
         if (!targetEl) return;
         if (targetEl._v12TwTimer) pWin.clearInterval(targetEl._v12TwTimer);
 
+        const rawText = Array.isArray(linesArray) ? linesArray.join('<br>') : String(linesArray || '');
         const bCol = borderColor || '#FBBF24';
         targetEl.style.transition = 'all 0.25s ease';
         targetEl.style.border = '2.5px solid ' + bCol;
@@ -6041,21 +6091,21 @@ def render_universal_typewriter_daemon_v12(trigger_seq: int = 0) -> str:
                 '</span>' +
                 '<span style="color:#FDE68A;font-size:11px;font-weight:900;">⚡ 작동 시각: ' + nowStr + '</span>' +
             '</div>' +
-            '<div id="' + bId + '" style="white-space:pre-wrap;line-height:1.68;color:#F8FAFC;font-size:12px;font-weight:700;min-height:48px;"></div>';
+            '<div id="' + bId + '" style="line-height:1.68;color:#F8FAFC;font-size:12px;font-weight:700;min-height:48px;"></div>';
 
         const bEl = pDoc.getElementById(bId);
         const hEl = pDoc.getElementById(hId);
         let idx = 0;
-        const step = 2; // 눈으로 글자가 타다닥 찍히는 것이 선명하게 보이는 속도
 
         targetEl._v12TwTimer = pWin.setInterval(function() {
-            idx += step;
+            idx += 3;
             if (idx < rawText.length) {
                 if (bEl) {
                     bEl.innerHTML = rawText.slice(0, idx) + '<span style="color:#FBBF24;font-weight:900;font-size:15px;">▌</span>';
                 }
             } else {
                 pWin.clearInterval(targetEl._v12TwTimer);
+                targetEl._v12TwTimer = null;
                 if (bEl) bEl.innerHTML = rawText;
                 if (hEl) {
                     hEl.style.background = '#10B981';
@@ -6066,10 +6116,9 @@ def render_universal_typewriter_daemon_v12(trigger_seq: int = 0) -> str:
                 targetEl.style.boxShadow = '0 0 16px rgba(16,185,129,0.28)';
                 if (typeof onDone === 'function') onDone();
             }
-        }, speedMs || 24);
+        }, speedMs || 20);
     };
 
-    // 제3관 전체(①서류검증 박스 + ②독소조항 박스 + ③심층브리핑 & 3단 매트릭스)를 동시에 타이프라이터로 돌리는 핵심 함수
     pWin._v12TriggerTab3Typewriter = function(extraBannerMsg) {
         let b = null;
         try {
@@ -6104,28 +6153,27 @@ def render_universal_typewriter_daemon_v12(trigger_seq: int = 0) -> str:
         const rStd = recF.toFixed(4);
         const rSafe = (recF + 0.0085).toFixed(4);
 
-        // 1) 좌측 상단 입찰서류 4종 검증 박스 타이프라이터 실행
         const tCheck = pDoc.getElementById('v12-t3-doc-check');
         if (tCheck) {
-            const chkText =
-                '📄 [1/4 입찰공고문] ' + agStr + ' — ' + titleStr + ' (기초 ' + baseStr + ') 원문 대조 완료\n' +
-                '📐 [2/4 물량내역서] 법정 A값 ' + avalStr + ' (비중 ' + arStr + ') 사후정산 원안 일치 확인\n' +
-                '🛠️ [3/4 시방서/특기사항] ' + secStr + ' 면허 제한 및 특수시공 조건 스캔 완료\n' +
-                '📑 [4/4 적격심사서류] 낙찰하한율 ' + lowStr + ' 및 과거 개찰예가(' + trueStr + ') 대조 완료';
-            pWin._v12RunBoxTypewriter(tCheck, chkText, '입찰서류 4종 패키지 순차 타이핑 검증 중...', '#34D399', 18);
+            const chkArr = [
+                '📄 [1/4 입찰공고문] ' + agStr + ' — ' + titleStr + ' (기초 ' + baseStr + ') 원문 대조 완료',
+                '📐 [2/4 물량내역서] 법정 A값 ' + avalStr + ' (비중 ' + arStr + ') 사후정산 원안 일치 확인',
+                '🛠️ [3/4 시방서/특기사항] ' + secStr + ' 면허 제한 및 특수시공 조건 스캔 완료',
+                '📑 [4/4 적격심사서류] 낙찰하한율 ' + lowStr + ' 및 과거 개찰예가(' + trueStr + ') 대조 완료'
+            ];
+            pWin._v12RunBoxTypewriter(tCheck, chkArr, '입찰서류 4종 패키지 순차 타이핑 검증 중...', '#34D399', 16);
         }
 
-        // 2) 우측 중단 독소조항 박스 타이프라이터 실행
         const tRisk = pDoc.getElementById('v12-t3-risk-box');
         if (tRisk) {
-            const riskText =
-                '🚨 [현장설명회/숙지 의무] 현장설명서 및 시방서 미숙지 시 입찰무효 조항 스캔 완료\n' +
-                '⚠️ [하도급 관리 특약] 하도급지킴이 의무사용 및 노무비 구분관리·직불제 조건 확인 완료\n' +
-                '🛡️ [A값 사후정산 주의] 국민연금·건강보험·안전관리비(' + avalStr + ') 원안 미반영 시 감점 주의';
-            pWin._v12RunBoxTypewriter(tRisk, riskText, '공고문·시방서 독소조항 레이저 스캔 타이핑 중...', '#F87171', 20);
+            const riskArr = [
+                '🚨 [현장설명회/숙지 의무] 현장설명서 및 시방서 미숙지 시 입찰무효 조항 스캔 완료',
+                '⚠️ [하도급 관리 특약] 하도급지킴이 의무사용 및 노무비 구분관리·직불제 조건 확인 완료',
+                '🛡️ [A값 사후정산 주의] 국민연금·건강보험·안전관리비(' + avalStr + ') 원안 미반영 시 감점 주의'
+            ];
+            pWin._v12RunBoxTypewriter(tRisk, riskArr, '공고문·시방서 독소조항 레이저 스캔 타이핑 중...', '#F87171', 18);
         }
 
-        // 3) 우측 하단 AI 수석 분석관 심층 브리핑 & 3단계 타격 매트릭스 타이프라이터 실행
         const tBrief = pDoc.getElementById('v12-t3-llm-brief');
         if (tBrief) {
             let userQ = '';
@@ -6137,11 +6185,11 @@ def render_universal_typewriter_daemon_v12(trigger_seq: int = 0) -> str:
 
             const lines = [];
             if (extraBannerMsg) {
-                lines.push('⚡ ' + extraBannerMsg + '\n');
+                lines.push('⚡ ' + extraBannerMsg);
             }
             if (userQ) {
                 lines.push('💬 [질문 맞춤 심층 판독: "' + userQ + '"]');
-                lines.push('▶ 본 공고(' + agStr + ' · ' + secStr + ')는 A값 비중이 ' + arStr + '(' + avalStr + ')로 고정되어 사정률 0.01%p당 투찰가가 약 ' + Math.round(baseN * 0.0001 * (lowF / 100)).toLocaleString('ko-KR') + '원씩 이동합니다. 사후정산비 원안을 고정하고 목표 사정률 ' + rStd + '% (' + calcBid(recF) + ')로 타격하십시오.\n');
+                lines.push('▶ 본 공고(' + agStr + ' · ' + secStr + ')는 A값 비중이 ' + arStr + '(' + avalStr + ')로 고정되어 사정률 0.01%p당 투찰가가 약 ' + Math.round(baseN * 0.0001 * (lowF / 100)).toLocaleString('ko-KR') + '원씩 이동합니다. 사후정산비 원안을 고정하고 목표 사정률 ' + rStd + '% (' + calcBid(recF) + ')로 타격하십시오.');
             }
             lines.push('🗣️ [AI 수석 공고·서류 분석관 6차원 정밀 재분석 브리핑]');
             lines.push('1. 타겟 공고: [' + codeStr + '] ' + titleStr + ' (' + agStr + ' · ' + secStr + ')');
@@ -6149,10 +6197,9 @@ def render_universal_typewriter_daemon_v12(trigger_seq: int = 0) -> str:
             lines.push('3. 핵심 결론: 과거 개찰예가(' + trueStr + ') 신경망과 A값 방어 레버리지를 결합한 1순위 최적 사정률은 ' + recRStr + ' (권장 투찰가 ' + recBStr + ', 끝자리 3원 동가회피)입니다.');
             lines.push('4. 대표님 비전 각주: "' + footStr + '"');
 
-            const fullBriefTxt = lines.join('\n');
             const nowT = new Date().toLocaleTimeString('ko-KR');
 
-            pWin._v12RunBoxTypewriter(tBrief, fullBriefTxt, '6차원 정밀 재분석 브리핑 실시간 타이핑 중...', '#FBBF24', 22, function() {
+            pWin._v12RunBoxTypewriter(tBrief, lines, '6차원 정밀 재분석 브리핑 실시간 타이핑 중...', '#FBBF24', 20, function() {
                 const matDiv = pDoc.createElement('div');
                 matDiv.style.marginTop = '10px';
                 matDiv.innerHTML =
@@ -6187,7 +6234,6 @@ def render_universal_typewriter_daemon_v12(trigger_seq: int = 0) -> str:
         }
     };
 
-    // 최상위 window.parent 에 Capture 단계 클릭 리스너 장착 (한 번만 등록하여 영구 작동!)
     if (!pWin._v12TopClickListenerInstalled) {
         pWin._v12TopClickListenerInstalled = true;
         pDoc.addEventListener('click', function(e) {
@@ -6195,48 +6241,35 @@ def render_universal_typewriter_daemon_v12(trigger_seq: int = 0) -> str:
             if (!target) return;
             const txt = (target.innerText || '').trim();
 
-            // 1) 제3관 탭 헤더를 클릭해 제3관을 여는 순간에도 눈앞에서 바로 타이핑 시작!
             if (target.getAttribute('role') === 'tab' && txt.includes('제3관')) {
                 pWin.setTimeout(function() { pWin._v12TriggerTab3Typewriter(''); }, 120);
             }
-            // 2) 제2관 탭 헤더를 클릭해 여는 순간에도 복기 브리핑 타이핑 시작!
             if (target.getAttribute('role') === 'tab' && txt.includes('제2관')) {
                 pWin.setTimeout(function() {
                     const t2Box = pDoc.getElementById('v12-t2-commentary-box');
                     if (t2Box) {
                         const rawT = t2Box.getAttribute('data-fulltext') || t2Box.innerText;
-                        pWin._v12RunBoxTypewriter(t2Box, rawT, '15C4 모의개찰 1:1 복기 브리핑 타이핑 중...', '#38BDF8', 20);
+                        pWin._v12RunBoxTypewriter(t2Box, [rawT], '15C4 모의개찰 1:1 복기 브리핑 타이핑 중...', '#38BDF8', 18);
                     }
                 }, 120);
             }
 
-            // 3) [선택 공고 & 서류 6차원 정밀 재분석] 버튼 클릭 시!
             if (txt.includes('선택 공고 & 서류 6차원 정밀 재분석')) {
-                pWin._v12PendingAction = 'TAB3_REANALYZE|' + Date.now();
                 pWin.setTimeout(function() { pWin._v12TriggerTab3Typewriter(''); }, 60);
-                pWin.setTimeout(function() { pWin._v12TriggerTab3Typewriter(''); }, 550);
-                pWin.setTimeout(function() { pWin._v12TriggerTab3Typewriter(''); }, 1100);
-            }
-            // 4) [제2관 모의투찰]로 즉시 전송 버튼 클릭 시!
-            else if (txt.includes('제2관 모의투찰]로 즉시 전송')) {
-                pWin._v12PendingAction = 'TAB3_SEND|' + Date.now();
+                pWin.setTimeout(function() { pWin._v12TriggerTab3Typewriter(''); }, 520);
+            } else if (txt.includes('제2관 모의투찰]로 즉시 전송')) {
                 const msg = '[제2관 모의투찰 전송 완료] 현재 락온된 공고의 기초금액·A값·하한율이 제2관 입력창에 즉시 세팅되었습니다!';
                 pWin.setTimeout(function() { pWin._v12TriggerTab3Typewriter(msg); }, 60);
-                pWin.setTimeout(function() { pWin._v12TriggerTab3Typewriter(msg); }, 550);
-            }
-            // 5) 제2관 [모의개찰 실행] 또는 [복수예가 재추첨] 클릭 시!
-            else if (txt.includes('모의개찰 실행') || txt.includes('복수예가 재추첨')) {
-                pWin._v12PendingAction = 'TAB2_RUN|' + Date.now();
+                pWin.setTimeout(function() { pWin._v12TriggerTab3Typewriter(msg); }, 520);
+            } else if (txt.includes('모의개찰 실행') || txt.includes('복수예가 재추첨')) {
                 pWin.setTimeout(function() {
                     const t2Box = pDoc.getElementById('v12-t2-commentary-box');
                     if (t2Box) {
                         const rawT = t2Box.getAttribute('data-fulltext') || t2Box.innerText;
-                        pWin._v12RunBoxTypewriter(t2Box, rawT, '15C4 퀀텀 추첨 & 1:1 개찰 복기 실시간 타이핑 중...', '#38BDF8', 20);
+                        pWin._v12RunBoxTypewriter(t2Box, [rawT], '15C4 퀀텀 추첨 & 1:1 개찰 복기 실시간 타이핑 중...', '#38BDF8', 18);
                     }
                 }, 450);
-            }
-            // 6) 그 외 모든 실행 버튼(DNA 매칭, 1:1 사정 토론, 서재 제본, 제4관 개찰내역 학습) 클릭 시 알림박스 타이핑!
-            else if (
+            } else if (
                 txt.includes('AI와 1:1 사정 전략 토론') ||
                 txt.includes('3D 서재에 양장본 제본') ||
                 txt.includes('DNA 최고 일치 족보 소환') ||
@@ -6247,7 +6280,7 @@ def render_universal_typewriter_daemon_v12(trigger_seq: int = 0) -> str:
                     pDoc.querySelectorAll('[data-testid="stAlert"]').forEach(function(al) {
                         const rawT = (al.innerText || '').trim();
                         if (rawT) {
-                            pWin._v12RunBoxTypewriter(al, rawT, '실시간 처리 결과 타이핑 브리핑 중...', '#10B981', 20);
+                            pWin._v12RunBoxTypewriter(al, [rawT], '실시간 처리 결과 타이핑 브리핑 중...', '#10B981', 18);
                         }
                     });
                 }, 480);
@@ -6255,7 +6288,6 @@ def render_universal_typewriter_daemon_v12(trigger_seq: int = 0) -> str:
         }, true);
     }
 
-    // 파이썬 측에서 버튼 클릭으로 새 시퀀스(__SEQ__)가 넘어온 경우에도 즉시 타이핑 실행!
     const pySeq = __SEQ__;
     if (pySeq > 0 && pWin._v12LastPySeq !== pySeq) {
         pWin._v12LastPySeq = pySeq;
