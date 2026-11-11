@@ -1138,7 +1138,7 @@ if st.session_state["_standalone_academy_mode"]:
                         <div id="v12-t3-rec-target" style="color:#34D399;font-size:13.5px;font-weight:900;margin-top:2px;">{_ores['rec_bid']:,}원<br><span style="color:#A7F3D0;font-size:11px;">목표사정률 {_ores['rec_rate']:.4f}% (하한 {_ores['lower_limit']}%)</span></div>
                     </div>
                 </div>
-                <div style="background:rgba(127,29,29,0.22);border:1px solid rgba(248,113,113,0.45);border-radius:8px;padding:9px 12px;margin-bottom:10px;">
+                <div id="v12-t3-risk-box" style="background:rgba(127,29,29,0.22);border:1px solid rgba(248,113,113,0.45);border-radius:8px;padding:9px 12px;margin-bottom:10px;">
                     <div style="color:#FCA5A5;font-size:12px;font-weight:900;margin-bottom:4px;">🚨 공고문 · 시방서 · 내역서 독소조항 & 특기사항 자동 스캔:</div>
                     <div style="color:#F8FAFC;font-size:11.5px;line-height:1.55;">{"<br>".join(_ores["risks"])}</div>
                 </div>

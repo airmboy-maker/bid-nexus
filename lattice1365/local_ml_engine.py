@@ -3335,7 +3335,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
             const rSafe = (recF + 0.0085).toFixed(4);
 
             const tBrief = pDoc.getElementById('v12-t3-llm-brief');
-            if (tBrief) {
+            if (tBrief && !tBrief._v12TwTimer) {
                 const stateKey = b.code + '|' + userQ + '|' + reTs + '|' + sentTs;
                 if (window.parent._v12LastStateKey !== stateKey) {
                     window.parent._v12LastStateKey = stateKey;
@@ -5856,102 +5856,78 @@ if (BOOKS.length > 0) {
     return html.replace("__BOOKS_JSON__", books_json).replace("__ACTIVE_CODE__", str(active_code or ""))
 
 
-def render_universal_typewriter_daemon_v12() -> str:
+def render_universal_typewriter_daemon_v12(trigger_seq: int = 0) -> str:
     """
-    [전관 통합 유니버설 타이프라이터 & 스포트라이트 엔진]
-    - 제1관(DNA 매칭 소환, 도서 변경), 제2관(모의개찰 실행, 재추첨, AI 1:1 토론, 서재 제본),
-      제3관(6차원 정밀 재분석, 제2관 금액 전송), 제4관(개찰내역 파싱 & 학습) 등
-      사용자가 버튼을 눌러 화면이 바뀌거나 적용될 때마다:
-      1) 바뀌는 목표 박스에 황금·시안 레이저 스포트라이트 테두리와 [⌨️ 실시간 타이핑 적용 중...] 배지를 즉시 점등하고
-      2) 텍스트를 한 글자씩 순차적으로 타이핑(▌)하며
-      3) 제3관의 3단계 시나리오 매트릭스(1안➔2안➔3안)를 순차 점등시켜 어디가 바뀌는지 100% 직관화함
+    사파리 WebKit의 iframe 타이머 일시정지(Throttling)를 100% 돌파하기 위해
+    window.parent(최상위 브라우저 윈도우)에 직접 타이프라이터 함수와 클릭 리스너를 설치하고,
+    trigger_seq 가 바뀔 때마다 즉시 타이핑 애니메이션을 강제 실행함.
     """
-    return r"""<!DOCTYPE html>
+    html = r"""<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"></head>
-<body style="margin:0;padding:0;overflow:hidden;background:transparent;">
+<body style="margin:0;padding:0;background:transparent;">
 <script>
 (function() {
-    const pDoc = window.parent.document;
+    const pWin = window.parent;
+    const pDoc = pWin.document;
     if (!pDoc) return;
 
-    // 요소 내부 텍스트를 한 글자씩 타이프라이터 효과로 스트리밍하는 범용 함수
-    function runElementTypewriter(targetEl, rawText, badgeLabel, onComplete) {
+    // 최상위 window.parent 에 범용 박스 타이프라이터 함수 등록 (사파리가 절대 멈추지 않음!)
+    pWin._v12RunBoxTypewriter = function(targetEl, rawText, badgeLabel, borderColor, speedMs, onDone) {
         if (!targetEl) return;
-        if (targetEl._twInterval) clearInterval(targetEl._twInterval);
+        if (targetEl._v12TwTimer) pWin.clearInterval(targetEl._v12TwTimer);
 
-        const origBorder = targetEl.style.border;
-        const origShadow = targetEl.style.boxShadow;
+        const bCol = borderColor || '#FBBF24';
         targetEl.style.transition = 'all 0.25s ease';
-        targetEl.style.border = '2px solid #38BDF8';
-        targetEl.style.boxShadow = '0 0 28px rgba(56,189,248,0.85), inset 0 0 16px rgba(16,185,129,0.35)';
+        targetEl.style.border = '2.5px solid ' + bCol;
+        targetEl.style.boxShadow = '0 0 32px rgba(251,191,36,0.75), inset 0 0 18px rgba(56,189,248,0.35)';
 
-        const headerId = 'tw-hdr-' + Math.random().toString(36).slice(2, 8);
-        const bodyId = 'tw-bdy-' + Math.random().toString(36).slice(2, 8);
+        const hId = 'v12-tw-h-' + Math.random().toString(36).slice(2, 8);
+        const bId = 'v12-tw-b-' + Math.random().toString(36).slice(2, 8);
+        const nowStr = new Date().toLocaleTimeString('ko-KR');
 
         targetEl.innerHTML =
-            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;border-bottom:1px solid rgba(56,189,248,0.35);padding-bottom:4px;">' +
-                '<span id="' + headerId + '" style="background:linear-gradient(90deg,#38BDF8,#10B981);color:#022C22;font-size:11px;font-weight:900;padding:2px 10px;border-radius:99px;">' +
-                    '⌨️ ' + (badgeLabel || '실시간 타이핑 적용 중...') +
+            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;border-bottom:1px solid rgba(251,191,36,0.4);padding-bottom:5px;">' +
+                '<span id="' + hId + '" style="background:linear-gradient(90deg,#FBBF24,#38BDF8);color:#090D16;font-size:11px;font-weight:900;padding:3px 10px;border-radius:99px;box-shadow:0 0 12px rgba(251,191,36,0.8);">' +
+                    '⌨️ ' + (badgeLabel || '실시간 타이핑 분석 중...') +
                 '</span>' +
-                '<span style="color:#FDE68A;font-size:10.5px;font-weight:800;">⚡ 변경 구역 포커스 활성</span>' +
+                '<span style="color:#FDE68A;font-size:11px;font-weight:900;">⚡ 작동 시각: ' + nowStr + '</span>' +
             '</div>' +
-            '<div id="' + bodyId + '" style="white-space:pre-wrap;line-height:1.65;"></div>';
+            '<div id="' + bId + '" style="white-space:pre-wrap;line-height:1.68;color:#F8FAFC;font-size:12px;font-weight:700;min-height:48px;"></div>';
 
-        const bdyEl = pDoc.getElementById(bodyId);
-        const hdrEl = pDoc.getElementById(headerId);
+        const bEl = pDoc.getElementById(bId);
+        const hEl = pDoc.getElementById(hId);
         let idx = 0;
-        const step = Math.max(2, Math.ceil(rawText.length / 65));
+        const step = 2; // 눈으로 글자가 타다닥 찍히는 것이 선명하게 보이는 속도
 
-        targetEl._twInterval = setInterval(() => {
+        targetEl._v12TwTimer = pWin.setInterval(function() {
             idx += step;
             if (idx < rawText.length) {
-                if (bdyEl) {
-                    bdyEl.innerHTML = rawText.slice(0, idx) + '<span style="color:#38BDF8;font-weight:900;font-size:14px;">▌</span>';
+                if (bEl) {
+                    bEl.innerHTML = rawText.slice(0, idx) + '<span style="color:#FBBF24;font-weight:900;font-size:15px;">▌</span>';
                 }
             } else {
-                clearInterval(targetEl._twInterval);
-                if (bdyEl) bdyEl.innerHTML = rawText;
-                if (hdrEl) {
-                    hdrEl.style.background = '#10B981';
-                    hdrEl.innerHTML = '✅ 타이핑 적용 완료 (' + new Date().toLocaleTimeString('ko-KR') + ')';
+                pWin.clearInterval(targetEl._v12TwTimer);
+                if (bEl) bEl.innerHTML = rawText;
+                if (hEl) {
+                    hEl.style.background = '#10B981';
+                    hEl.style.color = '#022C22';
+                    hEl.innerHTML = '✅ 실시간 타이핑 반영 완료 (' + nowStr + ')';
                 }
-                targetEl.style.border = origBorder || '1.5px solid #10B981';
-                targetEl.style.boxShadow = origShadow || '0 0 16px rgba(16,185,129,0.25)';
-                if (typeof onComplete === 'function') onComplete();
+                targetEl.style.border = '1.5px solid #10B981';
+                targetEl.style.boxShadow = '0 0 16px rgba(16,185,129,0.28)';
+                if (typeof onDone === 'function') onDone();
             }
-        }, 22);
-    }
+        }, speedMs || 24);
+    };
 
-    // 제3관 [선택 공고 & 서류 6차원 정밀 재분석] 전용 풀-스테이지 순차 타이프라이터 함수
-    function triggerTab3FullTypewriter(customNoticeMsg) {
+    // 제3관 전체(①서류검증 박스 + ②독소조항 박스 + ③심층브리핑 & 3단 매트릭스)를 동시에 타이프라이터로 돌리는 핵심 함수
+    pWin._v12TriggerTab3Typewriter = function(extraBannerMsg) {
         let b = null;
         try {
-            const rawSaved = window.parent.localStorage.getItem('v12_active_book_json');
+            const rawSaved = pWin.localStorage.getItem('v12_active_book_json');
             if (rawSaved) b = JSON.parse(rawSaved);
         } catch (e) {}
-
-        const tBrief = pDoc.getElementById('v12-t3-llm-brief');
-        const tCheck = pDoc.getElementById('v12-t3-doc-check');
-        if (!tBrief) return;
-
-        // 1) 좌측 상단 입찰서류 4종 검증 박스 스포트라이트 점등
-        if (tCheck && b) {
-            const chkTxt =
-                '📄 [1/4 입찰공고문 검증] ' + b.agency + ' — ' + b.title + ' (기초 ' + b.base_amt + ') 원문 대조 완료\n' +
-                '📐 [2/4 물량내역서 검증] 법정 A값 ' + b.a_val + ' (비중 ' + b.a_ratio + ') 사후정산 원안 일치 확인\n' +
-                '🛠️ [3/4 시방서/특기사항] ' + b.sector + ' 면허 및 도급자설치 관급자재 조건 스캔 완료\n' +
-                '📑 [4/4 적격심사서류] 낙찰하한율 ' + b.low_lim + ' 및 과거 개찰예가(' + b.true_rate + ') 영점 매칭 완료';
-            runElementTypewriter(tCheck, chkTxt, '입찰서류 4종 패키지 순차 스캔 중...');
-        }
-
-        // 2) 질문 입력창 텍스트 확인
-        let userQ = '';
-        pDoc.querySelectorAll('input[type="text"]').forEach(inp => {
-            if (inp.placeholder && inp.placeholder.includes('시방서')) {
-                userQ = (inp.value || '').trim();
-            }
-        });
 
         const codeStr = b ? b.code : '제2026-001권';
         const titleStr = b ? b.title : '과천 지식정보타운 공공업무시설 건축공사';
@@ -5971,7 +5947,7 @@ def render_universal_typewriter_daemon_v12() -> str:
         const lowF = parseFloat(String(lowStr).replace('%', '')) || 88.745;
         const recF = parseFloat(String(recRStr).replace('%', '')) || 100.0360;
 
-        const calcBid = (rVal) => {
+        const calcBid = function(rVal) {
             const expP = baseN * (rVal / 100.0);
             const rawB = Math.ceil(((expP - avalN) * (lowF / 100.0)) + avalN);
             return (Math.floor(rawB / 10) * 10 + 3).toLocaleString('ko-KR') + '원';
@@ -5980,162 +5956,166 @@ def render_universal_typewriter_daemon_v12() -> str:
         const rStd = recF.toFixed(4);
         const rSafe = (recF + 0.0085).toFixed(4);
 
-        const lines = [];
-        if (customNoticeMsg) {
-            lines.push('⚡ ' + customNoticeMsg + '\n');
+        // 1) 좌측 상단 입찰서류 4종 검증 박스 타이프라이터 실행
+        const tCheck = pDoc.getElementById('v12-t3-doc-check');
+        if (tCheck) {
+            const chkText =
+                '📄 [1/4 입찰공고문] ' + agStr + ' — ' + titleStr + ' (기초 ' + baseStr + ') 원문 대조 완료\n' +
+                '📐 [2/4 물량내역서] 법정 A값 ' + avalStr + ' (비중 ' + arStr + ') 사후정산 원안 일치 확인\n' +
+                '🛠️ [3/4 시방서/특기사항] ' + secStr + ' 면허 제한 및 특수시공 조건 스캔 완료\n' +
+                '📑 [4/4 적격심사서류] 낙찰하한율 ' + lowStr + ' 및 과거 개찰예가(' + trueStr + ') 대조 완료';
+            pWin._v12RunBoxTypewriter(tCheck, chkText, '입찰서류 4종 패키지 순차 타이핑 검증 중...', '#34D399', 18);
         }
-        if (userQ) {
-            lines.push('💬 [질문 맞춤 심층 판독: "' + userQ + '"]');
-            lines.push('▶ 본 공고(' + agStr + ' · ' + secStr + ')는 A값 비중이 ' + arStr + '(' + avalStr + ')로 고정되어 사정률 0.01%p당 투찰가가 약 ' + Math.round(baseN * 0.0001 * (lowF / 100)).toLocaleString('ko-KR') + '원씩 이동합니다. 사후정산비 원안(' + avalStr + ')을 1원 오차 없이 고정하고 목표 사정률 ' + rStd + '% (' + calcBid(recF) + ')로 타격하십시오.\n');
+
+        // 2) 우측 중단 독소조항 박스 타이프라이터 실행
+        const tRisk = pDoc.getElementById('v12-t3-risk-box');
+        if (tRisk) {
+            const riskText =
+                '🚨 [현장설명회/숙지 의무] 현장설명서 및 시방서 미숙지 시 입찰무효 조항 스캔 완료\n' +
+                '⚠️ [하도급 관리 특약] 하도급지킴이 의무사용 및 노무비 구분관리·직불제 조건 확인 완료\n' +
+                '🛡️ [A값 사후정산 주의] 국민연금·건강보험·안전관리비(' + avalStr + ') 원안 미반영 시 감점 주의';
+            pWin._v12RunBoxTypewriter(tRisk, riskText, '공고문·시방서 독소조항 레이저 스캔 타이핑 중...', '#F87171', 20);
         }
-        lines.push('🗣️ [AI 수석 공고·서류 분석관 6차원 정밀 재분석 브리핑]');
-        lines.push('1. 타겟 공고: [' + codeStr + '] ' + titleStr + ' (' + agStr + ' · ' + secStr + ')');
-        lines.push('2. 원가 구조: 기초금액 ' + baseStr + ' | A값 ' + avalStr + ' (비중 ' + arStr + ') | 낙찰하한율 ' + lowStr);
-        lines.push('3. 핵심 결론: 과거 개찰예가(' + trueStr + ') 신경망과 A값 방어 레버리지를 결합한 1순위 최적 사정률은 ' + recRStr + ' (권장 투찰가 ' + recBStr + ', 끝자리 3원 동가회피)입니다.');
-        lines.push('4. 대표님 비전 각주: "' + footStr + '"');
 
-        const fullTxt = lines.join('\n');
-
-        if (tBrief._twInterval) clearInterval(tBrief._twInterval);
-        tBrief.style.transition = 'all 0.3s ease';
-        tBrief.style.border = '2.5px solid #FBBF24';
-        tBrief.style.boxShadow = '0 0 36px rgba(251,191,36,0.85), inset 0 0 22px rgba(56,189,248,0.4)';
-
-        const nowTimeStr = new Date().toLocaleTimeString('ko-KR');
-        tBrief.innerHTML =
-            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;border-bottom:1px solid rgba(251,191,36,0.45);padding-bottom:6px;">' +
-                '<span id="v12-live-tw-badge" style="background:linear-gradient(90deg,#FBBF24,#38BDF8);color:#090D16;font-size:11.5px;font-weight:900;padding:3px 12px;border-radius:99px;box-shadow:0 0 14px rgba(251,191,36,0.8);">' +
-                    '⌨️ 실시간 6차원 정밀 재분석 타이핑 진행 중...' +
-                '</span>' +
-                '<span style="color:#FDE68A;font-size:11px;font-weight:900;">⚡ 실행 시각: ' + nowTimeStr + '</span>' +
-            '</div>' +
-            '<div id="v12-live-tw-body" style="color:#ECFDF5;font-size:12.5px;line-height:1.72;white-space:pre-wrap;min-height:105px;font-weight:700;"></div>' +
-            '<div id="v12-live-tw-matrix" style="margin-top:10px;"></div>';
-
-        const bEl = pDoc.getElementById('v12-live-tw-body');
-        const hEl = pDoc.getElementById('v12-live-tw-badge');
-        const mEl = pDoc.getElementById('v12-live-tw-matrix');
-        let cIdx = 0;
-
-        tBrief._twInterval = setInterval(() => {
-            cIdx += 3; // 눈으로 선명하게 따라갈 수 있는 타이프라이터 속도
-            if (cIdx < fullTxt.length) {
-                if (bEl) {
-                    bEl.innerHTML = fullTxt.slice(0, cIdx) + '<span style="color:#FBBF24;font-weight:900;font-size:15px;">▌</span>';
-                }
-            } else {
-                clearInterval(tBrief._twInterval);
-                if (bEl) bEl.innerHTML = fullTxt;
-                if (hEl) {
-                    hEl.style.background = '#10B981';
-                    hEl.style.color = '#022C22';
-                    hEl.innerHTML = '✅ 6차원 정밀 재분석 & 시나리오 산출 완료';
-                }
-                tBrief.style.border = '1.5px solid #10B981';
-                tBrief.style.boxShadow = '0 0 20px rgba(16,185,129,0.3)';
-
-                if (mEl) {
-                    mEl.innerHTML =
-                        '<div style="background:rgba(9,13,22,0.95);border:1.5px solid #FBBF24;border-radius:8px;padding:10px 12px;">' +
-                            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
-                                '<span style="color:#FBBF24;font-size:12px;font-weight:900;">⚡ [6차원 정밀 재분석 완료] ' + codeStr + ' 시나리오별 3단계 실전 타격 매트릭스</span>' +
-                                '<span style="background:#10B981;color:#022C22;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:4px;">재분석 시각: ' + nowTimeStr + '</span>' +
-                            '</div>' +
-                            '<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;text-align:center;font-size:11.5px;">' +
-                                '<div id="tw-m-c1" style="opacity:0;transform:translateY(12px);transition:all 0.35s ease;background:rgba(239,68,68,0.15);border:1px solid #F87171;border-radius:6px;padding:8px;">' +
-                                    '<div style="color:#FCA5A5;font-weight:800;">🔥 1안: 공격적 하단매복</div>' +
-                                    '<div style="color:#FFFFFF;font-size:13px;font-weight:900;margin:4px 0;">' + calcBid(parseFloat(rAgg)) + '</div>' +
-                                    '<div style="color:#FDE68A;">목표사정률 ' + rAgg + '%</div>' +
-                                '</div>' +
-                                '<div id="tw-m-c2" style="opacity:0;transform:translateY(12px);transition:all 0.35s ease;background:rgba(16,185,129,0.24);border:2px solid #34D399;border-radius:6px;padding:8px;box-shadow:0 0 15px rgba(16,185,129,0.4);">' +
-                                    '<div style="color:#6EE7B7;font-weight:900;">🎯 2안: AI 1순위 정밀영점(권장)</div>' +
-                                    '<div style="color:#34D399;font-size:13.5px;font-weight:900;margin:4px 0;">' + calcBid(parseFloat(rStd)) + '</div>' +
-                                    '<div style="color:#A7F3D0;">목표사정률 ' + rStd + '%</div>' +
-                                '</div>' +
-                                '<div id="tw-m-c3" style="opacity:0;transform:translateY(12px);transition:all 0.35s ease;background:rgba(56,189,248,0.15);border:1px solid #38BDF8;border-radius:6px;padding:8px;">' +
-                                    '<div style="color:#7DD3FC;font-weight:800;">🛡️ 3안: 상위 과열방어</div>' +
-                                    '<div style="color:#FFFFFF;font-size:13px;font-weight:900;margin:4px 0;">' + calcBid(parseFloat(rSafe)) + '</div>' +
-                                    '<div style="color:#BAE6FD;">목표사정률 ' + rSafe + '%</div>' +
-                                '</div>' +
-                            '</div>' +
-                        '</div>';
-                    setTimeout(() => { const el = pDoc.getElementById('tw-m-c1'); if (el) { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; } }, 90);
-                    setTimeout(() => { const el = pDoc.getElementById('tw-m-c2'); if (el) { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; } }, 280);
-                    setTimeout(() => { const el = pDoc.getElementById('tw-m-c3'); if (el) { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; } }, 470);
-                }
-            }
-        }, 22);
-    }
-
-    // 전관(제1관~제4관)의 모든 실행 버튼 클릭을 가로채어 즉시 타이프라이터 효과를 발동시키는 이벤트 바인더
-    function bindAllActionButtons() {
-        pDoc.querySelectorAll('button').forEach(btn => {
-            if (btn.dataset.v12UniversalTwBound) return;
-            btn.dataset.v12UniversalTwBound = '1';
-            btn.addEventListener('click', () => {
-                const txt = (btn.innerText || '').trim();
-                if (txt.includes('선택 공고 & 서류 6차원 정밀 재분석')) {
-                    window.parent.localStorage.setItem('v12_pending_tw_action', 'TAB3_REANALYZE|' + Date.now());
-                    setTimeout(() => triggerTab3FullTypewriter(''), 80);
-                    setTimeout(() => triggerTab3FullTypewriter(''), 450);
-                } else if (txt.includes('제2관 모의투찰]로 즉시 전송')) {
-                    window.parent.localStorage.setItem('v12_pending_tw_action', 'TAB3_SEND_T2|' + Date.now());
-                    setTimeout(() => triggerTab3FullTypewriter('[제2관 모의투찰 전송 완료] 현재 공고의 기초금액·A값·낙찰하한율이 제2관 모의투찰 입력창에 즉시 세팅되었습니다!'), 80);
-                    setTimeout(() => triggerTab3FullTypewriter('[제2관 모의투찰 전송 완료] 현재 공고의 기초금액·A값·낙찰하한율이 제2관 모의투찰 입력창에 즉시 세팅되었습니다!'), 450);
-                } else if (txt.includes('모의개찰 실행') || txt.includes('복수예가 재추첨')) {
-                    window.parent.localStorage.setItem('v12_pending_tw_action', 'TAB2_ARENA_RUN|' + Date.now());
-                } else if (txt.includes('AI와 1:1 사정 전략 토론')) {
-                    window.parent.localStorage.setItem('v12_pending_tw_action', 'TAB2_DISCUSS|' + Date.now());
-                } else if (txt.includes('3D 서재에 양장본 제본')) {
-                    window.parent.localStorage.setItem('v12_pending_tw_action', 'TAB2_BIND_BOOK|' + Date.now());
-                } else if (txt.includes('DNA 최고 일치 족보 소환')) {
-                    window.parent.localStorage.setItem('v12_pending_tw_action', 'TAB1_DNA|' + Date.now());
-                } else if (txt.includes('개찰 신경망 일괄 영구 학습')) {
-                    window.parent.localStorage.setItem('v12_pending_tw_action', 'TAB4_PARSE|' + Date.now());
+        // 3) 우측 하단 AI 수석 분석관 심층 브리핑 & 3단계 타격 매트릭스 타이프라이터 실행
+        const tBrief = pDoc.getElementById('v12-t3-llm-brief');
+        if (tBrief) {
+            let userQ = '';
+            pDoc.querySelectorAll('input[type="text"]').forEach(function(inp) {
+                if (inp.placeholder && inp.placeholder.includes('시방서')) {
+                    userQ = (inp.value || '').trim();
                 }
             });
-        });
 
-        // Streamlit 재실행(Rerun) 직후 대기 중이던 타이프라이터 액션이 있으면 즉시 목표 알림박스/브리핑박스에 타이프라이터 재생!
-        const pending = window.parent.localStorage.getItem('v12_pending_tw_action') || '';
-        if (pending) {
-            const parts = pending.split('|');
-            const actType = parts[0];
-            const ts = Number(parts[1] || 0);
-            if (Date.now() - ts < 3500) {
-                window.parent.localStorage.removeItem('v12_pending_tw_action');
-                if (actType === 'TAB3_REANALYZE') {
-                    setTimeout(() => triggerTab3FullTypewriter(''), 120);
-                } else if (actType === 'TAB3_SEND_T2') {
-                    setTimeout(() => triggerTab3FullTypewriter('[제2관 모의투찰 전송 완료] 현재 공고의 기초금액·A값·낙찰하한율이 제2관 모의투찰 입력창에 즉시 세팅되었습니다!'), 120);
-                } else if (actType === 'TAB2_ARENA_RUN') {
-                    setTimeout(() => {
-                        const t2Box = pDoc.getElementById('v12-t2-commentary-box');
-                        if (t2Box) {
-                            const rawT = t2Box.getAttribute('data-fulltext') || t2Box.innerText;
-                            runElementTypewriter(t2Box, rawT, '15C4 퀀텀 추첨 & 1:1 개찰 복기 타이핑 중...');
-                        }
-                    }, 150);
-                } else {
-                    // st.success / st.info 등 새로 생성된 알림 박스를 찾아 타이프라이터 효과 재생
-                    setTimeout(() => {
-                        const alerts = pDoc.querySelectorAll('[data-testid="stAlert"]');
-                        alerts.forEach(al => {
-                            const rawT = (al.innerText || '').trim();
-                            if (rawT && !al.dataset.twPlayed) {
-                                al.dataset.twPlayed = '1';
-                                runElementTypewriter(al, rawT, '실시간 분석 결과 타이핑 적용 중...');
-                            }
-                        });
-                    }, 150);
-                }
+            const lines = [];
+            if (extraBannerMsg) {
+                lines.push('⚡ ' + extraBannerMsg + '\n');
             }
+            if (userQ) {
+                lines.push('💬 [질문 맞춤 심층 판독: "' + userQ + '"]');
+                lines.push('▶ 본 공고(' + agStr + ' · ' + secStr + ')는 A값 비중이 ' + arStr + '(' + avalStr + ')로 고정되어 사정률 0.01%p당 투찰가가 약 ' + Math.round(baseN * 0.0001 * (lowF / 100)).toLocaleString('ko-KR') + '원씩 이동합니다. 사후정산비 원안을 고정하고 목표 사정률 ' + rStd + '% (' + calcBid(recF) + ')로 타격하십시오.\n');
+            }
+            lines.push('🗣️ [AI 수석 공고·서류 분석관 6차원 정밀 재분석 브리핑]');
+            lines.push('1. 타겟 공고: [' + codeStr + '] ' + titleStr + ' (' + agStr + ' · ' + secStr + ')');
+            lines.push('2. 원가 구조: 기초금액 ' + baseStr + ' | A값 ' + avalStr + ' (비중 ' + arStr + ') | 낙찰하한율 ' + lowStr);
+            lines.push('3. 핵심 결론: 과거 개찰예가(' + trueStr + ') 신경망과 A값 방어 레버리지를 결합한 1순위 최적 사정률은 ' + recRStr + ' (권장 투찰가 ' + recBStr + ', 끝자리 3원 동가회피)입니다.');
+            lines.push('4. 대표님 비전 각주: "' + footStr + '"');
+
+            const fullBriefTxt = lines.join('\n');
+            const nowT = new Date().toLocaleTimeString('ko-KR');
+
+            pWin._v12RunBoxTypewriter(tBrief, fullBriefTxt, '6차원 정밀 재분석 브리핑 실시간 타이핑 중...', '#FBBF24', 22, function() {
+                const matDiv = pDoc.createElement('div');
+                matDiv.style.marginTop = '10px';
+                matDiv.innerHTML =
+                    '<div style="background:rgba(9,13,22,0.96);border:2px solid #FBBF24;border-radius:8px;padding:10px 12px;box-shadow:0 0 22px rgba(251,191,36,0.35);">' +
+                        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
+                            '<span style="color:#FBBF24;font-size:12px;font-weight:900;">⚡ [6차원 정밀 재분석 완료] ' + codeStr + ' 시나리오별 3단계 실전 타격 매트릭스</span>' +
+                            '<span style="background:#10B981;color:#022C22;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:4px;">재분석 완료: ' + nowT + '</span>' +
+                        '</div>' +
+                        '<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;text-align:center;font-size:11.5px;">' +
+                            '<div id="v12-pop-c1" style="opacity:0;transform:translateY(14px);transition:all 0.35s ease;background:rgba(239,68,68,0.16);border:1px solid #F87171;border-radius:6px;padding:8px;">' +
+                                '<div style="color:#FCA5A5;font-weight:800;">🔥 1안: 공격적 하단매복</div>' +
+                                '<div style="color:#FFFFFF;font-size:13px;font-weight:900;margin:4px 0;">' + calcBid(parseFloat(rAgg)) + '</div>' +
+                                '<div style="color:#FDE68A;">목표사정률 ' + rAgg + '%</div>' +
+                            '</div>' +
+                            '<div id="v12-pop-c2" style="opacity:0;transform:translateY(14px);transition:all 0.35s ease;background:rgba(16,185,129,0.25);border:2px solid #34D399;border-radius:6px;padding:8px;box-shadow:0 0 15px rgba(16,185,129,0.45);">' +
+                                '<div style="color:#6EE7B7;font-weight:900;">🎯 2안: AI 1순위 정밀영점(권장)</div>' +
+                                '<div style="color:#34D399;font-size:13.5px;font-weight:900;margin:4px 0;">' + calcBid(parseFloat(rStd)) + '</div>' +
+                                '<div style="color:#A7F3D0;">목표사정률 ' + rStd + '%</div>' +
+                            '</div>' +
+                            '<div id="v12-pop-c3" style="opacity:0;transform:translateY(14px);transition:all 0.35s ease;background:rgba(56,189,248,0.16);border:1px solid #38BDF8;border-radius:6px;padding:8px;">' +
+                                '<div style="color:#7DD3FC;font-weight:800;">🛡️ 3안: 상위 과열방어</div>' +
+                                '<div style="color:#FFFFFF;font-size:13px;font-weight:900;margin:4px 0;">' + calcBid(parseFloat(rSafe)) + '</div>' +
+                                '<div style="color:#BAE6FD;">목표사정률 ' + rSafe + '%</div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>';
+                tBrief.appendChild(matDiv);
+                pWin.setTimeout(function() { const el = pDoc.getElementById('v12-pop-c1'); if (el) { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; } }, 80);
+                pWin.setTimeout(function() { const el = pDoc.getElementById('v12-pop-c2'); if (el) { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; } }, 280);
+                pWin.setTimeout(function() { const el = pDoc.getElementById('v12-pop-c3'); if (el) { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; } }, 480);
+            });
         }
+    };
+
+    // 최상위 window.parent 에 Capture 단계 클릭 리스너 장착 (한 번만 등록하여 영구 작동!)
+    if (!pWin._v12TopClickListenerInstalled) {
+        pWin._v12TopClickListenerInstalled = true;
+        pDoc.addEventListener('click', function(e) {
+            const target = e.target ? e.target.closest('button, [role="tab"]') : null;
+            if (!target) return;
+            const txt = (target.innerText || '').trim();
+
+            // 1) 제3관 탭 헤더를 클릭해 제3관을 여는 순간에도 눈앞에서 바로 타이핑 시작!
+            if (target.getAttribute('role') === 'tab' && txt.includes('제3관')) {
+                pWin.setTimeout(function() { pWin._v12TriggerTab3Typewriter(''); }, 120);
+            }
+            // 2) 제2관 탭 헤더를 클릭해 여는 순간에도 복기 브리핑 타이핑 시작!
+            if (target.getAttribute('role') === 'tab' && txt.includes('제2관')) {
+                pWin.setTimeout(function() {
+                    const t2Box = pDoc.getElementById('v12-t2-commentary-box');
+                    if (t2Box) {
+                        const rawT = t2Box.getAttribute('data-fulltext') || t2Box.innerText;
+                        pWin._v12RunBoxTypewriter(t2Box, rawT, '15C4 모의개찰 1:1 복기 브리핑 타이핑 중...', '#38BDF8', 20);
+                    }
+                }, 120);
+            }
+
+            // 3) [선택 공고 & 서류 6차원 정밀 재분석] 버튼 클릭 시!
+            if (txt.includes('선택 공고 & 서류 6차원 정밀 재분석')) {
+                pWin._v12PendingAction = 'TAB3_REANALYZE|' + Date.now();
+                pWin.setTimeout(function() { pWin._v12TriggerTab3Typewriter(''); }, 60);
+                pWin.setTimeout(function() { pWin._v12TriggerTab3Typewriter(''); }, 550);
+                pWin.setTimeout(function() { pWin._v12TriggerTab3Typewriter(''); }, 1100);
+            }
+            // 4) [제2관 모의투찰]로 즉시 전송 버튼 클릭 시!
+            else if (txt.includes('제2관 모의투찰]로 즉시 전송')) {
+                pWin._v12PendingAction = 'TAB3_SEND|' + Date.now();
+                const msg = '[제2관 모의투찰 전송 완료] 현재 락온된 공고의 기초금액·A값·하한율이 제2관 입력창에 즉시 세팅되었습니다!';
+                pWin.setTimeout(function() { pWin._v12TriggerTab3Typewriter(msg); }, 60);
+                pWin.setTimeout(function() { pWin._v12TriggerTab3Typewriter(msg); }, 550);
+            }
+            // 5) 제2관 [모의개찰 실행] 또는 [복수예가 재추첨] 클릭 시!
+            else if (txt.includes('모의개찰 실행') || txt.includes('복수예가 재추첨')) {
+                pWin._v12PendingAction = 'TAB2_RUN|' + Date.now();
+                pWin.setTimeout(function() {
+                    const t2Box = pDoc.getElementById('v12-t2-commentary-box');
+                    if (t2Box) {
+                        const rawT = t2Box.getAttribute('data-fulltext') || t2Box.innerText;
+                        pWin._v12RunBoxTypewriter(t2Box, rawT, '15C4 퀀텀 추첨 & 1:1 개찰 복기 실시간 타이핑 중...', '#38BDF8', 20);
+                    }
+                }, 450);
+            }
+            // 6) 그 외 모든 실행 버튼(DNA 매칭, 1:1 사정 토론, 서재 제본, 제4관 개찰내역 학습) 클릭 시 알림박스 타이핑!
+            else if (
+                txt.includes('AI와 1:1 사정 전략 토론') ||
+                txt.includes('3D 서재에 양장본 제본') ||
+                txt.includes('DNA 최고 일치 족보 소환') ||
+                txt.includes('개찰 신경망 일괄 영구 학습') ||
+                txt.includes('원클릭 양장본 제본')
+            ) {
+                pWin.setTimeout(function() {
+                    pDoc.querySelectorAll('[data-testid="stAlert"]').forEach(function(al) {
+                        const rawT = (al.innerText || '').trim();
+                        if (rawT) {
+                            pWin._v12RunBoxTypewriter(al, rawT, '실시간 처리 결과 타이핑 브리핑 중...', '#10B981', 20);
+                        }
+                    });
+                }, 480);
+            }
+        }, true);
     }
 
-    setInterval(bindAllActionButtons, 220);
+    // 파이썬 측에서 버튼 클릭으로 새 시퀀스(__SEQ__)가 넘어온 경우에도 즉시 타이핑 실행!
+    const pySeq = __SEQ__;
+    if (pySeq > 0 && pWin._v12LastPySeq !== pySeq) {
+        pWin._v12LastPySeq = pySeq;
+        pWin.setTimeout(function() { pWin._v12TriggerTab3Typewriter(''); }, 100);
+    }
 })();
 </script>
 </body>
 </html>"""
+    return html.replace("__SEQ__", str(int(trigger_seq or 0)))
 
