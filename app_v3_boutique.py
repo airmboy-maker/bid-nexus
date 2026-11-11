@@ -494,6 +494,7 @@ from lattice1365.local_ml_engine import (
     query_strategy_library_v12 as _query_lib_v12,
     delete_library_book_v12 as _del_book_v12,
     render_interactive_3d_library_html_v12 as _render_3d_html_v12,
+    render_ultra_matrix_view_html_v12 as _render_matrix_html_v12,
 fetch_recent_selected_bid_packages_v12 as _fetch_bid_pkgs_v12
 )
 
@@ -625,45 +626,16 @@ if st.session_state["_standalone_academy_mode"]:
         if not _books:
             st.info("조건에 일치하는 장서가 없습니다. 필터를 '전체'로 바꾸거나 [제2관 모의투찰]에서 새로운 복기 결과를 제본해 보세요.")
         else:
-            # [제1관 ➔ 제2관 ➔ 제3관 실시간 양장본 동기화 선택 바]
-            _bk_option_map = {f"📕 [{b['book_code']}] {b['title']} ({b['agency']} · {b['sector']} · 기초 {b['base_amt']:,}원)": b for b in _books}
-            _bk_opt_keys = list(_bk_option_map.keys())
-
-            _default_bk_idx = 0
-            _saved_code = st.session_state.get("_v12_synced_book_code", "")
-            for _idx_k, _k_str in enumerate(_bk_opt_keys):
-                if _saved_code and f"[{_saved_code}]" in _k_str:
-                    _default_bk_idx = _idx_k
-                    break
-
-            _sync_c1, _sync_c2 = st.columns([3.0, 1.2])
-            with _sync_c1:
-                _picked_bk_label = st.selectbox(
-                    "🎯 [제1관·제2관·제3관 통합 연동 선택기] 여기서 양장본을 선택하면 3D 독서대 열람과 동시에 [제2관 모의투찰] 및 [제3관 올라마 6차원 해부관]에 똑같이 자동 세팅됩니다:",
-                    options=_bk_opt_keys,
-                    index=_default_bk_idx,
-                    key="_v12_master_book_picker"
-                )
-            _active_bk = _bk_option_map[_picked_bk_label]
-            st.session_state["_v12_synced_book_code"] = _active_bk["book_code"]
-            st.session_state["_v12_ollama_base"] = int(_active_bk["base_amt"])
-            st.session_state["_v12_ollama_aval"] = int(_active_bk["a_val"])
-
-            with _sync_c2:
-                st.markdown(f"""
-                <div style="background:rgba(16,185,129,0.18);border:1.5px solid #34D399;border-radius:8px;padding:8px 12px;margin-top:4px;text-align:center;">
-                    <div style="color:#A7F3D0;font-size:10.5px;font-weight:800;">🔗 제2관·제3관 자동 동기화 완료</div>
-                    <div style="color:#34D399;font-size:12.5px;font-weight:900;">현재 고정: [{_active_bk['book_code']}]</div>
-                </div>
-                """, unsafe_allow_html=True)
-
+            _active_bk = _books[0]
+            _active_bk = _books[0]
             if "3D" in _view_mode:
                 _shelf_rows = max(1, (len(_books) + 2) // 3)
                 _canvas_h = 450 + (_shelf_rows * 275)
                 _html_3d = _render_3d_html_v12(_books, active_code=_active_bk["book_code"])
                 _stc_v12.html(_html_3d, height=_canvas_h, scrolling=True)
             else:
-                st.dataframe(_books, use_container_width=True)
+                _mx_h = 330 + (len(_books) * 68)
+                _stc_v12.html(_render_matrix_html_v12(_books), height=_mx_h, scrolling=True)
 
             if _lib_res.get("sector_board"):
                 st.markdown("###### 📈 공종별 레거시 적중 성적표 & 대표님 맞춤형 영점 보정 가이드")

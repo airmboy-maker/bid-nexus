@@ -3531,7 +3531,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
                 applyBookToParentTabs(savedBook);
             }
         } catch (e) {}
-    }, 200);
+    }, 500);
 
     let htmlOut = '';
     for (let s = 0; s < Math.ceil(BOOKS.length / 3); s++) {
@@ -3637,7 +3637,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
         }
         requestAnimationFrame(animateParticles);
     }
-    animateParticles();
+    // 사파리 메모리 최적화를 위해 무거운 캔버스 루프 비활성화
     </script>
     </body>
     </html>
@@ -3719,4 +3719,437 @@ def fetch_recent_selected_bid_packages_v12(session_dict: dict = None) -> list:
             pass
         conn.close()
     return packages
+
+
+def render_ultra_matrix_view_html_v12(books: list) -> str:
+    """
+    [초고밀도 매트릭스 표 뷰 전용 시각화 렌더러]
+    - 영어 컬럼명(base_amt 등) 대신 완벽한 한글 관제 매트릭스 UI 제공
+    - 사정률 스펙트럼 게이지 바, A값 비중 바, 등급별 네온 배지, 오차율 정밀 시각화
+    - 행(Row) 클릭 시 즉시 타겟 락온(TARGET LOCKED) 하이라이트 + 하단 4면 브리핑 + 제2·3관 실시간 동기화
+    """
+    import json
+    import math
+
+    safe_books = []
+    sum_true = 0.0
+    sum_err = 0.0
+    sum_aratio = 0.0
+    gold_c = 0
+
+    for b in (books or []):
+        raw_c = str(b.get("book_code", "제2026-001권"))
+        b_base = int(b.get("base_amt", 1500000000) or 1500000000)
+        b_aval = int(b.get("a_val", int(b_base * 0.06)) or int(b_base * 0.06))
+        b_low = float(b.get("lower_limit", 88.745) or 88.745)
+        b_sec = str(b.get("sector", "종합공사"))
+        b_ag = str(b.get("agency", "조달청"))
+        b_title = str(b.get("title", "입찰공고"))
+        b_raw = str(b.get("notice_raw_text", ""))
+        b_comm = str(b.get("ai_commentary", ""))
+        b_foot = str(b.get("ceo_footnote", ""))
+        b_yega = float(b.get("true_yega_rate", 100.03) or 100.03)
+        b_ai = float(b.get("ai_rate", 100.03) or 100.03)
+        b_user = float(b.get("user_rate", 100.03) or 100.03)
+        b_tier = str(b.get("grade_tier", "GOLD"))
+
+        err_val = b_user - b_yega
+        abs_err = abs(err_val)
+        a_ratio = round((b_aval / max(1, b_base)) * 100.0, 2)
+
+        sum_true += b_yega
+        sum_err += abs_err
+        sum_aratio += a_ratio
+        if b_tier == "GOLD":
+            gold_c += 1
+
+        rec_rate = round(100.0315 + (0.0045 if a_ratio >= 6.0 else -0.0025) + (0.0060 if any(k in b_sec for k in ["전기", "실내", "통신"]) else 0.0), 4)
+        exp_p = b_base * (rec_rate / 100.0)
+        rec_bid = (int(math.ceil(((exp_p - b_aval) * (b_low / 100.0)) + b_aval)) // 10) * 10 + 3
+
+        # 사정률 스펙트럼 위치 계산 (99.95% ~ 100.10% 구간을 0~100% 위치로 변환)
+        pos_true = max(5, min(95, int(((b_yega - 99.95) / 0.15) * 100)))
+        pos_user = max(5, min(95, int(((b_user - 99.95) / 0.15) * 100)))
+
+        full_pkg = (
+            f"[1. 입찰공고문 원문 ({raw_c})] 공고명: {b_title} | 발주처: {b_ag} | 공종: {b_sec}\n"
+            f"• 기초금액: {b_base:,}원 | 추정가격: {int(b_base/1.1):,}원 | A값: {b_aval:,}원 (비중 {a_ratio:.2f}%) | 적용 낙찰하한율: {b_low:.3f}%\n"
+            f"• 원문 상세: {b_raw}\n"
+            f"[2. 시방서 · 현장설명서 · 내역서 자동 추출 요약]\n"
+            f"• 공사시방서: {b_sec} 표준시방서 및 발주처({b_ag}) 특기시방서 적용, 현장설명서 숙지 의무 조항 포함.\n"
+            f"• 물량내역서: 법정 사후정산비(A값 {b_aval:,}원) 원안 반영 필수, 하도급지킴이 및 노무비 구분관리제 적용 대상.\n"
+            f"[3. 기존 사정 기록 & 대표님 각주]\n"
+            f"• 과거 개찰 예가사정률: {b_yega:.4f}% | 대표님 각주: {b_foot}\n"
+            f"• AI 사정관 분석록: {b_comm}"
+        )
+
+        safe_books.append({
+            "id": b.get("id", 1),
+            "code": raw_c,
+            "title": b_title,
+            "sector": b_sec,
+            "agency": b_ag,
+            "base_num": b_base,
+            "aval_num": b_aval,
+            "base_amt": f"{b_base:,}원",
+            "base_eok": f"{b_base / 100000000:.1f}억",
+            "a_val": f"{b_aval:,}원",
+            "a_ratio": f"{a_ratio:.2f}%",
+            "a_bar_w": min(100, int(a_ratio * 10)),
+            "low_lim": f"{b_low:.3f}%",
+            "true_rate": f"{b_yega:.4f}%",
+            "ai_rate": f"{b_ai:.4f}%",
+            "user_rate": f"{b_user:.4f}%",
+            "err_str": f"{err_val:+.4f}%p",
+            "pos_true": pos_true,
+            "pos_user": pos_user,
+            "rec_rate": f"{rec_rate:.4f}%",
+            "rec_bid": f"{rec_bid:,}원",
+            "winner": str(b.get("winner_company", "1순위업체")),
+            "winner_bid": f"{int(b.get('winner_bid', 0)):,}원",
+            "participants": f"{int(b.get('participants', 50))}개사",
+            "tier": b_tier,
+            "vip": int(b.get("is_bookmarked", 0)),
+            "raw_txt": b_raw,
+            "full_pkg": full_pkg,
+            "ai_comm": b_comm,
+            "footnote": b_foot,
+            "lots": str(b.get("picked_lots_str", "02번 · 06번 · 11번 · 14번")),
+            "date": str(b.get("created_at", ""))
+        })
+
+    n_b = max(1, len(safe_books))
+    avg_true_s = f"{sum_true / n_b:.4f}%"
+    avg_err_s = f"±{sum_err / n_b:.4f}%p"
+    avg_ar_s = f"{sum_aratio / n_b:.2f}%"
+    gold_ratio_s = f"{int((gold_c / n_b) * 100)}% ({gold_c}/{n_b}권)"
+
+    books_json = json.dumps(safe_books, ensure_ascii=False)
+
+    html = r"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <meta charset="utf-8">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
+        body {
+            background: #070B14;
+            color: #F8FAFC;
+            padding: 8px 10px;
+            overflow-x: hidden;
+        }
+        .lockon-hud-board {
+            background: linear-gradient(90deg, rgba(6,78,59,0.95) 0%, rgba(15,23,42,0.98) 55%, rgba(8,47,73,0.95) 100%);
+            border: 2px solid #10B981;
+            border-radius: 12px;
+            padding: 12px 18px;
+            margin-bottom: 12px;
+            box-shadow: 0 0 22px rgba(16,185,129,0.35);
+        }
+        .summary-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .kpi-card {
+            background: linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,41,59,0.85));
+            border: 1px solid rgba(56,189,248,0.35);
+            border-radius: 10px;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .matrix-wrap {
+            background: rgba(15,23,42,0.96);
+            border: 2px solid rgba(56,189,248,0.45);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 14px 32px rgba(0,0,0,0.8);
+            margin-bottom: 14px;
+        }
+        table.cyber-matrix {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        table.cyber-matrix thead th {
+            background: linear-gradient(180deg, #0F172A 0%, #1E293B 100%);
+            color: #38BDF8;
+            font-weight: 900;
+            font-size: 11.5px;
+            padding: 11px 10px;
+            text-align: left;
+            border-bottom: 2px solid #38BDF8;
+            white-space: nowrap;
+        }
+        table.cyber-matrix tbody tr {
+            border-bottom: 1px solid rgba(148,163,184,0.16);
+            transition: background 0.15s ease, transform 0.15s ease;
+            cursor: pointer;
+        }
+        table.cyber-matrix tbody tr:hover {
+            background: rgba(56,189,248,0.14);
+        }
+        table.cyber-matrix tbody tr.active-matrix-row {
+            background: linear-gradient(90deg, rgba(16,185,129,0.28) 0%, rgba(8,47,73,0.45) 100%) !important;
+            outline: 2px solid #10B981;
+            box-shadow: inset 0 0 18px rgba(16,185,129,0.4);
+        }
+        table.cyber-matrix td {
+            padding: 10px 10px;
+            vertical-align: middle;
+        }
+        .badge-gold { background: linear-gradient(90deg, #B45309, #F59E0B); color: #090D16; font-weight: 900; padding: 3px 8px; border-radius: 6px; font-size: 10.5px; display: inline-block; }
+        .badge-blue { background: linear-gradient(90deg, #0369A1, #38BDF8); color: #090D16; font-weight: 900; padding: 3px 8px; border-radius: 6px; font-size: 10.5px; display: inline-block; }
+        .badge-red { background: linear-gradient(90deg, #991B1B, #F87171); color: #FFFFFF; font-weight: 900; padding: 3px 8px; border-radius: 6px; font-size: 10.5px; display: inline-block; }
+        /* 사정률 스펙트럼 미니 레이저 트랙 */
+        .spectrum-track {
+            position: relative;
+            width: 135px;
+            height: 10px;
+            background: #090D16;
+            border: 1px solid rgba(148,163,184,0.35);
+            border-radius: 99px;
+            margin-top: 4px;
+        }
+        .dot-true {
+            position: absolute;
+            top: 1px;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #FBBF24;
+            box-shadow: 0 0 6px #FBBF24;
+        }
+        .dot-user {
+            position: absolute;
+            top: 1px;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #10B981;
+            box-shadow: 0 0 6px #10B981;
+        }
+        .detail-card-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            background: linear-gradient(90deg, #0F172A, #1E293B);
+            border: 2px solid #10B981;
+            border-radius: 12px;
+            padding: 14px 18px;
+        }
+    </style>
+    </head>
+    <body>
+    <!-- 상단 타겟 락온 전광판 -->
+    <div class="lockon-hud-board">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+            <div>
+                <span style="background:#10B981;color:#022C22;font-size:11.5px;font-weight:900;padding:4px 10px;border-radius:6px;">🎯 매트릭스 타겟 락온</span>
+                <span id="mx-hud-title" style="color:#FFFFFF;font-size:16px;font-weight:900;margin-left:8px;">공고 로딩 중...</span>
+            </div>
+            <span style="color:#FDE68A;font-size:11.5px;font-weight:800;">👇 아래 매트릭스 표에서 원하는 공고 줄(Row)을 클릭하면 즉시 제2·3관과 연동됩니다</span>
+        </div>
+        <div id="mx-hud-sub" style="color:#A7F3D0;font-size:12px;font-weight:800;margin-top:5px;"></div>
+    </div>
+
+    <!-- 4대 요약 KPI 미니 보드 -->
+    <div class="summary-kpi-grid">
+        <div class="kpi-card">
+            <div>
+                <div style="color:#94A3B8;font-size:10.5px;">📊 서재 평균 개찰사정률</div>
+                <div style="color:#FBBF24;font-size:16px;font-weight:900;margin-top:2px;">__AVG_TRUE__</div>
+            </div>
+            <span style="font-size:20px;">🎯</span>
+        </div>
+        <div class="kpi-card">
+            <div>
+                <div style="color:#94A3B8;font-size:10.5px;">📐 나의 평균 영점오차</div>
+                <div style="color:#38BDF8;font-size:16px;font-weight:900;margin-top:2px;">__AVG_ERR__</div>
+            </div>
+            <span style="font-size:20px;">⚡</span>
+        </div>
+        <div class="kpi-card">
+            <div>
+                <div style="color:#94A3B8;font-size:10.5px;">🏆 황금족보(GOLD) 비중</div>
+                <div style="color:#34D399;font-size:16px;font-weight:900;margin-top:2px;">__GOLD_RATIO__</div>
+            </div>
+            <span style="font-size:20px;">🏆</span>
+        </div>
+        <div class="kpi-card">
+            <div>
+                <div style="color:#94A3B8;font-size:10.5px;">🛡️ 평균 A값 방어 비중</div>
+                <div style="color:#C084FC;font-size:16px;font-weight:900;margin-top:2px;">__AVG_AR__</div>
+            </div>
+            <span style="font-size:20px;">🛡️</span>
+        </div>
+    </div>
+
+    <!-- 초고밀도 홀로그램 매트릭스 테이블 -->
+    <div class="matrix-wrap">
+        <table class="cyber-matrix">
+            <thead>
+                <tr>
+                    <th>상태 / 등급</th>
+                    <th>도서권호</th>
+                    <th>입찰공고명 및 발주처 · 공종</th>
+                    <th>기초금액 / A값 비중</th>
+                    <th>개찰예가 vs 내 사정 스펙트럼</th>
+                    <th>영점오차</th>
+                    <th>1순위 당첨사 (낙찰가)</th>
+                    <th>대표님 핵심 복기 각주</th>
+                </tr>
+            </thead>
+            <tbody id="mx-tbody"></tbody>
+        </table>
+    </div>
+
+    <!-- 하단 선택 행 상세 브리핑 뷰어 -->
+    <div class="detail-card-grid">
+        <div id="mx-detail-left"></div>
+        <div id="mx-detail-right"></div>
+    </div>
+
+    <script>
+    const BOOKS = __BOOKS_JSON__;
+    const tbody = document.getElementById('mx-tbody');
+
+    function syncMatrixBookToParent(b) {
+        try {
+            const pDoc = window.parent.document;
+            if (!pDoc || !b) return;
+            const t2Banner = pDoc.getElementById('v12-t2-lockon-banner');
+            if (t2Banner) {
+                t2Banner.innerHTML =
+                    '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
+                        '<div><span style="background:#10B981;color:#022C22;font-size:11.5px;font-weight:900;padding:4px 10px;border-radius:6px;">🎯 현재 선택·락온된 모의투찰 대상 공고</span>' +
+                        '<span style="color:#FFFFFF;font-size:15.5px;font-weight:900;margin-left:10px;">[' + b.code + '] ' + b.title + '</span></div>' +
+                        '<div style="color:#FDE68A;font-size:12.5px;font-weight:900;">🏛️ ' + b.agency + ' | ' + b.sector + ' | 💰 기초: ' + b.base_amt + ' | 🛡️ A값: ' + b.a_val + '</div>' +
+                    '</div>';
+            }
+            const t3Banner = pDoc.getElementById('v12-t3-active-banner');
+            if (t3Banner) {
+                t3Banner.innerHTML =
+                    '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
+                        '<div><span style="background:#10B981;color:#022C22;font-size:12px;font-weight:900;padding:5px 12px;border-radius:6px;">🎯 현재 선택·락온되어 분석 중인 공고문</span>' +
+                        '<span style="color:#FFFFFF;font-size:16px;font-weight:900;margin-left:10px;">[' + b.code + '] ' + b.title + '</span></div>' +
+                        '<span style="background:rgba(16,185,129,0.2);border:1px solid #34D399;color:#A7F3D0;font-size:11.5px;font-weight:800;padding:4px 10px;border-radius:6px;">✅ 제1관 매트릭스 선택 항목 100% 일치</span>' +
+                    '</div>' +
+                    '<div style="color:#FDE68A;font-size:12px;font-weight:800;margin-top:6px;">🏛️ 발주처: ' + b.agency + ' | 🏗️ 공종: ' + b.sector + ' | 💰 기초금액: ' + b.base_amt + ' | 🛡️ A값: ' + b.a_val + ' (' + b.a_ratio + ') | 🎯 목표 추천가: ' + b.rec_bid + '</div>';
+            }
+            const tTitle = pDoc.getElementById('v12-t3-title');
+            if (tTitle) tTitle.innerHTML = '[' + b.code + '] ' + b.title;
+            const tAgSec = pDoc.getElementById('v12-t3-ag-sec');
+            if (tAgSec) tAgSec.innerHTML = b.agency + '<br><span style="color:#7DD3FC;">' + b.sector + '</span>';
+            const tBaseA = pDoc.getElementById('v12-t3-base-aval');
+            if (tBaseA) tBaseA.innerHTML = '기초 ' + b.base_amt + '<br><span style="color:#FDE68A;">A값 ' + b.a_val + ' (' + b.a_ratio + ')</span>';
+            const tRec = pDoc.getElementById('v12-t3-rec-target');
+            if (tRec) tRec.innerHTML = b.rec_bid + '<br><span style="color:#A7F3D0;font-size:11px;">목표사정률 ' + b.rec_rate + ' (하한 ' + b.low_lim + ')</span>';
+            const tRawBox = pDoc.getElementById('v12-t3-raw-viewer');
+            if (tRawBox) tRawBox.innerText = b.full_pkg;
+        } catch (e) {}
+    }
+
+    function selectMatrixRow(idx) {
+        const b = BOOKS[idx];
+        if (!b) return;
+        document.querySelectorAll('#mx-tbody tr').forEach((tr, i) => {
+            const lockSpan = tr.querySelector('.row-lock-indicator');
+            if (i === idx) {
+                tr.classList.add('active-matrix-row');
+                if (lockSpan) lockSpan.innerHTML = '🎯 선택됨 ';
+            } else {
+                tr.classList.remove('active-matrix-row');
+                if (lockSpan) lockSpan.innerHTML = '';
+            }
+        });
+
+        document.getElementById('mx-hud-title').innerHTML = '[' + b.code + '] ' + b.title;
+        document.getElementById('mx-hud-sub').innerHTML =
+            '🏛️ ' + b.agency + ' | 🏗️ ' + b.sector + ' | 💰 기초금액: ' + b.base_amt + ' (A값 ' + b.a_val + ' · ' + b.a_ratio + ') | 🎯 개찰예가: ' + b.true_rate + ' | 👤 내 사정: ' + b.user_rate;
+
+        document.getElementById('mx-detail-left').innerHTML =
+            '<div style="color:#38BDF8;font-size:12.5px;font-weight:900;margin-bottom:6px;">📄 [선택 행 공고문 원문 & 핵심 스펙] ' + b.code + '</div>' +
+            '<div style="color:#E2E8F0;font-size:11.5px;line-height:1.55;background:rgba(9,13,22,0.85);padding:9px 12px;border-radius:8px;border-left:3px solid #38BDF8;">' + b.raw_txt + '</div>';
+
+        document.getElementById('mx-detail-right').innerHTML =
+            '<div style="color:#FBBF24;font-size:12.5px;font-weight:900;margin-bottom:6px;">💬 [AI 사정관 총평 & 대표님 비전 각주] 추첨번호: ' + b.lots + '</div>' +
+            '<div style="color:#FDE68A;font-size:12px;font-weight:900;margin-bottom:4px;">✍️ "' + b.footnote + '"</div>' +
+            '<div style="color:#CBD5E1;font-size:11.5px;line-height:1.5;">' + b.ai_comm + '</div>';
+
+        try {
+            const nowD = new Date();
+            window.parent.localStorage.setItem('v12_active_book_json', JSON.stringify(b));
+            window.parent.localStorage.setItem('v12_reanalyze_ts', nowD.toLocaleTimeString('ko-KR') + '.' + String(nowD.getMilliseconds()).slice(0,2));
+        } catch (e) {}
+        syncMatrixBookToParent(b);
+    }
+
+    let rowsHtml = '';
+    BOOKS.forEach((b, idx) => {
+        let tierBadge = '<span class="badge-gold">🏆 황금족보</span>';
+        if (b.tier === 'BLUE') tierBadge = '<span class="badge-blue">📘 상위방어</span>';
+        else if (b.tier === 'RED') tierBadge = '<span class="badge-red">📕 오답노트</span>';
+
+        const errColor = b.tier === 'RED' ? '#F87171' : (b.tier === 'GOLD' ? '#34D399' : '#38BDF8');
+
+        rowsHtml +=
+            '<tr onclick="selectMatrixRow(' + idx + ')">' +
+                '<td><span class="row-lock-indicator" style="color:#10B981;font-weight:900;"></span>' + tierBadge + '</td>' +
+                '<td style="color:#FDE68A;font-weight:900;white-space:nowrap;">' + b.code + (b.vip ? ' 🔖' : '') + '</td>' +
+                '<td>' +
+                    '<div style="color:#FFFFFF;font-weight:900;font-size:12.5px;">' + b.title + '</div>' +
+                    '<div style="color:#94A3B8;font-size:11px;margin-top:2px;">🏛️ ' + b.agency + ' · ' + b.sector + ' (응찰 ' + b.participants + ')</div>' +
+                '</td>' +
+                '<td>' +
+                    '<div style="color:#38BDF8;font-weight:900;">' + b.base_amt + '</div>' +
+                    '<div style="display:flex;align-items:center;gap:6px;margin-top:3px;">' +
+                        '<div style="width:55px;height:6px;background:#090D16;border-radius:3px;overflow:hidden;"><div style="width:' + b.a_bar_w + '%;height:100%;background:#FBBF24;"></div></div>' +
+                        '<span style="color:#FDE68A;font-size:10.5px;">A값 ' + b.a_ratio + '</span>' +
+                    '</div>' +
+                '</td>' +
+                '<td>' +
+                    '<div style="font-size:11px;"><span style="color:#FBBF24;font-weight:800;">예가 ' + b.true_rate + '</span> vs <span style="color:#34D399;font-weight:800;">내 사정 ' + b.user_rate + '</span></div>' +
+                    '<div class="spectrum-track">' +
+                        '<div class="dot-true" style="left:' + b.pos_true + '%;" title="개찰예가"></div>' +
+                        '<div class="dot-user" style="left:' + b.pos_user + '%;" title="나의사정"></div>' +
+                    '</div>' +
+                '</td>' +
+                '<td style="color:' + errColor + ';font-weight:900;white-space:nowrap;">' + b.err_str + '</td>' +
+                '<td>' +
+                    '<div style="color:#34D399;font-weight:800;">' + b.winner + '</div>' +
+                    '<div style="color:#CBD5E1;font-size:11px;">' + b.winner_bid + '</div>' +
+                '</td>' +
+                '<td style="max-width:210px;">' +
+                    '<div style="color:#F8FAFC;font-size:11px;background:rgba(0,0,0,0.35);padding:4px 7px;border-radius:5px;border-left:2px solid #FBBF24;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">' + b.footnote + '</div>' +
+                '</td>' +
+            '</tr>';
+    });
+    tbody.innerHTML = rowsHtml;
+
+    if (BOOKS.length > 0) {
+        let initIdx = 0;
+        try {
+            const rawSaved = window.parent.localStorage.getItem('v12_active_book_json');
+            if (rawSaved) {
+                const sb = JSON.parse(rawSaved);
+                const found = BOOKS.findIndex(x => x.code === sb.code);
+                if (found >= 0) initIdx = found;
+            }
+        } catch (e) {}
+        selectMatrixRow(initIdx);
+    }
+    </script>
+    </body>
+    </html>
+    """
+    return (
+        html.replace("__BOOKS_JSON__", books_json)
+            .replace("__AVG_TRUE__", avg_true_s)
+            .replace("__AVG_ERR__", avg_err_s)
+            .replace("__GOLD_RATIO__", gold_ratio_s)
+            .replace("__AVG_AR__", avg_ar_s)
+    )
 
