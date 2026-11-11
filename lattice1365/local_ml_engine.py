@@ -4943,12 +4943,6 @@ def build_formatted_whitepaper_suite_v12(books: list) -> dict:
 
 
 def render_synapse_mastery_view_html_v12(books: list, active_code: str = "") -> str:
-    """
-    [제3의 서재 공간 뷰: 🧬 시냅스 5단계 점진적 각인 학습관 (AI 튜터 인터랙티브 마스터리 뷰)]
-    - 입찰 초보자도 1단계부터 5단계까지 하나씩 봉인을 열어가며 원리를 깨우치는 순차 학습 시어터
-    - 이해가 부족하면 언제든 [⏪ 이전 단계 복귀] 및 [🔄 애니메이션 재시연]으로 반복 학습 가능
-    - 다채로운 시각 애니메이션(A값 방패 분리, 15C4 추첨 구체 펄스, 커트라인 레이저 트랙, 기억 인출 미니 퀴즈, 금박 각주 타이핑)을 통해 시각적 기억 각인 극대화
-    """
     import json
     import math
 
@@ -4977,7 +4971,6 @@ def render_synapse_mastery_view_html_v12(books: list, active_code: str = "") -> 
         exp_price = int(round(b_base * (b_yega / 100.0)))
         cutline_price = int(math.ceil(((exp_price - b_aval) * (b_low / 100.0)) + b_aval))
         user_bid_price = int(round(((b_base * (b_user / 100.0) - b_aval) * (b_low / 100.0)) + b_aval))
-        ai_bid_price = int(round(((b_base * (b_ai / 100.0) - b_aval) * (b_low / 100.0)) + b_aval))
 
         rec_rate = round(100.0315 + (0.0045 if a_ratio >= 6.0 else -0.0025) + (0.0060 if any(k in b_sec for k in ["전기", "실내", "통신"]) else 0.0), 4)
         rec_bid = (int(math.ceil(((b_base * (rec_rate / 100.0) - b_aval) * (b_low / 100.0)) + b_aval)) // 10) * 10 + 3
@@ -5002,23 +4995,22 @@ def render_synapse_mastery_view_html_v12(books: list, active_code: str = "") -> 
             "agency": b_ag,
             "base_num": b_base,
             "aval_num": b_aval,
+            "exp_num": exp_price,
+            "cut_num": cutline_price,
+            "wbid_num": b_wbid,
+            "ubid_num": user_bid_price,
             "base_amt": f"{b_base:,}원",
             "a_val": f"{b_aval:,}원",
             "a_ratio": f"{a_ratio:.2f}%",
             "a_ratio_num": a_ratio,
             "pure_ratio_num": pure_work_ratio,
             "low_lim": f"{b_low:.3f}%",
-            "low_num": b_low,
             "true_rate": f"{b_yega:.4f}%",
-            "true_num": b_yega,
             "ai_rate": f"{b_ai:.4f}%",
-            "ai_num": b_ai,
             "user_rate": f"{b_user:.4f}%",
-            "user_num": b_user,
             "exp_price": f"{exp_price:,}원",
             "cutline_price": f"{cutline_price:,}원",
             "user_bid_price": f"{user_bid_price:,}원",
-            "ai_bid_price": f"{ai_bid_price:,}원",
             "rec_rate": f"{rec_rate:.4f}%",
             "rec_bid": f"{rec_bid:,}원",
             "winner": b_win,
@@ -5041,37 +5033,55 @@ def render_synapse_mastery_view_html_v12(books: list, active_code: str = "") -> 
 <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
     body {
-        background: radial-gradient(circle at 50% 0%, #0F172A 0%, #050811 75%);
+        background: radial-gradient(circle at 50% 0%, #0F172A 0%, #040710 78%);
         color: #F8FAFC;
         padding: 10px 14px;
         overflow-x: hidden;
     }
     @keyframes pulseGlow {
         0%, 100% { box-shadow: 0 0 18px rgba(16,185,129,0.55), inset 0 0 12px rgba(16,185,129,0.25); }
-        50% { box-shadow: 0 0 32px rgba(56,189,248,0.85), inset 0 0 20px rgba(56,189,248,0.35); }
+        50% { box-shadow: 0 0 34px rgba(56,189,248,0.9), inset 0 0 22px rgba(56,189,248,0.4); }
     }
-    @keyframes floatUp {
-        0% { opacity: 0; transform: translateY(18px) scale(0.97); }
-        100% { opacity: 1; transform: translateY(0px) scale(1); }
+    @keyframes stageZoomIn {
+        0% { opacity: 0; transform: translateY(22px) scale(0.96); filter: blur(4px); }
+        100% { opacity: 1; transform: translateY(0px) scale(1); filter: blur(0px); }
     }
     @keyframes barExpand {
         0% { width: 0%; }
     }
+    @keyframes shieldBounce {
+        0%, 100% { transform: translateY(0px) scale(1); box-shadow: 0 0 18px #FBBF24; }
+        50% { transform: translateY(-4px) scale(1.03); box-shadow: 0 0 32px #FEF08A; }
+    }
     @keyframes orbPop {
-        0% { transform: scale(0.3) rotate(-20deg); opacity: 0; }
-        70% { transform: scale(1.14) rotate(4deg); opacity: 1; }
-        100% { transform: scale(1.0) rotate(0deg); opacity: 1; }
+        0% { transform: scale(0.2) rotate(-25deg); opacity: 0; }
+        65% { transform: scale(1.18) rotate(6deg); opacity: 1; }
+        100% { transform: scale(1.04) rotate(0deg); opacity: 1; }
     }
     @keyframes radarSweep {
-        0% { left: -30%; }
-        100% { left: 115%; }
+        0% { left: -35%; }
+        100% { left: 120%; }
     }
-    @keyframes neonBlink {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.65; transform: scale(1.06); }
+    @keyframes crosshairSpin {
+        0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+        50% { transform: translate(-50%, -50%) rotate(180deg) scale(1.18); }
+        100% { transform: translate(-50%, -50%) rotate(360deg) scale(1); }
+    }
+    @keyframes stampSlam {
+        0% { transform: scale(3.2) rotate(-28deg); opacity: 0; }
+        60% { transform: scale(0.9) rotate(4deg); opacity: 1; }
+        80% { transform: scale(1.06) rotate(-2deg); opacity: 1; }
+        100% { transform: scale(1.0) rotate(-6deg); opacity: 1; }
+    }
+    @keyframes neuralFlow {
+        0% { background-position: 0% 50%; }
+        100% { background-position: 200% 50%; }
+    }
+    @keyframes confettiFall {
+        0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+        100% { transform: translateY(260px) rotate(540deg); opacity: 0; }
     }
 
-    /* 상단 공고 선택 리본 & 기억 각인 게이지 헤더 */
     .synapse-top-bar {
         display: flex;
         justify-content: space-between;
@@ -5082,7 +5092,7 @@ def render_synapse_mastery_view_html_v12(books: list, active_code: str = "") -> 
         border: 2px solid #10B981;
         border-radius: 14px;
         padding: 12px 18px;
-        margin-bottom: 14px;
+        margin-bottom: 12px;
         animation: pulseGlow 3s infinite ease-in-out;
     }
     .book-pill-row {
@@ -5090,15 +5100,15 @@ def render_synapse_mastery_view_html_v12(books: list, active_code: str = "") -> 
         gap: 6px;
         overflow-x: auto;
         padding-bottom: 6px;
-        margin-bottom: 14px;
+        margin-bottom: 12px;
     }
     .book-pill {
-        background: rgba(15,23,42,0.9);
+        background: rgba(15,23,42,0.92);
         border: 1.5px solid rgba(148,163,184,0.35);
         color: #CBD5E1;
         font-size: 11.5px;
         font-weight: 800;
-        padding: 7px 12px;
+        padding: 6px 12px;
         border-radius: 99px;
         cursor: pointer;
         white-space: nowrap;
@@ -5114,50 +5124,67 @@ def render_synapse_mastery_view_html_v12(books: list, active_code: str = "") -> 
         color: #022C22;
         border-color: #A7F3D0;
         font-weight: 900;
-        box-shadow: 0 0 16px rgba(16,185,129,0.8);
+        box-shadow: 0 0 16px rgba(16,185,129,0.85);
     }
 
-    /* 5단계 시냅스 노선도 (Synapse Stepper) */
+    /* 시냅스 광섬유 연결선 + 5단계 노선도 */
+    .stepper-wrapper {
+        position: relative;
+        margin-bottom: 16px;
+    }
+    .neural-fiber-line {
+        position: absolute;
+        top: 50%;
+        left: 6%;
+        width: 88%;
+        height: 5px;
+        background: linear-gradient(90deg, #10B981, #38BDF8, #FBBF24, #38BDF8, #10B981);
+        background-size: 200% 100%;
+        animation: neuralFlow 2.5s linear infinite;
+        transform: translateY(-50%);
+        z-index: 1;
+        border-radius: 99px;
+        box-shadow: 0 0 14px rgba(56,189,248,0.8);
+    }
     .synapse-stepper {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
         gap: 10px;
-        margin-bottom: 16px;
         position: relative;
+        z-index: 2;
     }
     .step-node {
-        background: rgba(15,23,42,0.88);
-        border: 1.5px solid rgba(148,163,184,0.28);
+        background: rgba(15,23,42,0.95);
+        border: 1.5px solid rgba(148,163,184,0.35);
         border-radius: 12px;
-        padding: 10px 10px;
+        padding: 10px 8px;
         text-align: center;
         cursor: pointer;
-        transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-        position: relative;
-        overflow: hidden;
+        transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1);
     }
     .step-node.locked-node {
-        opacity: 0.48;
+        opacity: 0.5;
         filter: grayscale(0.5);
     }
     .step-node.completed-node {
         border-color: #38BDF8;
-        background: linear-gradient(180deg, rgba(8,47,73,0.75), rgba(15,23,42,0.95));
+        background: linear-gradient(180deg, rgba(8,47,73,0.88), rgba(15,23,42,0.96));
+        box-shadow: 0 0 14px rgba(56,189,248,0.35);
     }
     .step-node.current-node {
         border: 2.5px solid #FBBF24;
-        background: linear-gradient(135deg, rgba(120,53,15,0.85), rgba(15,23,42,0.98));
-        transform: translateY(-4px) scale(1.02);
-        box-shadow: 0 10px 24px rgba(251,191,36,0.35);
+        background: linear-gradient(135deg, rgba(120,53,15,0.92), rgba(15,23,42,0.98));
+        transform: translateY(-5px) scale(1.04);
+        box-shadow: 0 12px 26px rgba(251,191,36,0.45), 0 0 20px rgba(251,191,36,0.5);
     }
 
-    /* 메인 학습 스테이지 카드 */
+    /* 메인 학습 시어터 */
     .stage-theater {
-        background: linear-gradient(180deg, rgba(15,23,42,0.97) 0%, rgba(9,13,22,0.99) 100%);
+        background: linear-gradient(180deg, rgba(15,23,42,0.97) 0%, rgba(7,11,20,0.99) 100%);
         border: 2px solid #38BDF8;
         border-radius: 16px;
-        padding: 20px 24px;
-        min-height: 410px;
+        padding: 18px 22px;
+        min-height: 415px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -5166,81 +5193,110 @@ def render_synapse_mastery_view_html_v12(books: list, active_code: str = "") -> 
         box-shadow: 0 18px 42px rgba(0,0,0,0.85);
     }
     .stage-content-anim {
-        animation: floatUp 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+        animation: stageZoomIn 0.42s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
-    /* AI 코치 가이드 말풍선 */
     .tutor-guide-box {
-        background: linear-gradient(90deg, rgba(8,47,73,0.75), rgba(15,23,42,0.95));
+        background: linear-gradient(90deg, rgba(8,47,73,0.78), rgba(15,23,42,0.96));
         border-left: 5px solid #38BDF8;
         border-radius: 10px;
         padding: 12px 16px;
-        margin-bottom: 16px;
+        margin-bottom: 14px;
         position: relative;
         overflow: hidden;
     }
     .tutor-guide-box::after {
         content: '';
         position: absolute;
-        top: 0; left: -30%;
-        width: 22%; height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(56,189,248,0.15), transparent);
+        top: 0; left: -35%;
+        width: 24%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(56,189,248,0.2), transparent);
         transform: skewX(-25deg);
-        animation: radarSweep 3.5s infinite linear;
+        animation: radarSweep 3.2s infinite linear;
         pointer-events: none;
     }
 
-    /* 15개 복수예가 구체 그리드 */
     .lot-grid-15 {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
         gap: 8px;
-        margin: 12px 0;
+        margin: 10px 0;
     }
     .lot-ball {
-        background: rgba(30,41,59,0.75);
+        background: rgba(30,41,59,0.78);
         border: 1px solid rgba(148,163,184,0.3);
         border-radius: 10px;
-        padding: 9px 6px;
+        padding: 8px 6px;
         text-align: center;
         font-size: 12px;
         font-weight: 800;
         color: #94A3B8;
-        transition: all 0.35s ease;
+        transition: all 0.3s ease;
+    }
+    .lot-ball.scanning-ball {
+        border-color: #38BDF8;
+        background: rgba(56,189,248,0.28);
+        color: #FFFFFF;
+        transform: scale(1.05);
     }
     .lot-ball.hit-ball {
         background: radial-gradient(circle at 30% 30%, #FEF08A, #D97706 70%, #78350F 100%);
         color: #090D16;
         border: 2px solid #FFFFFF;
         font-weight: 900;
-        box-shadow: 0 0 20px rgba(251,191,36,0.9);
+        box-shadow: 0 0 22px rgba(251,191,36,0.95);
         animation: orbPop 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
 
-    /* 하단 학습 네비게이션 컨트롤 바 (복귀 / 재재생 / 다음 단계 오픈) */
+    .crosshair-reticle {
+        position: absolute;
+        top: 50%;
+        left: 52%;
+        width: 42px;
+        height: 42px;
+        border: 2.5px dashed #FEF08A;
+        border-radius: 50%;
+        box-shadow: 0 0 18px #10B981;
+        animation: crosshairSpin 4s linear infinite;
+        pointer-events: none;
+    }
+
+    .golden-master-stamp {
+        position: absolute;
+        right: 28px;
+        top: 14px;
+        border: 3px double #FBBF24;
+        background: rgba(120,53,15,0.88);
+        color: #FEF08A;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 900;
+        box-shadow: 0 0 24px rgba(251,191,36,0.8);
+        animation: stampSlam 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        z-index: 10;
+    }
+
     .learning-nav-bar {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 12px;
-        margin-top: 18px;
-        padding-top: 14px;
+        gap: 10px;
+        margin-top: 14px;
+        padding-top: 12px;
         border-top: 1px solid rgba(148,163,184,0.22);
     }
     .nav-btn {
         border: none;
         border-radius: 10px;
-        padding: 11px 18px;
-        font-size: 13px;
+        padding: 10px 16px;
+        font-size: 12.5px;
         font-weight: 900;
         cursor: pointer;
         transition: all 0.2s ease;
-        display: flex;
-        align-items: center;
-        gap: 6px;
     }
     .btn-prev {
-        background: rgba(51,65,85,0.9);
+        background: rgba(51,65,85,0.92);
         color: #E2E8F0;
         border: 1.5px solid #94A3B8;
     }
@@ -5250,32 +5306,32 @@ def render_synapse_mastery_view_html_v12(books: list, active_code: str = "") -> 
         transform: translateX(-3px);
     }
     .btn-replay {
-        background: rgba(8,47,73,0.9);
+        background: rgba(8,47,73,0.92);
         color: #7DD3FC;
         border: 1.5px solid #38BDF8;
     }
     .btn-replay:hover {
-        background: rgba(14,116,144,0.95);
+        background: rgba(14,116,144,0.98);
         color: #FFFFFF;
+        transform: scale(1.03);
     }
     .btn-next {
         background: linear-gradient(90deg, #10B981, #059669);
         color: #022C22;
         border: 2px solid #A7F3D0;
-        box-shadow: 0 0 20px rgba(16,185,129,0.65);
-        animation: neonBlink 2.2s infinite ease-in-out;
+        box-shadow: 0 0 20px rgba(16,185,129,0.7);
     }
     .btn-next:hover {
         filter: brightness(1.15);
-        transform: translateX(3px) scale(1.02);
+        transform: translateX(3px) scale(1.03);
     }
     .quiz-choice-btn {
         background: rgba(15,23,42,0.92);
         border: 2px solid #38BDF8;
         border-radius: 12px;
-        padding: 14px 12px;
+        padding: 12px 10px;
         color: #F8FAFC;
-        font-size: 13px;
+        font-size: 12.5px;
         font-weight: 900;
         cursor: pointer;
         transition: all 0.22s ease;
@@ -5286,20 +5342,29 @@ def render_synapse_mastery_view_html_v12(books: list, active_code: str = "") -> 
         border-color: #FBBF24;
         transform: translateY(-3px);
     }
+    .confetti-piece {
+        position: absolute;
+        top: 0;
+        width: 9px;
+        height: 14px;
+        border-radius: 2px;
+        pointer-events: none;
+        z-index: 99;
+        animation: confettiFall 1.3s ease-out forwards;
+    }
 </style>
 </head>
 <body>
 
-    <!-- 상단 시냅스 학습관 헤더 & 뇌 기억 각인 지수 -->
     <div class="synapse-top-bar">
         <div>
-            <span style="background:#FBBF24;color:#090D16;font-size:11px;font-weight:900;padding:3px 10px;border-radius:6px;">🧬 AI 시냅스 점진적 각인 학습관</span>
-            <span id="syn-top-title" style="color:#FFFFFF;font-size:16px;font-weight:900;margin-left:8px;">공고 로딩 중...</span>
+            <span style="background:#FBBF24;color:#090D16;font-size:11px;font-weight:900;padding:3px 10px;border-radius:6px;">🧬 AI 시냅스 점진적 각인 학습관 (초격차 인터랙티브 마스터리 뷰)</span>
+            <span id="syn-top-title" style="color:#FFFFFF;font-size:15.5px;font-weight:900;margin-left:8px;">공고 로딩 중...</span>
             <div style="color:#A7F3D0;font-size:11.5px;font-weight:700;margin-top:4px;">
-                💡 화면 이용법: 1단계부터 5단계까지 하나씩 봉인을 열어가며 입찰의 비밀을 깨우치세요. 이해가 안 되면 언제든 [⏪ 이전 단계 복귀]로 되감아 반복 학습할 수 있습니다!
+                💡 1단계부터 5단계까지 애니메이션으로 원리를 체득하고, 이해가 안 되면 언제든 <b>[⏪ 이전 단계로 복귀]</b> 또는 <b>[🔄 애니메이션 다시 재생]</b>으로 반복 각인하세요!
             </div>
         </div>
-        <div style="min-width:210px;text-align:right;">
+        <div style="min-width:215px;text-align:right;">
             <div style="display:flex;justify-content:space-between;font-size:11.5px;font-weight:900;color:#FDE68A;margin-bottom:4px;">
                 <span>🧠 시냅스 장기기억 각인율</span>
                 <span id="syn-memory-pct">20% (1/5 단계)</span>
@@ -5310,26 +5375,25 @@ def render_synapse_mastery_view_html_v12(books: list, active_code: str = "") -> 
         </div>
     </div>
 
-    <!-- 학습할 공고 선택 알약 탭 (제2026-001권 ~ 009권) -->
     <div class="book-pill-row" id="syn-book-pills"></div>
 
-    <!-- 5단계 시냅스 학습 노선도 -->
-    <div class="synapse-stepper" id="syn-stepper"></div>
+    <div class="stepper-wrapper">
+        <div class="neural-fiber-line"></div>
+        <div class="synapse-stepper" id="syn-stepper"></div>
+    </div>
 
-    <!-- 메인 인터랙티브 애니메이션 학습 시어터 -->
-    <div class="stage-theater">
+    <div class="stage-theater" id="syn-theater-box">
         <div id="syn-stage-body"></div>
 
-        <!-- 하단 반복 학습 컨트롤 바 -->
         <div class="learning-nav-bar">
             <button class="nav-btn btn-prev" id="btn-go-prev" onclick="prevStep()">
-                ⏪ 이해가 안 됐어요 (이전 단계로 복귀해 다시 학습)
+                ⏪ 이해가 안 됐어요 (이전 단계로 복귀)
             </button>
             <button class="nav-btn btn-replay" onclick="replayCurrentStep()">
-                🔄 현재 단계 애니메이션 다시 재생 (반복 각인)
+                🔄 현재 단계 시각 애니메이션 다시 재생
             </button>
             <button class="nav-btn btn-next" id="btn-go-next" onclick="nextStep()">
-                🔓 이해 완료! 다음 단계 봉인 해제하기 ⏩
+                🔓 이해 완료! 다음 단계 봉인 해제 ⏩
             </button>
         </div>
     </div>
@@ -5337,18 +5401,57 @@ def render_synapse_mastery_view_html_v12(books: list, active_code: str = "") -> 
 <script>
 const BOOKS = __BOOKS_JSON__;
 let curBookIdx = 0;
-let curStep = 1; // 1 ~ 5
+let curStep = 1;
 let maxUnlockedStep = 1;
-let quizAnswered = false;
 let typeTimer = null;
+let countTimers = [];
 
 const STEP_META = [
-    { num: 1, icon: "🛡️", title: "1단계: 기초체급 & A값 방어막", sub: "깎을 수 없는 법정 고정비 해부" },
-    { num: 2, icon: "🔮", title: "2단계: 15개 복수예가 추첨", sub: "4개 행운 번호와 예정가격 탄생" },
-    { num: 3, icon: "⚡", title: "3단계: 낙찰하한율 커트라인", sub: "1원 미달 탈락 절벽과 당첨선" },
-    { num: 4, icon: "🎯", title: "4단계: 실전 타점 감각 퀴즈", sub: "직접 골라보는 능동 기억 인출" },
-    { num: 5, icon: "👑", title: "5단계: 비전(秘傳) 각주 마스터", sub: "1순위 당첨 해부 & 영구 각인" }
+    { num: 1, icon: "🛡️", title: "1단계: 기초체급 & A값 방패", sub: "법정 고정비 분리 애니메이션" },
+    { num: 2, icon: "🎰", title: "2단계: 15개 복수예가 추첨", sub: "레이저 스캔 & 4개 구체 합체" },
+    { num: 3, icon: "⚡", title: "3단계: 낙찰하한율 절벽", sub: "커트라인 경보 & 레이저 조준경" },
+    { num: 4, icon: "🎯", title: "4단계: 기억 인출 실전 퀴즈", sub: "능동 선택 & 정답 축포 폭발" },
+    { num: 5, icon: "👑", title: "5단계: 비전 각주 마스터 인장", sub: "황금 직인 스탬프 & 타이핑 각인" }
 ];
+
+function clearAllTimers() {
+    if (typeTimer) clearInterval(typeTimer);
+    countTimers.forEach(t => clearInterval(t));
+    countTimers = [];
+}
+
+// 숫자 롤링 카운트업(Odometer) 애니메이션 함수
+function animateCountUp(elId, targetNum, suffix) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    let cur = 0;
+    const stepVal = Math.max(1, Math.floor(targetNum / 24));
+    const t = setInterval(() => {
+        cur += stepVal;
+        if (cur >= targetNum) {
+            cur = targetNum;
+            clearInterval(t);
+        }
+        el.innerText = cur.toLocaleString('ko-KR') + (suffix || '원');
+    }, 22);
+    countTimers.push(t);
+}
+
+// 정답 시 황금·에메랄드 축포(Confetti) 파티클 폭발 효과
+function triggerConfettiBurst() {
+    const box = document.getElementById('syn-theater-box');
+    if (!box) return;
+    const colors = ['#10B981', '#FBBF24', '#38BDF8', '#C084FC', '#FEF08A'];
+    for (let i = 0; i < 36; i++) {
+        const p = document.createElement('div');
+        p.className = 'confetti-piece';
+        p.style.left = (15 + Math.random() * 70) + '%';
+        p.style.background = colors[i % colors.length];
+        p.style.animationDelay = (Math.random() * 0.25) + 's';
+        box.appendChild(p);
+        setTimeout(() => { try { p.remove(); } catch(e){} }, 1400);
+    }
+}
 
 function syncBookToParent(b) {
     try {
@@ -5384,8 +5487,8 @@ function renderStepper() {
         html +=
             '<div class="' + cls + '" onclick="jumpToStep(' + sm.num + ')">' +
                 '<div style="font-size:10px;font-weight:900;color:#FDE68A;margin-bottom:3px;">' + badge + '</div>' +
-                '<div style="font-size:13px;font-weight:900;color:#FFFFFF;">' + sm.icon + ' ' + sm.title + '</div>' +
-                '<div style="font-size:10.5px;color:#94A3B8;margin-top:2px;">' + sm.sub + '</div>' +
+                '<div style="font-size:12.5px;font-weight:900;color:#FFFFFF;">' + sm.icon + ' ' + sm.title + '</div>' +
+                '<div style="font-size:10px;color:#94A3B8;margin-top:2px;">' + sm.sub + '</div>' +
             '</div>';
     });
     root.innerHTML = html;
@@ -5412,7 +5515,7 @@ function renderStepper() {
 }
 
 function renderStageContent() {
-    if (typeTimer) clearInterval(typeTimer);
+    clearAllTimers();
     const b = BOOKS[curBookIdx];
     if (!b) return;
 
@@ -5423,144 +5526,184 @@ function renderStageContent() {
         stage.innerHTML =
             '<div class="stage-content-anim">' +
                 '<div class="tutor-guide-box">' +
-                    '<div style="color:#38BDF8;font-size:12px;font-weight:900;margin-bottom:4px;">🤖 AI 입찰 튜터의 1단계 핵심 가이드 (화면 이용법: 아래 비율 막대의 움직임을 주목하세요!)</div>' +
-                    '<div style="color:#F8FAFC;font-size:13.5px;line-height:1.6;font-weight:700;">' +
-                        '입찰 초보자가 가장 먼저 봐야 할 것은 <b>"기초금액(' + b.base_amt + ') 중에서 절대 깎지 못하는 방어막 금액(A값: ' + b.a_val + ')이 몇 %인가?"</b>입니다. ' +
-                        '국민연금·건강보험·안전관리비로 구성된 <b>A값(' + b.a_ratio + ')</b>은 낙찰하한율(' + b.low_lim + ') 할인에서 100% 면제되어 내 투찰가를 지켜주는 황금 방패 역할을 합니다!' +
+                    '<div style="color:#38BDF8;font-size:12px;font-weight:900;margin-bottom:4px;">🤖 AI 입찰 튜터의 1단계 핵심 가이드 (시각 애니메이션: 황금 A값 방패 분리 & 숫자 카운트업)</div>' +
+                    '<div style="color:#F8FAFC;font-size:13px;line-height:1.6;font-weight:700;">' +
+                        '입찰 초보자가 첫 번째로 각인해야 할 원리는 <b>"기초금액(' + b.base_amt + ') 중 절대 할인되지 않는 법정 고정비(A값: ' + b.a_val + ')가 몇 %인가?"</b>입니다. ' +
+                        '우측의 <b>황금 방패(A값 ' + b.a_ratio + ')</b>는 낙찰하한율(' + b.low_lim + ') 할인에서 100% 면제되어 내 투찰가의 하한선을 끌어올려 줍니다!' +
                     '</div>' +
                 '</div>' +
                 '<div style="background:rgba(9,13,22,0.92);border:1.5px solid rgba(251,191,36,0.45);border-radius:12px;padding:16px 20px;">' +
-                    '<div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:900;margin-bottom:8px;">' +
-                        '<span style="color:#7DD3FC;">🏗️ 순수 공사비 영역 (' + b.pure_ratio_num + '% — 하한율 ' + b.low_lim + ' 적용 구간)</span>' +
-                        '<span style="color:#FBBF24;">🛡️ A값 절대 방어막 (' + b.a_val + ' / ' + b.a_ratio + ' — 100% 전액 보장 구간)</span>' +
+                    '<div style="display:flex;justify-content:space-between;font-size:12px;font-weight:900;margin-bottom:8px;">' +
+                        '<span style="color:#7DD3FC;">🏗️ 순수 공사비 영역 (' + b.pure_ratio_num + '% — 하한율 ' + b.low_lim + ' 할인 적용)</span>' +
+                        '<span style="color:#FEF08A;">🛡️ A값 절대 방어막 (' + b.a_val + ' / ' + b.a_ratio + ' — 100% 원안 보장)</span>' +
                     '</div>' +
-                    '<div style="width:100%;height:34px;background:#020617;border-radius:10px;overflow:hidden;display:flex;border:2px solid #475569;">' +
-                        '<div style="width:' + b.pure_ratio_num + '%;height:100%;background:linear-gradient(90deg,#0369A1,#38BDF8);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#022C22;animation:barExpand 0.9s ease-out;">순수 공사비 ' + b.pure_ratio_num + '%</div>' +
-                        '<div style="width:' + Math.max(8, b.a_ratio_num * 2.2) + '%;height:100%;background:linear-gradient(90deg,#F59E0B,#FEF08A);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#090D16;box-shadow:0 0 20px #FBBF24;">🛡️ A값 ' + b.a_ratio + '</div>' +
+                    '<div style="width:100%;height:38px;background:#020617;border-radius:10px;display:flex;gap:6px;padding:3px;border:2px solid #475569;">' +
+                        '<div style="width:' + b.pure_ratio_num + '%;height:100%;background:linear-gradient(90deg,#0369A1,#38BDF8);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#022C22;animation:barExpand 0.85s ease-out;">순수 공사비 ' + b.pure_ratio_num + '%</div>' +
+                        '<div style="width:' + Math.max(12, b.a_ratio_num * 2.3) + '%;height:100%;background:linear-gradient(90deg,#F59E0B,#FEF08A);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#090D16;animation:shieldBounce 1.6s infinite ease-in-out;">🛡️ A값 ' + b.a_ratio + '</div>' +
                     '</div>' +
                     '<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;margin-top:16px;text-align:center;">' +
                         '<div style="background:rgba(15,23,42,0.9);border:1px solid #38BDF8;border-radius:10px;padding:12px;">' +
-                            '<div style="color:#94A3B8;font-size:11px;">① 발주처 발표 기초금액</div>' +
-                            '<div style="color:#38BDF8;font-size:18px;font-weight:900;margin-top:4px;">' + b.base_amt + '</div>' +
+                            '<div style="color:#94A3B8;font-size:11px;">① 발주처 발표 기초금액 (카운트업)</div>' +
+                            '<div id="cnt-base" style="color:#38BDF8;font-size:18px;font-weight:900;margin-top:4px;">0원</div>' +
                         '</div>' +
                         '<div style="background:rgba(15,23,42,0.9);border:1.5px solid #FBBF24;border-radius:10px;padding:12px;">' +
-                            '<div style="color:#FDE68A;font-size:11px;">② 깎이지 않는 A값 방어막</div>' +
-                            '<div style="color:#FBBF24;font-size:18px;font-weight:900;margin-top:4px;">' + b.a_val + ' (' + b.a_ratio + ')</div>' +
+                            '<div style="color:#FDE68A;font-size:11px;">② 깎이지 않는 A값 방어막 (카운트업)</div>' +
+                            '<div id="cnt-aval" style="color:#FBBF24;font-size:18px;font-weight:900;margin-top:4px;">0원</div>' +
                         '</div>' +
                         '<div style="background:rgba(15,23,42,0.9);border:1px solid #34D399;border-radius:10px;padding:12px;">' +
-                            '<div style="color:#A7F3D0;font-size:11px;">③ 기억할 핵심 공식</div>' +
-                            '<div style="color:#34D399;font-size:13.5px;font-weight:900;margin-top:6px;">A값이 클수록 실질 하한선이 올라간다!</div>' +
+                            '<div style="color:#A7F3D0;font-size:11px;">③ 시각적 기억 각인 포인트</div>' +
+                            '<div style="color:#34D399;font-size:13px;font-weight:900;margin-top:6px;">황금 방패(A값 ' + b.a_ratio + ')는 절대 깎이지 않는다!</div>' +
                         '</div>' +
                     '</div>' +
                 '</div>' +
             '</div>';
+        animateCountUp('cnt-base', b.base_num, '원');
+        animateCountUp('cnt-aval', b.aval_num, '원');
     } else if (curStep === 2) {
         const pickedArr = String(b.lots || '').split('·').map(s => s.trim());
         let ballsHtml = '';
         for (let i = 1; i <= 15; i++) {
             const numStr = (i < 10 ? '0' + i : '' + i) + '번';
-            const isHit = pickedArr.some(p => p.includes(numStr));
             const simRate = (99.20 + (i - 1) * 0.22).toFixed(2) + '%';
             ballsHtml +=
-                '<div class="lot-ball ' + (isHit ? 'hit-ball' : '') + '" style="animation-delay:' + (i * 0.04) + 's;">' +
-                    '<div>' + (isHit ? '🔮 ' : '') + numStr + '</div>' +
+                '<div class="lot-ball" id="syn-ball-' + i + '" data-hit="' + (pickedArr.some(p => p.includes(numStr)) ? '1' : '0') + '">' +
+                    '<div class="ball-title">' + numStr + '</div>' +
                     '<div style="font-size:10px;opacity:0.85;margin-top:2px;">예비율 ~' + simRate + '</div>' +
                 '</div>';
         }
         stage.innerHTML =
             '<div class="stage-content-anim">' +
                 '<div class="tutor-guide-box">' +
-                    '<div style="color:#FBBF24;font-size:12px;font-weight:900;margin-bottom:4px;">🤖 AI 입찰 튜터의 2단계 핵심 가이드 (왜 기초금액 그대로 낙찰되지 않을까요?)</div>' +
-                    '<div style="color:#F8FAFC;font-size:13.5px;line-height:1.6;font-weight:700;">' +
-                        '나라장터는 담합을 막기 위해 기초금액 기준 ±2~3% 범위에서 <b>15개의 복수예비가격 번호판(01번~15번)</b>을 만들고, 개찰 순간 응찰사들이 가장 많이 뽑은 <b>4개의 번호(' + b.lots + ')를 추첨해 평균</b>을 냅니다. 이것이 바로 <b>실제 개찰 예정가격(' + b.exp_price + ' / 사정률 ' + b.true_rate + ')</b>입니다!' +
+                    '<div style="color:#FBBF24;font-size:12px;font-weight:900;margin-bottom:4px;">🤖 AI 입찰 튜터의 2단계 핵심 가이드 (시각 애니메이션: 15개 예비가격 레이저 스캔 & 4개 추첨 구체 팝업)</div>' +
+                    '<div style="color:#F8FAFC;font-size:13px;line-height:1.6;font-weight:700;">' +
+                        '발주처가 숨겨놓은 15개 번호판(01번~15번)을 레이저가 스캔한 뒤, 응찰사들이 가장 많이 뽑은 <b>4개의 행운 번호(' + b.lots + ')가 황금 구체로 솟아오르며 평균 예정가격(' + b.exp_price + ' / 사정률 ' + b.true_rate + ')</b>을 탄생시킵니다!' +
                     '</div>' +
                 '</div>' +
                 '<div style="background:rgba(9,13,22,0.92);border:1.5px solid #38BDF8;border-radius:12px;padding:14px 18px;">' +
                     '<div style="display:flex;justify-content:space-between;align-items:center;">' +
-                        '<span style="color:#FDE68A;font-size:12.5px;font-weight:900;">🎰 15개 복수예비가격 중 이번 공고에서 실제 추첨된 4개의 황금 구체 (' + b.lots + ')</span>' +
-                        '<span style="background:rgba(16,185,129,0.2);color:#34D399;font-size:11.5px;font-weight:900;padding:3px 10px;border-radius:99px;border:1px solid #34D399;">4개 평균 = 개찰 사정률 ' + b.true_rate + ' 탄생!</span>' +
+                        '<span style="color:#FDE68A;font-size:12.5px;font-weight:900;">🎰 15개 복수예비가격 실시간 레이저 추첨 시뮬레이션 (' + b.lots + ')</span>' +
+                        '<span id="syn-lot-result-badge" style="background:rgba(56,189,248,0.2);color:#7DD3FC;font-size:11.5px;font-weight:900;padding:3px 10px;border-radius:99px;border:1px solid #38BDF8;">⚡ 15개 번호판 스캔 중...</span>' +
                     '</div>' +
                     '<div class="lot-grid-15">' + ballsHtml + '</div>' +
                 '</div>' +
             '</div>';
+
+        // 1번~15번 순차 레이저 스캔 후 당첨된 4개 구체가 펑! 튀어 오르는 애니메이션
+        let scanIdx = 1;
+        const scanTimer = setInterval(() => {
+            for (let k = 1; k <= 15; k++) {
+                const el = document.getElementById('syn-ball-' + k);
+                if (el) el.classList.remove('scanning-ball');
+            }
+            if (scanIdx <= 15) {
+                const curEl = document.getElementById('syn-ball-' + scanIdx);
+                if (curEl) curEl.classList.add('scanning-ball');
+                scanIdx += 2;
+            } else {
+                clearInterval(scanTimer);
+                for (let k = 1; k <= 15; k++) {
+                    const el = document.getElementById('syn-ball-' + k);
+                    if (el && el.dataset.hit === '1') {
+                        el.classList.add('hit-ball');
+                        const tEl = el.querySelector('.ball-title');
+                        if (tEl && !tEl.innerText.includes('🔮')) tEl.innerText = '🔮 ' + tEl.innerText;
+                    }
+                }
+                const resB = document.getElementById('syn-lot-result-badge');
+                if (resB) {
+                    resB.style.background = 'rgba(16,185,129,0.25)';
+                    resB.style.color = '#34D399';
+                    resB.style.borderColor = '#10B981';
+                    resB.innerHTML = '🎯 4개 번호 합체 완료! 개찰 사정률 ' + b.true_rate + ' (' + b.exp_price + ') 탄생!';
+                }
+            }
+        }, 55);
+        countTimers.push(scanTimer);
     } else if (curStep === 3) {
         stage.innerHTML =
             '<div class="stage-content-anim">' +
                 '<div class="tutor-guide-box">' +
-                    '<div style="color:#34D399;font-size:12px;font-weight:900;margin-bottom:4px;">🤖 AI 입찰 튜터의 3단계 핵심 가이드 (단 1원만 모자라도 즉시 탈락하는 커트라인의 법칙!)</div>' +
-                    '<div style="color:#F8FAFC;font-size:13.5px;line-height:1.6;font-weight:700;">' +
-                        '2단계에서 만들어진 예정가격(' + b.exp_price + ')에서 A값을 뺀 금액에 <b>적격심사 낙찰하한율(' + b.low_lim + ')</b>을 곱하고 다시 A값을 더하면, 절대 넘어서는 안 될 <b>낙찰하한선 커트라인(' + b.cutline_price + ')</b>이 그어집니다. 이 선보다 1원이라도 낮게 쓰면 무조건 탈락(미달)이고, <b>이 선 바로 위에 가장 가깝게 붙인 업체가 최종 1순위</b>가 됩니다!' +
+                    '<div style="color:#34D399;font-size:12px;font-weight:900;margin-bottom:4px;">🤖 AI 입찰 튜터의 3단계 핵심 가이드 (시각 애니메이션: 붉은 탈락 절벽 & 회전하는 레이저 타겟 조준경)</div>' +
+                    '<div style="color:#F8FAFC;font-size:13px;line-height:1.6;font-weight:700;">' +
+                        '2단계 예정가격(' + b.exp_price + ')에 <b>낙찰하한율(' + b.low_lim + ')</b>을 적용하면, <b>절대 커트라인(' + b.cutline_price + ')</b>이 만들어집니다. ' +
+                        '아래 스펙트럼에서 회전하는 <b>노란 레이저 조준경(골든 포켓)</b>처럼 커트라인 바로 위에 안착해야 1순위가 됩니다!' +
                     '</div>' +
                 '</div>' +
-                '<div style="background:rgba(9,13,22,0.94);border:1.5px solid #10B981;border-radius:12px;padding:18px 20px;">' +
-                    '<div style="color:#FDE68A;font-size:12.5px;font-weight:900;margin-bottom:14px;">⚡ [시각적 기억 각인] 낙찰하한선 절벽 vs 1순위 당첨 스윗스팟 레이저 스펙트럼</div>' +
-                    '<div style="position:relative;height:54px;background:linear-gradient(90deg, rgba(185,28,28,0.45) 0%, rgba(239,68,68,0.65) 38%, rgba(16,185,129,0.75) 39%, rgba(56,189,248,0.35) 65%, rgba(30,41,59,0.8) 100%);border-radius:12px;border:2px solid #64748B;display:flex;align-items:center;">' +
-                        '<div style="width:38%;text-align:center;color:#FCA5A5;font-size:12px;font-weight:900;">🚨 하한선 미달 즉시 탈락 절벽 구간<br><span style="font-size:10.5px;">(' + b.cutline_price + ' 미만 전부 부적격)</span></div>' +
-                        '<div style="width:4px;height:68px;background:#FBBF24;box-shadow:0 0 18px #FBBF24;"></div>' +
-                        '<div style="width:27%;text-align:center;color:#A7F3D0;font-size:12px;font-weight:900;">🏆 1순위 당첨 골든 포켓 구간!<br><span style="font-size:10.5px;color:#FFFFFF;">커트라인 바로 위 (' + b.true_rate + ')</span></div>' +
+                '<div style="background:rgba(9,13,22,0.94);border:1.5px solid #10B981;border-radius:12px;padding:16px 20px;">' +
+                    '<div style="color:#FDE68A;font-size:12.5px;font-weight:900;margin-bottom:12px;">⚡ [시각적 기억 각인] 낙찰하한선 절벽 vs 회전하는 1순위 레이저 조준경(Reticle)</div>' +
+                    '<div style="position:relative;height:58px;background:linear-gradient(90deg, rgba(185,28,28,0.5) 0%, rgba(239,68,68,0.7) 38%, rgba(16,185,129,0.8) 39%, rgba(56,189,248,0.35) 65%, rgba(30,41,59,0.85) 100%);border-radius:12px;border:2px solid #64748B;display:flex;align-items:center;">' +
+                        '<div class="crosshair-reticle"></div>' +
+                        '<div style="width:38%;text-align:center;color:#FECACA;font-size:12px;font-weight:900;">🚨 하한선 미달 즉시 탈락 절벽<br><span style="font-size:10.5px;">(' + b.cutline_price + ' 미만 100% 탈락)</span></div>' +
+                        '<div style="width:4px;height:70px;background:#FBBF24;box-shadow:0 0 20px #FBBF24;"></div>' +
+                        '<div style="width:27%;text-align:center;color:#FFFFFF;font-size:12px;font-weight:900;">🎯 1순위 골든 포켓 조준!<br><span style="font-size:10.5px;color:#FEF08A;">개찰예가 ' + b.true_rate + '</span></div>' +
                         '<div style="width:35%;text-align:center;color:#94A3B8;font-size:11.5px;font-weight:800;">🛡️ 상위 예비순위 구간 (안전하지만 후순위)</div>' +
                     '</div>' +
                     '<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;margin-top:16px;text-align:center;">' +
-                        '<div style="background:rgba(127,29,29,0.25);border:1px solid #F87171;border-radius:8px;padding:10px;">' +
+                        '<div style="background:rgba(127,29,29,0.28);border:1px solid #F87171;border-radius:8px;padding:10px;">' +
                             '<div style="color:#FCA5A5;font-size:11px;font-weight:800;">🚫 커트라인 (낙찰하한선)</div>' +
-                            '<div style="color:#FFFFFF;font-size:15.5px;font-weight:900;margin-top:3px;">' + b.cutline_price + '</div>' +
+                            '<div id="cnt-cut" style="color:#FFFFFF;font-size:15.5px;font-weight:900;margin-top:3px;">0원</div>' +
                         '</div>' +
-                        '<div style="background:rgba(16,185,129,0.22);border:1.5px solid #34D399;border-radius:8px;padding:10px;">' +
+                        '<div style="background:rgba(16,185,129,0.24);border:1.5px solid #34D399;border-radius:8px;padding:10px;">' +
                             '<div style="color:#6EE7B7;font-size:11px;font-weight:800;">🏆 실제 1순위 당첨사 (' + b.winner + ')</div>' +
-                            '<div style="color:#34D399;font-size:15.5px;font-weight:900;margin-top:3px;">' + b.winner_bid + '</div>' +
+                            '<div id="cnt-win" style="color:#34D399;font-size:15.5px;font-weight:900;margin-top:3px;">0원</div>' +
                         '</div>' +
                         '<div style="background:rgba(56,189,248,0.18);border:1px solid #38BDF8;border-radius:8px;padding:10px;">' +
                             '<div style="color:#BAE6FD;font-size:11px;font-weight:800;">👤 당시 대표님 모의투찰가</div>' +
-                            '<div style="color:#38BDF8;font-size:15.5px;font-weight:900;margin-top:3px;">' + b.user_bid_price + ' (' + b.user_rate + ')</div>' +
+                            '<div id="cnt-usr" style="color:#38BDF8;font-size:15.5px;font-weight:900;margin-top:3px;">0원</div>' +
                         '</div>' +
                     '</div>' +
                 '</div>' +
             '</div>';
+        animateCountUp('cnt-cut', b.cut_num, '원');
+        animateCountUp('cnt-win', b.wbid_num, '원');
+        animateCountUp('cnt-usr', b.ubid_num, '원');
     } else if (curStep === 4) {
         stage.innerHTML =
             '<div class="stage-content-anim">' +
                 '<div class="tutor-guide-box">' +
-                    '<div style="color:#C084FC;font-size:12px;font-weight:900;margin-bottom:4px;">🧠 AI 입찰 튜터의 4단계 기억 인출 퀴즈 (직접 손을 움직여 골라야 뇌에 영구 각인됩니다!)</div>' +
-                    '<div style="color:#F8FAFC;font-size:13.5px;line-height:1.6;font-weight:700;">' +
-                        '방금 1~3단계에서 배운 원리를 떠올려 보세요! 이 공고(<b>' + b.agency + ' · ' + b.sector + ' · 응찰 ' + b.participants + '</b>)에서 1순위를 차지하려면 사정률을 어느 구간으로 조준해야 할까요? 아래 3개의 타격 버튼 중 하나를 클릭해 보세요!' +
+                    '<div style="color:#C084FC;font-size:12px;font-weight:900;margin-bottom:4px;">🧠 AI 입찰 튜터의 4단계 기억 인출 퀴즈 (시각 애니메이션: 능동 선택 & 정답 축포 Confetti 폭발!)</div>' +
+                    '<div style="color:#F8FAFC;font-size:13px;line-height:1.6;font-weight:700;">' +
+                        '눈으로만 보면 잊어버리지만, 직접 클릭해 맞히면 뇌 해마에 영구 각인됩니다! 이 공고(<b>' + b.agency + ' · ' + b.sector + '</b>)에서 1순위를 차지하기 위한 최적의 타격 구간을 아래에서 골라 클릭해 보세요!' +
                     '</div>' +
                 '</div>' +
                 '<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;margin-bottom:14px;">' +
                     '<div class="quiz-choice-btn" onclick="checkQuizAnswer(1)">' +
-                        '<div style="color:#F87171;font-size:14px;margin-bottom:4px;">① 하단 과감 매복 (100.005%)</div>' +
-                        '<div style="color:#94A3B8;font-size:11.5px;font-weight:600;">남들보다 낮게 써서 요행을 노린다</div>' +
+                        '<div style="color:#F87171;font-size:13.5px;margin-bottom:4px;">① 하단 과감 매복 (100.005%)</div>' +
+                        '<div style="color:#94A3B8;font-size:11px;font-weight:600;">남들보다 무조건 낮게 써서 요행을 노린다</div>' +
                     '</div>' +
                     '<div class="quiz-choice-btn" style="border-color:#10B981;" onclick="checkQuizAnswer(2)">' +
-                        '<div style="color:#34D399;font-size:14px;margin-bottom:4px;">② 골든 포켓 정밀 타격 (' + b.true_rate + ' 부근)</div>' +
-                        '<div style="color:#A7F3D0;font-size:11.5px;font-weight:600;">발주처·공종 통계와 A값 레버리지 영점 조준</div>' +
+                        '<div style="color:#34D399;font-size:13.5px;margin-bottom:4px;">② 골든 포켓 정밀 타격 (' + b.true_rate + ' 부근)</div>' +
+                        '<div style="color:#A7F3D0;font-size:11px;font-weight:600;">발주처·공종 통계와 A값 레버리지 영점 조준</div>' +
                     '</div>' +
                     '<div class="quiz-choice-btn" onclick="checkQuizAnswer(3)">' +
-                        '<div style="color:#38BDF8;font-size:14px;font-weight:4px;">③ 고사정 안전 방어 (100.095%)</div>' +
-                        '<div style="color:#94A3B8;font-size:11.5px;font-weight:600;">탈락만 피하고 무조건 높게 쓴다</div>' +
+                        '<div style="color:#38BDF8;font-size:13.5px;margin-bottom:4px;">③ 고사정 안전 방어 (100.095%)</div>' +
+                        '<div style="color:#94A3B8;font-size:11px;font-weight:600;">미달 탈락만 피하고 무조건 높게 쓴다</div>' +
                     '</div>' +
                 '</div>' +
-                '<div id="syn-quiz-feedback" style="background:rgba(15,23,42,0.9);border:1.5px dashed #64748B;border-radius:10px;padding:14px;text-align:center;color:#94A3B8;font-size:13px;font-weight:800;">' +
-                    '👆 위 3가지 전략 중 하나를 마우스로 클릭하면 AI 사정관의 정답 판정과 기억 각인 해설이 즉시 나타납니다!' +
+                '<div id="syn-quiz-feedback" style="background:rgba(15,23,42,0.9);border:1.5px dashed #64748B;border-radius:10px;padding:14px;text-align:center;color:#94A3B8;font-size:12.5px;font-weight:800;">' +
+                    '👆 위 3가지 전략 버튼 중 하나를 클릭하면 축포 애니메이션과 함께 정답 해설이 나타납니다!' +
                 '</div>' +
             '</div>';
     } else if (curStep === 5) {
         stage.innerHTML =
-            '<div class="stage-content-anim">' +
+            '<div class="stage-content-anim" style="position:relative;">' +
+                '<div class="golden-master-stamp">👑 마스터리 각인 완료<br><span style="font-size:10px;">SYNAPSE MASTERED</span></div>' +
                 '<div class="tutor-guide-box" style="border-left-color:#FBBF24;">' +
-                    '<div style="color:#FBBF24;font-size:12px;font-weight:900;margin-bottom:4px;">👑 최종 5단계 마스터 봉인 해제: 대표님 비전(秘傳) 금박 각주 & AI 종합 복기</div>' +
-                    '<div style="color:#F8FAFC;font-size:13.5px;line-height:1.6;font-weight:700;">' +
-                        '축하합니다! 1단계(A값 방어막)부터 4단계(실전 영점 퀴즈)까지 모두 완주하여 본 공고의 낙찰 메커니즘을 완벽히 각인하셨습니다. 아래에 타이핑되는 핵심 비전 각주를 확인하세요!' +
+                    '<div style="color:#FBBF24;font-size:12px;font-weight:900;margin-bottom:4px;">👑 최종 5단계 마스터 봉인 해제 (시각 애니메이션: 황금 직인 스탬프 임팩트 & 실시간 타이핑)</div>' +
+                    '<div style="color:#F8FAFC;font-size:13px;line-height:1.6;font-weight:700;">' +
+                        '축하합니다! 1단계부터 5단계까지 순차 오픈하며 본 공고의 낙찰 원리를 완벽히 정복하셨습니다. 아래에 한 글자씩 타이핑되는 대표님의 비전 각주를 뇌리에 영구 각인하세요!' +
                     '</div>' +
                 '</div>' +
-                '<div style="background:linear-gradient(135deg, rgba(120,53,15,0.55), rgba(9,13,22,0.96));border:2px solid #FBBF24;border-radius:14px;padding:16px 20px;box-shadow:0 0 28px rgba(251,191,36,0.28);">' +
+                '<div style="background:linear-gradient(135deg, rgba(120,53,15,0.55), rgba(9,13,22,0.96));border:2px solid #FBBF24;border-radius:14px;padding:16px 20px;box-shadow:0 0 28px rgba(251,191,36,0.32);">' +
                     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
                         '<span style="background:#FBBF24;color:#090D16;font-size:11px;font-weight:900;padding:3px 10px;border-radius:6px;">🏆 장기기억 각인 완료 · 비전서 핵심 교훈</span>' +
                         '<span style="color:#34D399;font-size:12px;font-weight:900;">실제 개찰예가 ' + b.true_rate + ' | AI 추천 ' + b.rec_rate + '</span>' +
                     '</div>' +
-                    '<div id="syn-final-typewriter" style="color:#FEF08A;font-size:14px;font-weight:900;line-height:1.7;min-height:88px;white-space:pre-wrap;"></div>' +
+                    '<div id="syn-final-typewriter" style="color:#FEF08A;font-size:13.5px;font-weight:900;line-height:1.7;min-height:86px;white-space:pre-wrap;"></div>' +
                 '</div>' +
             '</div>';
 
+        triggerConfettiBurst();
         const fullLesson =
             '✍️ [대표님 친필 비전 각주]: "' + b.footnote + '"\n' +
             '📊 [AI 수석 사정관 최종 해부]: ' + b.ai_comm + '\n' +
@@ -5575,7 +5718,7 @@ function renderStageContent() {
                 clearInterval(typeTimer);
                 if (twEl) twEl.innerHTML = fullLesson;
             }
-        }, 20);
+        }, 18);
     }
 }
 
@@ -5584,20 +5727,21 @@ function checkQuizAnswer(choice) {
     const fb = document.getElementById('syn-quiz-feedback');
     if (!fb || !b) return;
     if (choice === 2) {
+        triggerConfettiBurst();
         fb.style.border = '2px solid #10B981';
-        fb.style.background = 'rgba(6,78,59,0.45)';
+        fb.style.background = 'rgba(6,78,59,0.5)';
         fb.style.color = '#ECFDF5';
-        fb.innerHTML = '🎉 <b>[정답입니다! 완벽한 영점 감각 각인!]</b><br>이 공고의 실제 개찰예가는 <b style="color:#FBBF24;">' + b.true_rate + '</b>였고, 대표님께서는 <b style="color:#34D399;">' + b.user_rate + '</b>로 타격하셨습니다. 이제 우측 하단의 <b>[🔓 5단계 오픈하기]</b> 버튼을 눌러 최종 비전 각주를 확인하세요!';
+        fb.innerHTML = '🎉 <b>[정답입니다! 축포와 함께 완벽한 영점 감각이 각인되었습니다!]</b><br>이 공고의 실제 개찰예가는 <b style="color:#FBBF24;">' + b.true_rate + '</b>였고, 대표님께서는 <b style="color:#34D399;">' + b.user_rate + '</b>로 정밀 타격하셨습니다. 이제 우측 하단의 <b>[🔓 5단계 오픈하기 ⏩]</b> 버튼을 눌러 최종 비전 각주를 확인하세요!';
     } else if (choice === 1) {
         fb.style.border = '2px solid #F87171';
-        fb.style.background = 'rgba(127,29,29,0.4)';
+        fb.style.background = 'rgba(127,29,29,0.45)';
         fb.style.color = '#FECACA';
-        fb.innerHTML = '🚨 <b>[아쉽습니다! 하한선 미달 탈락 위험!]</b><br>100.005%로 너무 낮게 쓰면 실제 개찰예가(' + b.true_rate + ')의 낙찰하한선(' + b.cutline_price + ')보다 금액이 부족해 즉시 부적격 탈락합니다. <b>②번 골든 포켓</b>을 다시 눌러보세요! (헷갈리시면 좌측 하단 <b>[⏪ 3단계로 복귀]</b>로 커트라인을 다시 복습해 보세요!)';
+        fb.innerHTML = '🚨 <b>[하한선 미달 탈락 위험!]</b><br>100.005%로 너무 낮게 쓰면 낙찰하한선(' + b.cutline_price + ')보다 금액이 부족해 즉시 부적격 탈락합니다. (이해가 잘 안 되셨다면 좌측 하단 <b>[⏪ 3단계로 복귀]</b> 버튼을 눌러 커트라인 절벽을 다시 확인하거나, <b>②번 골든 포켓</b>을 다시 눌러보세요!)';
     } else {
         fb.style.border = '2px solid #38BDF8';
-        fb.style.background = 'rgba(8,47,73,0.45)';
+        fb.style.background = 'rgba(8,47,73,0.5)';
         fb.style.color = '#E0F2FE';
-        fb.innerHTML = '🛡️ <b>[안전하지만 1순위 당첨에는 실패!]</b><br>100.095%로 너무 높게 쓰면 미달 탈락은 피하지만, ' + b.true_rate + ' 부근에 밀집한 경쟁사들에게 밀려 예비 15순위 밖으로 밀려납니다. <b>②번 골든 포켓</b>을 다시 선택해 보세요!';
+        fb.innerHTML = '🛡️ <b>[미달은 피했지만 1순위 당첨 실패!]</b><br>100.095%로 너무 높게 쓰면 ' + b.true_rate + ' 부근에 밀집한 경쟁사들에게 밀려 후순위로 탈락합니다. <b>②번 골든 포켓</b>을 다시 클릭해 보세요!';
     }
 }
 
@@ -5643,7 +5787,6 @@ function nextStep() {
     }
 }
 
-// 초기 실행
 if (BOOKS.length > 0) {
     const forcedCode = '__ACTIVE_CODE__';
     if (forcedCode) {

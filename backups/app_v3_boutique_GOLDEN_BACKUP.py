@@ -645,11 +645,12 @@ if st.session_state["_standalone_academy_mode"]:
                 _canvas_h = 560 + (_shelf_rows * 290)
                 _html_3d = _render_3d_html_v12(_books, active_code=_active_bk["book_code"])
                 _stc_v12.html(_html_3d, height=_canvas_h, scrolling=False)
+            elif "시냅스" in _view_mode:
+                _stc_v12.html(_render_synapse_html_v12(_books, active_code=_active_bk["book_code"]), height=645, scrolling=False)
             else:
                 _mx_h = 385 + (len(_books) * 58)
                 _stc_v12.html(_render_matrix_html_v12(_books, active_code=_active_bk["book_code"]), height=_mx_h, scrolling=False)
 
-            # [시각화 1] 공종별 레거시 영점 정밀도 성적표 & 실전 자동 보정 홀로그램 대시보드
             st.markdown(_render_sec_from_books_v12(_books), unsafe_allow_html=True)
 
             _wp_suite = _build_wp_suite_v12(_books)
