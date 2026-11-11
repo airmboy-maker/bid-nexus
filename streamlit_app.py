@@ -668,10 +668,21 @@ if st.session_state["_standalone_academy_mode"]:
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
+                # 화면 조건(필터·뷰모드·선택도서)이 바뀌거나 최초 실행 시 부속 출력화면은 무조건 닫힌 상태(False)로 출발!
+                _cur_screen_sig = f"{_f_sec}|{_f_ag}|{_f_grd}|{_f_kw}|{_view_mode}|{_active_bk['book_code']}"
+                if st.session_state.get("_v12_screen_sig_strict") != _cur_screen_sig:
+                    st.session_state["_v12_screen_sig_strict"] = _cur_screen_sig
+                    st.session_state["_v12_wp_open_strict"] = False
+
+                def _cb_toggle_wp_strict():
+                    st.session_state["_v12_wp_open_strict"] = not bool(st.session_state.get("_v12_wp_open_strict", False))
+
+                _is_wp_strict_open = bool(st.session_state.get("_v12_wp_open_strict", False))
+                _wp_toggle_txt = "🔼 공식 양식서 닫기 (접기)" if _is_wp_strict_open else "📜 공식 양식서 화면 열람 & 인쇄"
+
                 _wp_btn_c1, _wp_btn_c2, _wp_btn_c3 = st.columns([1.35, 1.15, 1.15])
                 with _wp_btn_c1:
-                    if st.button("📜 공식 양식서 화면 열람 & 인쇄", key="_toggle_wp_preview_btn", use_container_width=True):
-                        st.session_state["_show_wp_official_form"] = not st.session_state.get("_show_wp_official_form", True)
+                    st.button(_wp_toggle_txt, key="_toggle_wp_preview_btn_strict", on_click=_cb_toggle_wp_strict, use_container_width=True)
                 with _wp_btn_c2:
                     st.download_button(
                         "📘 공식 백서(.html) 출력",
@@ -691,7 +702,6 @@ if st.session_state["_standalone_academy_mode"]:
                         use_container_width=True
                     )
             with _act_b2:
-                # 001권 ~ 009권 정순서 옵션 생성 (앞의 헷갈리던 DB ID 숫자 완전 제거!)
                 _ordered_labels = [f"[{b['book_code']}] {b['title']} ({b['agency']} · 기초 {b['base_amt']:,}원)" for b in _books]
                 _label_to_book = {f"[{b['book_code']}] {b['title']} ({b['agency']} · 기초 {b['base_amt']:,}원)": b for b in _books}
 
@@ -708,6 +718,7 @@ if st.session_state["_standalone_academy_mode"]:
                         st.session_state["_v12_synced_book_code"] = _chosen["book_code"]
                         st.session_state["_v12_ollama_base"] = int(_chosen["base_amt"])
                         st.session_state["_v12_ollama_aval"] = int(_chosen["a_val"])
+                        st.session_state["_v12_wp_open_strict"] = False
 
                 st.markdown(f"""
                 <div style="background:linear-gradient(135deg, rgba(6,78,59,0.85), rgba(15,23,42,0.98));border:2px solid #10B981;border-radius:12px;padding:14px 16px;margin-bottom:8px;min-height:112px;box-shadow:0 8px 22px rgba(0,0,0,0.65);">
@@ -717,7 +728,7 @@ if st.session_state["_standalone_academy_mode"]:
                     </div>
                     <div style="color:#FFFFFF;font-size:14px;font-weight:900;margin-bottom:4px;">🎯 정순서(001권~{len(_books):03d}권) 양장본 즉시 변경 & 불량 장서 파쇄 챔버</div>
                     <div style="color:#A7F3D0;font-size:11.5px;line-height:1.45;">
-                        아래 목록에서 양장본을 바꾸면 <b>위쪽 3D 서가·3D 독서대·제2관·제3관이 즉시 해당 공고로 변경</b>되며, 우측 버튼 클릭 시 해당 장서를 소각합니다.
+                        아래 목록에서 양장본을 바꾸면 <b>위쪽 3D 서가·3D 독서대·제2관·제3관이 즉시 해당 공고로 변경</b>되며 부속 출력창은 자동으로 닫힙니다.
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
@@ -736,11 +747,13 @@ if st.session_state["_standalone_academy_mode"]:
                         _target_bk = _label_to_book.get(_del_target_lbl, _active_bk)
                         _del_book_v12(int(_target_bk["id"]))
                         st.session_state.pop("_v12_synced_book_code", None)
+                        st.session_state["_v12_wp_open_strict"] = False
                         st.warning(f"🔥 [{_target_bk['book_code']}] 디지털 파쇄기 소각 완료! 서재에서 영구 제거되었습니다.")
                         st.rerun()
 
-            if st.session_state.get("_show_wp_official_form", True):
-                st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
+            # [원칙 적용] 오직 사용자가 '📜 공식 양식서 화면 열람 & 인쇄' 버튼을 직접 눌러 _v12_wp_open_strict 가 True일 때만 표시!
+            if st.session_state.get("_v12_wp_open_strict", False):
+                st.markdown("<div id='v12-wp-preview-container' style='margin-top:8px;'></div>", unsafe_allow_html=True)
                 _stc_v12.html(_wp_suite["html_doc"], height=880, scrolling=True)
 
     # ==========================================================================

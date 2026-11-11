@@ -3521,6 +3521,14 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
             window.parent.localStorage.setItem('v12_reanalyze_ts', nowD.toLocaleTimeString('ko-KR') + '.' + String(nowD.getMilliseconds()).slice(0,2));
         } catch (e) {}
         applyBookToParentTabs(b);
+        // 사용자가 다른 책을 클릭하면 하단 부속 출력창(공식 백서 뷰어)을 원칙에 따라 즉시 닫음
+        if (window._v12InitialLoadDone) {
+            try {
+                const wpWrap = window.parent.document.getElementById('v12-wp-preview-container');
+                if (wpWrap) wpWrap.style.display = 'none';
+            } catch (e) {}
+        }
+        window._v12InitialLoadDone = true;
         
     }
 
@@ -4141,6 +4149,14 @@ def render_ultra_matrix_view_html_v12(books: list, active_code: str = "") -> str
             window.parent.localStorage.setItem('v12_reanalyze_ts', nowD.toLocaleTimeString('ko-KR') + '.' + String(nowD.getMilliseconds()).slice(0,2));
         } catch (e) {}
         syncMatrixBookToParent(b);
+        // 사용자가 다른 책을 클릭하면 하단 부속 출력창(공식 백서 뷰어)을 원칙에 따라 즉시 닫음
+        if (window._v12InitialLoadDone) {
+            try {
+                const wpWrap = window.parent.document.getElementById('v12-wp-preview-container');
+                if (wpWrap) wpWrap.style.display = 'none';
+            } catch (e) {}
+        }
+        window._v12InitialLoadDone = true;
     }
 
     let rowsHtml = '';
