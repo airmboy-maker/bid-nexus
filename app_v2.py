@@ -1,3 +1,8 @@
+import warnings
+warnings.filterwarnings("ignore")
+import os as _os_warn
+_os_warn.environ["PYTHONWARNINGS"] = "ignore"
+
 import streamlit as st
 def _z4_clean_zero_html(_html_str: str) -> str:
     import re as _re_z4
@@ -534,10 +539,10 @@ with st.sidebar:
             </div>
         </div>
         """, unsafe_allow_html=True)
-        st.button("🔙 블라인드 해제 및 기존 플랫폼(Z1~Z9)으로 복귀", key="_sb_exit_acad_btn", on_click=_cb_exit_academy, use_container_width=True)
+        st.button("🔙 블라인드 해제 및 기존 플랫폼(Z1~Z9)으로 복귀", key="_sb_exit_acad_btn", on_click=_cb_exit_academy, width='stretch')
     else:
         st.markdown("<hr style='border:0;border-top:1px solid rgba(56,189,248,0.3);margin:8px 0;'>", unsafe_allow_html=True)
-        st.button("🏛️ [독립 베이] 3D 홀로그램 서재 & 학습소 열기", key="_sb_enter_acad_btn", on_click=_cb_enter_academy, use_container_width=True)
+        st.button("🏛️ [독립 베이] 3D 홀로그램 서재 & 학습소 열기", key="_sb_enter_acad_btn", on_click=_cb_enter_academy, width='stretch')
 
 _sw_c1, _sw_c2 = st.columns([3.2, 1.8])
 with _sw_c1:
@@ -557,9 +562,9 @@ with _sw_c1:
         """, unsafe_allow_html=True)
 with _sw_c2:
     if st.session_state["_standalone_academy_mode"]:
-        st.button("🔙 기존 입찰 플랫폼(Z1~Z9) 화면으로 돌아가기", key="_top_exit_acad_btn", on_click=_cb_exit_academy, use_container_width=True)
+        st.button("🔙 기존 입찰 플랫폼(Z1~Z9) 화면으로 돌아가기", key="_top_exit_acad_btn", on_click=_cb_exit_academy, width='stretch')
     else:
-        st.button("🏛️ [독립 베이] 3D 홀로그램 서재 & 학습소 진입", key="_top_enter_acad_btn", on_click=_cb_enter_academy, use_container_width=True)
+        st.button("🏛️ [독립 베이] 3D 홀로그램 서재 & 학습소 진입", key="_top_enter_acad_btn", on_click=_cb_enter_academy, width='stretch')
 
 if st.session_state["_standalone_academy_mode"]:
     _ac_stats = _get_acad_stats_v10()
@@ -684,7 +689,7 @@ if st.session_state["_standalone_academy_mode"]:
 
                 _wp_btn_c1, _wp_btn_c2, _wp_btn_c3 = st.columns([1.35, 1.15, 1.15])
                 with _wp_btn_c1:
-                    st.button(_wp_toggle_txt, key="_toggle_wp_preview_btn_strict", on_click=_cb_toggle_wp_strict, use_container_width=True)
+                    st.button(_wp_toggle_txt, key="_toggle_wp_preview_btn_strict", on_click=_cb_toggle_wp_strict, width='stretch')
                 with _wp_btn_c2:
                     st.download_button(
                         "📘 공식 백서(.html) 출력",
@@ -692,7 +697,7 @@ if st.session_state["_standalone_academy_mode"]:
                         file_name=f"BID_NEXUS_당사입찰필승비전서_공식마스터백서_{_wp_suite['doc_no']}.html",
                         mime="text/html",
                         key="_dl_wp_html_btn",
-                        use_container_width=True
+                        width='stretch'
                     )
                 with _wp_btn_c3:
                     st.download_button(
@@ -701,7 +706,7 @@ if st.session_state["_standalone_academy_mode"]:
                         file_name=f"BID_NEXUS_당사입찰필승비전서_공식마스터백서_{_wp_suite['doc_no']}.xls",
                         mime="application/vnd.ms-excel",
                         key="_dl_wp_xls_btn",
-                        use_container_width=True
+                        width='stretch'
                     )
             with _act_b2:
                 _ordered_labels = [f"[{b['book_code']}] {b['title']} ({b['agency']} · 기초 {b['base_amt']:,}원)" for b in _books]
@@ -745,7 +750,7 @@ if st.session_state["_standalone_academy_mode"]:
                         label_visibility="collapsed"
                     )
                 with _inc_c2:
-                    if st.button("🔥 이 장서 즉시 소각", key="_incinerate_bk_btn", use_container_width=True):
+                    if st.button("🔥 이 장서 즉시 소각", key="_incinerate_bk_btn", width='stretch'):
                         _target_bk = _label_to_book.get(_del_target_lbl, _active_bk)
                         _del_book_v12(int(_target_bk["id"]))
                         st.session_state.pop("_v12_synced_book_code", None)
@@ -772,13 +777,13 @@ if st.session_state["_standalone_academy_mode"]:
         with _mode_c1:
             _blind_mode = st.checkbox("🕶️ [블라인드 기출문제 진검승부 모드] 실제 개찰 사정률을 가려놓고 맞히기", value=False, key="_v12_blind_chk")
         with _mode_c2:
-            if _blind_mode and st.button("🎲 새로운 블라인드 기출문제 출제", key="_v12_new_blind_btn", use_container_width=True):
+            if _blind_mode and st.button("🎲 새로운 블라인드 기출문제 출제", key="_v12_new_blind_btn", width='stretch'):
                 import random as _rnd_bl
                 st.session_state["_v12_blind_secret_rate"] = round(_rnd_bl.uniform(99.9650, 100.0850), 4)
                 st.session_state["_v12_blind_revealed"] = False
                 st.rerun()
         with _mode_c3:
-            if _blind_mode and st.button("🔓 블라인드 정답 개봉 & 승패 판정", key="_v12_reveal_blind_btn", use_container_width=True):
+            if _blind_mode and st.button("🔓 블라인드 정답 개봉 & 승패 판정", key="_v12_reveal_blind_btn", width='stretch'):
                 st.session_state["_v12_blind_revealed"] = True
 
         _ar_c1, _ar_c2, _ar_c3, _ar_c4 = st.columns([2.1, 1.5, 1.8, 1.4])
@@ -853,7 +858,7 @@ if st.session_state["_standalone_academy_mode"]:
 
         _ar_btn1, _ar_btn2, _ar_btn3 = st.columns([2.1, 2.1, 1.8])
         with _ar_btn1:
-            if st.button("🚀 [모의개찰 실행] 15C4 퀀텀 추첨 & AI vs 나의 타점 1:1 개찰 대조", key="_ar_run_btn", use_container_width=True):
+            if st.button("🚀 [모의개찰 실행] 15C4 퀀텀 추첨 & AI vs 나의 타점 1:1 개찰 대조", key="_ar_run_btn", width='stretch'):
                 _use_ov = float(st.session_state.get("_v12_blind_secret_rate", 0.0)) if _blind_mode else float(_ar_real_override)
                 st.session_state["_arena_last_result"] = _run_arena_v10(
                     sector=_ar_sector,
@@ -868,7 +873,7 @@ if st.session_state["_standalone_academy_mode"]:
                 if _blind_mode:
                     st.session_state["_v12_blind_revealed"] = True
         with _ar_btn2:
-            if st.button("📚 [3D 서재에 양장본 제본 & 신경망 각인] 이번 복기 결과를 3D 서가에 영구 보관", key="_ar_learn_btn", use_container_width=True):
+            if st.button("📚 [3D 서재에 양장본 제본 & 신경망 각인] 이번 복기 결과를 3D 서가에 영구 보관", key="_ar_learn_btn", width='stretch'):
                 if "_arena_last_result" not in st.session_state:
                     st.session_state["_arena_last_result"] = _run_arena_v10(
                         sector=_ar_sector, agency=_ar_agency.split("(")[0], base_amt=int(_ar_base),
@@ -886,7 +891,7 @@ if st.session_state["_standalone_academy_mode"]:
                 st.session_state["_v12_synced_book_code"] = _bk_info["book_code"]
                 st.success(f"🏛️ 황금 인장 각인 완료! 도서코드 [{_bk_info['book_code']}] 3D 양장본이 [제1관: 3D 홀로그램 전략 서재] 선반에 영구 꽂혔습니다!")
         with _ar_btn3:
-            if st.button("🔄 15C4 복수예가 재추첨", key="_ar_redraw_btn", use_container_width=True):
+            if st.button("🔄 15C4 복수예가 재추첨", key="_ar_redraw_btn", width='stretch'):
                 st.session_state["_arena_last_result"] = _run_arena_v10(
                     sector=_ar_sector,
                     agency=_ar_agency.split("(")[0],
@@ -1002,7 +1007,7 @@ if st.session_state["_standalone_academy_mode"]:
                 placeholder="예: A값 비중이 6% 이상인 교육청 공고는 +0.012%p 상향 타격이 정답임",
                 key="_ar_chat_in"
             )
-            if st.button("🗣️ AI와 1:1 사정 전략 토론 & 합의 최적 타점 산출", key="_ar_chat_btn", use_container_width=True):
+            if st.button("🗣️ AI와 1:1 사정 전략 토론 & 합의 최적 타점 산출", key="_ar_chat_btn", width='stretch'):
                 _diff_au = _ares["user_rate"] - _ares["ai_rate"]
                 _opt_blend = round(_ares["true_yega_rate"] * 0.5 + _ares["ai_rate"] * 0.3 + _ares["user_rate"] * 0.2, 4)
                 _opt_bid = int(round(((_ares["base_amt"] * (_opt_blend / 100.0) - _ares["a_val"]) * (_ares["lower_limit"] / 100.0)) + _ares["a_val"]))
@@ -1076,9 +1081,9 @@ if st.session_state["_standalone_academy_mode"]:
             )
             _ol_b1, _ol_b2 = st.columns(2)
             with _ol_b1:
-                st.button("🧠 [선택 공고 & 서류 6차원 정밀 재분석]", key="_v12_run_ollama_btn", use_container_width=True)
+                st.button("🧠 [선택 공고 & 서류 6차원 정밀 재분석]", key="_v12_run_ollama_btn", width='stretch')
             with _ol_b2:
-                if st.button("⚡ 이 공고의 금액·하한율을 [제2관 모의투찰]로 즉시 전송", key="_v12_send_to_arena_btn", use_container_width=True):
+                if st.button("⚡ 이 공고의 금액·하한율을 [제2관 모의투찰]로 즉시 전송", key="_v12_send_to_arena_btn", width='stretch'):
                     if _matched_pkg:
                         st.session_state["_v12_ollama_base"] = int(_matched_pkg["base_amt"])
                         st.session_state["_v12_ollama_aval"] = int(_matched_pkg["a_val"])
@@ -1180,7 +1185,7 @@ if st.session_state["_standalone_academy_mode"]:
 
         _g2b_vis_res = _parse_g2b_vis_v12(_paste_txt)
 
-        if st.button("🔍 현재 개찰 응찰사 내역 라이벌 DB 북마크 + 개찰 신경망 일괄 영구 학습", key="_acad_parse_btn", use_container_width=True):
+        if st.button("🔍 현재 개찰 응찰사 내역 라이벌 DB 북마크 + 개찰 신경망 일괄 영구 학습", key="_acad_parse_btn", width='stretch'):
             _p_rows = _g2b_vis_res["parsed_rows"]
             for _pr in _p_rows:
                 _arena_save_rival(rival_name=_pr["comp"], agency="조달청", observed_rate=float(_pr["rate"]))
@@ -3964,7 +3969,7 @@ def _check_security_pin_gate():
             target_pin = st.text_input("관리자 보안 PIN 번호 설정", value=st.session_state.get("admin_pin_code", _default_pin), type="password", key="inp_admin_pin")
             st.session_state["admin_pin_code"] = target_pin
             if enable_pin and st.session_state.get("pin_authenticated", False):
-                if st.button("🔒 즉시 화면 잠금", use_container_width=True, key="btn_lock_now"):
+                if st.button("🔒 즉시 화면 잠금", width='stretch', key="btn_lock_now"):
                     st.session_state["pin_authenticated"] = False
                     st.rerun()
 
@@ -3976,7 +3981,7 @@ def _check_security_pin_gate():
                 user_pin = st.text_input("보안 패스코드(PIN) 입력", type="password", key="login_pin_input")
             with c_p2:
                 st.write("")
-                if st.button("🔓 인증 및 터미널 열기", use_container_width=True, key="btn_verify_pin"):
+                if st.button("🔓 인증 및 터미널 열기", width='stretch', key="btn_verify_pin"):
                     if str(user_pin).strip() == str(st.session_state.get("admin_pin_code", "2026")).strip():
                         st.session_state["pin_authenticated"] = True
                         st.rerun()
@@ -4143,10 +4148,10 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             )
         with _qs_c4:
             st.markdown("<div style='height:27px;'></div>", unsafe_allow_html=True)
-            st.button("⚡ 15억 표준공고 즉시 로드", key="_sx_qs_preset_btn", on_click=_cb_load_15b, use_container_width=True)
+            st.button("⚡ 15억 표준공고 즉시 로드", key="_sx_qs_preset_btn", on_click=_cb_load_15b, width='stretch')
         with _qs_c5:
             st.markdown("<div style='height:27px;'></div>", unsafe_allow_html=True)
-            st.button("🔄 0원 초기화 (대기모드)", key="_sx_qs_reset_btn", on_click=_cb_reset_0, use_container_width=True)
+            st.button("🔄 0원 초기화 (대기모드)", key="_sx_qs_reset_btn", on_click=_cb_reset_0, width='stretch')
 
         # [ROW 2] 개찰DB 자동 추출 경쟁사 목록 & 원클릭 자동추출 / 삭제 & 마감 과열도 스위치
         _rival_list_v8 = _get_rivals_v8()
@@ -4169,7 +4174,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             )
         with _top_c_ext:
             st.markdown("<div style='height:27px;'></div>", unsafe_allow_html=True)
-            if st.button("🧬 개찰DB 자동추출", key="_sx_auto_ext_btn", use_container_width=True):
+            if st.button("🧬 개찰DB 자동추출", key="_sx_auto_ext_btn", width='stretch'):
                 _ext_res = _auto_extract_rivals_v8(clear_seeds=True)
                 _updated_r = _get_rivals_v8()
                 if _updated_r:
@@ -4181,7 +4186,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                 st.rerun()
         with _top_c_del:
             st.markdown("<div style='height:27px;'></div>", unsafe_allow_html=True)
-            if st.button("🗑️ 삭제", key="_sx_del_riv_btn", use_container_width=True):
+            if st.button("🗑️ 삭제", key="_sx_del_riv_btn", width='stretch'):
                 _target_del = st.session_state.get("_sx_active_rival_name", "")
                 if _target_del:
                     _del_rival_v8(_target_del)
@@ -4356,7 +4361,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             )
         with _pm_c5:
             st.markdown("<div style='height:27px;'></div>", unsafe_allow_html=True)
-            if st.button("🧠 개찰 & 라이벌 동시 저장", key="_sx_pm_btn", use_container_width=True):
+            if st.button("🧠 개찰 & 라이벌 동시 저장", key="_sx_pm_btn", width='stretch'):
                 _use_b = _sx_base if _sx_base > 0 else 1000000000
                 _use_a = _sx_aval if _sx_aval > 0 else int(_use_b * 0.06)
                 _calc_win_bid = int(((_use_b * (_pm_rate / 100.0) - _use_a) * (_sx_low / 100.0)) + _use_a)
@@ -4456,7 +4461,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                         <div style="color:#34D399;font-size:11.5px;font-weight:800;">시평액: {_p_val['sipyung']:,}원 | 적격 29.5점 만점</div>
                     </div>
                     """, unsafe_allow_html=True)
-                    if st.button(f"🔓 [{_p_key[:6]}] 스펙 즉시 장착", key=f"_btn_preset_apply_{_idx_p}", use_container_width=True):
+                    if st.button(f"🔓 [{_p_key[:6]}] 스펙 즉시 장착", key=f"_btn_preset_apply_{_idx_p}", width='stretch'):
                         st.session_state["master_spec_unlocked"] = True
                         st.session_state["gatekeeper_unlocked"] = True
                         st.session_state["active_corp_preset"] = _p_key
@@ -4480,7 +4485,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                 )
             with _ct_top2:
                 st.markdown("<div style='height:27px;'></div>", unsafe_allow_html=True)
-                if st.button("➕ 현재 타겟 공고 장바구니 담기", key="_cart_add_btn", use_container_width=True):
+                if st.button("➕ 현재 타겟 공고 장바구니 담기", key="_cart_add_btn", width='stretch'):
                     _use_b_cart = _sx_base if _sx_base > 0 else 1500000000
                     _use_a_cart = _sx_aval if _sx_aval > 0 else 90000000
                     _s1 = _run_sniper_x(agency=(_sx_ag or "조달청"), base_amt=_use_b_cart, a_val=_use_a_cart, lower_limit=_sx_low)
@@ -4510,7 +4515,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                     st.success(f"✅ 장바구니 추가 완료! (예상 순이익: {_net_margin:+,}원 / 마진율 {_margin_rate:+.2f}%)")
             with _ct_top3:
                 st.markdown("<div style='height:27px;'></div>", unsafe_allow_html=True)
-                if st.button("⚡ 샘플 3개 공고 + 마진 비교 생성", key="_cart_sample3_btn", use_container_width=True):
+                if st.button("⚡ 샘플 3개 공고 + 마진 비교 생성", key="_cart_sample3_btn", width='stretch'):
                     _samples_cfg = [
                         ("조달청", "교육시설 환경개선 전기공사", 1500000000, 90000000, 87.745),
                         ("경기도", "관내 복합문화센터 실내건축공사", 2400000000, 140000000, 87.745),
@@ -4545,7 +4550,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                     st.rerun()
             with _ct_top4:
                 st.markdown("<div style='height:27px;'></div>", unsafe_allow_html=True)
-                if st.button("🗑️ 비우기", key="_cart_clear_btn", use_container_width=True):
+                if st.button("🗑️ 비우기", key="_cart_clear_btn", width='stretch'):
                     st.session_state["_weekly_bid_cart_v95"] = []
                     st.rerun()
 
@@ -4601,7 +4606,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                     {k: v for k, v in r.items() if not str(k).startswith("_raw_")}
                     for r in _cart_items
                 ]
-                st.dataframe(_display_rows, use_container_width=True)
+                st.dataframe(_display_rows, width='stretch')
                 _csv_buf = _io_sx.StringIO()
                 _w_csv = _csv_sx.DictWriter(_csv_buf, fieldnames=list(_display_rows[0].keys()))
                 _w_csv.writeheader()
@@ -4744,7 +4749,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                     _auto_cnt = st.selectbox("📦 1회 일괄 자동학습 규모", [100, 300, 500, 1000], format_func=lambda x: f"{x:,}건 일괄 자동 수집·학습", index=1, key="_auto_harv_cnt")
                 with _ac3:
                     st.markdown("<div style='height:18px;'></div>", unsafe_allow_html=True)
-                    if st.button("🚀 원클릭 일괄 완전 자동 수집·학습 실행", key="_ml_auto_harvest_btn", use_container_width=True):
+                    if st.button("🚀 원클릭 일괄 완전 자동 수집·학습 실행", key="_ml_auto_harvest_btn", width='stretch'):
                         st.session_state["_trigger_harvest_anim"] = True
                         st.session_state["_trigger_harvest_ag"] = str(_auto_ag)
                         st.session_state["_trigger_harvest_cnt"] = str(_auto_cnt)
@@ -4947,7 +4952,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                     _in_bid_cnt = st.number_input("참여업체 수", min_value=1, max_value=5000, value=85, step=5, key="_tr_in_cnt")
                 with _tc6:
                     st.markdown("<div style='height:18px;'></div>", unsafe_allow_html=True)
-                    if st.button("🧠 단건 추가", key="_tr_btn_save", use_container_width=True):
+                    if st.button("🧠 단건 추가", key="_tr_btn_save", width='stretch'):
                         _eng_z34.record_opening_result(_in_ag, _in_lic, _in_base, int(_in_base * 0.055), round(89.745 - 2.0, 3), _in_rate, _in_bid_cnt)
                         st.success(f"[{_in_ag}] {_in_rate:.4f}% 학습 완료")
 
@@ -5001,7 +5006,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
 
             _btn_col1, _btn_col2 = st.columns([2.2, 1.0])
             with _btn_col1:
-                if st.button("🔓 [원클릭 마스터 등록] 기업 적격 스펙 영구 저장 & 파이프라인 잠금 즉시 해제", key="_z9_btn_unlock_all", use_container_width=True):
+                if st.button("🔓 [원클릭 마스터 등록] 기업 적격 스펙 영구 저장 & 파이프라인 잠금 즉시 해제", key="_z9_btn_unlock_all", width='stretch'):
                     _saved_p = _eng_z34.save_company_master_profile(
                         _in_cname, _in_clic, _in_creg, _in_ccap, _in_cp5, _in_cdebt, _in_ccurr, _in_cps, _in_cfs, _in_ccs
                     )
@@ -5014,7 +5019,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                     st.success(f"🎉 [{_in_cname}] 마스터 등록 완료! 잠금이 해제되고 [Z2] 적격심사 평점에 자동 직결되었습니다.")
                     st.rerun()
             with _btn_col2:
-                if st.button("🔒 [마스터 등록 초기화] 초기 잠금(미등록) 상태로 복원", key="_z9_btn_reset_lock", use_container_width=True):
+                if st.button("🔒 [마스터 등록 초기화] 초기 잠금(미등록) 상태로 복원", key="_z9_btn_reset_lock", width='stretch'):
                     _eng_z34.reset_company_master_profile()
                     for _k_del in ["gatekeeper_unlocked", "master_spec_registered", "company_master_unlocked", "_z2_perf_saved", "_z2_fin_saved", "_z2_cred_saved"]:
                         st.session_state.pop(_k_del, None)
@@ -5263,7 +5268,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                     data=_csv_report.encode("utf-8-sig"),
                     file_name=f"BID_NEXUS_ML_REPORT_{_z_ag}.csv",
                     mime="text/csv",
-                    use_container_width=True,
+                    width='stretch',
                     key="_z8_dl_ml_csv"
                 )
     except Exception as _e_z34:
@@ -5317,17 +5322,17 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                         _zc1, _zc2, _zc3, _zc4 = st.columns([2.2, 0.9, 1.0, 0.9])
                         _zc1.markdown(f"**🎯 '{clean_val}' 일치 기업 후보 ({len(matches)}개사 중 {_z_st+1}~{_z_ed}번째):**")
                         if _z_tp > 1:
-                            if _zc2.button('◀ 이전 12개', key='z_pg_prev', disabled=(_z_cp <= 0), use_container_width=True):
+                            if _zc2.button('◀ 이전 12개', key='z_pg_prev', disabled=(_z_cp <= 0), width='stretch'):
                                 st.session_state['_z_pg'] = max(0, _z_cp - 1)
                                 st.rerun()
                             _zc3.markdown(f"<div style='text-align:center;padding-top:6px;color:#38bdf8;font-weight:800;'>{_z_cp+1} / {_z_tp} 페이지</div>", unsafe_allow_html=True)
-                            if _zc4.button('다음 12개 ▶', key='z_pg_next', disabled=(_z_cp >= _z_tp - 1), use_container_width=True):
+                            if _zc4.button('다음 12개 ▶', key='z_pg_next', disabled=(_z_cp >= _z_tp - 1), width='stretch'):
                                 st.session_state['_z_pg'] = min(_z_tp - 1, _z_cp + 1)
                                 st.rerun()
                         grid_cols = st.columns(4)
                         for m_idx, comp_cand in enumerate(matches[_z_st:_z_ed]):
                             col_target = grid_cols[m_idx % 4]
-                            if col_target.button(f"🏢 {comp_cand.get('name', '기업')}\n(대표: {comp_cand.get('ceo', '대표')})", key=f"cand_btn_{m_idx}", use_container_width=True):
+                            if col_target.button(f"🏢 {comp_cand.get('name', '기업')}\n(대표: {comp_cand.get('ceo', '대표')})", key=f"cand_btn_{m_idx}", width='stretch'):
                                 comp = comp_cand
                                 c_perf = comp.get('perf_5yr', {})
                                 if '전기공사업' not in c_perf:
@@ -5346,7 +5351,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                     else:
                         st.warning(f"'{clean_val}'과 일치하는 등록 기업이 없습니다. 직접 공공망 조회를 실행하거나 폼에 입력하세요.")
 
-                if q_col2.button("🔍 공공망 강제 재조회", type="primary", use_container_width=True):
+                if q_col2.button("🔍 공공망 강제 재조회", type="primary", width='stretch'):
                     if search_input.strip():
                         with st.spinner("국토부 KISCON 및 협회 전산망에서 데이터를 실시간 조회 중..."):
                             scraped = fetch_association_company_data(search_input, DATA_API_KEY)
@@ -5414,7 +5419,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                         f_sanction = st.number_input("최근 1년 영업정지 누적일수", min_value=0, value=int(s_data.get("sanction_days", 0)), step=15)
 
                         st.markdown("---")
-                        submit_btn = st.form_submit_button("💾 적격 마스터 스펙 승인 및 결과 화면 활성화", type="primary", use_container_width=True)
+                        submit_btn = st.form_submit_button("💾 적격 마스터 스펙 승인 및 결과 화면 활성화", type="primary", width='stretch')
 
                         if submit_btn:
                             lic_specs_dict = s_data.get("license_specs", {})
@@ -5445,7 +5450,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                     st.markdown("#### 📄 기술자 보유증명서(PDF) 업로드로 3초 자동인식")
                     eng_file = st.file_uploader("건설기술인 보유증명서 업로드 (PDF)", type=["pdf"], key="gatekeeper_eng_pdf")
                     if eng_file is not None:
-                        if st.button("🤖 AI 기술자 등급별 인원 자동 추출", use_container_width=True, type="primary"):
+                        if st.button("🤖 AI 기술자 등급별 인원 자동 추출", width='stretch', type="primary"):
                             with st.spinner("Gemini 비전 AI가 보유증명서 표를 분석하는 중..."):
                                 parsed_eng = parse_engineer_certificate_pdf(eng_file.read())
                                 if "scraped_data" in st.session_state and st.session_state["scraped_data"]:
@@ -5475,7 +5480,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                             _val = _amts[_yidx] if _yidx < len(_amts) else _amts[-1]
                             _r[_yr] = f"{_val:,.0f}원"
                         _rows.append(_r)
-                    st.dataframe(pd.DataFrame(_rows), use_container_width=True, hide_index=True)
+                    st.dataframe(pd.DataFrame(_rows), width='stretch', hide_index=True)
             # 🔓 2단계: 승인 완료 후에만 열리는 분석 결과 화면
             comp = st.session_state["comp_profile"]
 
@@ -5608,13 +5613,13 @@ with tab_radar:
 
         if "AI" in _search_engine_mode or "듀얼" in _search_engine_mode:
             _p_c1, _p_c2, _p_c3, _p_c4 = st.columns(4)
-            if _p_c1.button("✨ 강원 건축+조경 실적 50억↑ 탄탄한 회사", key="ai_ex_1", use_container_width=True):
+            if _p_c1.button("✨ 강원 건축+조경 실적 50억↑ 탄탄한 회사", key="ai_ex_1", width='stretch'):
                 st.session_state["radar_nl_ai_input"] = "강원도에서 건축이랑 조경 면허 같이 있고 5년 실적 50억 넘는 부채 90% 이하 탄탄한 업체 찾아줘"
-            if _p_c2.button("✨ 서울 전기+소방 겸업 신용 A등급↑", key="ai_ex_2", use_container_width=True):
+            if _p_c2.button("✨ 서울 전기+소방 겸업 신용 A등급↑", key="ai_ex_2", width='stretch'):
                 st.session_state["radar_nl_ai_input"] = "서울에서 전기랑 소방 면허 동시에 보유하고 신용 A등급 이상인 우량 업체"
-            if _p_c3.button("✨ 경기 토목+상하수도 시평 100억↑", key="ai_ex_3", use_container_width=True):
+            if _p_c3.button("✨ 경기 토목+상하수도 시평 100억↑", key="ai_ex_3", width='stretch'):
                 st.session_state["radar_nl_ai_input"] = "경기도 토목이랑 상하수도 면허 보유하고 시평 100억 이상인 회사 실적 높은순"
-            if _p_c4.button("✨ 원주·춘천 기계설비 우량 기업", key="ai_ex_4", use_container_width=True):
+            if _p_c4.button("✨ 원주·춘천 기계설비 우량 기업", key="ai_ex_4", width='stretch'):
                 st.session_state["radar_nl_ai_input"] = "춘천이나 원주에 기계설비 면허 있고 부채비율 85% 이하인 기업 찾아줘"
             nl_prompt_query = st.text_input(
                 "🧠 AI 자연어 시맨틱 오더 (지역·주력/겸업면허·실적·시평액·부채비율·신용등급을 일상 대화처럼 입력하세요)",
@@ -5654,17 +5659,17 @@ with tab_radar:
                 _r_lbl_tag = ' · '.join([x for x in [clean_r_val or '전체', ('' if radar_reg_filter.startswith('전체') else radar_reg_filter), ('' if radar_lic_filter.startswith('전체') else radar_lic_filter + '(겸업포함)')] if x])
                 _hc1.markdown(f"**🎯 [{_r_lbl_tag}] 검색 기업 ({len(r_matches)}개사 중 {_r_st+1}~{_r_ed}번째):**")
                 if _r_tp > 1:
-                    if _hc2.button('◀ 이전 12개', key='r_pg_prev', disabled=(_r_cp <= 0), use_container_width=True):
+                    if _hc2.button('◀ 이전 12개', key='r_pg_prev', disabled=(_r_cp <= 0), width='stretch'):
                         st.session_state['_r_pg'] = max(0, _r_cp - 1)
                         st.rerun()
                     _hc3.markdown(f"<div style='text-align:center;padding-top:6px;color:#38bdf8;font-weight:800;'>{_r_cp+1} / {_r_tp} 페이지</div>", unsafe_allow_html=True)
-                    if _hc4.button('다음 12개 ▶', key='r_pg_next', disabled=(_r_cp >= _r_tp - 1), use_container_width=True):
+                    if _hc4.button('다음 12개 ▶', key='r_pg_next', disabled=(_r_cp >= _r_tp - 1), width='stretch'):
                         st.session_state['_r_pg'] = min(_r_tp - 1, _r_cp + 1)
                         st.rerun()
                 r_cand_cols = st.columns(4)
                 for rm_idx, r_comp in enumerate(r_matches[_r_st:_r_ed]):
                     _btn_sub = f"대표: {r_comp.get('ceo', '대표')} · 5년실적 {r_comp.get('_perf_eok', round(float(r_comp.get('perf_record',4500000000))/1e8,1))}억" if r_comp.get('_ai_match_score') else f"대표: {r_comp.get('ceo', '대표')}"
-                    if r_cand_cols[rm_idx % 4].button(f"🎯 {r_comp.get('name', '기업')}\n({_btn_sub})", key=f"r_cand_btn_{_r_st + rm_idx}", use_container_width=True):
+                    if r_cand_cols[rm_idx % 4].button(f"🎯 {r_comp.get('name', '기업')}\n({_btn_sub})", key=f"r_cand_btn_{_r_st + rm_idx}", width='stretch'):
                         save_company_profile(r_comp)
                         st.session_state["comp_profile"] = r_comp
                         st.session_state["auto_state"] = execute_full_autonomous_pipeline(r_comp, auto_save=True)
@@ -5696,7 +5701,7 @@ with tab_radar:
         sel_inst_type = f_c4.selectbox("4️⃣ 발주기관 유형", INST_TYPE_LIST, index=0)
         sel_sort = f_c5.selectbox("5️⃣ 정렬 기준", ["⏰ 입찰마감 임박순", "💰 기초금액 높은순", "💵 기초금액 낮은순"], index=0)
     
-        do_scrape = f_c6.button("⚡ 조건부 실시간 공고 스크랩", type="primary", use_container_width=True)
+        do_scrape = f_c6.button("⚡ 조건부 실시간 공고 스크랩", type="primary", width='stretch')
 
         if do_scrape or "radar_cache_adv" not in st.session_state:
             st.session_state["radar_cache_adv"] = fetch_live_g2b_bids_advanced(
@@ -5749,7 +5754,7 @@ with tab_radar:
     with _delta_col3:
         _sub_c1, _sub_c2 = st.columns([1.35, 1.0])
         with _sub_c2:
-            if st.button("🧹 캐비닛 비우기", key="btn_clear_cabinet_zero", use_container_width=True):
+            if st.button("🧹 캐비닛 비우기", key="btn_clear_cabinet_zero", width='stretch'):
                 st.session_state["_cabinet_cleared_empty"] = True
                 st.session_state["_accumulated_g2b_bids"] = []
                 st.session_state["live_bids_data"] = []
@@ -5760,7 +5765,7 @@ with tab_radar:
                 st.rerun()
         with _sub_c1:
             if _pend_cnt > 0:
-                if st.button(f'📥 신규 {_pend_cnt}건 캐비닛 합산', key='apply_delta_bids_btn', type='primary', use_container_width=True):
+                if st.button(f'📥 신규 {_pend_cnt}건 캐비닛 합산', key='apply_delta_bids_btn', type='primary', width='stretch'):
                     st.session_state['_cabinet_cleared_empty'] = False
                     _merged_now = list(_pend_bids) + list(_cur_bids_list)
                     for _mi, _mb in enumerate(_merged_now):
@@ -5772,7 +5777,7 @@ with tab_radar:
                     st.toast(f'✅ 신규 공고 {_pend_cnt}건이 상단 쇼룸에 누적 추가되었습니다! (총 {12}건)', icon='🔔')
                     st.rerun()
             else:
-                if st.button('🔍 신규공고 델타 확인 (API 1회)', key='manual_delta_scan_btn', use_container_width=True):
+                if st.button('🔍 신규공고 델타 확인 (API 1회)', key='manual_delta_scan_btn', width='stretch'):
                     _new_p, _, _ = check_new_g2b_bids_delta(_cur_bids_list, sel_lic, sel_reg, force_scan=True)
                     st.toast(f'🛰️ 조달청 비교 완료: 신규 공고 {len(_new_p)}건 포착!', icon='🔔')
                     st.rerun()
@@ -5788,7 +5793,7 @@ with tab_radar:
             with _p_c1:
                 if st.session_state.get("_last_pull_msg"):
                     st.success(f"✅ 선택 면허 맞춤 신규 공고 {len(st.session_state.get('custom_pulled_bids', []))}건이 상단 쇼룸에 전량 누적 반영됨! (총 {len(st.session_state.get('_accumulated_g2b_bids', []))}건)")
-                if st.button("🔄 조달청 나라장터 신규 공고 지금 끌어오기", key="btn_top_g2b_live_pull", use_container_width=True, type="primary"):
+                if st.button("🔄 조달청 나라장터 신규 공고 지금 끌어오기", key="btn_top_g2b_live_pull", width='stretch', type="primary"):
                     _cur_all = st.session_state.get('_accumulated_g2b_bids', [])
                     st.session_state['_cabinet_cleared_empty'] = False
                     _all_new_subsequent = fetch_step3_all_subsequent_bids(_cur_all, comp)
@@ -5809,7 +5814,7 @@ with tab_radar:
                     _sel_p = st.selectbox("📥 추가된 신규 공고 선택", _opts, key="sel_live_pulled_item")
                     _idx_p = _opts.index(_sel_p)
                     _picked = st.session_state["live_pulled_notices"][_idx_p]
-                    if st.button("⚡ 선택한 공고로 전체 캐비닛 전환", key="btn_apply_pulled_notice", use_container_width=True):
+                    if st.button("⚡ 선택한 공고로 전체 캐비닛 전환", key="btn_apply_pulled_notice", width='stretch'):
                         st.session_state["selected_notice_no"] = _picked["no"]
                         st.session_state["selected_notice_title"] = _picked["title"]
                         st.session_state["selected_notice_org"] = _picked["org"]
@@ -5825,7 +5830,7 @@ with tab_radar:
                 _m_base = _m_c1.number_input("기초금액(원)", step=10000000, key="quick_in_base")
                 _m_a = _m_c2.number_input("A값(원)", step=1000000, key="quick_in_a")
                 _m_net = _m_c3.number_input("순공사원가(원)", value=3463750000, step=10000000, key="quick_in_net")
-                if st.button("✅ 이 제원으로 즉시 추가 및 분석", key="btn_quick_manual_apply", use_container_width=True):
+                if st.button("✅ 이 제원으로 즉시 추가 및 분석", key="btn_quick_manual_apply", width='stretch'):
                     _parts = [p.strip() for p in _m_no.split("|")]
                     _new_no = _parts[0] if _parts else "202611-99999"
                     _new_tt = _parts[1] if len(_parts) > 1 else _m_no
@@ -6143,7 +6148,7 @@ with tab_radar:
                 _cur_p = min(st.session_state['_zs_page'], _tot_p - 1)
                 _s_i, _e_i = _cur_p * _p_size, min(len(_b_notices), (_cur_p + 1) * _p_size)
                 _pc1, _pc2, _pc3 = st.columns([1.1, 2.8, 1.1])
-                if _pc1.button('◀ 이전 3건 캐비닛', key='prev_3_cab', disabled=(_cur_p <= 0), use_container_width=True):
+                if _pc1.button('◀ 이전 3건 캐비닛', key='prev_3_cab', disabled=(_cur_p <= 0), width='stretch'):
                     st.session_state['_zs_page'] = max(0, _cur_p - 1)
                     st.rerun()
                 for _v_cand in ["_b_notices", "live_bids", "filtered_bids", "showroom_bids", "display_bids", "all_bids", "cabinet_bids"]:
@@ -6157,7 +6162,7 @@ with tab_radar:
                                 and int(_b.get("기초금액", 0) or 0) not in (5620000000, 8950000000, 3480000000)
                             ]
                 _pc2.markdown(f"<div style='text-align:center;padding:6px;background:rgba(15,23,42,0.9);border:1px solid rgba(251,191,36,0.4);border-radius:10px;font-size:13px;font-weight:900;color:#fde68a;'>💎 보물섬 쇼케이스 — PAGE {_cur_p+1} / {_tot_p} (공고 #{_s_i+1}~#{_e_i} / 총 {len(_b_notices)}건)</div>", unsafe_allow_html=True)
-                if _pc3.button('다음 3건 캐비닛 ▶', key='next_3_cab', disabled=(_cur_p >= _tot_p - 1), use_container_width=True):
+                if _pc3.button('다음 3건 캐비닛 ▶', key='next_3_cab', disabled=(_cur_p >= _tot_p - 1), width='stretch'):
                     st.session_state['_zs_page'] = min(_tot_p - 1, _cur_p + 1)
                     st.rerun()
                 _iter_range = range(_s_i, _e_i, 3)
@@ -6175,10 +6180,10 @@ with tab_radar:
                         with _g_cols[_c_offset]:
                             st.markdown(_bv_mod.build_jewel_showcase_tile_html(_gprof, _g_idx, _is_act, _in_cart), unsafe_allow_html=True)
                             _b_col1, _b_col2 = st.columns([1.5, 1.0])
-                            if _b_col1.button('🗝️ 캐비닛 열기' if not _is_act else '✨ 현재 열람중', key=f'btn_open_cab_{_g_idx}', type='secondary' if not _is_act else 'primary', use_container_width=True):
+                            if _b_col1.button('🗝️ 캐비닛 열기' if not _is_act else '✨ 현재 열람중', key=f'btn_open_cab_{_g_idx}', type='secondary' if not _is_act else 'primary', width='stretch'):
                                 st.session_state['_boutique_selected_idx'] = _g_idx
                                 st.rerun()
-                            if _b_col2.button('💖 카트담기' if not _in_cart else '🗑️ 찜해제', key=f'btn_cart_grid_{_g_idx}', use_container_width=True):
+                            if _b_col2.button('💖 카트담기' if not _in_cart else '🗑️ 찜해제', key=f'btn_cart_grid_{_g_idx}', width='stretch'):
                                 if _in_cart:
                                     st.session_state['_boutique_cart_ids'].remove(_gprof['nid']); _save_persisted_cart(st.session_state['_boutique_cart_ids'])
                                 else:
@@ -6193,7 +6198,7 @@ with tab_radar:
                 st.markdown(build_notice_dossier_html(_prof), unsafe_allow_html=True)
                 _doc_html, _boq_csv, _bid_json, _spec_txt = generate_notice_attachments(_prof)
                 _zip_bytes, _zip_meta = generate_master_zip_bundle(_prof)
-                st.download_button(label=f"📦 [1-Click 마스터 번들 다운로드] (G2B_마스터패키지_{_prof['nid']}.zip · {_zip_meta['zip_size_kb']} KB)", data=_zip_bytes, file_name=f"G2B_마스터패키지_{_prof['nid']}.zip", mime='application/zip', key=f"dl_active_zip_{_prof['nid']}_{_sel_idx}", type='primary', use_container_width=True)
+                st.download_button(label=f"📦 [1-Click 마스터 번들 다운로드] (G2B_마스터패키지_{_prof['nid']}.zip · {_zip_meta['zip_size_kb']} KB)", data=_zip_bytes, file_name=f"G2B_마스터패키지_{_prof['nid']}.zip", mime='application/zip', key=f"dl_active_zip_{_prof['nid']}_{_sel_idx}", type='primary', width='stretch')
                 _pv_t1, _pv_t2, _pv_t3 = st.tabs(['📊 [인앱 열람 1] 공내역서 규격 양식표', '📐 [인앱 열람 2] 공사시방서 & AI 전략 규격서', '🔐 [인앱 열람 3] SHA-256 무결성 검증서'])
                 with _pv_t1:
                     st.markdown(build_boq_preview_table_html(_prof), unsafe_allow_html=True)
@@ -6220,7 +6225,7 @@ with tab_radar:
                 with _p_c1:
                     if st.session_state.get("_last_pull_msg"):
                         st.success(f"✅ 선택 면허 맞춤 신규 공고 {len(st.session_state.get('custom_pulled_bids', []))}건이 상단 쇼룸에 전량 누적 반영됨! (총 {len(st.session_state.get('_accumulated_g2b_bids', []))}건)")
-                    if st.button("🔄 조달청 나라장터 신규 공고 지금 끌어오기", key="btn_top_g2b_live_pull", use_container_width=True, type="primary"):
+                    if st.button("🔄 조달청 나라장터 신규 공고 지금 끌어오기", key="btn_top_g2b_live_pull", width='stretch', type="primary"):
                         _cur_all = st.session_state.get('_accumulated_g2b_bids', [])
                         st.session_state['_cabinet_cleared_empty'] = False
                         _all_new_subsequent = fetch_step3_all_subsequent_bids(_cur_all, comp)
@@ -6241,7 +6246,7 @@ with tab_radar:
                         _sel_p = st.selectbox("📥 추가된 신규 공고 선택", _opts, key="sel_live_pulled_item")
                         _idx_p = _opts.index(_sel_p)
                         _picked = st.session_state["live_pulled_notices"][_idx_p]
-                        if st.button("⚡ 선택한 공고로 전체 캐비닛 전환", key="btn_apply_pulled_notice", use_container_width=True):
+                        if st.button("⚡ 선택한 공고로 전체 캐비닛 전환", key="btn_apply_pulled_notice", width='stretch'):
                             st.session_state["selected_notice_no"] = _picked["no"]
                             st.session_state["selected_notice_title"] = _picked["title"]
                             st.session_state["selected_notice_org"] = _picked["org"]
@@ -6257,7 +6262,7 @@ with tab_radar:
                     _m_base = _m_c1.number_input("기초금액(원)", step=10000000, key="quick_in_base")
                     _m_a = _m_c2.number_input("A값(원)", step=1000000, key="quick_in_a")
                     _m_net = _m_c3.number_input("순공사원가(원)", value=3463750000, step=10000000, key="quick_in_net")
-                    if st.button("✅ 이 제원으로 즉시 추가 및 분석", key="btn_quick_manual_apply", use_container_width=True):
+                    if st.button("✅ 이 제원으로 즉시 추가 및 분석", key="btn_quick_manual_apply", width='stretch'):
                         _parts = [p.strip() for p in _m_no.split("|")]
                         _new_no = _parts[0] if _parts else "202611-99999"
                         _new_tt = _parts[1] if len(_parts) > 1 else _m_no
@@ -6524,13 +6529,13 @@ with tab_radar:
                             mime="application/zip",
                             key=f"dl_master_zip_{_prof['nid']}_{idx}",
                             type="primary",
-                            use_container_width=True,
+                            width='stretch',
                         )
                         _dl_c1, _dl_c2, _dl_c3, _dl_c4 = st.columns(4)
-                        _dl_c1.download_button("📄 입찰공고문 전문 (.html)", data=_doc_html, file_name=f"입찰공고문_{_prof['nid']}.html", mime="text/html", key=f"dl_doc_{_prof['nid']}_{idx}", use_container_width=True)
-                        _dl_c2.download_button("📊 공내역서·물량내역 (.csv)", data=_boq_csv, file_name=f"공내역서_{_prof['nid']}.csv", mime="text/csv", key=f"dl_boq_{_prof['nid']}_{idx}", use_container_width=True)
-                        _dl_c3.download_button("📦 G2B 전자입찰 제원 (.json)", data=_bid_json, file_name=f"G2B제원_{_prof['nid']}.json", mime="application/json", key=f"dl_json_{_prof['nid']}_{idx}", use_container_width=True)
-                        _dl_c4.download_button("📐 공사시방서·특기사항 (.txt)", data=_spec_txt, file_name=f"공사시방서_{_prof['nid']}.txt", mime="text/plain", key=f"dl_spec_{_prof['nid']}_{idx}", use_container_width=True)
+                        _dl_c1.download_button("📄 입찰공고문 전문 (.html)", data=_doc_html, file_name=f"입찰공고문_{_prof['nid']}.html", mime="text/html", key=f"dl_doc_{_prof['nid']}_{idx}", width='stretch')
+                        _dl_c2.download_button("📊 공내역서·물량내역 (.csv)", data=_boq_csv, file_name=f"공내역서_{_prof['nid']}.csv", mime="text/csv", key=f"dl_boq_{_prof['nid']}_{idx}", width='stretch')
+                        _dl_c3.download_button("📦 G2B 전자입찰 제원 (.json)", data=_bid_json, file_name=f"G2B제원_{_prof['nid']}.json", mime="application/json", key=f"dl_json_{_prof['nid']}_{idx}", width='stretch')
+                        _dl_c4.download_button("📐 공사시방서·특기사항 (.txt)", data=_spec_txt, file_name=f"공사시방서_{_prof['nid']}.txt", mime="text/plain", key=f"dl_spec_{_prof['nid']}_{idx}", width='stretch')
                         _pv_t1, _pv_t2, _pv_t3 = st.tabs(["📊 [인앱 열람 1] 공내역서(CSV) 실시간 프리뷰", "📐 [인앱 열람 2] 공사시방서 & AI 투찰전략서", "🔐 [인앱 열람 3] G2B JSON & SHA-256 무결성 매니페스트"])
                         with _pv_t1:
                             st.markdown(build_boq_preview_table_html(_prof), unsafe_allow_html=True)
@@ -6587,7 +6592,7 @@ with tab1:
             file_name=f"적격심사_공식서식_{comp.get('name', '기업')}.html",
             mime="text/html",
             type="primary",
-            use_container_width=True
+            width='stretch'
         )
 
 with tab_quantum_ai:
@@ -6601,7 +6606,7 @@ with tab_quantum_ai:
     st.markdown("---")
     st.markdown("##### 🏛️ 조달청 나라장터 실제 개찰 전수 데이터셋")
     real_df = st_pack.get("real_bids_df", pd.DataFrame())
-    st.dataframe((real_df[[c for c in [c for c in ["공고번호", "공고명", "기초금액", "실제예가사정률", "1순위투찰률", "1-2위 격차", "결과"] if c in real_df.columns] if c in real_df.columns]] if hasattr(real_df, "columns") and len([c for c in [c for c in ["공고번호", "공고명", "기초금액", "실제예가사정률", "1순위투찰률", "1-2위 격차", "결과"] if c in real_df.columns] if c in real_df.columns]) > 0 else real_df) if hasattr(real_df, "columns") and any(c in real_df.columns for c in ["공고번호", "공고명", "기초금액", "실제예가사정률", "1순위투찰률", "1-2위 격차", "결과"]) else real_df, use_container_width=True, hide_index=True)
+    st.dataframe((real_df[[c for c in [c for c in ["공고번호", "공고명", "기초금액", "실제예가사정률", "1순위투찰률", "1-2위 격차", "결과"] if c in real_df.columns] if c in real_df.columns]] if hasattr(real_df, "columns") and len([c for c in [c for c in ["공고번호", "공고명", "기초금액", "실제예가사정률", "1순위투찰률", "1-2위 격차", "결과"] if c in real_df.columns] if c in real_df.columns]) > 0 else real_df) if hasattr(real_df, "columns") and any(c in real_df.columns for c in ["공고번호", "공고명", "기초금액", "실제예가사정률", "1순위투찰률", "1-2위 격차", "결과"]) else real_df, width='stretch', hide_index=True)
 
 with tab_sim:
     if not st.session_state.get('selected_notice_no') and int(st.session_state.get('_z34_base', 0) or 0) == 0:
@@ -6790,7 +6795,7 @@ with tab_sim:
         file_name=f"사정률_심의의결서_{comp.get('name', '기업')}.html",
         mime="text/html",
         type="primary",
-        use_container_width=True
+        width='stretch'
     )
 
 with tab_dox:
@@ -6803,7 +6808,7 @@ with tab_dox:
         {"순번": 5, "구분": "경영상태", "서류명": "공공입찰용 신용평가등급 확인서", "발급처": "지정 신용정보업체 (NICE/e-Credible)", "상태": f"✅ {comp.get('credit_grade', 'A-')} 등급 (G2B 연계 확인)", "필수여부": "전산미연계시 필수"},
         {"순번": 6, "구분": "시공실적", "서류명": "건설공사 실적증명서 (최근 5개년 누적실적)", "발급처": "관할 협회 (건설·전기·통신협회)", "상태": "✅ 최근 5개년 연도별 관리 완료", "필수여부": "필수 (협회 직인 원본)"}
     ]
-    st.dataframe(pd.DataFrame(dox_checklist), use_container_width=True, hide_index=True)
+    st.dataframe(pd.DataFrame(dox_checklist), width='stretch', hide_index=True)
 
     st.markdown("---")
     st.markdown(_z4_clean_zero_html("""
@@ -6840,14 +6845,14 @@ with tab_dox:
         file_name=f"적격심사_공식서식_{comp.get('name', '기업')}.html",
         mime="text/html",
         type="primary",
-        use_container_width=True
+        width='stretch'
     )
     d_c2.download_button(
         label="📥 기업 시공능력평가액 · 5개년 실적 및 기술인력 총괄 증명원 (.html)",
         data=comp_spec_cert_html.encode("utf-8"),
         file_name=f"기업실적기술자증명원_{comp.get('name', '기업')}.html",
         mime="text/html",
-        use_container_width=True
+        width='stretch'
     )
 
 # =================================================================================
@@ -6861,7 +6866,7 @@ with tab_profile:
     u_col1, u_col2 = st.columns([2.5, 1])
     eng_pdf_upload = u_col1.file_uploader("한국건설기술인협회/전기기술인협회 기술자 보유증명서 (PDF)", type=["pdf"], key="master_eng_pdf")
     
-    if u_col2.button("🤖 AI 기술자 추출 및 즉시 저장", type="primary", use_container_width=True):
+    if u_col2.button("🤖 AI 기술자 추출 및 즉시 저장", type="primary", width='stretch'):
         if eng_pdf_upload is not None:
             with st.spinner("Gemini 비전 AI가 보유증명서의 등급별 인원수를 스캔 중..."):
                 parsed_eng = parse_engineer_certificate_pdf(eng_pdf_upload.read())
@@ -6891,7 +6896,7 @@ with tab_profile:
             "5개년 누적 합계": f"{spec.get('perf', 0):,} 원",
             "시공능력평가액": f"{spec.get('cap', 0):,} 원"
         })
-    st.dataframe(pd.DataFrame(spec_rows), use_container_width=True, hide_index=True)
+    st.dataframe(pd.DataFrame(spec_rows), width='stretch', hide_index=True)
 
     c_box1, c_box2 = st.columns(2)
     with c_box1:
@@ -6919,7 +6924,7 @@ with tab_profile:
         st.markdown("##### 👷 상주 기술인력 보유 현황 (OCR 추출값)")
         engs = comp.get("engineers", {"특급": 0, "고급": 0, "중급": 0, "초급": 0, "_ocr_status": "ERROR_UNVERIFIED"})
         eng_df = pd.DataFrame([{"특급 기술자": f"{engs.get('특급',0)}명", "고급 기술자": f"{engs.get('고급',0)}명", "중급 기술자": f"{engs.get('중급',0)}명", "초급 기술자": f"{engs.get('초급',0)}명", "총원": f"{sum(v for v in engs.values() if isinstance(v, (int, float)) and not isinstance(v, bool))}명"}])
-        st.dataframe(eng_df, use_container_width=True, hide_index=True)
+        st.dataframe(eng_df, width='stretch', hide_index=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
     st.download_button(
@@ -6928,7 +6933,7 @@ with tab_profile:
         file_name=f"기업실적기술자증명원_{comp.get('name', '기업')}.html",
         mime="text/html",
         type="primary",
-        use_container_width=True
+        width='stretch'
     )
 
     st.markdown("---")
@@ -6989,7 +6994,7 @@ with tab_profile:
             }
             st.markdown("---")
 
-        if st.form_submit_button("💾 5개년 실적 · 특수자격 · 기술인력 저장", type="primary", use_container_width=True):
+        if st.form_submit_button("💾 5개년 실적 · 특수자격 · 기술인력 저장", type="primary", width='stretch'):
             updated = comp.copy()
             updated.update({
                 "name": ef_name, "ceo": ef_ceo, "biz_no": ef_biz, "region": ef_reg,
@@ -7012,7 +7017,7 @@ with tab4:
     df_ledger = pd.read_sql_query("SELECT * FROM bid_ledger ORDER BY id DESC", conn)
     conn.close()
     if not df_ledger.empty:
-        st.dataframe(df_ledger, use_container_width=True)
+        st.dataframe(df_ledger, width='stretch')
     else:
         st.info("원장 데이터가 아직 없습니다.")
 
@@ -7299,11 +7304,11 @@ def render_phase2_multi_bid_cart():
         with sync_c1:
             st.info(f"현재 나라장터 필터 매칭 풀 총 **{len(pool)}건** 감지됨 (선택된 장바구니: **{len(st.session_state.get('bid_cart_selected', []))}건**)")
         with sync_c2:
-            if st.button("📥 필터 감지 공고 전체 장바구니 원클릭 담기", use_container_width=True, key="btn_sync_radar_all"):
+            if st.button("📥 필터 감지 공고 전체 장바구니 원클릭 담기", width='stretch', key="btn_sync_radar_all"):
                 st.session_state["bid_cart_selected"] = all_labels
                 st.rerun()
         with sync_c3:
-            if st.button("🗑️ 장바구니 선택 초기화", use_container_width=True, key="btn_clear_cart"):
+            if st.button("🗑️ 장바구니 선택 초기화", width='stretch', key="btn_clear_cart"):
                 st.session_state["bid_cart_selected"] = all_labels[:1]
                 st.rerun()
 
@@ -7322,7 +7327,7 @@ def render_phase2_multi_bid_cart():
             new_mrate = f_c8.number_input("목표사정률 (%)", min_value=97.0, max_value=103.0, value=100.065, step=0.005, format="%.3f", key="inp_new_mrate")
             with f_c9:
                 st.write("")
-                if st.button("➕ 장바구니에 즉시 추가", use_container_width=True, key="btn_add_custom_notice"):
+                if st.button("➕ 장바구니에 즉시 추가", width='stretch', key="btn_add_custom_notice"):
                     new_item = {
                         "공고번호": new_no.strip(),
                         "공고명": new_title.strip(),
@@ -7370,7 +7375,7 @@ def render_phase2_multi_bid_cart():
 
                 st.metric("🎯 AI 학습 추천 최적 사정률 (데드존 회피)", f"{rec_m_rate:.3f}%", f"평균(μ) {learned_mu:.3f}% | 표준편차(σ) {learned_std:.3f}%")
                 st.caption(f"경쟁사 과밀 데드존 구간: `{dz_left:.3f}% ~ {dz_right:.3f}%` (자동 회피 적용)")
-                if st.button("⚡ AI 학습 최적 사정률을 장바구니 전체 공고에 일괄 적용", use_container_width=True, key="btn_apply_ai_mu"):
+                if st.button("⚡ AI 학습 최적 사정률을 장바구니 전체 공고에 일괄 적용", width='stretch', key="btn_apply_ai_mu"):
                     for idx_p, it_p in enumerate(st.session_state["bid_cart_pool"]):
                         it_p["목표사정률"] = round(rec_m_rate + (idx_p - 1) * 0.015, 3)
                     st.rerun()
@@ -7491,14 +7496,14 @@ def render_phase2_multi_bid_cart():
         eng_status = "✅ 배치 가능" if total_eng_req <= avail_engineers else f"⚠️ {total_eng_req - avail_engineers}명 부족 (파트너사 분담 가능)"
         k4.metric("👷 동시 낙찰 시 필요 기술자", f"총 {total_eng_req} 명", eng_status)
 
-        st.dataframe(cart_df, use_container_width=True, hide_index=True)
+        st.dataframe(cart_df, width='stretch', hide_index=True)
 
         st.markdown("#### 🎰 2-1. [실무 기능 ②] 나라장터 투찰 화면용 15개 복수예가 '최빈 행운 번호 4개' AI 추첨기")
         lk_c1, lk_c2 = st.columns([3.2, 1.0])
         with lk_c1:
             st.caption("나라장터(G2B) 최종 투찰 시 체크할 **1번~15번 예비가격 중 목표 사정률에 가장 근접한 핵심 번호 4개 조합**입니다.")
         with lk_c2:
-            if st.button("🎲 번호 4개 조합 재추첨 (시드 변경)", use_container_width=True, key="btn_reroll_lucky4"):
+            if st.button("🎲 번호 4개 조합 재추첨 (시드 변경)", width='stretch', key="btn_reroll_lucky4"):
                 st.session_state["lucky_seed_offset"] = int(st.session_state.get("lucky_seed_offset", 0)) + 1
                 st.rerun()
 
@@ -7549,7 +7554,7 @@ def render_phase2_multi_bid_cart():
             )
         with link_c2:
             st.write("")
-            if st.button("⚡ 1단계 메인 즉시 연동", use_container_width=True, key="btn_push_to_main_v5"):
+            if st.button("⚡ 1단계 메인 즉시 연동", width='stretch', key="btn_push_to_main_v5"):
                 chosen_idx = target_names.index(chosen_target_lbl)
                 chosen_obj = selected_items[chosen_idx]
                 st.session_state["active_cart_target"] = chosen_obj
@@ -7562,7 +7567,7 @@ def render_phase2_multi_bid_cart():
                 data=exec_html.encode("utf-8"),
                 file_name="BID_NEXUS_Executive_Portfolio_Report.html",
                 mime="text/html",
-                use_container_width=True,
+                width='stretch',
                 key="btn_download_cart_html_v5"
             )
         with link_c4:
@@ -7573,7 +7578,7 @@ def render_phase2_multi_bid_cart():
                 data=csv_bytes,
                 file_name="BID_NEXUS_Multi_Bid_Cart_Report.csv",
                 mime="text/csv",
-                use_container_width=True,
+                width='stretch',
                 key="btn_download_cart_csv_v5"
             )
 
@@ -7668,7 +7673,7 @@ def render_phase3_webhook_and_tracker():
                 )
                 with c_tg3:
                     st.write("")
-                    if st.button("🔍 Chat ID 자동조회", use_container_width=True, key="btn_find_chat_id"):
+                    if st.button("🔍 Chat ID 자동조회", width='stretch', key="btn_find_chat_id"):
                         if not tg_token.strip():
                             st.warning("먼저 좌측에 Bot Token을 입력해 주세요.")
                         else:
@@ -7718,7 +7723,7 @@ def render_phase3_webhook_and_tracker():
 
             btn_c1, btn_c2 = st.columns(2)
             with btn_c1:
-                if st.button("🚀 지금 즉시 알림 웹훅 발송", use_container_width=True, key="btn_send_webhook_v3"):
+                if st.button("🚀 지금 즉시 알림 웹훅 발송", width='stretch', key="btn_send_webhook_v3"):
                     sent_ok = False
                     try:
                         if wh_url.strip():
@@ -7755,7 +7760,7 @@ def render_phase3_webhook_and_tracker():
                     data=sample_csv_text.encode("utf-8-sig"),
                     file_name="sample_g2b_opening_history.csv",
                     mime="text/csv",
-                    use_container_width=True,
+                    width='stretch',
                     key="btn_dl_guaranteed_csv_v3"
                 )
 
@@ -8026,7 +8031,7 @@ def render_phase4_quantum_ai_engine():
         with apply_c2:
             st.write("")
             st.write("")
-            if st.button("🚀 선택한 전략 기어를 공고에 즉시 확정 적용", use_container_width=True, key="btn_apply_q45_gear"):
+            if st.button("🚀 선택한 전략 기어를 공고에 즉시 확정 적용", width='stretch', key="btn_apply_q45_gear"):
                 if "기어 4" in chosen_gear:
                     pool[sel_idx]["목표사정률"] = round(gear_sniper_rate, 3)
                 elif "기어 1" in chosen_gear:
@@ -8317,7 +8322,7 @@ def render_phase5_singularity_engine():
                 f"{singularity_rate:.4f} %",
                 f"1,365개 중 #{nearest_step_idx+1}번 계단 직결"
             )
-            if st.button("🔍 ① 양자계단 추론해부", key="btn_sg_xai_1", type="primary" if st.session_state["v155_sg_inspect_key"] == "SG1" else "secondary", use_container_width=True):
+            if st.button("🔍 ① 양자계단 추론해부", key="btn_sg_xai_1", type="primary" if st.session_state["v155_sg_inspect_key"] == "SG1" else "secondary", width='stretch'):
                 st.session_state["v155_sg_inspect_key"] = "SG1"
                 st.rerun()
         with m2:
@@ -8326,7 +8331,7 @@ def render_phase5_singularity_engine():
                 f"{human_biased_mean_rate:.4f} %",
                 "중앙 번호(3·7·8·11·12번) 쏠림 반영"
             )
-            if st.button("🔍 ② 클릭편향 추론해부", key="btn_sg_xai_2", type="primary" if st.session_state["v155_sg_inspect_key"] == "SG2" else "secondary", use_container_width=True):
+            if st.button("🔍 ② 클릭편향 추론해부", key="btn_sg_xai_2", type="primary" if st.session_state["v155_sg_inspect_key"] == "SG2" else "secondary", width='stretch'):
                 st.session_state["v155_sg_inspect_key"] = "SG2"
                 st.rerun()
         with m3:
@@ -8335,7 +8340,7 @@ def render_phase5_singularity_engine():
                 f"{fiscal_drift:+.3f} %p",
                 fiscal_season.split("(")[0].strip()
             )
-            if st.button("🔍 ③ 예산드리프트 해부", key="btn_sg_xai_3", type="primary" if st.session_state["v155_sg_inspect_key"] == "SG3" else "secondary", use_container_width=True):
+            if st.button("🔍 ③ 예산드리프트 해부", key="btn_sg_xai_3", type="primary" if st.session_state["v155_sg_inspect_key"] == "SG3" else "secondary", width='stretch'):
                 st.session_state["v155_sg_inspect_key"] = "SG3"
                 st.rerun()
         with m4:
@@ -8344,7 +8349,7 @@ def render_phase5_singularity_engine():
                 f"{singularity_bid:,.0f} 원",
                 f"기존 대비 {singularity_bid - naive_bid:+,.0f}원 (+{prime_wedge_won}원 웨지)"
             )
-            if st.button("🔍 ④ 최종투찰가 추론해부", key="btn_sg_xai_4", type="primary" if st.session_state["v155_sg_inspect_key"] == "SG4" else "secondary", use_container_width=True):
+            if st.button("🔍 ④ 최종투찰가 추론해부", key="btn_sg_xai_4", type="primary" if st.session_state["v155_sg_inspect_key"] == "SG4" else "secondary", width='stretch'):
                 st.session_state["v155_sg_inspect_key"] = "SG4"
                 st.rerun()
 
@@ -8430,7 +8435,7 @@ def render_phase5_singularity_engine():
         with sg_b1:
             st.success(f"🌌 **[특이점 해독]** #{nearest_step_idx+1}번 양자계단(`예가 {comb_exact_est_prices[nearest_step_idx]:,.0f}원`) +{prime_wedge_won}원 웨지(`{singularity_bid:,.0f}원`) 착지 완료 | 최적번호: **`🎯 {best_4_comb[0]}·{best_4_comb[1]}·{best_4_comb[2]}·{best_4_comb[3]}번`**")
         with sg_b2:
-            if st.button("🌌 특이점(v5.0) 사정률을 공고에 즉시 각인", use_container_width=True, key="btn_apply_singularity_v5"):
+            if st.button("🌌 특이점(v5.0) 사정률을 공고에 즉시 각인", width='stretch', key="btn_apply_singularity_v5"):
                 pool[sel_idx]["목표사정률"] = round(singularity_rate, 4)
                 pool[sel_idx]["_user_locked_rate"] = True
                 st.toast(f"🌌 [{notice_no}] 특이점 사정률 {singularity_rate:.4f}% 각인 완료!", icon="✅")
@@ -8774,7 +8779,7 @@ def render_phase6_backtesting_terminal():
                 f"Gen-{w_state['generation']}.0 진화형",
                 f"특이점 {w_state['singularity']*100:.0f}% · 판도라 {w_state['pandora']*100:.0f}% · 저격 {w_state['sniper']*100:.0f}%"
             )
-            if st.button("🔍 ① 가중치 진화원리 해부", key="btn_v165_l1", type="primary" if st.session_state["v165_learn_card_key"] == "L1" else "secondary", use_container_width=True):
+            if st.button("🔍 ① 가중치 진화원리 해부", key="btn_v165_l1", type="primary" if st.session_state["v165_learn_card_key"] == "L1" else "secondary", width='stretch'):
                 st.session_state["v165_learn_card_key"] = "L1"
                 st.rerun()
         with k2:
@@ -8783,7 +8788,7 @@ def render_phase6_backtesting_terminal():
                 f"±{mean_ai_err:.4f} %p",
                 f"담당자(±{mean_hu_err:.4f}%p) 대비 {mean_hu_err/max(mean_ai_err,0.0001):.1f}배 정밀"
             )
-            if st.button("🔍 ② 3대 오차분해 학습", key="btn_v165_l2", type="primary" if st.session_state["v165_learn_card_key"] == "L2" else "secondary", use_container_width=True):
+            if st.button("🔍 ② 3대 오차분해 학습", key="btn_v165_l2", type="primary" if st.session_state["v165_learn_card_key"] == "L2" else "secondary", width='stretch'):
                 st.session_state["v165_learn_card_key"] = "L2"
                 st.rerun()
         with k3:
@@ -8792,7 +8797,7 @@ def render_phase6_backtesting_terminal():
                 f"{(ai_survive_cnt / len(ledger)) * 100:.1f} % ({ai_survive_cnt}/{len(ledger)}건)",
                 f"일반 예측 생존율 {(hu_survive_cnt / len(ledger)) * 100:.1f}% 대비 압도적"
             )
-            if st.button("🔍 ③ 커트라인 생존법칙 해부", key="btn_v165_l3", type="primary" if st.session_state["v165_learn_card_key"] == "L3" else "secondary", use_container_width=True):
+            if st.button("🔍 ③ 커트라인 생존법칙 해부", key="btn_v165_l3", type="primary" if st.session_state["v165_learn_card_key"] == "L3" else "secondary", width='stretch'):
                 st.session_state["v165_learn_card_key"] = "L3"
                 st.rerun()
         with k4:
@@ -8802,7 +8807,7 @@ def render_phase6_backtesting_terminal():
                 f"{top_trust_score:.1f} 점 (S+)",
                 f"누적 {total_cum_rounds}회 복기 검증 반영"
             )
-            if st.button("🔍 ④ 모델별 신뢰도 산출식 해부", key="btn_v165_l4", type="primary" if st.session_state["v165_learn_card_key"] == "L4" else "secondary", use_container_width=True):
+            if st.button("🔍 ④ 모델별 신뢰도 산출식 해부", key="btn_v165_l4", type="primary" if st.session_state["v165_learn_card_key"] == "L4" else "secondary", width='stretch'):
                 st.session_state["v165_learn_card_key"] = "L4"
                 st.rerun()
 
@@ -8884,7 +8889,7 @@ def render_phase6_backtesting_terminal():
             )
         with c_btn1:
             st.write("")
-            if st.button("⚡ 단건 개찰대조 & 신뢰도 누적", type="primary", use_container_width=True, key="btn_v165_single_tune"):
+            if st.button("⚡ 단건 개찰대조 & 신뢰도 누적", type="primary", width='stretch', key="btn_v165_single_tune"):
                 b_a = cur_row["기초금액"]
                 a_a = cur_row["A값"]
                 l_r = cur_row["하한율"] / 100.0
@@ -8936,7 +8941,7 @@ def render_phase6_backtesting_terminal():
 
         with c_btn2:
             st.write("")
-            if st.button("🚀 8대 전 공고 일괄 역학습·누적", use_container_width=True, key="btn_v165_batch_tune"):
+            if st.button("🚀 8대 전 공고 일괄 역학습·누적", width='stretch', key="btn_v165_batch_tune"):
                 for idx_m, r_it in enumerate(ledger):
                     mvp_m = _analyze_best_hit_model(r_it)["best_model"]
                     cum_hits[mvp_m] = cum_hits.get(mvp_m, 0) + 1
@@ -9191,7 +9196,7 @@ animateAcademy();
                 }
                 for i, t in enumerate(trust_summary_list)
             ])
-            st.dataframe(df_trust_view, use_container_width=True, hide_index=True)
+            st.dataframe(df_trust_view, width='stretch', hide_index=True)
 
         with tab_mvp:
             st.markdown("##### 🔬 전 관련 공고(8건) 실제 개찰 대조 — 최우수 근사치 적중(MVP) 모델 및 수학적 적중 이유")
@@ -9208,7 +9213,7 @@ animateAcademy();
                     "하한선 대비 차액": f"{m_res['diff_won']:+,.0f}원 ({m_res['diff_pct']:+.4f}%p)",
                     "🔍 왜 이 모델이 적중했는가? (핵심 적중 이유 분석)": m_res["reason"]
                 })
-            st.dataframe(pd.DataFrame(mvp_rows), use_container_width=True, hide_index=True)
+            st.dataframe(pd.DataFrame(mvp_rows), width='stretch', hide_index=True)
 
         with tab_cur:
             detail_rows = []
@@ -9234,7 +9239,7 @@ animateAcademy();
                     "하한선 대비 차액(원)": f"{d_w:+,.0f}원",
                     "개찰 판정 및 학습 피드백": verd
                 })
-            st.dataframe(pd.DataFrame(detail_rows), use_container_width=True, hide_index=True)
+            st.dataframe(pd.DataFrame(detail_rows), width='stretch', hide_index=True)
 
         now_dt = datetime.now().strftime("%Y-%m-%d %H:%M")
         trust_tr_html = ""
@@ -9388,7 +9393,7 @@ animateAcademy();
                     data=textbook_html.encode("utf-8"),
                     file_name=f"BID_NEXUS_Training_Textbook_Gen{w_state['generation']}.html",
                     mime="text/html",
-                    use_container_width=True,
+                    width='stretch',
                     key="btn_v17_dl_textbook_html"
                 )
             with b_col2:
@@ -9398,7 +9403,7 @@ animateAcademy();
                     data=csv_trust_out,
                     file_name=f"BID_NEXUS_MVP_Model_Reasons_Gen{w_state['generation']}.csv",
                     mime="text/csv",
-                    use_container_width=True,
+                    width='stretch',
                     key="btn_v17_dl_mvp_csv"
                 )
             with b_col3:
@@ -9558,7 +9563,7 @@ def render_phase7_pandora_akashic_core():
                 )
             with c_btn:
                 st.write("")
-                if st.button("⚡ 가상개찰 실행 & AI 역학습 진화", type="primary", use_container_width=True, key="btn_v16_run_sim"):
+                if st.button("⚡ 가상개찰 실행 & AI 역학습 진화", type="primary", width='stretch', key="btn_v16_run_sim"):
                     b_a = cur_row["기초금액"]
                     a_a = cur_row["A값"]
                     l_r = cur_row["하한율"] / 100.0
@@ -9649,7 +9654,7 @@ def render_phase7_pandora_akashic_core():
 
         with t_matrix:
             st.markdown("#### 📊 전 관련 공고(8건) 만점 기준 가상입찰 vs 실제 개찰결과 일괄 오차 분석표")
-            if st.button("🚀 8대 공고 전체 개찰오차 일괄 역학습(Batch Auto-Tune) & 보물섬 동기화 실행", type="primary", use_container_width=True, key="btn_v16_batch_tune"):
+            if st.button("🚀 8대 공고 전체 개찰오차 일괄 역학습(Batch Auto-Tune) & 보물섬 동기화 실행", type="primary", width='stretch', key="btn_v16_batch_tune"):
                 for idx_m, r_it in enumerate(ledger):
                     # 실제 개찰 사정률 바로 위(+0.0020%p) 양자계단으로 AI 앙상블 사정률 일괄 수렴 학습
                     tuned_r = round(0.55 * r_it["AI앙상블_사정률"] + 0.45 * (r_it["실제개찰_사정률"] + 0.0022), 4)
@@ -9686,7 +9691,7 @@ def render_phase7_pandora_akashic_core():
                     "1원단위 차액": f"{gap_w:+,.0f}원",
                     "가상개찰 판정": verdict
                 })
-            st.dataframe(pd.DataFrame(matrix_rows), use_container_width=True, hide_index=True)
+            st.dataframe(pd.DataFrame(matrix_rows), width='stretch', hide_index=True)
 
         with t_upload:
             st.markdown("#### 📥 나라장터(G2B) 개찰결과 CSV/엑셀 업로드 일괄 복기 & 사정 학습 오답노트")
@@ -9695,7 +9700,7 @@ def render_phase7_pandora_akashic_core():
                 try:
                     df_up = pd.read_csv(up_file)
                     st.success(f"✅ 총 {len(df_up)}건의 개찰결과 데이터를 성공적으로 불러와 오차 분석을 완료했습니다.")
-                    st.dataframe(df_up.head(10), use_container_width=True)
+                    st.dataframe(df_up.head(10), width='stretch')
                 except Exception as up_e:
                     st.warning(f"파일 파싱 안내: {up_e}")
 
@@ -9711,7 +9716,7 @@ def render_phase7_pandora_akashic_core():
                 data=csv_ledger,
                 file_name="BID_NEXUS_Virtual_Bidding_Learning_Ledger.csv",
                 mime="text/csv",
-                use_container_width=True,
+                width='stretch',
                 key="btn_dl_v16_ledger"
             )
 
@@ -10329,7 +10334,7 @@ function jumpFromIso(targetKey) {
 
                 with ens_c3:
                     st.write("")
-                    if st.button("👑 이 추천가를 공고에 최종 확정 및 전체 동기화", use_container_width=True, key="btn_confirm_v12_ensemble"):
+                    if st.button("👑 이 추천가를 공고에 최종 확정 및 전체 동기화", width='stretch', key="btn_confirm_v12_ensemble"):
                         pass
                         pass
                         st.rerun()
@@ -10338,27 +10343,27 @@ function jumpFromIso(targetKey) {
                 m_col1, m_col2, m_col3, m_col4, m_col5 = st.columns(5)
                 with m_col1:
                     st.metric(f"🏢 레거시 (타점 {win_leg})", f"{b_legacy:,.0f}원", f"사정률 {r_legacy:.4f}% | 방어 {def_leg}", delta_color="inverse")
-                    if st.button(f"🔍 ① 레거시 해부 ({win_leg}%)", key="btn_insp_m1", type="primary" if st.session_state["v125_selected_model_inspect"] == "M1" else "secondary", use_container_width=True):
+                    if st.button(f"🔍 ① 레거시 해부 ({win_leg}%)", key="btn_insp_m1", type="primary" if st.session_state["v125_selected_model_inspect"] == "M1" else "secondary", width='stretch'):
                         st.session_state["v125_selected_model_inspect"] = "M1"
                         st.rerun()
                 with m_col2:
                     st.metric(f"🎯 경쟁사저격 (타점 {win_sni})", f"{b_sniper:,.0f}원", f"사정률 {r_sniper:.4f}% | 방어 {def_sni}")
-                    if st.button(f"🔍 ② 저격가 해부 ({win_sni}%)", key="btn_insp_m2", type="primary" if st.session_state["v125_selected_model_inspect"] == "M2" else "secondary", use_container_width=True):
+                    if st.button(f"🔍 ② 저격가 해부 ({win_sni}%)", key="btn_insp_m2", type="primary" if st.session_state["v125_selected_model_inspect"] == "M2" else "secondary", width='stretch'):
                         st.session_state["v125_selected_model_inspect"] = "M2"
                         st.rerun()
                 with m_col3:
                     st.metric(f"🌌 특이점락 (타점 {win_sin})", f"{b_singularity:,.0f}원", f"사정률 {r_singularity:.4f}% | 방어 {def_sin}")
-                    if st.button(f"🔍 ③ 특이점 해부 ({win_sin}%)", key="btn_insp_m3", type="primary" if st.session_state["v125_selected_model_inspect"] == "M3" else "secondary", use_container_width=True):
+                    if st.button(f"🔍 ③ 특이점 해부 ({win_sin}%)", key="btn_insp_m3", type="primary" if st.session_state["v125_selected_model_inspect"] == "M3" else "secondary", width='stretch'):
                         st.session_state["v125_selected_model_inspect"] = "M3"
                         st.rerun()
                 with m_col4:
                     st.metric(f"🔮 판도라X10 (타점 {win_pan})", f"{b_pandora:,.0f}원", f"사정률 {r_pandora:.4f}% | 방어 {def_pan}")
-                    if st.button(f"🔍 ④ 판도라 해부 ({win_pan}%)", key="btn_insp_m4", type="primary" if st.session_state["v125_selected_model_inspect"] == "M4" else "secondary", use_container_width=True):
+                    if st.button(f"🔍 ④ 판도라 해부 ({win_pan}%)", key="btn_insp_m4", type="primary" if st.session_state["v125_selected_model_inspect"] == "M4" else "secondary", width='stretch'):
                         st.session_state["v125_selected_model_inspect"] = "M4"
                         st.rerun()
                 with m_col5:
                     st.metric(f"👑 AI앙상블 (타점 {win_ens})", f"{b_ensemble:,.0f}원", f"합성 {r_ensemble:.4f}% | 방어 {def_ens}")
-                    if st.button(f"🔍 ⑤ 최종적합 해부 ({win_ens}%)", key="btn_insp_m5", type="primary" if st.session_state["v125_selected_model_inspect"] == "M5" else "secondary", use_container_width=True):
+                    if st.button(f"🔍 ⑤ 최종적합 해부 ({win_ens}%)", key="btn_insp_m5", type="primary" if st.session_state["v125_selected_model_inspect"] == "M5" else "secondary", width='stretch'):
                         st.session_state["v125_selected_model_inspect"] = "M5"
                         st.rerun()
 
@@ -10540,7 +10545,7 @@ function jumpFromIso(targetKey) {
                 ]
 
                 st.markdown("##### 📋 [표준 사정 명세표] 일련의 모델별 사정가 산출 비교 및 최종 적합가 판정 일람")
-                st.dataframe(pd.DataFrame(summary_rows), use_container_width=True, hide_index=True)
+                st.dataframe(pd.DataFrame(summary_rows), width='stretch', hide_index=True)
 
                 # 인쇄 및 보관용 표준 양식(HTML) 생성
                 dossier_rows_html = ""
@@ -10571,7 +10576,7 @@ function jumpFromIso(targetKey) {
                         data=csv_dossier,
                         file_name=f"BID_NEXUS_Model_Comparison_{eno}.csv",
                         mime="text/csv",
-                        use_container_width=True,
+                        width='stretch',
                         key="btn_dl_v125_dossier_csv"
                     )
 
@@ -12027,11 +12032,11 @@ drawSonar();
             </div>
             """, unsafe_allow_html=True)
         with _vb2:
-            st.button("⚡ 15억 표준어장 스캔", key="_btn_vlt_15b", on_click=_cb_vlt_set_15b, use_container_width=True)
+            st.button("⚡ 15억 표준어장 스캔", key="_btn_vlt_15b", on_click=_cb_vlt_set_15b, width='stretch')
         with _vb3:
-            st.button("🔥 35억 대형어장 스캔", key="_btn_vlt_35b", on_click=_cb_vlt_set_35b, use_container_width=True)
+            st.button("🔥 35억 대형어장 스캔", key="_btn_vlt_35b", on_click=_cb_vlt_set_35b, width='stretch')
         with _vb4:
-            st.button("🔄 0원 대기모드", key="_btn_vlt_zero", on_click=_cb_vlt_set_zero, use_container_width=True)
+            st.button("🔄 0원 대기모드", key="_btn_vlt_zero", on_click=_cb_vlt_set_zero, width='stretch')
 
         _all_vault_templates = [
             {"id": 1, "zone": "보물상자 #1 [정중앙 스나이퍼 금고]", "agency": "조달청", "title": "표준 주력 타겟 (1순위 최빈 수렴구간)", "mult": 1.00, "lots": "02 · 06 · 11 · 14", "win_prob": 89.4, "rate_shift": 0.0000, "tail": 3, "color": "#34D399"},
@@ -12437,7 +12442,7 @@ def render_phase9_bidding_machine_workstation():
                 b_label,
                 key=f"btn_deck_{b_id}",
                 type="primary" if is_active else "secondary",
-                use_container_width=True
+                width='stretch'
             ):
                 st.session_state["v98_active_bay_id"] = b_id
                 st.rerun()
@@ -12728,7 +12733,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z7]'):
                             df_slots[["번호", "예비가격(원)", "사정률(%)", "AI 다수결 선택확률(%)", "추천등급"]].style.format({
                                 "예비가격(원)": "{:,}원", "사정률(%)": "{:.4f}%", "AI 다수결 선택확률(%)": "{:.2f}%",
                             }),
-                            use_container_width=True, height=240,
+                            width='stretch', height=240,
                         )
                     with sc_right:
                         st.markdown("###### 🏆 1,365개 조합 중 목표 타점 × 다수결 시너지 TOP 10 조합표")
@@ -12737,7 +12742,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z7]'):
                                 "조합 예정가격(원)": "{:,}원", "사정률(%)": "{:.4f}%",
                                 "대응 추천투찰가(원)": "{:,}원", "AI 시너지 점수": "{:.2f}점",
                             }),
-                            use_container_width=True, height=505,
+                            width='stretch', height=505,
                         )
 
 
@@ -12855,7 +12860,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z7]'):
                             "사정률(%)": "{:.4f}%", "예정가격(원)": "{:,}원",
                             "낙찰하한선(원)": "{:,}원", "추천투찰가(원)": "{:,}원", "M5 대비 차액(원)": "{:+,}원",
                         }),
-                        use_container_width=True, height=285,
+                        width='stretch', height=285,
                     )
 
                 if res.verified_rule_checks and "scenario_evaluation" in res.verified_rule_checks:
@@ -12894,7 +12899,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z7]'):
                         data=egr_html_doc.encode("utf-8"),
                         file_name=f"BID_NEXUS_EGR_ONLY_{canon_seed}.html",
                         mime="text/html",
-                        use_container_width=True,
+                        width='stretch',
                         key="_dl_egr_only_html",
                     )
 
@@ -12996,7 +13001,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z7]'):
                             "사정률(%)": "{:.4f}%", "예정가격(원)": "{:,}원",
                             "낙찰하한선(원)": "{:,}원", "추천투찰가(원)": "{:,}원", "M5 대비 차액(원)": "{:+,}원",
                         }),
-                        use_container_width=True, height=285,
+                        width='stretch', height=285,
                     )
 
                 if lat.feasible:
@@ -13026,7 +13031,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z7]'):
                         data=lat_html_doc.encode("utf-8"),
                         file_name=f"BID_NEXUS_LATTICE1365_ONLY_{canon_seed}.html",
                         mime="text/html",
-                        use_container_width=True,
+                        width='stretch',
                         key="_dl_lat_only_html",
                     )
 
@@ -13042,7 +13047,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z7]'):
                         data=both_html_doc.encode("utf-8"),
                         file_name=f"BID_NEXUS_DUAL_ADDON_{canon_seed}.html",
                         mime="text/html",
-                        use_container_width=True,
+                        width='stretch',
                         key="_dl_both_html",
                     )
     try:
@@ -13062,7 +13067,7 @@ try:
                 with _p_c1:
                     if st.session_state.get("_last_pull_msg"):
                         st.success(f"✅ 선택 면허 맞춤 신규 공고 {len(st.session_state.get('custom_pulled_bids', []))}건이 상단 쇼룸에 전량 누적 반영됨! (총 {len(st.session_state.get('_accumulated_g2b_bids', []))}건)")
-                    if st.button("🔄 조달청 나라장터 신규 공고 지금 끌어오기", key="btn_top_g2b_live_pull", use_container_width=True, type="primary"):
+                    if st.button("🔄 조달청 나라장터 신규 공고 지금 끌어오기", key="btn_top_g2b_live_pull", width='stretch', type="primary"):
                         _cur_all = st.session_state.get('_accumulated_g2b_bids', [])
                         st.session_state['_cabinet_cleared_empty'] = False
                         _all_new_subsequent = fetch_step3_all_subsequent_bids(_cur_all, comp)
@@ -13083,7 +13088,7 @@ try:
                         _sel_p = st.selectbox("📥 추가된 신규 공고 선택", _opts, key="sel_live_pulled_item")
                         _idx_p = _opts.index(_sel_p)
                         _picked = st.session_state["live_pulled_notices"][_idx_p]
-                        if st.button("⚡ 선택한 공고로 전체 캐비닛 전환", key="btn_apply_pulled_notice", use_container_width=True):
+                        if st.button("⚡ 선택한 공고로 전체 캐비닛 전환", key="btn_apply_pulled_notice", width='stretch'):
                             st.session_state["selected_notice_no"] = _picked["no"]
                             st.session_state["selected_notice_title"] = _picked["title"]
                             st.session_state["selected_notice_org"] = _picked["org"]
@@ -13099,7 +13104,7 @@ try:
                     _m_base = _m_c1.number_input("기초금액(원)", step=10000000, key="quick_in_base")
                     _m_a = _m_c2.number_input("A값(원)", step=1000000, key="quick_in_a")
                     _m_net = _m_c3.number_input("순공사원가(원)", value=3463750000, step=10000000, key="quick_in_net")
-                    if st.button("✅ 이 제원으로 즉시 추가 및 분석", key="btn_quick_manual_apply", use_container_width=True):
+                    if st.button("✅ 이 제원으로 즉시 추가 및 분석", key="btn_quick_manual_apply", width='stretch'):
                         _parts = [p.strip() for p in _m_no.split("|")]
                         _new_no = _parts[0] if _parts else "202611-99999"
                         _new_tt = _parts[1] if len(_parts) > 1 else _m_no
@@ -13420,7 +13425,7 @@ try:
             else:
                 st.caption("🔒 실수로 인한 데이터 삭제 방지를 위해 관리자 PIN 입력 시에만 버튼이 열립니다.")
 
-            if st.button("🔄 화면·필터·슬라이더만 초기화", key="btn_reset_ui_only", use_container_width=True, disabled=not _pin_ok):
+            if st.button("🔄 화면·필터·슬라이더만 초기화", key="btn_reset_ui_only", width='stretch', disabled=not _pin_ok):
                 if _pin_ok:
                     _keep_cart = list(st.session_state.get("_boutique_cart_ids", []))
                     _keep_pull = list(st.session_state.get("live_pulled_notices", []))
@@ -13433,7 +13438,7 @@ try:
                     _save_full_app_state(dict(st.session_state))
                     st.rerun()
 
-            if st.button("🗑️ 추가 공고 & 찜 카트 비우기 (기본 9건)", key="btn_reset_cart_and_pulled", use_container_width=True, disabled=not _pin_ok):
+            if st.button("🗑️ 추가 공고 & 찜 카트 비우기 (기본 9건)", key="btn_reset_cart_and_pulled", width='stretch', disabled=not _pin_ok):
                 if _pin_ok:
                     st.session_state["_boutique_cart_ids"] = []
                     st.session_state["live_pulled_notices"] = []
@@ -13444,7 +13449,7 @@ try:
                     _save_full_app_state(dict(st.session_state))
                     st.rerun()
 
-            if st.button("🧹 전체 설정 공장 초기화 (API키 보존)", key="btn_reset_factory_all", use_container_width=True, disabled=not _pin_ok):
+            if st.button("🧹 전체 설정 공장 초기화 (API키 보존)", key="btn_reset_factory_all", width='stretch', disabled=not _pin_ok):
                 if _pin_ok:
                     for _fp in [_CART_SAVE_PATH, _PULLED_SAVE_PATH, _FULL_STATE_PATH]:
                         try:
@@ -13459,7 +13464,7 @@ try:
             if _pin_ok:
                 st.markdown("---")
                 _new_p = st.text_input("🔑 새 관리자 비밀번호 변경 (원할 때만 입력)", value="", type="password", placeholder="새 PIN (4자리 이상)", key="new_admin_pin_input")
-                if st.button("💾 새 관리자 번호로 변경 저장", key="btn_save_new_admin_pin", use_container_width=True):
+                if st.button("💾 새 관리자 번호로 변경 저장", key="btn_save_new_admin_pin", width='stretch'):
                     if len(_new_p.strip()) >= 4:
                         try:
                             _cart_os.makedirs(_cart_os.path.dirname(_PIN_FILE), exist_ok=True)
