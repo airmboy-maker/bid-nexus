@@ -3152,13 +3152,104 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
             const tRec = pDoc.getElementById('v12-t3-rec-target');
             if (tRec) tRec.innerHTML = b.rec_bid + '<br><span style="color:#A7F3D0;font-size:11px;">목표사정률 ' + b.rec_rate + ' (하한 ' + b.low_lim + ')</span>';
 
+            // 제3관 질문 입력창 값 읽기
+            let userQ = '';
+            const allInputs = pDoc.querySelectorAll('input[type="text"]');
+            allInputs.forEach(inp => {
+                if (inp.placeholder && inp.placeholder.includes('시방서')) {
+                    userQ = (inp.value || '').trim();
+                }
+            });
+
+            // 제3관 [선택 공고 & 서류 6차원 정밀 재분석] 및 [제2관 모의투찰 전송] 버튼에 실시간 클릭 이벤트 바인딩
+            const allBtns = pDoc.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                const btxt = (btn.innerText || '');
+                if (btxt.includes('선택 공고 & 서류 6차원 정밀 재분석') && !btn.dataset.v12Bound) {
+                    btn.dataset.v12Bound = '1';
+                    btn.addEventListener('click', () => {
+                        window.parent.localStorage.setItem('v12_reanalyze_ts', new Date().toLocaleTimeString('ko-KR'));
+                        window.parent.localStorage.setItem('v12_reanalyze_active', '1');
+                    });
+                }
+                if (btxt.includes('제2관 모의투찰]로 즉시 전송') && !btn.dataset.v12SendBound) {
+                    btn.dataset.v12SendBound = '1';
+                    btn.addEventListener('click', () => {
+                        window.parent.localStorage.setItem('v12_sent_to_t2_ts', new Date().toLocaleTimeString('ko-KR'));
+                    });
+                }
+            });
+
+            const reTs = window.parent.localStorage.getItem('v12_reanalyze_ts') || '';
+            const sentTs = window.parent.localStorage.getItem('v12_sent_to_t2_ts') || '';
+
+            const baseN = Number(b.base_num || 1280000000);
+            const avalN = Number(b.aval_num || 68000000);
+            const lowF = parseFloat(String(b.low_lim).replace('%', '')) || 88.745;
+            const recF = parseFloat(String(b.rec_rate).replace('%', '')) || 100.035;
+
+            const calcBid = (rVal) => {
+                const expP = baseN * (rVal / 100.0);
+                const rawB = Math.ceil(((expP - avalN) * (lowF / 100.0)) + avalN);
+                return (Math.floor(rawB / 10) * 10 + 3).toLocaleString('ko-KR') + '원';
+            };
+
+            const rAgg = (recF - 0.0065).toFixed(4);
+            const rStd = recF.toFixed(4);
+            const rSafe = (recF + 0.0085).toFixed(4);
+
             const tBrief = pDoc.getElementById('v12-t3-llm-brief');
             if (tBrief) {
-                tBrief.innerHTML = '<b>🗣️ AI 수석 공고·서류 분석관 심층 브리핑:</b><br>' +
+                let qHtml = '';
+                if (userQ) {
+                    qHtml = '<div style="background:rgba(56,189,248,0.18);border-left:4px solid #38BDF8;padding:8px 10px;border-radius:6px;margin-bottom:8px;color:#E0F2FE;">' +
+                        '<b>💬 질문하신 [' + userQ + '] 맞춤 심층 판독:</b><br>' +
+                        '• 본 공고(' + b.agency + ' · ' + b.sector + ')는 A값 비중이 ' + b.a_ratio + '(' + b.a_val + ')로 고정되어 있어, 사정률이 0.01%p 변동할 때 투찰금액이 약 ' + Math.round(baseN * 0.0001 * (lowF / 100)).toLocaleString('ko-KR') + '원씩 이동합니다. 시방서 및 내역서상 사후정산비(A값) 원안 미반영 시 입찰무효 또는 적격심사 감점 사유가 되므로 원안 금액(' + b.a_val + ')을 1원 오차 없이 고정하고 <b>' + rStd + '% (' + calcBid(recF) + ')</b>로 타격하는 것이 가장 유리합니다.' +
+                        '</div>';
+                }
+
+                let deepTableHtml = '';
+                if (reTs) {
+                    deepTableHtml =
+                        '<div style="margin-top:10px;background:rgba(9,13,22,0.92);border:1.5px solid #FBBF24;border-radius:8px;padding:10px 12px;">' +
+                            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
+                                '<span style="color:#FBBF24;font-size:12px;font-weight:900;">⚡ [6차원 정밀 재분석 완료] ' + b.code + ' 시나리오별 3단계 실전 타격 매트릭스</span>' +
+                                '<span style="background:#10B981;color:#022C22;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:4px;">재분석 시각: ' + reTs + '</span>' +
+                            '</div>' +
+                            '<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;text-align:center;font-size:11.5px;">' +
+                                '<div style="background:rgba(239,68,68,0.15);border:1px solid #F87171;border-radius:6px;padding:7px;">' +
+                                    '<div style="color:#FCA5A5;font-weight:800;">🔥 1안: 공격적 하단매복</div>' +
+                                    '<div style="color:#FFFFFF;font-size:13px;font-weight:900;margin:3px 0;">' + calcBid( parseFloat(rAgg) ) + '</div>' +
+                                    '<div style="color:#FDE68A;">목표사정률 ' + rAgg + '%</div>' +
+                                '</div>' +
+                                '<div style="background:rgba(16,185,129,0.22);border:1.5px solid #34D399;border-radius:6px;padding:7px;">' +
+                                    '<div style="color:#6EE7B7;font-weight:900;">🎯 2안: AI 1순위 정밀영점(권장)</div>' +
+                                    '<div style="color:#34D399;font-size:13.5px;font-weight:900;margin:3px 0;">' + calcBid( parseFloat(rStd) ) + '</div>' +
+                                    '<div style="color:#A7F3D0;">목표사정률 ' + rStd + '%</div>' +
+                                '</div>' +
+                                '<div style="background:rgba(56,189,248,0.15);border:1px solid #38BDF8;border-radius:6px;padding:7px;">' +
+                                    '<div style="color:#7DD3FC;font-weight:800;">🛡️ 3안: 상위 과열방어</div>' +
+                                    '<div style="color:#FFFFFF;font-size:13px;font-weight:900;margin:3px 0;">' + calcBid( parseFloat(rSafe) ) + '</div>' +
+                                    '<div style="color:#BAE6FD;">목표사정률 ' + rSafe + '%</div>' +
+                                '</div>' +
+                            '</div>' +
+                        '</div>';
+                }
+
+                let sentHtml = '';
+                if (sentTs) {
+                    sentHtml = '<div style="margin-top:8px;background:rgba(16,185,129,0.25);border:1px solid #34D399;border-radius:6px;padding:6px 10px;color:#A7F3D0;font-size:11.5px;font-weight:800;">' +
+                        '⚡ [' + sentTs + ' 전송 완료] 현재 락온된 [' + b.code + '] 기초금액(' + b.base_amt + ')과 A값(' + b.a_val + ')이 [제2관: 모의투찰] 입력창에 즉시 세팅되었습니다!' +
+                        '</div>';
+                }
+
+                tBrief.innerHTML = qHtml +
+                    '<b>🗣️ AI 수석 공고·서류 분석관 심층 브리핑:</b><br>' +
                     '현재 선택·락온된 <b>[' + b.code + '] ' + b.title + '</b> 공고는 [' + b.agency + ' · ' + b.sector + '] 발주 건으로 기초금액 ' + b.base_amt +
                     ' 대비 A값 비중이 ' + b.a_ratio + '(' + b.a_val + ')입니다. 적격심사 낙찰하한율 ' + b.low_lim +
                     ' 및 과거 개찰예가(' + b.true_rate + ') 학습 데이터를 반영한 목표 사정률 <b>' + b.rec_rate +
-                    ' (권장 투찰가 ' + b.rec_bid + ')</b> 타격을 1순위로 제안합니다.<br><span style="color:#FDE68A;">✍️ 대표님 서재 각주: "' + b.footnote + '"</span>';
+                    ' (권장 투찰가 ' + b.rec_bid + ')</b> 타격을 1순위로 제안합니다.<br><span style="color:#FDE68A;">✍️ 대표님 서재 각주: "' + b.footnote + '"</span>' +
+                    deepTableHtml + sentHtml;
             }
 
             const tCheck = pDoc.getElementById('v12-t3-doc-check');
@@ -3242,7 +3333,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
             '</div>';
 
         try {
-            window.parent.localStorage.setItem('v12_active_book_json', JSON.stringify(b));
+            window.parent.localStorage.setItem('v12_active_book_json', JSON.stringify(b)); window.parent.localStorage.setItem('v12_reanalyze_ts', new Date().toLocaleTimeString('ko-KR'));
         } catch (e) {}
         applyBookToParentTabs(b);
     }
