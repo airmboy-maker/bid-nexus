@@ -6075,7 +6075,7 @@ def render_universal_typewriter_daemon_v12(trigger_seq: int = 0) -> str:
         const stEl = pDoc.createElement('style');
         stEl.id = 'v12-win-input-guard-style';
         stEl.innerHTML =
-            'input, textarea, select, div[data-baseweb="input"] input, div[data-baseweb="select"] span, div[data-baseweb="select"] div {' +
+            'input, textarea, select, div[data-baseweb="input"] input, div[data-baseweb="select"] div {' +
             '  color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; background-color: #0B1324 !important; font-weight: 800 !important; font-size: 14.5px !important; text-shadow: none !important;' +
             '}' +
             'li[role="option"] { color: #FFFFFF !important; background-color: #0F172A !important; font-weight: 700 !important; }' +
