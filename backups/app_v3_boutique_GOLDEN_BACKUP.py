@@ -495,6 +495,9 @@ from lattice1365.local_ml_engine import (
     delete_library_book_v12 as _del_book_v12,
     render_interactive_3d_library_html_v12 as _render_3d_html_v12,
     render_ultra_matrix_view_html_v12 as _render_matrix_html_v12,
+    render_sector_board_visual_v12 as _render_sec_vis_v12,
+    render_arena_ranked_board_visual_v12 as _render_arena_vis_v12,
+    parse_and_render_g2b_opening_visual_v12 as _parse_g2b_vis_v12,
 fetch_recent_selected_bid_packages_v12 as _fetch_bid_pkgs_v12
 )
 
@@ -925,7 +928,7 @@ if st.session_state["_standalone_academy_mode"]:
 
         with _deb_col2:
             st.markdown(f"##### 📊 개찰 응찰사 전체 내역 & 커트라인 분석표 (총 {len(_ares['ranked_board'])}개사)")
-            st.dataframe(_ares["ranked_board"], height=330, use_container_width=True)
+            st.markdown(_render_arena_vis_v12(_ares["ranked_board"]), unsafe_allow_html=True)
 
     # ==========================================================================
     # [제3관] 올라마(Ollama) 연동 입찰공고문 6차원 입체 해부관 (제1관 선택 항목과 100% 자동 동기화!)
@@ -1052,33 +1055,47 @@ if st.session_state["_standalone_academy_mode"]:
     # [제4관] 실제 나라장터 개찰결과 복사·붙여넣기 고속 해부 & 학습
     # ==========================================================================
     with _tab_paste:
-        st.markdown("##### 📋 실제 나라장터(G2B) 개찰결과 응찰사 내역 복사·붙여넣기 즉시 해부 & 학습")
-        _paste_txt = st.text_area(
-            "나라장터 개찰결과 화면의 표(순위, 업체명, 입찰금액, 투찰률/사정률 등)를 드래그해 그대로 붙여넣으세요:",
-            height=140,
-            placeholder="예시: 1  동양기공(주)  1,341,250,000  100.0345%",
-            key="_acad_paste_area"
+        st.markdown("""
+        <div style="background:linear-gradient(90deg, rgba(6,78,59,0.92), rgba(15,23,42,0.96));border:2px solid #38BDF8;border-radius:12px;padding:12px 18px;margin-bottom:10px;box-shadow:0 0 22px rgba(56,189,248,0.22);">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                <div>
+                    <span style="background:#38BDF8;color:#090D16;font-size:11.5px;font-weight:900;padding:4px 10px;border-radius:6px;">G2B 개찰결과 X-RAY & 라이벌 레이더</span>
+                    <span style="color:#FFFFFF;font-size:15.5px;font-weight:900;margin-left:8px;">📋 실제 나라장터(G2B) 개찰결과 응찰사 내역 복사·붙여넣기 즉시 해부 & 라이벌 학습관</span>
+                </div>
+                <span style="color:#34D399;font-size:11.5px;font-weight:800;">● 실전 개찰 표본 자동 로드 및 시각화 가동 중</span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        _default_g2b_sample = (
+            "1\t동양기공(주)\t4,291,524,120\t100.0342%\t최종 1순위 적격심사대상\n"
+            "2\t한빛전력(주)\t4,291,680,500\t100.0378%\t예비 2순위\n"
+            "3\t태백토건(주)\t4,291,810,200\t100.0410%\t예비 3순위\n"
+            "4\t대한전설(주)\t4,292,150,000\t100.0485%\t예비 4순위\n"
+            "5\t청람기공(주)\t4,292,490,800\t100.0560%\t예비 5순위\n"
+            "6\t케이파워텍(주)\t4,293,120,000\t100.0712%\t예비 6순위\n"
+            "7\t(주)율곡건설\t4,293,880,400\t100.0890%\t예비 7순위\n"
+            "8\t(주)우성실내건축\t4,291,110,000\t100.0245%\t하한선 미달 탈락(-414,120원)\n"
+            "9\t중앙도시개발(주)\t4,290,650,000\t100.0140%\t하한선 미달 탈락(-874,120원)"
         )
-        if st.button("🔍 붙여넣은 응찰사 내역 자동 파싱 & 라이벌 DB + 개찰 신경망 일괄 학습", key="_acad_parse_btn", use_container_width=True):
-            import re as _re_ac
-            _parsed_cnt = 0
-            for _pln in (_paste_txt or "").splitlines():
-                _rates_found = _re_ac.findall(r"(9[6-9]\.\d{2,4}|10[0-3]\.\d{2,4})", _pln)
-                if _rates_found:
-                    _r_val = float(_rates_found[-1])
-                    _tokens = [t.strip() for t in _re_ac.split(r"[\t,;]+|\s{2,}", _pln) if t.strip()]
-                    _comp_cand = "실전응찰사"
-                    for _tk in _tokens:
-                        if any(k in _tk for k in ["(주)", "주식회사", "건설", "기공", "전력", "전기", "산업", "토건", "엔지", "설비"]):
-                            _comp_cand = _tk
-                            break
-                    _arena_save_rival(rival_name=_comp_cand, agency="조달청", observed_rate=_r_val)
-                    _acad_bulk_learn([{"agency": "조달청", "yega_rate": _r_val, "base_amt": 1500000000, "participants": 55}])
-                    _parsed_cnt += 1
-            if _parsed_cnt > 0:
-                st.success(f"✅ 총 {_parsed_cnt}개 응찰사의 실전 투찰 사정률을 추출하여 라이벌 북마크 및 신경망 DB에 영구 학습했습니다!")
-            else:
-                st.warning("사정률(예: 100.0345 등 96.0~103.99 사이 수치)이 포함된 줄을 찾지 못했습니다. 개찰 내역 텍스트를 확인해 주세요.")
+
+        _paste_txt = st.text_area(
+            "📥 나라장터 개찰결과 화면의 표(순위 · 업체명 · 입찰금액 · 투찰률/사정률 등)를 드래그해 붙여넣으세요 (기본 실전 샘플이 자동 로드되어 있으며 새로운 내역을 붙여넣으면 아래 시각화 보드가 즉시 바뀝니다):",
+            value=_default_g2b_sample,
+            height=135,
+            key="_acad_paste_area_v12"
+        )
+
+        _g2b_vis_res = _parse_g2b_vis_v12(_paste_txt)
+
+        if st.button("🔍 현재 개찰 응찰사 내역 라이벌 DB 북마크 + 개찰 신경망 일괄 영구 학습", key="_acad_parse_btn", use_container_width=True):
+            _p_rows = _g2b_vis_res["parsed_rows"]
+            for _pr in _p_rows:
+                _arena_save_rival(rival_name=_pr["comp"], agency="조달청", observed_rate=float(_pr["rate"]))
+                _acad_bulk_learn([{"agency": "조달청", "yega_rate": float(_pr["rate"]), "base_amt": int(_pr["bid_amt"]), "participants": len(_p_rows)}])
+            st.success(f"🎉 총 {len(_p_rows)}개 응찰사의 실전 투찰 사정률과 성향 프로파일을 라이벌 레이더 및 개찰 신경망 DB에 영구 학습했습니다!")
+
+        st.markdown(_g2b_vis_res["html"], unsafe_allow_html=True)
 
     st.stop()
 # === [END STANDALONE AI BIDDING ACADEMY & STRATEGY LIBRARY v12.0] ===

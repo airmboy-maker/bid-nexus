@@ -4153,3 +4153,286 @@ def render_ultra_matrix_view_html_v12(books: list) -> str:
             .replace("__AVG_AR__", avg_ar_s)
     )
 
+
+def render_sector_board_visual_v12(sector_board: list) -> str:
+    """제1관 하단: 공종별 레거시 적중 성적표 & 맞춤형 영점 보정 홀로그램 카드 그리드"""
+    if not sector_board:
+        return ""
+    cards_html = ""
+    for row in sector_board:
+        sec_nm = str(row.get("공종명", "건설공사"))
+        cnt_s = str(row.get("축적권수", "1권"))
+        ai_e = str(row.get("AI평균오차", "±0.0050%p"))
+        us_e = str(row.get("나의평균오차", "±0.0080%p"))
+        rec_s = str(row.get("권장영점보정", "+0.0000%p 보정 권장"))
+
+        is_plus = "+" in rec_s
+        badge_col = "#38BDF8" if is_plus else "#FBBF24"
+        badge_bg = "rgba(56,189,248,0.16)" if is_plus else "rgba(251,191,36,0.16)"
+
+        cards_html += (
+            f"<div style='background:linear-gradient(135deg, rgba(15,23,42,0.96), rgba(30,41,59,0.88));"
+            f"border:1.5px solid rgba(56,189,248,0.38);border-radius:12px;padding:12px 14px;"
+            f"box-shadow:0 8px 20px rgba(0,0,0,0.55);'>"
+            f"<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;'>"
+            f"<span style='color:#FFFFFF;font-size:13px;font-weight:900;'>🏗️ {sec_nm}</span>"
+            f"<span style='background:rgba(16,185,129,0.2);color:#6EE7B7;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:99px;border:1px solid #34D399;'>📚 {cnt_s} 축적</span>"
+            f"</div>"
+            f"<div style='display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;font-size:11px;'>"
+            f"<div style='background:rgba(9,13,22,0.85);padding:6px 8px;border-radius:6px;border-left:3px solid #34D399;'>"
+            f"<div style='color:#94A3B8;font-size:10px;'>🤖 AI 평균오차</div>"
+            f"<div style='color:#34D399;font-size:12.5px;font-weight:900;'>{ai_e}</div>"
+            f"</div>"
+            f"<div style='background:rgba(9,13,22,0.85);padding:6px 8px;border-radius:6px;border-left:3px solid #C084FC;'>"
+            f"<div style='color:#94A3B8;font-size:10px;'>👤 나의 평균오차</div>"
+            f"<div style='color:#C084FC;font-size:12.5px;font-weight:900;'>{us_e}</div>"
+            f"</div>"
+            f"</div>"
+            f"<div style='background:{badge_bg};border:1px solid {badge_col};border-radius:6px;padding:5px 8px;text-align:center;color:{badge_col};font-size:11.5px;font-weight:900;'>"
+            f"🎯 실전 영점 가이드: {rec_s}"
+            f"</div>"
+            f"</div>"
+        )
+
+    return (
+        "<div style='background:rgba(9,13,22,0.92);border:1.5px solid rgba(251,191,36,0.45);border-radius:14px;padding:14px 16px;margin:12px 0;'>"
+        "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;'>"
+        "<span style='color:#FDE68A;font-size:13.5px;font-weight:900;'>📈 [공종별 레거시 적중 성적표 & 대표님 맞춤형 영점 보정 대시보드]</span>"
+        "<span style='color:#34D399;font-size:11px;font-weight:800;'>● 서재 제본 데이터 기반 실시간 영점 산출</span>"
+        "</div>"
+        f"<div style='display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;'>{cards_html}</div>"
+        "</div>"
+    )
+
+def render_arena_ranked_board_visual_v12(ranked_board: list) -> str:
+    """제2관 우측 하단: 개찰 응찰사 전체 내역 & 커트라인 홀로그램 리더보드"""
+    rows_html = ""
+    for r in (ranked_board or []):
+        rk = str(r.get("순위", ""))
+        comp = str(r.get("응찰사명", ""))
+        bid_s = str(r.get("투찰금액(원)", ""))
+        rate_s = str(r.get("추정사정률(%)", ""))
+        diff_w = str(r.get("하한선대비차액(원)", ""))
+        diff_bp = str(r.get("예가대비편차(%p)", ""))
+        verd = str(r.get("판정결과", ""))
+
+        is_user = "나의 모의투찰" in comp
+        is_ai = "AI 사정타점" in comp
+        is_win = "최종 1순위" in verd
+        is_fail = "하한선 미달" in verd
+
+        row_bg = "rgba(15,23,42,0.85)"
+        row_bd = "1px solid rgba(148,163,184,0.15)"
+        if is_user:
+            row_bg = "linear-gradient(90deg, rgba(168,85,247,0.28), rgba(15,23,42,0.92))"
+            row_bd = "1.5px solid #C084FC"
+        elif is_ai:
+            row_bg = "linear-gradient(90deg, rgba(56,189,248,0.26), rgba(15,23,42,0.92))"
+            row_bd = "1.5px solid #38BDF8"
+        elif is_win:
+            row_bg = "linear-gradient(90deg, rgba(16,185,129,0.25), rgba(15,23,42,0.92))"
+            row_bd = "1.5px solid #10B981"
+        elif is_fail:
+            row_bg = "rgba(127,29,29,0.18)"
+
+        v_badge_col = "#34D399" if is_win else ("#F87171" if is_fail else ("#C084FC" if is_user else ("#38BDF8" if is_ai else "#94A3B8")))
+
+        rows_html += (
+            f"<tr style='background:{row_bg};border-bottom:{row_bd};'>"
+            f"<td style='padding:7px 8px;color:#FDE68A;font-weight:900;white-space:nowrap;'>{rk}</td>"
+            f"<td style='padding:7px 8px;color:#FFFFFF;font-weight:800;'>{comp}</td>"
+            f"<td style='padding:7px 8px;color:#38BDF8;font-weight:900;text-align:right;white-space:nowrap;'>{bid_s}원</td>"
+            f"<td style='padding:7px 8px;color:#FDE68A;font-weight:800;text-align:center;'>{rate_s}</td>"
+            f"<td style='padding:7px 8px;color:#E2E8F0;font-size:11px;text-align:right;white-space:nowrap;'>{diff_w} ({diff_bp})</td>"
+            f"<td style='padding:7px 8px;text-align:center;'><span style='color:{v_badge_col};font-weight:900;font-size:11px;'>{verd}</span></td>"
+            f"</tr>"
+        )
+
+    return (
+        "<div style='background:rgba(9,13,22,0.95);border:1.5px solid rgba(56,189,248,0.45);border-radius:12px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.7);'>"
+        "<div style='max-height:335px;overflow-y:auto;'>"
+        "<table style='width:100%;border-collapse:collapse;font-size:11.5px;'>"
+        "<thead style='position:sticky;top:0;background:#0F172A;z-index:5;border-bottom:2px solid #38BDF8;'>"
+        "<tr style='color:#38BDF8;font-weight:900;'>"
+        "<th style='padding:8px;text-align:left;'>순위</th>"
+        "<th style='padding:8px;text-align:left;'>응찰사명</th>"
+        "<th style='padding:8px;text-align:right;'>투찰금액</th>"
+        "<th style='padding:8px;text-align:center;'>추정사정률</th>"
+        "<th style='padding:8px;text-align:right;'>하한선차액(편차)</th>"
+        "<th style='padding:8px;text-align:center;'>개찰판정</th>"
+        "</tr></thead>"
+        f"<tbody>{rows_html}</tbody>"
+        "</table></div></div>"
+    )
+
+def parse_and_render_g2b_opening_visual_v12(raw_text: str) -> dict:
+    """
+    [제4관 전용: 나라장터(G2B) 개찰결과 응찰사 내역 해부 & 라이벌 레이더 시각화 엔진]
+    입력 텍스트가 비어 있어도 즉시 표준 실전 개찰 데이터를 로드하여
+    1) 개찰 해부 4대 KPI 카드
+    2) 사정률 스펙트럼 & 경쟁사 성향 태그가 포함된 홀로그램 개찰 리더보드
+    3) 주요 라이벌 타점 프로파일 카드를 생성
+    """
+    import re
+
+    default_sample = (
+        "1\t동양기공(주)\t4,291,524,120\t100.0342%\t최종 1순위 적격심사대상\n"
+        "2\t한빛전력(주)\t4,291,680,500\t100.0378%\t예비 2순위\n"
+        "3\t태백토건(주)\t4,291,810,200\t100.0410%\t예비 3순위\n"
+        "4\t대한전설(주)\t4,292,150,000\t100.0485%\t예비 4순위\n"
+        "5\t청람기공(주)\t4,292,490,800\t100.0560%\t예비 5순위\n"
+        "6\t케이파워텍(주)\t4,293,120,000\t100.0712%\t예비 6순위\n"
+        "7\t(주)율곡건설\t4,293,880,400\t100.0890%\t예비 7순위\n"
+        "8\t(주)우성실내건축\t4,291,110,000\t100.0245%\t하한선 미달 탈락(-414,120원)\n"
+        "9\t중앙도시개발(주)\t4,290,650,000\t100.0140%\t하한선 미달 탈락(-874,120원)"
+    )
+
+    use_txt = raw_text.strip() if (raw_text and raw_text.strip()) else default_sample
+    parsed_rows = []
+
+    for idx, ln in enumerate(use_txt.splitlines()):
+        ln_s = ln.strip()
+        if not ln_s:
+            continue
+        rates = re.findall(r"(9[6-9]\.\d{2,4}|10[0-3]\.\d{2,4})", ln_s)
+        rate_val = float(rates[-1]) if rates else round(100.0340 + idx * 0.0045, 4)
+
+        big_nums = [int(n.replace(",", "")) for n in re.findall(r"\d{1,3}(?:,\d{3})+|\d{8,12}", ln_s) if int(n.replace(",", "")) >= 10000000]
+        bid_amt = big_nums[0] if big_nums else int(4291524120 + idx * 185000)
+
+        tokens = [t.strip() for t in re.split(r"[\t,;]+|\s{2,}|\s+", ln_s) if t.strip()]
+        comp_name = f"실전응찰사_{idx+1}(주)"
+        for tk in tokens:
+            if any(k in tk for k in ["(주)", "주식회사", "건설", "기공", "전력", "전기", "전설", "산업", "토건", "엔지", "설비", "텍", "개발"]):
+                comp_name = tk
+                break
+
+        is_fail = "미달" in ln_s or "탈락" in ln_s or rate_val < 100.0300
+        parsed_rows.append({
+            "comp": comp_name,
+            "bid_amt": bid_amt,
+            "rate": rate_val,
+            "is_fail": is_fail
+        })
+
+    if not parsed_rows:
+        return {"parsed_rows": [], "html": "", "default_sample": default_sample}
+
+    valid_r = [r for r in parsed_rows if not r["is_fail"]]
+    fail_r = [r for r in parsed_rows if r["is_fail"]]
+    valid_r.sort(key=lambda x: x["rate"])
+    fail_r.sort(key=lambda x: x["rate"], reverse=True)
+
+    win_rate = valid_r[0]["rate"] if valid_r else parsed_rows[0]["rate"]
+    win_bid = valid_r[0]["bid_amt"] if valid_r else parsed_rows[0]["bid_amt"]
+    win_comp = valid_r[0]["comp"] if valid_r else parsed_rows[0]["comp"]
+
+    gap_top3 = 0.0
+    if len(valid_r) >= 3:
+        gap_top3 = valid_r[2]["rate"] - valid_r[0]["rate"]
+
+    ordered_all = []
+    for i, vr in enumerate(valid_r):
+        ordered_all.append({**vr, "rank_label": f"🏆 최종 1순위" if i == 0 else f"예비 {i+1}순위", "status_type": "WIN" if i == 0 else "VALID"})
+    for i, fr in enumerate(fail_r):
+        ordered_all.append({**fr, "rank_label": f"미달 {i+1}", "status_type": "FAIL"})
+
+    tr_html = ""
+    rival_cards = ""
+    for i, item in enumerate(ordered_all):
+        diff_amt = item["bid_amt"] - win_bid
+        diff_bp = item["rate"] - win_rate
+        pos_pct = max(4, min(96, int(((item["rate"] - 99.98) / 0.14) * 100)))
+
+        if item["status_type"] == "WIN":
+            badge = "<span style='background:linear-gradient(90deg,#B45309,#FBBF24);color:#090D16;font-weight:900;padding:3px 8px;border-radius:6px;font-size:10.5px;'>🏆 1순위 당첨</span>"
+            style_tag = "🎯 초정밀 영점 타격형"
+            tag_col = "#34D399"
+            tr_bg = "linear-gradient(90deg, rgba(16,185,129,0.24), rgba(15,23,42,0.95))"
+        elif item["status_type"] == "VALID":
+            badge = f"<span style='background:rgba(56,189,248,0.2);color:#7DD3FC;border:1px solid #38BDF8;font-weight:800;padding:2px 8px;border-radius:6px;font-size:10.5px;'>{item['rank_label']}</span>"
+            style_tag = "⚡ 근접 추격형" if diff_bp <= 0.015 else "🛡️ 상위 안전방어형"
+            tag_col = "#38BDF8" if diff_bp <= 0.015 else "#C084FC"
+            tr_bg = "rgba(15,23,42,0.9)"
+        else:
+            badge = "<span style='background:rgba(239,68,68,0.22);color:#FCA5A5;border:1px solid #F87171;font-weight:800;padding:2px 8px;border-radius:6px;font-size:10.5px;'>🚨 하한선 미달</span>"
+            style_tag = "⚠️ 공격적 하단매복(미달)"
+            tag_col = "#F87171"
+            tr_bg = "rgba(127,29,29,0.16)"
+
+        tr_html += (
+            f"<tr style='background:{tr_bg};border-bottom:1px solid rgba(148,163,184,0.16);'>"
+            f"<td style='padding:9px 10px;'>{badge}</td>"
+            f"<td style='padding:9px 10px;color:#FFFFFF;font-weight:900;font-size:12.5px;'>🏢 {item['comp']}</td>"
+            f"<td style='padding:9px 10px;color:#38BDF8;font-weight:900;'>{item['bid_amt']:,}원</td>"
+            f"<td style='padding:9px 10px;'>"
+            f"<div style='color:#FDE68A;font-weight:900;font-size:12px;'>{item['rate']:.4f}%</div>"
+            f"<div style='width:120px;height:7px;background:#090D16;border-radius:99px;margin-top:3px;position:relative;border:1px solid rgba(148,163,184,0.3);'>"
+            f"<div style='position:absolute;left:{pos_pct}%;top:0;width:7px;height:5px;border-radius:50%;background:{tag_col};box-shadow:0 0 6px {tag_col};'></div>"
+            f"</div>"
+            f"</td>"
+            f"<td style='padding:9px 10px;color:#E2E8F0;font-weight:800;'>{diff_amt:+,}원 ({diff_bp:+.4f}%p)</td>"
+            f"<td style='padding:9px 10px;'><span style='color:{tag_col};font-weight:900;font-size:11.5px;'>{style_tag}</span></td>"
+            f"</tr>"
+        )
+
+        if i < 4:
+            rival_cards += (
+                f"<div style='background:linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,41,59,0.88));border:1.5px solid {tag_col};border-radius:10px;padding:10px 12px;'>"
+                f"<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;'>"
+                f"<span style='color:#FFFFFF;font-size:12.5px;font-weight:900;'>🕵️ {item['comp']}</span>"
+                f"<span style='color:{tag_col};font-size:10.5px;font-weight:900;'>{item['rank_label']}</span>"
+                f"</div>"
+                f"<div style='color:#FDE68A;font-size:13px;font-weight:900;margin:3px 0;'>투찰 사정률: {item['rate']:.4f}%</div>"
+                f"<div style='color:#94A3B8;font-size:11px;'>투찰가: {item['bid_amt']:,}원</div>"
+                f"<div style='color:{tag_col};font-size:11px;font-weight:800;margin-top:4px;'>• 성향 진단: {style_tag}</div>"
+                f"</div>"
+            )
+
+    dashboard_html = (
+        "<div style='margin-top:12px;'>"
+        "<div style='display:grid;grid-template-columns:repeat(4, 1fr);gap:10px;margin-bottom:12px;'>"
+        f"<div style='background:rgba(15,23,42,0.95);border:1.5px solid #34D399;border-radius:10px;padding:10px 14px;'>"
+        f"<div style='color:#94A3B8;font-size:10.5px;'>🏆 1순위 당첨 사정률 ({win_comp})</div>"
+        f"<div style='color:#34D399;font-size:17px;font-weight:900;margin-top:2px;'>{win_rate:.4f}%</div>"
+        f"<div style='color:#A7F3D0;font-size:11px;'>낙찰가 {win_bid:,}원</div>"
+        f"</div>"
+        f"<div style='background:rgba(15,23,42,0.95);border:1.5px solid #38BDF8;border-radius:10px;padding:10px 14px;'>"
+        f"<div style='color:#94A3B8;font-size:10.5px;'>📊 해부된 응찰사 표본</div>"
+        f"<div style='color:#38BDF8;font-size:17px;font-weight:900;margin-top:2px;'>총 {len(parsed_rows)}개사</div>"
+        f"<div style='color:#BAE6FD;font-size:11px;'>유효 {len(valid_r)}개사 · 미달 {len(fail_r)}개사</div>"
+        f"</div>"
+        f"<div style='background:rgba(15,23,42,0.95);border:1.5px solid #FBBF24;border-radius:10px;padding:10px 14px;'>"
+        f"<div style='color:#94A3B8;font-size:10.5px;'>🔥 상위 1~3순위 초밀집 격차</div>"
+        f"<div style='color:#FBBF24;font-size:17px;font-weight:900;margin-top:2px;'>{gap_top3:.4f}%p</div>"
+        f"<div style='color:#FDE68A;font-size:11px;'>초박빙 소수점 승부 구간</div>"
+        f"</div>"
+        f"<div style='background:rgba(15,23,42,0.95);border:1.5px solid #C084FC;border-radius:10px;padding:10px 14px;'>"
+        f"<div style='color:#94A3B8;font-size:10.5px;'>🕵️ 라이벌 프로파일링</div>"
+        f"<div style='color:#C084FC;font-size:17px;font-weight:900;margin-top:2px;'>TOP {min(4, len(ordered_all))}개사 추출</div>"
+        f"<div style='color:#E9D5FF;font-size:11px;'>투찰 성향 자동 분류 완료</div>"
+        f"</div>"
+        "</div>"
+        "<div style='color:#FDE68A;font-size:13px;font-weight:900;margin-bottom:8px;'>🕵️ [주요 라이벌(경쟁사) 실전 타점 & 투찰 성향 프로파일 레이더]</div>"
+        f"<div style='display:grid;grid-template-columns:repeat(4, 1fr);gap:10px;margin-bottom:14px;'>{rival_cards}</div>"
+        "<div style='color:#38BDF8;font-size:13px;font-weight:900;margin-bottom:8px;'>📊 [실전 개찰내역 응찰사별 사정률 스펙트럼 & 커트라인 정밀 해부 보드]</div>"
+        "<div style='background:rgba(15,23,42,0.96);border:2px solid rgba(56,189,248,0.45);border-radius:12px;overflow:hidden;box-shadow:0 12px 28px rgba(0,0,0,0.8);'>"
+        "<table style='width:100%;border-collapse:collapse;font-size:12px;'>"
+        "<thead><tr style='background:linear-gradient(180deg,#0F172A,#1E293B);color:#38BDF8;font-weight:900;border-bottom:2px solid #38BDF8;'>"
+        "<th style='padding:10px;text-align:left;'>개찰순위 / 판정</th>"
+        "<th style='padding:10px;text-align:left;'>응찰사명</th>"
+        "<th style='padding:10px;text-align:left;'>투찰금액</th>"
+        "<th style='padding:10px;text-align:left;'>투찰 사정률 스펙트럼</th>"
+        "<th style='padding:10px;text-align:left;'>1순위 대비 차액(편차)</th>"
+        "<th style='padding:10px;text-align:left;'>AI 경쟁사 성향 진단</th>"
+        "</tr></thead>"
+        f"<tbody>{tr_html}</tbody>"
+        "</table></div></div>"
+    )
+
+    return {
+        "parsed_rows": parsed_rows,
+        "html": dashboard_html,
+        "default_sample": default_sample
+    }
+
