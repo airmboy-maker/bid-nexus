@@ -2834,11 +2834,11 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
             margin-bottom: 36px;
         }
         .shelf-label {
-            color: #FDE68A;
+            color: #FFFFFF;
             font-size: 12.5px;
             font-weight: 900;
             margin-bottom: 18px;
-            text-shadow: 0 0 12px rgba(251,191,36,0.75);
+            text-shadow: none;
         }
         .books-row {
             display: flex;
@@ -2883,7 +2883,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
             /* 비선택 기본 상태: 서가에 비스듬히 꽂힌 두꺼운 입체 파일철/양장본 각도 */
             transform: rotateY(-22deg) rotateX(6deg) translateZ(4px);
             transition: transform 0.26s cubic-bezier(0.22, 1, 0.36, 1), filter 0.22s ease;
-            filter: brightness(0.88) contrast(1.06);
+            filter: brightness(1.02) contrast(1.08);
         }
 
         /* 마우스가 고정 슬롯에 닿는 즉시 9권 모두 0.01초 만에 일괄 반응하여 앞으로 쑥 빠져나옴! */
@@ -2926,11 +2926,11 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
         }
         .spine-title-vertical {
             writing-mode: vertical-rl;
-            font-size: 10.5px;
+            font-size: 12px;
             font-weight: 900;
-            color: #FEF08A;
+            color: #FFFFFF;
             letter-spacing: 1.2px;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+            text-shadow: none;
         }
         .binder-brass-hole {
             width: 14px;
@@ -3064,7 +3064,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
             transform: translateX(-50%) translateZ(45px);
             background: linear-gradient(90deg, #059669, #10B981, #047857);
             color: #022C22;
-            font-size: 11.5px;
+            font-size: 13px;
             font-weight: 900;
             padding: 5px 14px;
             border-radius: 999px;
@@ -3082,7 +3082,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
             display: none;
             background: linear-gradient(90deg, #10B981, #38BDF8);
             color: #022C22;
-            font-size: 10.5px;
+            font-size: 12px;
             font-weight: 900;
             text-align: center;
             padding: 3px 6px;
@@ -3097,7 +3097,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
         .unselected-Footnote-strip {
             display: block;
             color: #F8FAFC;
-            font-size: 10px;
+            font-size: 12px;
             background: rgba(0,0,0,0.48);
             padding: 3px 6px;
             border-radius: 4px;
@@ -3180,10 +3180,10 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
                 </div>
             </div>
             <div style="text-align:right;">
-                <div style="background:rgba(9,13,22,0.85);border:1.5px solid #38BDF8;border-radius:8px;padding:6px 12px;color:#38BDF8;font-size:11.5px;font-weight:900;">
+                <div style="background:rgba(9,13,22,0.85);border:1.5px solid #38BDF8;border-radius:8px;padding:6px 12px;color:#38BDF8;font-size:13px;font-weight:900;">
                     ⚡ [제2관 모의투찰] & [제3관 올라마 해부관] 100% 직결 고정됨
                 </div>
-                <div style="color:#FDE68A;font-size:11px;font-weight:800;margin-top:4px;">
+                <div style="color:#FFFFFF;font-size:12.5px;font-weight:800;margin-top:4px;">
                     👇 마우스를 올리면 3D 바인더 책자가 즉시 반응하며 클릭 시 타겟이 교체됩니다
                 </div>
             </div>
@@ -3199,7 +3199,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
     <div class="reading-desk-stage">
         <div style="color:#6EE7B7;font-size:14.5px;font-weight:900;margin-bottom:6px;display:flex;justify-content:space-between;">
             <span id="desk-header-title">📖 [3D 홀로그램 양면 펼침 독서대] 현재 선택된 양장본 상세 해부</span>
-            <span id="desk-header-meta" style="color:#FDE68A;font-size:12px;"></span>
+            <span id="desk-header-meta" style="color:#FFFFFF;font-size:12px;"></span>
         </div>
         <div class="open-book-3d-container" id="open-book-box">
             <div class="page-left-3d" id="page-left-content"></div>
@@ -3251,10 +3251,10 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
                 t2Banner.innerHTML =
                     '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
                         '<div>' +
-                            '<span style="background:#10B981;color:#022C22;font-size:11.5px;font-weight:900;padding:4px 10px;border-radius:6px;">🎯 현재 선택·락온된 모의투찰 대상 공고</span>' +
+                            '<span style="background:#10B981;color:#022C22;font-size:13px;font-weight:900;padding:4px 10px;border-radius:6px;">🎯 현재 선택·락온된 모의투찰 대상 공고</span>' +
                             '<span style="color:#FFFFFF;font-size:15.5px;font-weight:900;margin-left:10px;">[' + b.code + '] ' + b.title + '</span>' +
                         '</div>' +
-                        '<div style="color:#FDE68A;font-size:12.5px;font-weight:900;">' +
+                        '<div style="color:#FFFFFF;font-size:12.5px;font-weight:900;">' +
                             '🏛️ ' + b.agency + ' | ' + b.sector + ' | 💰 기초: ' + b.base_amt + ' | 🛡️ A값: ' + b.a_val + ' (하한율 ' + b.low_lim + ')' +
                         '</div>' +
                     '</div>';
@@ -3268,11 +3268,11 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
                             '<span style="background:#10B981;color:#022C22;font-size:12px;font-weight:900;padding:5px 12px;border-radius:6px;box-shadow:0 0 14px rgba(16,185,129,0.8);">🎯 현재 선택·락온되어 분석 중인 공고문</span>' +
                             '<span style="color:#FFFFFF;font-size:16px;font-weight:900;margin-left:10px;">[' + b.code + '] ' + b.title + '</span>' +
                         '</div>' +
-                        '<span style="background:rgba(16,185,129,0.2);border:1px solid #34D399;color:#A7F3D0;font-size:11.5px;font-weight:800;padding:4px 10px;border-radius:6px;">' +
+                        '<span style="background:rgba(16,185,129,0.2);border:1px solid #34D399;color:#A7F3D0;font-size:13px;font-weight:800;padding:4px 10px;border-radius:6px;">' +
                             '✅ 제1관 3D 서재 선택 항목 100% 일치' +
                         '</span>' +
                     '</div>' +
-                    '<div style="color:#FDE68A;font-size:12px;font-weight:800;margin-top:6px;">' +
+                    '<div style="color:#FFFFFF;font-size:12px;font-weight:800;margin-top:6px;">' +
                         '🏛️ 발주처: ' + b.agency + ' | 🏗️ 공종: ' + b.sector + ' | 💰 기초금액: ' + b.base_amt + ' | 🛡️ A값: ' + b.a_val + ' (' + b.a_ratio + ') | 🎯 목표 추천가: ' + b.rec_bid +
                     '</div>';
             }
@@ -3284,10 +3284,10 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
             if (tAgSec) tAgSec.innerHTML = b.agency + '<br><span style="color:#7DD3FC;">' + b.sector + '</span>';
 
             const tBaseA = pDoc.getElementById('v12-t3-base-aval');
-            if (tBaseA) tBaseA.innerHTML = '기초 ' + b.base_amt + '<br><span style="color:#FDE68A;">A값 ' + b.a_val + ' (' + b.a_ratio + ')</span>';
+            if (tBaseA) tBaseA.innerHTML = '기초 ' + b.base_amt + '<br><span style="color:#FFFFFF;">A값 ' + b.a_val + ' (' + b.a_ratio + ')</span>';
 
             const tRec = pDoc.getElementById('v12-t3-rec-target');
-            if (tRec) tRec.innerHTML = b.rec_bid + '<br><span style="color:#A7F3D0;font-size:11px;">목표사정률 ' + b.rec_rate + ' (하한 ' + b.low_lim + ')</span>';
+            if (tRec) tRec.innerHTML = b.rec_bid + '<br><span style="color:#A7F3D0;font-size:12.5px;">목표사정률 ' + b.rec_rate + ' (하한 ' + b.low_lim + ')</span>';
 
             let userQ = '';
             const allInputs = pDoc.querySelectorAll('input[type="text"]');
@@ -3364,10 +3364,10 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
 
                     tBrief.innerHTML =
                         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;border-bottom:1px solid rgba(56,189,248,0.35);padding-bottom:6px;">' +
-                            '<span id="v12-typing-badge" style="background:linear-gradient(90deg, #38BDF8, #10B981);color:#022C22;font-size:11px;font-weight:900;padding:3px 10px;border-radius:99px;">' +
+                            '<span id="v12-typing-badge" style="background:linear-gradient(90deg, #38BDF8, #10B981);color:#022C22;font-size:12.5px;font-weight:900;padding:3px 10px;border-radius:99px;">' +
                                 '⌨️ 실시간 6차원 정밀 재분석 타이핑 진행 중...' +
                             '</span>' +
-                            '<span style="color:#FDE68A;font-size:11px;font-weight:800;">분석 시각: ' + (reTs || '실시간 연동') + '</span>' +
+                            '<span style="color:#FFFFFF;font-size:12.5px;font-weight:800;">분석 시각: ' + (reTs || '실시간 연동') + '</span>' +
                         '</div>' +
                         '<div id="v12-typewriter-text" style="color:#ECFDF5;font-size:12.5px;line-height:1.7;white-space:pre-wrap;min-height:96px;font-weight:600;"></div>' +
                         '<div id="v12-matrix-stage" style="margin-top:10px;"></div>';
@@ -3400,13 +3400,13 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
                                     '<div style="background:rgba(9,13,22,0.94);border:1.5px solid #FBBF24;border-radius:8px;padding:10px 12px;">' +
                                         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
                                             '<span style="color:#FBBF24;font-size:12px;font-weight:900;">⚡ [6차원 정밀 재분석 완료] ' + b.code + ' 시나리오별 3단계 실전 타격 매트릭스</span>' +
-                                            '<span style="background:#10B981;color:#022C22;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:4px;">재분석 시각: ' + (reTs || '방금 전') + '</span>' +
+                                            '<span style="background:#10B981;color:#022C22;font-size:12px;font-weight:900;padding:2px 8px;border-radius:4px;">재분석 시각: ' + (reTs || '방금 전') + '</span>' +
                                         '</div>' +
-                                        '<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;text-align:center;font-size:11.5px;">' +
+                                        '<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;text-align:center;font-size:13px;">' +
                                             '<div id="v12-card-step1" style="opacity:0;transform:translateY(10px);transition:all 0.35s ease;background:rgba(239,68,68,0.15);border:1px solid #F87171;border-radius:6px;padding:8px;">' +
                                                 '<div style="color:#FCA5A5;font-weight:800;">🔥 1안: 공격적 하단매복</div>' +
                                                 '<div style="color:#FFFFFF;font-size:13px;font-weight:900;margin:4px 0;">' + calcBid(parseFloat(rAgg)) + '</div>' +
-                                                '<div style="color:#FDE68A;">목표사정률 ' + rAgg + '%</div>' +
+                                                '<div style="color:#FFFFFF;">목표사정률 ' + rAgg + '%</div>' +
                                             '</div>' +
                                             '<div id="v12-card-step2" style="opacity:0;transform:translateY(10px);transition:all 0.35s ease;background:rgba(16,185,129,0.24);border:2px solid #34D399;border-radius:6px;padding:8px;box-shadow:0 0 15px rgba(16,185,129,0.4);">' +
                                                 '<div style="color:#6EE7B7;font-weight:900;">🎯 2안: AI 1순위 정밀영점(권장)</div>' +
@@ -3420,7 +3420,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
                                             '</div>' +
                                         '</div>' +
                                     '</div>' +
-                                    (sentTs ? '<div style="margin-top:8px;background:rgba(16,185,129,0.25);border:1px solid #34D399;border-radius:6px;padding:6px 10px;color:#A7F3D0;font-size:11.5px;font-weight:800;">⚡ [' + sentTs + ' 전송 완료] 현재 락온된 [' + b.code + '] 기초금액(' + b.base_amt + ')과 A값(' + b.a_val + ')이 [제2관: 모의투찰] 입력창에 즉시 세팅되었습니다!</div>' : '');
+                                    (sentTs ? '<div style="margin-top:8px;background:rgba(16,185,129,0.25);border:1px solid #34D399;border-radius:6px;padding:6px 10px;color:#A7F3D0;font-size:13px;font-weight:800;">⚡ [' + sentTs + ' 전송 완료] 현재 락온된 [' + b.code + '] 기초금액(' + b.base_amt + ')과 A값(' + b.a_val + ')이 [제2관: 모의투찰] 입력창에 즉시 세팅되었습니다!</div>' : '');
 
                                 setTimeout(() => {
                                     const c1 = pDoc.getElementById('v12-card-step1');
@@ -3473,9 +3473,9 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
         setTimeout(() => box.classList.remove('flip-anim'), 260);
 
         document.getElementById('hud-locked-title').innerHTML =
-            '<span style="color:#FDE68A;">[' + b.code + ']</span> ' + b.title;
+            '<span style="color:#FFFFFF;">[' + b.code + ']</span> ' + b.title;
         document.getElementById('hud-locked-specs').innerHTML =
-            '🏛️ 발주처: <b>' + b.agency + '</b> &nbsp;|&nbsp; 🏗️ 공종: <b>' + b.sector + '</b> &nbsp;|&nbsp; 💰 기초금액: <b style="color:#38BDF8;">' + b.base_amt + '</b> &nbsp;|&nbsp; 🛡️ A값: <b style="color:#FDE68A;">' + b.a_val + ' (' + b.a_ratio + ')</b> &nbsp;|&nbsp; 🎯 개찰예가: <b>' + b.true_rate + '</b>';
+            '🏛️ 발주처: <b>' + b.agency + '</b> &nbsp;|&nbsp; 🏗️ 공종: <b>' + b.sector + '</b> &nbsp;|&nbsp; 💰 기초금액: <b style="color:#38BDF8;">' + b.base_amt + '</b> &nbsp;|&nbsp; 🛡️ A값: <b style="color:#FFFFFF;">' + b.a_val + ' (' + b.a_ratio + ')</b> &nbsp;|&nbsp; 🎯 개찰예가: <b>' + b.true_rate + '</b>';
 
         document.getElementById('desk-header-title').innerHTML =
             '📖 [3D 홀로그램 양면 펼침 독서대] 현재 락온되어 펼쳐진 양장본: <span style="color:#10B981;">[' + b.code + '] ' + b.title + '</span>';
@@ -3484,14 +3484,14 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
         document.getElementById('page-left-content').innerHTML =
             '<div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(16,185,129,0.45);padding-bottom:6px;margin-bottom:10px;">' +
                 '<span style="color:#34D399;font-size:13px;font-weight:900;">📄 [좌측 페이지: 제1면 & 제2면] 입찰공고문 원문 · 사정 타점 대조</span>' +
-                '<span style="background:#10B981;color:#022C22;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:99px;" id="desk-tw-badge">⌨️ 실시간 타이핑 적용 중...</span>' +
+                '<span style="background:#10B981;color:#022C22;font-size:12px;font-weight:900;padding:2px 8px;border-radius:99px;" id="desk-tw-badge">⌨️ 실시간 타이핑 적용 중...</span>' +
             '</div>' +
             '<div id="desk-p1-box" style="background:rgba(9,13,22,0.88);border:1.5px solid #38BDF8;border-left:4px solid #10B981;padding:10px 12px;border-radius:6px;margin-bottom:10px;transition:all 0.3s ease;box-shadow:0 0 18px rgba(56,189,248,0.45);">' +
-                '<div style="color:#6EE7B7;font-size:11px;font-weight:900;margin-bottom:4px;">[제1면] 입찰공고문 원문 & 핵심 스펙 스냅샷</div>' +
+                '<div style="color:#6EE7B7;font-size:12.5px;font-weight:900;margin-bottom:4px;">[제1면] 입찰공고문 원문 & 핵심 스펙 스냅샷</div>' +
                 '<div id="desk-tw-raw" style="color:#E2E8F0;font-size:12px;line-height:1.55;min-height:36px;"></div>' +
             '</div>' +
             '<div style="background:rgba(9,13,22,0.88);border-left:4px solid #C084FC;padding:10px 12px;border-radius:6px;">' +
-                '<div style="color:#E9D5FF;font-size:11px;font-weight:900;margin-bottom:4px;">[제2면] 모의응찰 사정가 vs AI 학습 사정가 대조</div>' +
+                '<div style="color:#E9D5FF;font-size:12.5px;font-weight:900;margin-bottom:4px;">[제2면] 모의응찰 사정가 vs AI 학습 사정가 대조</div>' +
                 '<div style="color:#F8FAFC;font-size:12px;line-height:1.65;">' +
                     '• 기초금액: <b>' + b.base_amt + '</b> | A값: <b>' + b.a_val + '</b> (적용 낙찰하한율 ' + b.low_lim + ')<br>' +
                     '• 🤖 AI 사정 타점: <b style="color:#38BDF8;font-size:13px;">' + b.ai_rate + '</b> vs 👤 대표님 모의투찰: <b style="color:#C084FC;font-size:13px;">' + b.user_rate + '</b>' +
@@ -3501,19 +3501,19 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
         document.getElementById('page-right-content').innerHTML =
             '<div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(251,191,36,0.35);padding-bottom:6px;margin-bottom:10px;">' +
                 '<span style="color:#FBBF24;font-size:13px;font-weight:900;">📊 [우측 페이지: 제3면 & 제4면] 개찰 결과 해부 · 대표님 금박 각주</span>' +
-                '<span style="color:#34D399;font-size:11.5px;font-weight:800;">응찰 ' + b.participants + '</span>' +
+                '<span style="color:#34D399;font-size:13px;font-weight:800;">응찰 ' + b.participants + '</span>' +
             '</div>' +
             '<div style="background:rgba(9,13,22,0.88);border-left:4px solid #34D399;padding:10px 12px;border-radius:6px;margin-bottom:10px;">' +
-                '<div style="color:#6EE7B7;font-size:11px;font-weight:900;margin-bottom:4px;">[제3면] 실제 개찰 결과 & 15C4 추첨번호 해부</div>' +
+                '<div style="color:#6EE7B7;font-size:12.5px;font-weight:900;margin-bottom:4px;">[제3면] 실제 개찰 결과 & 15C4 추첨번호 해부</div>' +
                 '<div style="color:#F8FAFC;font-size:12px;line-height:1.65;">' +
                     '• 🎯 실제 개찰 예가사정률: <b style="color:#FBBF24;font-size:14px;">' + b.true_rate + '</b> (추첨번호: ' + b.lots + ')<br>' +
                     '• 🏆 최종 1순위 당첨사: <b style="color:#34D399;">' + b.winner + '</b> (낙찰가 <b>' + b.winner_bid + '</b>)' +
                 '</div>' +
             '</div>' +
             '<div id="desk-p4-box" style="background:linear-gradient(135deg, rgba(120,53,15,0.55), rgba(15,23,42,0.95));border:2px solid #FBBF24;padding:10px 12px;border-radius:6px;transition:all 0.3s ease;box-shadow:0 0 20px rgba(251,191,36,0.5);">' +
-                '<div style="color:#FEF08A;font-size:11px;font-weight:900;margin-bottom:4px;">[제4면] ✍️ 대표님 비전(秘傳) 금박 각주 & AI 수석 사정관 총평</div>' +
-                '<div id="desk-tw-foot" style="color:#FDE68A;font-size:12.5px;font-weight:900;margin-bottom:5px;min-height:20px;"></div>' +
-                '<div id="desk-tw-comm" style="color:#CBD5E1;font-size:11.5px;line-height:1.5;min-height:34px;"></div>' +
+                '<div style="color:#FFFFFF;font-size:12.5px;font-weight:900;margin-bottom:4px;">[제4면] ✍️ 대표님 비전(秘傳) 금박 각주 & AI 수석 사정관 총평</div>' +
+                '<div id="desk-tw-foot" style="color:#FFFFFF;font-size:12.5px;font-weight:900;margin-bottom:5px;min-height:20px;"></div>' +
+                '<div id="desk-tw-comm" style="color:#CBD5E1;font-size:13px;line-height:1.5;min-height:34px;"></div>' +
             '</div>';
 
         if (window._deskTwTimer) clearInterval(window._deskTwTimer);
@@ -3611,16 +3611,16 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
                             '<div class="brass-corner-br"></div>' +
                             '<div>' +
                                 '<div style="display:flex;justify-content:space-between;align-items:center;">' +
-                                    '<span style="color:#FEF08A;font-size:11px;font-weight:900;">' + bk.code + (bk.vip ? ' 🔖 VIP' : '') + '</span>' +
-                                    '<span style="background:rgba(0,0,0,0.62);color:#F8FAFC;font-size:9.5px;font-weight:800;padding:2px 7px;border-radius:4px;border:1px solid rgba(253,230,138,0.4);">' + st.badge + '</span>' +
+                                    '<span style="color:#FFFFFF;font-size:12.5px;font-weight:900;">' + bk.code + (bk.vip ? ' 🔖 VIP' : '') + '</span>' +
+                                    '<span style="background:rgba(0,0,0,0.62);color:#F8FAFC;font-size:13px;font-weight:800;padding:2px 7px;border-radius:4px;border:1px solid rgba(253,230,138,0.4);">' + st.badge + '</span>' +
                                 '</div>' +
                                 '<div class="gold-foil-line"></div>' +
                                 '<div style="color:#FFFFFF;font-size:13.5px;font-weight:900;line-height:1.3;margin:5px 0;">📕 ' + bk.title + '</div>' +
-                                '<div style="color:#E2E8F0;font-size:10.5px;font-weight:700;">🏛️ ' + bk.agency + ' | ' + bk.sector + '</div>' +
-                                '<div style="color:#BAE6FD;font-size:10.5px;margin-top:2px;">💰 기초: ' + bk.base_amt + '</div>' +
+                                '<div style="color:#E2E8F0;font-size:12px;font-weight:700;">🏛️ ' + bk.agency + ' | ' + bk.sector + '</div>' +
+                                '<div style="color:#BAE6FD;font-size:12px;margin-top:2px;">💰 기초: ' + bk.base_amt + '</div>' +
                             '</div>' +
                             '<div>' +
-                                '<div style="color:#FDE68A;font-size:11px;font-weight:900;">🎯 개찰 ' + bk.true_rate + ' | 내 사정 ' + bk.user_rate + '</div>' +
+                                '<div style="color:#FFFFFF;font-size:12.5px;font-weight:900;">🎯 개찰 ' + bk.true_rate + ' | 내 사정 ' + bk.user_rate + '</div>' +
                                 '<div class="unselected-Footnote-strip">✍️ ' + bk.footnote + '</div>' +
                                 '<div class="selected-neon-strip">⚡ 현재 선택됨 · 제2·3관 직결 분석 중</div>' +
                             '</div>' +
@@ -3933,7 +3933,7 @@ def render_ultra_matrix_view_html_v12(books: list, active_code: str = "") -> str
             background: linear-gradient(180deg, #0F172A 0%, #1E293B 100%);
             color: #38BDF8;
             font-weight: 900;
-            font-size: 11.5px;
+            font-size: 13px;
             padding: 11px 10px;
             text-align: left;
             border-bottom: 2px solid #38BDF8;
@@ -3956,9 +3956,9 @@ def render_ultra_matrix_view_html_v12(books: list, active_code: str = "") -> str
             padding: 10px 10px;
             vertical-align: middle;
         }
-        .badge-gold { background: linear-gradient(90deg, #B45309, #F59E0B); color: #090D16; font-weight: 900; padding: 3px 8px; border-radius: 6px; font-size: 10.5px; display: inline-block; }
-        .badge-blue { background: linear-gradient(90deg, #0369A1, #38BDF8); color: #090D16; font-weight: 900; padding: 3px 8px; border-radius: 6px; font-size: 10.5px; display: inline-block; }
-        .badge-red { background: linear-gradient(90deg, #991B1B, #F87171); color: #FFFFFF; font-weight: 900; padding: 3px 8px; border-radius: 6px; font-size: 10.5px; display: inline-block; }
+        .badge-gold { background: linear-gradient(90deg, #B45309, #F59E0B); color: #090D16; font-weight: 900; padding: 3px 8px; border-radius: 6px; font-size: 12px; display: inline-block; }
+        .badge-blue { background: linear-gradient(90deg, #0369A1, #38BDF8); color: #090D16; font-weight: 900; padding: 3px 8px; border-radius: 6px; font-size: 12px; display: inline-block; }
+        .badge-red { background: linear-gradient(90deg, #991B1B, #F87171); color: #FFFFFF; font-weight: 900; padding: 3px 8px; border-radius: 6px; font-size: 12px; display: inline-block; }
         /* 사정률 스펙트럼 미니 레이저 트랙 */
         .spectrum-track {
             position: relative;
@@ -3999,7 +3999,7 @@ def render_ultra_matrix_view_html_v12(books: list, active_code: str = "") -> str
             display: inline-block;
             background: radial-gradient(circle at 30% 30%, #FEF08A, #D97706 75%, #78350F 100%);
             color: #090D16;
-            font-size: 10.5px;
+            font-size: 12px;
             font-weight: 900;
             padding: 2px 8px;
             border-radius: 99px;
@@ -4013,10 +4013,10 @@ def render_ultra_matrix_view_html_v12(books: list, active_code: str = "") -> str
     <div class="lockon-hud-board">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
             <div>
-                <span style="background:#10B981;color:#022C22;font-size:11.5px;font-weight:900;padding:4px 10px;border-radius:6px;">🎯 매트릭스 타겟 락온</span>
+                <span style="background:#10B981;color:#022C22;font-size:13px;font-weight:900;padding:4px 10px;border-radius:6px;">🎯 매트릭스 타겟 락온</span>
                 <span id="mx-hud-title" style="color:#FFFFFF;font-size:16px;font-weight:900;margin-left:8px;">공고 로딩 중...</span>
             </div>
-            <span style="color:#FDE68A;font-size:11.5px;font-weight:800;">👇 아래 매트릭스 표에서 원하는 공고 줄(Row)을 클릭하면 즉시 제2·3관과 연동됩니다</span>
+            <span style="color:#FFFFFF;font-size:13px;font-weight:800;">👇 아래 매트릭스 표에서 원하는 공고 줄(Row)을 클릭하면 즉시 제2·3관과 연동됩니다</span>
         </div>
         <div id="mx-hud-sub" style="color:#A7F3D0;font-size:12px;font-weight:800;margin-top:5px;"></div>
     </div>
@@ -4025,28 +4025,28 @@ def render_ultra_matrix_view_html_v12(books: list, active_code: str = "") -> str
     <div class="summary-kpi-grid">
         <div class="kpi-card">
             <div>
-                <div style="color:#94A3B8;font-size:10.5px;">📊 서재 평균 개찰사정률</div>
+                <div style="color:#E2E8F0;font-size:12px;">📊 서재 평균 개찰사정률</div>
                 <div style="color:#FBBF24;font-size:16px;font-weight:900;margin-top:2px;">__AVG_TRUE__</div>
             </div>
             <span style="font-size:20px;">🎯</span>
         </div>
         <div class="kpi-card">
             <div>
-                <div style="color:#94A3B8;font-size:10.5px;">📐 나의 평균 영점오차</div>
+                <div style="color:#E2E8F0;font-size:12px;">📐 나의 평균 영점오차</div>
                 <div style="color:#38BDF8;font-size:16px;font-weight:900;margin-top:2px;">__AVG_ERR__</div>
             </div>
             <span style="font-size:20px;">⚡</span>
         </div>
         <div class="kpi-card">
             <div>
-                <div style="color:#94A3B8;font-size:10.5px;">🏆 황금족보(GOLD) 비중</div>
+                <div style="color:#E2E8F0;font-size:12px;">🏆 황금족보(GOLD) 비중</div>
                 <div style="color:#34D399;font-size:16px;font-weight:900;margin-top:2px;">__GOLD_RATIO__</div>
             </div>
             <span style="font-size:20px;">🏆</span>
         </div>
         <div class="kpi-card">
             <div>
-                <div style="color:#94A3B8;font-size:10.5px;">🛡️ 평균 A값 방어 비중</div>
+                <div style="color:#E2E8F0;font-size:12px;">🛡️ 평균 A값 방어 비중</div>
                 <div style="color:#C084FC;font-size:16px;font-weight:900;margin-top:2px;">__AVG_AR__</div>
             </div>
             <span style="font-size:20px;">🛡️</span>
@@ -4092,9 +4092,9 @@ def render_ultra_matrix_view_html_v12(books: list, active_code: str = "") -> str
             if (t2Banner) {
                 t2Banner.innerHTML =
                     '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
-                        '<div><span style="background:#10B981;color:#022C22;font-size:11.5px;font-weight:900;padding:4px 10px;border-radius:6px;">🎯 현재 선택·락온된 모의투찰 대상 공고</span>' +
+                        '<div><span style="background:#10B981;color:#022C22;font-size:13px;font-weight:900;padding:4px 10px;border-radius:6px;">🎯 현재 선택·락온된 모의투찰 대상 공고</span>' +
                         '<span style="color:#FFFFFF;font-size:15.5px;font-weight:900;margin-left:10px;">[' + b.code + '] ' + b.title + '</span></div>' +
-                        '<div style="color:#FDE68A;font-size:12.5px;font-weight:900;">🏛️ ' + b.agency + ' | ' + b.sector + ' | 💰 기초: ' + b.base_amt + ' | 🛡️ A값: ' + b.a_val + '</div>' +
+                        '<div style="color:#FFFFFF;font-size:12.5px;font-weight:900;">🏛️ ' + b.agency + ' | ' + b.sector + ' | 💰 기초: ' + b.base_amt + ' | 🛡️ A값: ' + b.a_val + '</div>' +
                     '</div>';
             }
             const t3Banner = pDoc.getElementById('v12-t3-active-banner');
@@ -4103,18 +4103,18 @@ def render_ultra_matrix_view_html_v12(books: list, active_code: str = "") -> str
                     '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
                         '<div><span style="background:#10B981;color:#022C22;font-size:12px;font-weight:900;padding:5px 12px;border-radius:6px;">🎯 현재 선택·락온되어 분석 중인 공고문</span>' +
                         '<span style="color:#FFFFFF;font-size:16px;font-weight:900;margin-left:10px;">[' + b.code + '] ' + b.title + '</span></div>' +
-                        '<span style="background:rgba(16,185,129,0.2);border:1px solid #34D399;color:#A7F3D0;font-size:11.5px;font-weight:800;padding:4px 10px;border-radius:6px;">✅ 제1관 매트릭스 선택 항목 100% 일치</span>' +
+                        '<span style="background:rgba(16,185,129,0.2);border:1px solid #34D399;color:#A7F3D0;font-size:13px;font-weight:800;padding:4px 10px;border-radius:6px;">✅ 제1관 매트릭스 선택 항목 100% 일치</span>' +
                     '</div>' +
-                    '<div style="color:#FDE68A;font-size:12px;font-weight:800;margin-top:6px;">🏛️ 발주처: ' + b.agency + ' | 🏗️ 공종: ' + b.sector + ' | 💰 기초금액: ' + b.base_amt + ' | 🛡️ A값: ' + b.a_val + ' (' + b.a_ratio + ') | 🎯 목표 추천가: ' + b.rec_bid + '</div>';
+                    '<div style="color:#FFFFFF;font-size:12px;font-weight:800;margin-top:6px;">🏛️ 발주처: ' + b.agency + ' | 🏗️ 공종: ' + b.sector + ' | 💰 기초금액: ' + b.base_amt + ' | 🛡️ A값: ' + b.a_val + ' (' + b.a_ratio + ') | 🎯 목표 추천가: ' + b.rec_bid + '</div>';
             }
             const tTitle = pDoc.getElementById('v12-t3-title');
             if (tTitle) tTitle.innerHTML = '[' + b.code + '] ' + b.title;
             const tAgSec = pDoc.getElementById('v12-t3-ag-sec');
             if (tAgSec) tAgSec.innerHTML = b.agency + '<br><span style="color:#7DD3FC;">' + b.sector + '</span>';
             const tBaseA = pDoc.getElementById('v12-t3-base-aval');
-            if (tBaseA) tBaseA.innerHTML = '기초 ' + b.base_amt + '<br><span style="color:#FDE68A;">A값 ' + b.a_val + ' (' + b.a_ratio + ')</span>';
+            if (tBaseA) tBaseA.innerHTML = '기초 ' + b.base_amt + '<br><span style="color:#FFFFFF;">A값 ' + b.a_val + ' (' + b.a_ratio + ')</span>';
             const tRec = pDoc.getElementById('v12-t3-rec-target');
-            if (tRec) tRec.innerHTML = b.rec_bid + '<br><span style="color:#A7F3D0;font-size:11px;">목표사정률 ' + b.rec_rate + ' (하한 ' + b.low_lim + ')</span>';
+            if (tRec) tRec.innerHTML = b.rec_bid + '<br><span style="color:#A7F3D0;font-size:12.5px;">목표사정률 ' + b.rec_rate + ' (하한 ' + b.low_lim + ')</span>';
             const tRawBox = pDoc.getElementById('v12-t3-raw-viewer');
             if (tRawBox) tRawBox.innerText = b.full_pkg;
         } catch (e) {}
@@ -4143,10 +4143,10 @@ def render_ultra_matrix_view_html_v12(books: list, active_code: str = "") -> str
         if (c1El) {
             c1El.innerHTML =
                 '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">' +
-                    '<span style="color:#38BDF8;font-size:11.5px;font-weight:900;">📄 [제1면] 공고 원문 & 스펙 (' + b.code + ')</span>' +
-                    '<span id="mx-tw-badge" style="background:#38BDF8;color:#090D16;font-size:9.5px;font-weight:900;padding:1px 6px;border-radius:99px;">⌨️ 타이핑 중...</span>' +
+                    '<span style="color:#38BDF8;font-size:13px;font-weight:900;">📄 [제1면] 공고 원문 & 스펙 (' + b.code + ')</span>' +
+                    '<span id="mx-tw-badge" style="background:#38BDF8;color:#090D16;font-size:13px;font-weight:900;padding:1px 6px;border-radius:99px;">⌨️ 타이핑 중...</span>' +
                 '</div>' +
-                '<div id="mx-tw-raw" style="background:rgba(9,13,22,0.9);border:1px solid #38BDF8;border-left:3px solid #38BDF8;padding:8px 10px;border-radius:7px;color:#E2E8F0;font-size:11px;line-height:1.5;min-height:48px;"></div>';
+                '<div id="mx-tw-raw" style="background:rgba(9,13,22,0.9);border:1px solid #38BDF8;border-left:3px solid #38BDF8;padding:8px 10px;border-radius:7px;color:#E2E8F0;font-size:12.5px;line-height:1.5;min-height:48px;"></div>';
         }
         if (window._mxTwTimer) clearInterval(window._mxTwTimer);
         let mxC = 0;
@@ -4166,18 +4166,18 @@ def render_ultra_matrix_view_html_v12(books: list, active_code: str = "") -> str
         const c2El = document.getElementById('mx-detail-c2');
         if (c2El) {
             c2El.innerHTML =
-                '<div style="color:#C084FC;font-size:11.5px;font-weight:900;margin-bottom:5px;">💰 [제2면] 기초금액 · A값 · 하한율 구조</div>' +
-                '<div style="background:rgba(9,13,22,0.9);border-left:3px solid #C084FC;padding:8px 10px;border-radius:7px;font-size:11px;line-height:1.6;">' +
+                '<div style="color:#C084FC;font-size:13px;font-weight:900;margin-bottom:5px;">💰 [제2면] 기초금액 · A값 · 하한율 구조</div>' +
+                '<div style="background:rgba(9,13,22,0.9);border-left:3px solid #C084FC;padding:8px 10px;border-radius:7px;font-size:12.5px;line-height:1.6;">' +
                     '• 기초금액: <b style="color:#38BDF8;">' + b.base_amt + '</b><br>' +
-                    '• A값 합산: <b style="color:#FDE68A;">' + b.a_val + ' (' + b.a_ratio + ')</b><br>' +
+                    '• A값 합산: <b style="color:#FFFFFF;">' + b.a_val + ' (' + b.a_ratio + ')</b><br>' +
                     '• 적격하한율: <b style="color:#34D399;">' + b.low_lim + '</b> (응찰 ' + b.participants + ')' +
                 '</div>';
         }
         const c3El = document.getElementById('mx-detail-c3');
         if (c3El) {
             c3El.innerHTML =
-                '<div style="color:#34D399;font-size:11.5px;font-weight:900;margin-bottom:5px;">🎯 [제3면] 개찰예가 vs AI vs 내 사정 대조</div>' +
-                '<div style="background:rgba(9,13,22,0.9);border-left:3px solid #34D399;padding:8px 10px;border-radius:7px;font-size:11px;line-height:1.6;">' +
+                '<div style="color:#34D399;font-size:13px;font-weight:900;margin-bottom:5px;">🎯 [제3면] 개찰예가 vs AI vs 내 사정 대조</div>' +
+                '<div style="background:rgba(9,13,22,0.9);border-left:3px solid #34D399;padding:8px 10px;border-radius:7px;font-size:12.5px;line-height:1.6;">' +
                     '• 실제 개찰예가: <b style="color:#FBBF24;font-size:12px;">' + b.true_rate + '</b><br>' +
                     '• 🤖 AI 사정률: <b style="color:#38BDF8;">' + b.ai_rate + '</b> | 👤 내 사정: <b style="color:#C084FC;">' + b.user_rate + '</b><br>' +
                     '• 🏆 1순위: <b style="color:#34D399;">' + b.winner + '</b> (' + b.winner_bid + ')' +
@@ -4187,12 +4187,12 @@ def render_ultra_matrix_view_html_v12(books: list, active_code: str = "") -> str
         if (c4El) {
             c4El.innerHTML =
                 '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">' +
-                    '<span style="color:#FBBF24;font-size:11.5px;font-weight:900;">💬 [제4면] 대표님 비전 각주 & 추첨구체</span>' +
+                    '<span style="color:#FBBF24;font-size:13px;font-weight:900;">💬 [제4면] 대표님 비전 각주 & 추첨구체</span>' +
                     '<div>' + orbsHtml + '</div>' +
                 '</div>' +
                 '<div style="background:rgba(9,13,22,0.9);border:1px solid rgba(251,191,36,0.45);padding:8px 10px;border-radius:7px;">' +
-                    '<div style="color:#FDE68A;font-size:11.5px;font-weight:900;margin-bottom:3px;">✍️ "' + b.footnote + '"</div>' +
-                    '<div style="color:#CBD5E1;font-size:10.5px;line-height:1.45;">' + b.ai_comm + '</div>' +
+                    '<div style="color:#FFFFFF;font-size:13px;font-weight:900;margin-bottom:3px;">✍️ "' + b.footnote + '"</div>' +
+                    '<div style="color:#CBD5E1;font-size:12px;line-height:1.45;">' + b.ai_comm + '</div>' +
                 '</div>';
         }
 
@@ -4224,20 +4224,20 @@ def render_ultra_matrix_view_html_v12(books: list, active_code: str = "") -> str
         rowsHtml +=
             '<tr onclick="selectMatrixRow(' + idx + ')">' +
                 '<td><span class="row-lock-indicator" style="color:#10B981;font-weight:900;"></span>' + tierBadge + '</td>' +
-                '<td style="color:#FDE68A;font-weight:900;white-space:nowrap;">' + b.code + (b.vip ? ' 🔖' : '') + '</td>' +
+                '<td style="color:#FFFFFF;font-weight:900;white-space:nowrap;">' + b.code + (b.vip ? ' 🔖' : '') + '</td>' +
                 '<td>' +
                     '<div style="color:#FFFFFF;font-weight:900;font-size:12.5px;">' + b.title + '</div>' +
-                    '<div style="color:#94A3B8;font-size:11px;margin-top:2px;">🏛️ ' + b.agency + ' · ' + b.sector + ' (응찰 ' + b.participants + ')</div>' +
+                    '<div style="color:#E2E8F0;font-size:12.5px;margin-top:2px;">🏛️ ' + b.agency + ' · ' + b.sector + ' (응찰 ' + b.participants + ')</div>' +
                 '</td>' +
                 '<td>' +
                     '<div style="color:#38BDF8;font-weight:900;">' + b.base_amt + '</div>' +
                     '<div style="display:flex;align-items:center;gap:6px;margin-top:3px;">' +
                         '<div style="width:55px;height:6px;background:#090D16;border-radius:3px;overflow:hidden;"><div style="width:' + b.a_bar_w + '%;height:100%;background:#FBBF24;"></div></div>' +
-                        '<span style="color:#FDE68A;font-size:10.5px;">A값 ' + b.a_ratio + '</span>' +
+                        '<span style="color:#FFFFFF;font-size:12px;">A값 ' + b.a_ratio + '</span>' +
                     '</div>' +
                 '</td>' +
                 '<td>' +
-                    '<div style="font-size:11px;"><span style="color:#FBBF24;font-weight:800;">예가 ' + b.true_rate + '</span> vs <span style="color:#34D399;font-weight:800;">내 사정 ' + b.user_rate + '</span></div>' +
+                    '<div style="font-size:12.5px;"><span style="color:#FBBF24;font-weight:800;">예가 ' + b.true_rate + '</span> vs <span style="color:#34D399;font-weight:800;">내 사정 ' + b.user_rate + '</span></div>' +
                     '<div class="spectrum-track">' +
                         '<div class="dot-true" style="left:' + b.pos_true + '%;" title="개찰예가"></div>' +
                         '<div class="dot-user" style="left:' + b.pos_user + '%;" title="나의사정"></div>' +
@@ -4246,10 +4246,10 @@ def render_ultra_matrix_view_html_v12(books: list, active_code: str = "") -> str
                 '<td style="color:' + errColor + ';font-weight:900;white-space:nowrap;">' + b.err_str + '</td>' +
                 '<td>' +
                     '<div style="color:#34D399;font-weight:800;">' + b.winner + '</div>' +
-                    '<div style="color:#CBD5E1;font-size:11px;">' + b.winner_bid + '</div>' +
+                    '<div style="color:#CBD5E1;font-size:12.5px;">' + b.winner_bid + '</div>' +
                 '</td>' +
                 '<td style="max-width:210px;">' +
-                    '<div style="color:#F8FAFC;font-size:11px;background:rgba(0,0,0,0.35);padding:4px 7px;border-radius:5px;border-left:2px solid #FBBF24;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">' + b.footnote + '</div>' +
+                    '<div style="color:#F8FAFC;font-size:12.5px;background:rgba(0,0,0,0.35);padding:4px 7px;border-radius:5px;border-left:2px solid #FBBF24;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">' + b.footnote + '</div>' +
                 '</td>' +
             '</tr>';
     });
@@ -4311,19 +4311,19 @@ def render_sector_board_visual_v12(sector_board: list) -> str:
             f"box-shadow:0 8px 20px rgba(0,0,0,0.55);'>"
             f"<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;'>"
             f"<span style='color:#FFFFFF;font-size:13px;font-weight:900;'>🏗️ {sec_nm}</span>"
-            f"<span style='background:rgba(16,185,129,0.2);color:#6EE7B7;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:99px;border:1px solid #34D399;'>📚 {cnt_s} 축적</span>"
+            f"<span style='background:rgba(16,185,129,0.2);color:#6EE7B7;font-size:12px;font-weight:900;padding:2px 8px;border-radius:99px;border:1px solid #34D399;'>📚 {cnt_s} 축적</span>"
             f"</div>"
-            f"<div style='display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;font-size:11px;'>"
+            f"<div style='display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;font-size:12.5px;'>"
             f"<div style='background:rgba(9,13,22,0.85);padding:6px 8px;border-radius:6px;border-left:3px solid #34D399;'>"
-            f"<div style='color:#94A3B8;font-size:10px;'>🤖 AI 평균오차</div>"
+            f"<div style='color:#E2E8F0;font-size:12px;'>🤖 AI 평균오차</div>"
             f"<div style='color:#34D399;font-size:12.5px;font-weight:900;'>{ai_e}</div>"
             f"</div>"
             f"<div style='background:rgba(9,13,22,0.85);padding:6px 8px;border-radius:6px;border-left:3px solid #C084FC;'>"
-            f"<div style='color:#94A3B8;font-size:10px;'>👤 나의 평균오차</div>"
+            f"<div style='color:#E2E8F0;font-size:12px;'>👤 나의 평균오차</div>"
             f"<div style='color:#C084FC;font-size:12.5px;font-weight:900;'>{us_e}</div>"
             f"</div>"
             f"</div>"
-            f"<div style='background:{badge_bg};border:1px solid {badge_col};border-radius:6px;padding:5px 8px;text-align:center;color:{badge_col};font-size:11.5px;font-weight:900;'>"
+            f"<div style='background:{badge_bg};border:1px solid {badge_col};border-radius:6px;padding:5px 8px;text-align:center;color:{badge_col};font-size:13px;font-weight:900;'>"
             f"🎯 실전 영점 가이드: {rec_s}"
             f"</div>"
             f"</div>"
@@ -4332,8 +4332,8 @@ def render_sector_board_visual_v12(sector_board: list) -> str:
     return (
         "<div style='background:rgba(9,13,22,0.92);border:1.5px solid rgba(251,191,36,0.45);border-radius:14px;padding:14px 16px;margin:12px 0;'>"
         "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;'>"
-        "<span style='color:#FDE68A;font-size:13.5px;font-weight:900;'>📈 [공종별 레거시 적중 성적표 & 대표님 맞춤형 영점 보정 대시보드]</span>"
-        "<span style='color:#34D399;font-size:11px;font-weight:800;'>● 서재 제본 데이터 기반 실시간 영점 산출</span>"
+        "<span style='color:#FFFFFF;font-size:13.5px;font-weight:900;'>📈 [공종별 레거시 적중 성적표 & 대표님 맞춤형 영점 보정 대시보드]</span>"
+        "<span style='color:#34D399;font-size:12.5px;font-weight:800;'>● 서재 제본 데이터 기반 실시간 영점 산출</span>"
         "</div>"
         f"<div style='display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;'>{cards_html}</div>"
         "</div>"
@@ -4374,19 +4374,19 @@ def render_arena_ranked_board_visual_v12(ranked_board: list) -> str:
 
         rows_html += (
             f"<tr style='background:{row_bg};border-bottom:{row_bd};'>"
-            f"<td style='padding:7px 8px;color:#FDE68A;font-weight:900;white-space:nowrap;'>{rk}</td>"
+            f"<td style='padding:7px 8px;color:#FFFFFF;font-weight:900;white-space:nowrap;'>{rk}</td>"
             f"<td style='padding:7px 8px;color:#FFFFFF;font-weight:800;'>{comp}</td>"
             f"<td style='padding:7px 8px;color:#38BDF8;font-weight:900;text-align:right;white-space:nowrap;'>{bid_s}원</td>"
-            f"<td style='padding:7px 8px;color:#FDE68A;font-weight:800;text-align:center;'>{rate_s}</td>"
-            f"<td style='padding:7px 8px;color:#E2E8F0;font-size:11px;text-align:right;white-space:nowrap;'>{diff_w} ({diff_bp})</td>"
-            f"<td style='padding:7px 8px;text-align:center;'><span style='color:{v_badge_col};font-weight:900;font-size:11px;'>{verd}</span></td>"
+            f"<td style='padding:7px 8px;color:#FFFFFF;font-weight:800;text-align:center;'>{rate_s}</td>"
+            f"<td style='padding:7px 8px;color:#E2E8F0;font-size:12.5px;text-align:right;white-space:nowrap;'>{diff_w} ({diff_bp})</td>"
+            f"<td style='padding:7px 8px;text-align:center;'><span style='color:{v_badge_col};font-weight:900;font-size:12.5px;'>{verd}</span></td>"
             f"</tr>"
         )
 
     return (
         "<div style='background:rgba(9,13,22,0.95);border:1.5px solid rgba(56,189,248,0.45);border-radius:12px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.7);'>"
         "<div style='max-height:335px;overflow-y:auto;'>"
-        "<table style='width:100%;border-collapse:collapse;font-size:11.5px;'>"
+        "<table style='width:100%;border-collapse:collapse;font-size:13px;'>"
         "<thead style='position:sticky;top:0;background:#0F172A;z-index:5;border-bottom:2px solid #38BDF8;'>"
         "<tr style='color:#38BDF8;font-weight:900;'>"
         "<th style='padding:8px;text-align:left;'>순위</th>"
@@ -4480,17 +4480,17 @@ def parse_and_render_g2b_opening_visual_v12(raw_text: str) -> dict:
         pos_pct = max(4, min(96, int(((item["rate"] - 99.98) / 0.14) * 100)))
 
         if item["status_type"] == "WIN":
-            badge = "<span style='background:linear-gradient(90deg,#B45309,#FBBF24);color:#090D16;font-weight:900;padding:3px 8px;border-radius:6px;font-size:10.5px;'>🏆 1순위 당첨</span>"
+            badge = "<span style='background:linear-gradient(90deg,#B45309,#FBBF24);color:#090D16;font-weight:900;padding:3px 8px;border-radius:6px;font-size:12px;'>🏆 1순위 당첨</span>"
             style_tag = "🎯 초정밀 영점 타격형"
             tag_col = "#34D399"
             tr_bg = "linear-gradient(90deg, rgba(16,185,129,0.24), rgba(15,23,42,0.95))"
         elif item["status_type"] == "VALID":
-            badge = f"<span style='background:rgba(56,189,248,0.2);color:#7DD3FC;border:1px solid #38BDF8;font-weight:800;padding:2px 8px;border-radius:6px;font-size:10.5px;'>{item['rank_label']}</span>"
+            badge = f"<span style='background:rgba(56,189,248,0.2);color:#7DD3FC;border:1px solid #38BDF8;font-weight:800;padding:2px 8px;border-radius:6px;font-size:12px;'>{item['rank_label']}</span>"
             style_tag = "⚡ 근접 추격형" if diff_bp <= 0.015 else "🛡️ 상위 안전방어형"
             tag_col = "#38BDF8" if diff_bp <= 0.015 else "#C084FC"
             tr_bg = "rgba(15,23,42,0.9)"
         else:
-            badge = "<span style='background:rgba(239,68,68,0.22);color:#FCA5A5;border:1px solid #F87171;font-weight:800;padding:2px 8px;border-radius:6px;font-size:10.5px;'>🚨 하한선 미달</span>"
+            badge = "<span style='background:rgba(239,68,68,0.22);color:#FCA5A5;border:1px solid #F87171;font-weight:800;padding:2px 8px;border-radius:6px;font-size:12px;'>🚨 하한선 미달</span>"
             style_tag = "⚠️ 공격적 하단매복(미달)"
             tag_col = "#F87171"
             tr_bg = "rgba(127,29,29,0.16)"
@@ -4501,13 +4501,13 @@ def parse_and_render_g2b_opening_visual_v12(raw_text: str) -> dict:
             f"<td style='padding:9px 10px;color:#FFFFFF;font-weight:900;font-size:12.5px;'>🏢 {item['comp']}</td>"
             f"<td style='padding:9px 10px;color:#38BDF8;font-weight:900;'>{item['bid_amt']:,}원</td>"
             f"<td style='padding:9px 10px;'>"
-            f"<div style='color:#FDE68A;font-weight:900;font-size:12px;'>{item['rate']:.4f}%</div>"
+            f"<div style='color:#FFFFFF;font-weight:900;font-size:12px;'>{item['rate']:.4f}%</div>"
             f"<div style='width:120px;height:7px;background:#090D16;border-radius:99px;margin-top:3px;position:relative;border:1px solid rgba(148,163,184,0.3);'>"
             f"<div style='position:absolute;left:{pos_pct}%;top:0;width:7px;height:5px;border-radius:50%;background:{tag_col};box-shadow:0 0 6px {tag_col};'></div>"
             f"</div>"
             f"</td>"
             f"<td style='padding:9px 10px;color:#E2E8F0;font-weight:800;'>{diff_amt:+,}원 ({diff_bp:+.4f}%p)</td>"
-            f"<td style='padding:9px 10px;'><span style='color:{tag_col};font-weight:900;font-size:11.5px;'>{style_tag}</span></td>"
+            f"<td style='padding:9px 10px;'><span style='color:{tag_col};font-weight:900;font-size:13px;'>{style_tag}</span></td>"
             f"</tr>"
         )
 
@@ -4516,11 +4516,11 @@ def parse_and_render_g2b_opening_visual_v12(raw_text: str) -> dict:
                 f"<div style='background:linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,41,59,0.88));border:1.5px solid {tag_col};border-radius:10px;padding:10px 12px;'>"
                 f"<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;'>"
                 f"<span style='color:#FFFFFF;font-size:12.5px;font-weight:900;'>🕵️ {item['comp']}</span>"
-                f"<span style='color:{tag_col};font-size:10.5px;font-weight:900;'>{item['rank_label']}</span>"
+                f"<span style='color:{tag_col};font-size:12px;font-weight:900;'>{item['rank_label']}</span>"
                 f"</div>"
-                f"<div style='color:#FDE68A;font-size:13px;font-weight:900;margin:3px 0;'>투찰 사정률: {item['rate']:.4f}%</div>"
-                f"<div style='color:#94A3B8;font-size:11px;'>투찰가: {item['bid_amt']:,}원</div>"
-                f"<div style='color:{tag_col};font-size:11px;font-weight:800;margin-top:4px;'>• 성향 진단: {style_tag}</div>"
+                f"<div style='color:#FFFFFF;font-size:13px;font-weight:900;margin:3px 0;'>투찰 사정률: {item['rate']:.4f}%</div>"
+                f"<div style='color:#E2E8F0;font-size:12.5px;'>투찰가: {item['bid_amt']:,}원</div>"
+                f"<div style='color:{tag_col};font-size:12.5px;font-weight:800;margin-top:4px;'>• 성향 진단: {style_tag}</div>"
                 f"</div>"
             )
 
@@ -4528,27 +4528,27 @@ def parse_and_render_g2b_opening_visual_v12(raw_text: str) -> dict:
         "<div style='margin-top:12px;'>"
         "<div style='display:grid;grid-template-columns:repeat(4, 1fr);gap:10px;margin-bottom:12px;'>"
         f"<div style='background:rgba(15,23,42,0.95);border:1.5px solid #34D399;border-radius:10px;padding:10px 14px;'>"
-        f"<div style='color:#94A3B8;font-size:10.5px;'>🏆 1순위 당첨 사정률 ({win_comp})</div>"
+        f"<div style='color:#E2E8F0;font-size:12px;'>🏆 1순위 당첨 사정률 ({win_comp})</div>"
         f"<div style='color:#34D399;font-size:17px;font-weight:900;margin-top:2px;'>{win_rate:.4f}%</div>"
-        f"<div style='color:#A7F3D0;font-size:11px;'>낙찰가 {win_bid:,}원</div>"
+        f"<div style='color:#A7F3D0;font-size:12.5px;'>낙찰가 {win_bid:,}원</div>"
         f"</div>"
         f"<div style='background:rgba(15,23,42,0.95);border:1.5px solid #38BDF8;border-radius:10px;padding:10px 14px;'>"
-        f"<div style='color:#94A3B8;font-size:10.5px;'>📊 해부된 응찰사 표본</div>"
+        f"<div style='color:#E2E8F0;font-size:12px;'>📊 해부된 응찰사 표본</div>"
         f"<div style='color:#38BDF8;font-size:17px;font-weight:900;margin-top:2px;'>총 {len(parsed_rows)}개사</div>"
-        f"<div style='color:#BAE6FD;font-size:11px;'>유효 {len(valid_r)}개사 · 미달 {len(fail_r)}개사</div>"
+        f"<div style='color:#BAE6FD;font-size:12.5px;'>유효 {len(valid_r)}개사 · 미달 {len(fail_r)}개사</div>"
         f"</div>"
         f"<div style='background:rgba(15,23,42,0.95);border:1.5px solid #FBBF24;border-radius:10px;padding:10px 14px;'>"
-        f"<div style='color:#94A3B8;font-size:10.5px;'>🔥 상위 1~3순위 초밀집 격차</div>"
+        f"<div style='color:#E2E8F0;font-size:12px;'>🔥 상위 1~3순위 초밀집 격차</div>"
         f"<div style='color:#FBBF24;font-size:17px;font-weight:900;margin-top:2px;'>{gap_top3:.4f}%p</div>"
-        f"<div style='color:#FDE68A;font-size:11px;'>초박빙 소수점 승부 구간</div>"
+        f"<div style='color:#FFFFFF;font-size:12.5px;'>초박빙 소수점 승부 구간</div>"
         f"</div>"
         f"<div style='background:rgba(15,23,42,0.95);border:1.5px solid #C084FC;border-radius:10px;padding:10px 14px;'>"
-        f"<div style='color:#94A3B8;font-size:10.5px;'>🕵️ 라이벌 프로파일링</div>"
+        f"<div style='color:#E2E8F0;font-size:12px;'>🕵️ 라이벌 프로파일링</div>"
         f"<div style='color:#C084FC;font-size:17px;font-weight:900;margin-top:2px;'>TOP {min(4, len(ordered_all))}개사 추출</div>"
-        f"<div style='color:#E9D5FF;font-size:11px;'>투찰 성향 자동 분류 완료</div>"
+        f"<div style='color:#E9D5FF;font-size:12.5px;'>투찰 성향 자동 분류 완료</div>"
         f"</div>"
         "</div>"
-        "<div style='color:#FDE68A;font-size:13px;font-weight:900;margin-bottom:8px;'>🕵️ [주요 라이벌(경쟁사) 실전 타점 & 투찰 성향 프로파일 레이더]</div>"
+        "<div style='color:#FFFFFF;font-size:13px;font-weight:900;margin-bottom:8px;'>🕵️ [주요 라이벌(경쟁사) 실전 타점 & 투찰 성향 프로파일 레이더]</div>"
         f"<div style='display:grid;grid-template-columns:repeat(4, 1fr);gap:10px;margin-bottom:14px;'>{rival_cards}</div>"
         "<div style='color:#38BDF8;font-size:13px;font-weight:900;margin-bottom:8px;'>📊 [실전 개찰내역 응찰사별 사정률 스펙트럼 & 커트라인 정밀 해부 보드]</div>"
         "<div style='background:rgba(15,23,42,0.96);border:2px solid rgba(56,189,248,0.45);border-radius:12px;overflow:hidden;box-shadow:0 12px 28px rgba(0,0,0,0.8);'>"
@@ -4606,17 +4606,17 @@ def render_sector_board_from_books_v12(books: list) -> str:
             f"border:1.5px solid rgba(56,189,248,0.4);border-radius:10px;padding:10px 12px;'>"
             f"<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;'>"
             f"<span style='color:#FFFFFF;font-size:12px;font-weight:900;'>🏗️ {sec_nm}</span>"
-            f"<span style='background:rgba(251,191,36,0.18);color:#FDE68A;font-size:10px;font-weight:900;padding:2px 7px;border-radius:99px;border:1px solid #FBBF24;'>📚 {c_n}권 (🏆{st_v['gold']})</span>"
+            f"<span style='background:rgba(251,191,36,0.18);color:#FFFFFF;font-size:12px;font-weight:900;padding:2px 7px;border-radius:99px;border:1px solid #FBBF24;'>📚 {c_n}권 (🏆{st_v['gold']})</span>"
             f"</div>"
-            f"<div style='display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;font-size:10.5px;'>"
+            f"<div style='display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;font-size:12px;'>"
             f"<div style='background:rgba(9,13,22,0.88);padding:5px 7px;border-radius:6px;border-left:2.5px solid #38BDF8;'>"
-            f"<span style='color:#94A3B8;'>🤖 AI 오차:</span> <b style='color:#38BDF8;'>±{ai_mae:.4f}%p</b>"
+            f"<span style='color:#E2E8F0;'>🤖 AI 오차:</span> <b style='color:#38BDF8;'>±{ai_mae:.4f}%p</b>"
             f"</div>"
             f"<div style='background:rgba(9,13,22,0.88);padding:5px 7px;border-radius:6px;border-left:2.5px solid #C084FC;'>"
-            f"<span style='color:#94A3B8;'>👤 내 오차:</span> <b style='color:#C084FC;'>±{us_mae:.4f}%p</b>"
+            f"<span style='color:#E2E8F0;'>👤 내 오차:</span> <b style='color:#C084FC;'>±{us_mae:.4f}%p</b>"
             f"</div>"
             f"</div>"
-            f"<div style='background:rgba(6,78,59,0.35);border:1px solid {badge_col};border-radius:6px;padding:4px 8px;text-align:center;color:{badge_col};font-size:11px;font-weight:900;'>"
+            f"<div style='background:rgba(6,78,59,0.35);border:1px solid {badge_col};border-radius:6px;padding:4px 8px;text-align:center;color:{badge_col};font-size:12.5px;font-weight:900;'>"
             f"🎯 맞춤 영점 보정: {drift_avg:+.4f}%p ({act_word})"
             f"</div>"
             f"</div>"
@@ -4627,8 +4627,8 @@ def render_sector_board_from_books_v12(books: list) -> str:
         "border:1.5px solid rgba(251,191,36,0.5);border-radius:12px;padding:12px 16px;margin:6px 0 10px 0;"
         "box-shadow:0 8px 22px rgba(0,0,0,0.65);'>"
         "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;'>"
-        "<span style='color:#FDE68A;font-size:13px;font-weight:900;'>📈 [공종별 레거시 영점 정밀도 성적표 & 실전 자동 보정 가이드]</span>"
-        "<span style='color:#34D399;font-size:11px;font-weight:800;'>● 축적된 장서 기반 공종별 영점 편차 실시간 산출</span>"
+        "<span style='color:#FFFFFF;font-size:13px;font-weight:900;'>📈 [공종별 레거시 영점 정밀도 성적표 & 실전 자동 보정 가이드]</span>"
+        "<span style='color:#34D399;font-size:12.5px;font-weight:800;'>● 축적된 장서 기반 공종별 영점 편차 실시간 산출</span>"
         "</div>"
         f"<div style='display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;'>{cards_html}</div>"
         "</div>"
@@ -4716,32 +4716,32 @@ def build_formatted_whitepaper_suite_v12(books: list) -> dict:
             f"<tr>"
             f"<td style='text-align:center;font-weight:900;background:{tier_bg};color:{tier_col};'>{tier_kr}</td>"
             f"<td style='text-align:center;font-weight:900;'>{b_code}</td>"
-            f"<td style='font-weight:900;color:#0F172A;'>{b_title}<div style='font-size:10.5px;color:#475569;font-weight:600;'>{b_ag} | {b_sec}</div></td>"
-            f"<td style='text-align:right;font-weight:800;'>{b_base:,}원<div style='font-size:10.5px;color:#64748B;'>A값 {b_aval:,}원 ({b_low:.3f}%)</div></td>"
-            f"<td style='text-align:center;font-weight:900;color:#B45309;'>{b_true:.4f}%<div style='font-size:10px;color:#64748B;'>({b_lots})</div></td>"
+            f"<td style='font-weight:900;color:#0F172A;'>{b_title}<div style='font-size:12px;color:#475569;font-weight:600;'>{b_ag} | {b_sec}</div></td>"
+            f"<td style='text-align:right;font-weight:800;'>{b_base:,}원<div style='font-size:12px;color:#CBD5E1;'>A값 {b_aval:,}원 ({b_low:.3f}%)</div></td>"
+            f"<td style='text-align:center;font-weight:900;color:#B45309;'>{b_true:.4f}%<div style='font-size:12px;color:#CBD5E1;'>({b_lots})</div></td>"
             f"<td style='text-align:center;font-weight:800;color:#0369A1;'>{b_ai:.4f}%</td>"
-            f"<td style='text-align:center;font-weight:900;color:#6D28D9;'>{b_user:.4f}%<div style='font-size:10px;color:{tier_col};'>({b_err:+.4f}%p)</div></td>"
-            f"<td style='text-align:right;font-weight:800;color:#047857;'>{b_win}<div style='font-size:10.5px;color:#0F172A;'>{b_wbid:,}원</div></td>"
-            f"<td style='font-size:11px;color:#1E293B;font-weight:700;background:#F8FAFC;'>✍️ {b_foot}</td>"
+            f"<td style='text-align:center;font-weight:900;color:#6D28D9;'>{b_user:.4f}%<div style='font-size:12px;color:{tier_col};'>({b_err:+.4f}%p)</div></td>"
+            f"<td style='text-align:right;font-weight:800;color:#047857;'>{b_win}<div style='font-size:12px;color:#0F172A;'>{b_wbid:,}원</div></td>"
+            f"<td style='font-size:12.5px;color:#1E293B;font-weight:700;background:#F8FAFC;'>✍️ {b_foot}</td>"
             f"</tr>"
         )
 
         book_cards_html += (
             f"<div style='border:1.5px solid #CBD5E1;border-left:6px solid {tier_col};border-radius:8px;padding:10px 14px;margin-bottom:8px;background:#FFFFFF;page-break-inside:avoid;'>"
             f"<div style='display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #E2E8F0;padding-bottom:5px;margin-bottom:6px;'>"
-            f"<div><span style='background:{tier_bg};color:{tier_col};font-size:11px;font-weight:900;padding:2px 8px;border-radius:4px;'>{tier_kr}</span> "
+            f"<div><span style='background:{tier_bg};color:{tier_col};font-size:12.5px;font-weight:900;padding:2px 8px;border-radius:4px;'>{tier_kr}</span> "
             f"<strong style='font-size:13.5px;color:#0F172A;margin-left:6px;'>[{b_code}] {b_title}</strong></div>"
-            f"<span style='font-size:11px;color:#475569;font-weight:800;'>{b_ag} · {b_sec} | 추첨번호: {b_lots}</span>"
+            f"<span style='font-size:12.5px;color:#475569;font-weight:800;'>{b_ag} · {b_sec} | 추첨번호: {b_lots}</span>"
             f"</div>"
-            f"<div style='display:grid;grid-template-columns:1.2fr 1.2fr 1.6fr;gap:10px;font-size:11.5px;color:#1E293B;'>"
+            f"<div style='display:grid;grid-template-columns:1.2fr 1.2fr 1.6fr;gap:10px;font-size:13px;color:#1E293B;'>"
             f"<div>• <b>기초금액:</b> {b_base:,}원<br>• <b>A값 합산:</b> {b_aval:,}원 (하한율 {b_low:.3f}%)</div>"
             f"<div>• <b>개찰예가:</b> <b style='color:#B45309;'>{b_true:.4f}%</b> (AI {b_ai:.4f}% / 내 사정 {b_user:.4f}%)<br>• <b>1순위 당첨:</b> <b style='color:#047857;'>{b_win} ({b_wbid:,}원)</b></div>"
             f"<div style='background:#FEFCE8;border:1px solid #FDE047;border-radius:6px;padding:6px 9px;'>"
-            f"<div style='color:#854D0E;font-weight:900;font-size:11px;'>✍️ 대표님 비전(秘傳) 친필 각주:</div>"
+            f"<div style='color:#854D0E;font-weight:900;font-size:12.5px;'>✍️ 대표님 비전(秘傳) 친필 각주:</div>"
             f"<div style='color:#1E293B;font-weight:800;margin-top:2px;'>\"{b_foot}\"</div>"
             f"</div>"
             f"</div>"
-            f"<div style='margin-top:5px;font-size:10.5px;color:#64748B;'>📄 공고 원문 스펙: {b_raw}</div>"
+            f"<div style='margin-top:5px;font-size:12px;color:#CBD5E1;'>📄 공고 원문 스펙: {b_raw}</div>"
             f"</div>"
         )
 
@@ -4803,7 +4803,7 @@ def build_formatted_whitepaper_suite_v12(books: list) -> dict:
     }}
     .approval-stamp-table {{
         border-collapse: collapse;
-        font-size: 11px;
+        font-size: 12.5px;
         text-align: center;
     }}
     .approval-stamp-table th, .approval-stamp-table td {{
@@ -4836,7 +4836,7 @@ def build_formatted_whitepaper_suite_v12(books: list) -> dict:
     }}
     .section-title {{
         background: linear-gradient(90deg, #0F172A, #1E293B);
-        color: #FEF08A;
+        color: #FFFFFF;
         font-size: 13.5px;
         font-weight: 900;
         padding: 7px 14px;
@@ -4849,7 +4849,7 @@ def build_formatted_whitepaper_suite_v12(books: list) -> dict:
     table.official-grid {{
         width: 100%;
         border-collapse: collapse;
-        font-size: 11.5px;
+        font-size: 13px;
         margin-bottom: 16px;
     }}
     table.official-grid th {{
@@ -4875,7 +4875,7 @@ def build_formatted_whitepaper_suite_v12(books: list) -> dict:
 <body>
     <div class="top-action-bar no-print">
         <div>
-            <span style="background:#10B981;color:#022C22;font-size:11px;font-weight:900;padding:3px 9px;border-radius:4px;">OFFICIAL MASTER WHITEPAPER FORM</span>
+            <span style="background:#10B981;color:#022C22;font-size:12.5px;font-weight:900;padding:3px 9px;border-radius:4px;">OFFICIAL MASTER WHITEPAPER FORM</span>
             <span style="font-size:14px;font-weight:900;margin-left:8px;">📘 당사 입찰 필승 비전서(秘傳書) 전 장서 통합 공식 양식 뷰어</span>
         </div>
         <button class="print-btn" onclick="window.print()">🖨️ 이 양식 그대로 즉시 인쇄 / PDF 저장</button>
@@ -4884,7 +4884,7 @@ def build_formatted_whitepaper_suite_v12(books: list) -> dict:
     <div class="official-paper-sheet">
         <div class="doc-header-box">
             <div>
-                <div style="color:#B45309;font-size:11.5px;font-weight:900;letter-spacing:1px;">CONFIDENTIAL · CORPORATE BIDDING STRATEGY ARCHIVE</div>
+                <div style="color:#B45309;font-size:13px;font-weight:900;letter-spacing:1px;">CONFIDENTIAL · CORPORATE BIDDING STRATEGY ARCHIVE</div>
                 <div style="font-size:24px;font-weight:900;color:#0F172A;margin:4px 0;">📘 당사 입찰 필승 비전서(秘傳書) — 전 장서 통합 마스터 백서</div>
                 <div style="font-size:12px;color:#475569;font-weight:700;">
                     문서번호: <b>{doc_no}</b> &nbsp;|&nbsp; 편찬일시: <b>{now_dt}</b> &nbsp;|&nbsp; 보안등급: <b>대표이사 1급 대외비 (사정 전략 자산)</b>
@@ -4897,8 +4897,8 @@ def build_formatted_whitepaper_suite_v12(books: list) -> dict:
                     <th>대표이사</th>
                 </tr>
                 <tr>
-                    <td style="color:#0369A1;">검증필<br><span style="font-size:9px;color:#64748B;">SNIPER-X</span></td>
-                    <td style="color:#047857;">심사필<br><span style="font-size:9px;color:#64748B;">v12.0</span></td>
+                    <td style="color:#0369A1;">검증필<br><span style="font-size:9px;color:#CBD5E1;">SNIPER-X</span></td>
+                    <td style="color:#047857;">심사필<br><span style="font-size:9px;color:#CBD5E1;">v12.0</span></td>
                     <td>👑 승인필<br><span style="font-size:9px;color:#B91C1C;">공식직인</span></td>
                 </tr>
             </table>
@@ -4907,23 +4907,23 @@ def build_formatted_whitepaper_suite_v12(books: list) -> dict:
         <!-- 제1장: 레거시 자산 총괄 KPI -->
         <div class="kpi-summary-strip">
             <div class="kpi-box">
-                <div style="font-size:11px;color:#475569;font-weight:800;">총 편찬 장서</div>
+                <div style="font-size:12.5px;color:#475569;font-weight:800;">총 편찬 장서</div>
                 <div style="font-size:18px;color:#0F172A;font-weight:900;margin-top:3px;">총 {n_b}권</div>
             </div>
             <div class="kpi-box">
-                <div style="font-size:11px;color:#475569;font-weight:800;">누적 분석 공사규모</div>
+                <div style="font-size:12.5px;color:#475569;font-weight:800;">누적 분석 공사규모</div>
                 <div style="font-size:18px;color:#0369A1;font-weight:900;margin-top:3px;">{tot_krw // 100000000:,}억 원</div>
             </div>
             <div class="kpi-box">
-                <div style="font-size:11px;color:#475569;font-weight:800;">등급별 분포</div>
+                <div style="font-size:12.5px;color:#475569;font-weight:800;">등급별 분포</div>
                 <div style="font-size:15px;color:#B45309;font-weight:900;margin-top:4px;">🏆{gold_c} · 📘{blue_c} · 📕{red_c}</div>
             </div>
             <div class="kpi-box">
-                <div style="font-size:11px;color:#475569;font-weight:800;">전체 평균 개찰예가</div>
+                <div style="font-size:12.5px;color:#475569;font-weight:800;">전체 평균 개찰예가</div>
                 <div style="font-size:18px;color:#047857;font-weight:900;margin-top:3px;">{avg_yega:.4f}%</div>
             </div>
             <div class="kpi-box">
-                <div style="font-size:11px;color:#475569;font-weight:800;">당사 평균 영점오차</div>
+                <div style="font-size:12.5px;color:#475569;font-weight:800;">당사 평균 영점오차</div>
                 <div style="font-size:18px;color:#6D28D9;font-weight:900;margin-top:3px;">±{avg_user_err:.4f}%p</div>
             </div>
         </div>
@@ -4931,7 +4931,7 @@ def build_formatted_whitepaper_suite_v12(books: list) -> dict:
         <!-- 제2장: 공종별 영점 보정 기준표 -->
         <div class="section-title">
             <span>📊 [제1장] 공종별 레거시 적중 성적표 및 실전 투찰 영점 보정 기준표</span>
-            <span style="font-size:11px;color:#CBD5E1;">단위: 사정률(%), 편차(%p)</span>
+            <span style="font-size:12.5px;color:#CBD5E1;">단위: 사정률(%), 편차(%p)</span>
         </div>
         <table class="official-grid">
             <thead>
@@ -4953,7 +4953,7 @@ def build_formatted_whitepaper_suite_v12(books: list) -> dict:
         <!-- 제3장: 전 장서 통합 마스터 일람표 -->
         <div class="section-title">
             <span>📋 [제2장] 전 장서(제1권~제{n_b}권) 입찰·개찰·사정 결과 통합 일람표</span>
-            <span style="font-size:11px;color:#CBD5E1;">2026 개정 적격심사 낙찰하한율 반영</span>
+            <span style="font-size:12.5px;color:#CBD5E1;">2026 개정 적격심사 낙찰하한율 반영</span>
         </div>
         <table class="official-grid">
             <thead>
@@ -4977,11 +4977,11 @@ def build_formatted_whitepaper_suite_v12(books: list) -> dict:
         <!-- 제4장: 권호별 상세 복기 카드 -->
         <div class="section-title">
             <span>📖 [제3장] 권호별 입찰공고문 스펙 및 대표님 친필 복기 상세 명세서</span>
-            <span style="font-size:11px;color:#CBD5E1;">전 장서 개별 바인더 상세 기록</span>
+            <span style="font-size:12.5px;color:#CBD5E1;">전 장서 개별 바인더 상세 기록</span>
         </div>
         {book_cards_html}
 
-        <div style="margin-top:18px;border-top:2px solid #0F172A;padding-top:10px;display:flex;justify-content:space-between;font-size:11px;color:#475569;font-weight:700;">
+        <div style="margin-top:18px;border-top:2px solid #0F172A;padding-top:10px;display:flex;justify-content:space-between;font-size:12.5px;color:#475569;font-weight:700;">
             <span>발행처: BID-NEXUS 3D 프라이빗 입찰 전략 서재 & AI 사정 연구소</span>
             <span>본 문서는 당사 고유의 입찰 레거시 지적자산이므로 외부 유출을 금합니다.</span>
         </div>
@@ -5155,7 +5155,7 @@ def render_synapse_mastery_view_html_v12(books: list, active_code: str = "") -> 
         background: rgba(15,23,42,0.92);
         border: 1.5px solid rgba(148,163,184,0.35);
         color: #CBD5E1;
-        font-size: 11.5px;
+        font-size: 13px;
         font-weight: 800;
         padding: 6px 12px;
         border-radius: 99px;
@@ -5268,7 +5268,7 @@ def render_synapse_mastery_view_html_v12(books: list, active_code: str = "") -> 
         text-align: center;
         font-size: 12px;
         font-weight: 800;
-        color: #94A3B8;
+        color: #E2E8F0;
         transition: all 0.3s ease;
     }
     .lot-ball.scanning-ball {
@@ -5305,7 +5305,7 @@ def render_synapse_mastery_view_html_v12(books: list, active_code: str = "") -> 
         top: 14px;
         border: 3px double #FBBF24;
         background: rgba(120,53,15,0.88);
-        color: #FEF08A;
+        color: #FFFFFF;
         padding: 6px 14px;
         border-radius: 8px;
         font-size: 12px;
@@ -5396,14 +5396,14 @@ def render_synapse_mastery_view_html_v12(books: list, active_code: str = "") -> 
 
     <div class="synapse-top-bar">
         <div>
-            <span style="background:#FBBF24;color:#090D16;font-size:11px;font-weight:900;padding:3px 10px;border-radius:6px;">🧬 AI 시냅스 점진적 각인 학습관 (초격차 인터랙티브 마스터리 뷰)</span>
+            <span style="background:#FBBF24;color:#090D16;font-size:12.5px;font-weight:900;padding:3px 10px;border-radius:6px;">🧬 AI 시냅스 점진적 각인 학습관 (초격차 인터랙티브 마스터리 뷰)</span>
             <span id="syn-top-title" style="color:#FFFFFF;font-size:15.5px;font-weight:900;margin-left:8px;">공고 로딩 중...</span>
-            <div style="color:#A7F3D0;font-size:11.5px;font-weight:700;margin-top:4px;">
+            <div style="color:#A7F3D0;font-size:13px;font-weight:700;margin-top:4px;">
                 💡 1단계부터 5단계까지 실시간 타이핑과 애니메이션으로 원리를 체득하고, 이해가 안 되면 언제든 <b>[⏪ 이전 단계로 복귀]</b> 또는 <b>[🔄 애니메이션 다시 재생]</b>으로 반복 각인하세요!
             </div>
         </div>
         <div style="min-width:215px;text-align:right;">
-            <div style="display:flex;justify-content:space-between;font-size:11.5px;font-weight:900;color:#FDE68A;margin-bottom:4px;">
+            <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:900;color:#FFFFFF;margin-bottom:4px;">
                 <span>🧠 시냅스 장기기억 각인율</span>
                 <span id="syn-memory-pct">20% (1/5 단계)</span>
             </div>
@@ -5511,7 +5511,7 @@ function runSynapseTutorTypewriter() {
             titleDiv.innerHTML =
                 '<div style="display:flex;justify-content:space-between;align-items:center;">' +
                     '<span>' + origTitle + '</span>' +
-                    '<span id="' + badgeId + '" style="background:linear-gradient(90deg,#FBBF24,#38BDF8);color:#090D16;font-size:10.5px;font-weight:900;padding:2px 9px;border-radius:99px;">⌨️ 실시간 타이핑 가이드 중...</span>' +
+                    '<span id="' + badgeId + '" style="background:linear-gradient(90deg,#FBBF24,#38BDF8);color:#090D16;font-size:12px;font-weight:900;padding:2px 9px;border-radius:99px;">⌨️ 실시간 타이핑 가이드 중...</span>' +
                 '</div>';
 
             bodyDiv.innerHTML = '';
@@ -5669,9 +5669,9 @@ function renderStepper() {
         }
         html +=
             '<div class="' + cls + '" onclick="jumpToStep(' + sm.num + ')">' +
-                '<div style="font-size:10px;font-weight:900;color:#FDE68A;margin-bottom:3px;">' + badge + '</div>' +
+                '<div style="font-size:12px;font-weight:900;color:#FFFFFF;margin-bottom:3px;">' + badge + '</div>' +
                 '<div style="font-size:12.5px;font-weight:900;color:#FFFFFF;">' + sm.icon + ' ' + sm.title + '</div>' +
-                '<div style="font-size:10px;color:#94A3B8;margin-top:2px;">' + sm.sub + '</div>' +
+                '<div style="font-size:12px;color:#E2E8F0;margin-top:2px;">' + sm.sub + '</div>' +
             '</div>';
     });
     root.innerHTML = html;
@@ -5718,7 +5718,7 @@ function renderStageContent() {
                 '<div style="background:rgba(9,13,22,0.92);border:1.5px solid rgba(251,191,36,0.45);border-radius:12px;padding:16px 20px;">' +
                     '<div style="display:flex;justify-content:space-between;font-size:12px;font-weight:900;margin-bottom:8px;">' +
                         '<span style="color:#7DD3FC;">🏗️ 순수 공사비 영역 (' + b.pure_ratio_num + '% — 하한율 ' + b.low_lim + ' 할인 적용)</span>' +
-                        '<span style="color:#FEF08A;">🛡️ A값 절대 방어막 (' + b.a_val + ' / ' + b.a_ratio + ' — 100% 원안 보장)</span>' +
+                        '<span style="color:#FFFFFF;">🛡️ A값 절대 방어막 (' + b.a_val + ' / ' + b.a_ratio + ' — 100% 원안 보장)</span>' +
                     '</div>' +
                     '<div style="width:100%;height:38px;background:#020617;border-radius:10px;display:flex;gap:6px;padding:3px;border:2px solid #475569;">' +
                         '<div style="width:' + b.pure_ratio_num + '%;height:100%;background:linear-gradient(90deg,#0369A1,#38BDF8);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#022C22;animation:barExpand 0.85s ease-out;">순수 공사비 ' + b.pure_ratio_num + '%</div>' +
@@ -5726,15 +5726,15 @@ function renderStageContent() {
                     '</div>' +
                     '<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;margin-top:16px;text-align:center;">' +
                         '<div style="background:rgba(15,23,42,0.9);border:1px solid #38BDF8;border-radius:10px;padding:12px;">' +
-                            '<div style="color:#94A3B8;font-size:11px;">① 발주처 발표 기초금액 (카운트업)</div>' +
+                            '<div style="color:#E2E8F0;font-size:12.5px;">① 발주처 발표 기초금액 (카운트업)</div>' +
                             '<div id="cnt-base" style="color:#38BDF8;font-size:18px;font-weight:900;margin-top:4px;">0원</div>' +
                         '</div>' +
                         '<div style="background:rgba(15,23,42,0.9);border:1.5px solid #FBBF24;border-radius:10px;padding:12px;">' +
-                            '<div style="color:#FDE68A;font-size:11px;">② 깎이지 않는 A값 방어막 (카운트업)</div>' +
+                            '<div style="color:#FFFFFF;font-size:12.5px;">② 깎이지 않는 A값 방어막 (카운트업)</div>' +
                             '<div id="cnt-aval" style="color:#FBBF24;font-size:18px;font-weight:900;margin-top:4px;">0원</div>' +
                         '</div>' +
                         '<div style="background:rgba(15,23,42,0.9);border:1px solid #34D399;border-radius:10px;padding:12px;">' +
-                            '<div style="color:#A7F3D0;font-size:11px;">③ 시각적 기억 각인 포인트</div>' +
+                            '<div style="color:#A7F3D0;font-size:12.5px;">③ 시각적 기억 각인 포인트</div>' +
                             '<div style="color:#34D399;font-size:13px;font-weight:900;margin-top:6px;">황금 방패(A값 ' + b.a_ratio + ')는 절대 깎이지 않는다!</div>' +
                         '</div>' +
                     '</div>' +
@@ -5752,7 +5752,7 @@ function renderStageContent() {
             ballsHtml +=
                 '<div class="lot-ball" id="syn-ball-' + i + '" data-hit="' + (pickedArr.some(p => p.includes(numStr)) ? '1' : '0') + '">' +
                     '<div class="ball-title">' + numStr + '</div>' +
-                    '<div style="font-size:10px;opacity:0.85;margin-top:2px;">예비율 ~' + simRate + '</div>' +
+                    '<div style="font-size:12px;opacity:0.85;margin-top:2px;">예비율 ~' + simRate + '</div>' +
                 '</div>';
         }
         stage.innerHTML =
@@ -5765,8 +5765,8 @@ function renderStageContent() {
                 '</div>' +
                 '<div style="background:rgba(9,13,22,0.92);border:1.5px solid #38BDF8;border-radius:12px;padding:14px 18px;">' +
                     '<div style="display:flex;justify-content:space-between;align-items:center;">' +
-                        '<span style="color:#FDE68A;font-size:12.5px;font-weight:900;">🎰 15개 복수예비가격 실시간 레이저 추첨 시뮬레이션 (' + b.lots + ')</span>' +
-                        '<span id="syn-lot-result-badge" style="background:rgba(56,189,248,0.2);color:#7DD3FC;font-size:11.5px;font-weight:900;padding:3px 10px;border-radius:99px;border:1px solid #38BDF8;">⚡ 15개 번호판 스캔 중...</span>' +
+                        '<span style="color:#FFFFFF;font-size:12.5px;font-weight:900;">🎰 15개 복수예비가격 실시간 레이저 추첨 시뮬레이션 (' + b.lots + ')</span>' +
+                        '<span id="syn-lot-result-badge" style="background:rgba(56,189,248,0.2);color:#7DD3FC;font-size:13px;font-weight:900;padding:3px 10px;border-radius:99px;border:1px solid #38BDF8;">⚡ 15개 번호판 스캔 중...</span>' +
                     '</div>' +
                     '<div class="lot-grid-15">' + ballsHtml + '</div>' +
                 '</div>' +
@@ -5814,25 +5814,25 @@ function renderStageContent() {
                     '</div>' +
                 '</div>' +
                 '<div style="background:rgba(9,13,22,0.94);border:1.5px solid #10B981;border-radius:12px;padding:16px 20px;">' +
-                    '<div style="color:#FDE68A;font-size:12.5px;font-weight:900;margin-bottom:12px;">⚡ [시각적 기억 각인] 낙찰하한선 절벽 vs 회전하는 1순위 레이저 조준경(Reticle)</div>' +
+                    '<div style="color:#FFFFFF;font-size:12.5px;font-weight:900;margin-bottom:12px;">⚡ [시각적 기억 각인] 낙찰하한선 절벽 vs 회전하는 1순위 레이저 조준경(Reticle)</div>' +
                     '<div style="position:relative;height:58px;background:linear-gradient(90deg, rgba(185,28,28,0.5) 0%, rgba(239,68,68,0.7) 38%, rgba(16,185,129,0.8) 39%, rgba(56,189,248,0.35) 65%, rgba(30,41,59,0.85) 100%);border-radius:12px;border:2px solid #64748B;display:flex;align-items:center;">' +
                         '<div class="crosshair-reticle"></div>' +
-                        '<div style="width:38%;text-align:center;color:#FECACA;font-size:12px;font-weight:900;">🚨 하한선 미달 즉시 탈락 절벽<br><span style="font-size:10.5px;">(' + b.cutline_price + ' 미만 100% 탈락)</span></div>' +
+                        '<div style="width:38%;text-align:center;color:#FECACA;font-size:12px;font-weight:900;">🚨 하한선 미달 즉시 탈락 절벽<br><span style="font-size:12px;">(' + b.cutline_price + ' 미만 100% 탈락)</span></div>' +
                         '<div style="width:4px;height:70px;background:#FBBF24;box-shadow:0 0 20px #FBBF24;"></div>' +
-                        '<div style="width:27%;text-align:center;color:#FFFFFF;font-size:12px;font-weight:900;">🎯 1순위 골든 포켓 조준!<br><span style="font-size:10.5px;color:#FEF08A;">개찰예가 ' + b.true_rate + '</span></div>' +
-                        '<div style="width:35%;text-align:center;color:#94A3B8;font-size:11.5px;font-weight:800;">🛡️ 상위 예비순위 구간 (안전하지만 후순위)</div>' +
+                        '<div style="width:27%;text-align:center;color:#FFFFFF;font-size:12px;font-weight:900;">🎯 1순위 골든 포켓 조준!<br><span style="font-size:12px;color:#FFFFFF;">개찰예가 ' + b.true_rate + '</span></div>' +
+                        '<div style="width:35%;text-align:center;color:#E2E8F0;font-size:13px;font-weight:800;">🛡️ 상위 예비순위 구간 (안전하지만 후순위)</div>' +
                     '</div>' +
                     '<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;margin-top:16px;text-align:center;">' +
                         '<div style="background:rgba(127,29,29,0.28);border:1px solid #F87171;border-radius:8px;padding:10px;">' +
-                            '<div style="color:#FCA5A5;font-size:11px;font-weight:800;">🚫 커트라인 (낙찰하한선)</div>' +
+                            '<div style="color:#FCA5A5;font-size:12.5px;font-weight:800;">🚫 커트라인 (낙찰하한선)</div>' +
                             '<div id="cnt-cut" style="color:#FFFFFF;font-size:15.5px;font-weight:900;margin-top:3px;">0원</div>' +
                         '</div>' +
                         '<div style="background:rgba(16,185,129,0.24);border:1.5px solid #34D399;border-radius:8px;padding:10px;">' +
-                            '<div style="color:#6EE7B7;font-size:11px;font-weight:800;">🏆 실제 1순위 당첨사 (' + b.winner + ')</div>' +
+                            '<div style="color:#6EE7B7;font-size:12.5px;font-weight:800;">🏆 실제 1순위 당첨사 (' + b.winner + ')</div>' +
                             '<div id="cnt-win" style="color:#34D399;font-size:15.5px;font-weight:900;margin-top:3px;">0원</div>' +
                         '</div>' +
                         '<div style="background:rgba(56,189,248,0.18);border:1px solid #38BDF8;border-radius:8px;padding:10px;">' +
-                            '<div style="color:#BAE6FD;font-size:11px;font-weight:800;">👤 당시 대표님 모의투찰가</div>' +
+                            '<div style="color:#BAE6FD;font-size:12.5px;font-weight:800;">👤 당시 대표님 모의투찰가</div>' +
                             '<div id="cnt-usr" style="color:#38BDF8;font-size:15.5px;font-weight:900;margin-top:3px;">0원</div>' +
                         '</div>' +
                     '</div>' +
@@ -5855,18 +5855,18 @@ function renderStageContent() {
                 '<div style="background:rgba(9,13,22,0.95);border:2px solid #38BDF8;border-radius:12px;padding:14px 18px;margin-bottom:12px;">' +
                     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
                         '<div>' +
-                            '<span style="color:#94A3B8;font-size:11.5px;font-weight:800;">🔭 마우스 조준 사정률: </span>' +
-                            '<span id="aim-rate-val" style="color:#FEF08A;font-size:18px;font-weight:900;">100.0200%</span>' +
+                            '<span style="color:#E2E8F0;font-size:13px;font-weight:800;">🔭 마우스 조준 사정률: </span>' +
+                            '<span id="aim-rate-val" style="color:#FFFFFF;font-size:18px;font-weight:900;">100.0200%</span>' +
                         '</div>' +
                         '<div>' +
-                            '<span style="color:#94A3B8;font-size:11.5px;font-weight:800;">💰 실시간 조준 투찰가: </span>' +
+                            '<span style="color:#E2E8F0;font-size:13px;font-weight:800;">💰 실시간 조준 투찰가: </span>' +
                             '<span id="aim-bid-val" style="color:#38BDF8;font-size:17px;font-weight:900;">계산 중...</span>' +
-                            '<span id="aim-diff-badge" style="margin-left:8px;font-size:11.5px;font-weight:900;padding:3px 8px;border-radius:6px;background:rgba(239,68,68,0.2);color:#FCA5A5;">하한선 비교</span>' +
+                            '<span id="aim-diff-badge" style="margin-left:8px;font-size:13px;font-weight:900;padding:3px 8px;border-radius:6px;background:rgba(239,68,68,0.2);color:#FCA5A5;">하한선 비교</span>' +
                         '</div>' +
                         '<button onclick="fireAimedShot()" style="background:linear-gradient(90deg,#F59E0B,#FBBF24);color:#090D16;border:none;border-radius:8px;padding:8px 16px;font-size:12.5px;font-weight:900;cursor:pointer;box-shadow:0 0 14px rgba(251,191,36,0.7);">🎯 이 타점으로 영점 사격 발사!</button>' +
                     '</div>' +
                     '<input type="range" id="syn-aim-slider" min="99.9800" max="100.0900" step="0.0005" value="100.0200" oninput="updateAimSlider(this.value)" style="width:100%;accent-color:#10B981;cursor:pointer;height:8px;">' +
-                    '<div style="display:flex;justify-content:space-between;font-size:10.5px;color:#64748B;font-weight:800;margin-top:4px;">' +
+                    '<div style="display:flex;justify-content:space-between;font-size:12px;color:#CBD5E1;font-weight:800;margin-top:4px;">' +
                         '<span>99.9800% (하한선 미달 위험)</span>' +
                         '<span style="color:#34D399;">▲ 실제 개찰 커트라인 (' + b.true_rate + ') 골든 포켓 구간 ▲</span>' +
                         '<span>100.0900% (고사정 안전 방어)</span>' +
@@ -5875,18 +5875,18 @@ function renderStageContent() {
                 '<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;margin-bottom:10px;">' +
                     '<div class="quiz-choice-btn" onclick="setSliderAndCheck(99.9950, 1)">' +
                         '<div style="color:#F87171;font-size:12.5px;margin-bottom:2px;">① 하단 과감 매복 (99.9950%)</div>' +
-                        '<div style="color:#94A3B8;font-size:10.5px;">커트라인 아래로 낮게 조준</div>' +
+                        '<div style="color:#E2E8F0;font-size:12px;">커트라인 아래로 낮게 조준</div>' +
                     '</div>' +
                     '<div class="quiz-choice-btn" style="border-color:#10B981;" onclick="setSliderAndCheck(' + (trueR + 0.0010).toFixed(4) + ', 2)">' +
                         '<div style="color:#34D399;font-size:12.5px;margin-bottom:2px;">② 골든 포켓 정밀 조준 (' + (trueR + 0.0010).toFixed(4) + '%)</div>' +
-                        '<div style="color:#A7F3D0;font-size:10.5px;">커트라인 바로 위 +0.001%p 안착</div>' +
+                        '<div style="color:#A7F3D0;font-size:12px;">커트라인 바로 위 +0.001%p 안착</div>' +
                     '</div>' +
                     '<div class="quiz-choice-btn" onclick="setSliderAndCheck(100.0800, 3)">' +
                         '<div style="color:#38BDF8;font-size:12.5px;margin-bottom:2px;">③ 고사정 안전 방어 (100.0800%)</div>' +
-                        '<div style="color:#94A3B8;font-size:10.5px;">미달만 피하고 높게 조준</div>' +
+                        '<div style="color:#E2E8F0;font-size:12px;">미달만 피하고 높게 조준</div>' +
                     '</div>' +
                 '</div>' +
-                '<div id="syn-quiz-feedback" style="background:rgba(15,23,42,0.9);border:1.5px dashed #64748B;border-radius:10px;padding:11px;text-align:center;color:#94A3B8;font-size:12px;font-weight:800;">' +
+                '<div id="syn-quiz-feedback" style="background:rgba(15,23,42,0.9);border:1.5px dashed #64748B;border-radius:10px;padding:11px;text-align:center;color:#E2E8F0;font-size:12px;font-weight:800;">' +
                     '👆 슬라이더를 움직여 [🎯 이 타점으로 영점 사격 발사!] 버튼을 누르거나 위 3가지 전술 카드를 클릭해 보세요!' +
                 '</div>' +
             '</div>';
@@ -5895,7 +5895,7 @@ function renderStageContent() {
     } else if (curStep === 5) {
         stage.innerHTML =
             '<div class="stage-content-anim" style="position:relative;">' +
-                '<div class="golden-master-stamp">👑 마스터리 각인 완료<br><span style="font-size:10px;">SYNAPSE MASTERED</span></div>' +
+                '<div class="golden-master-stamp">👑 마스터리 각인 완료<br><span style="font-size:12px;">SYNAPSE MASTERED</span></div>' +
                 '<div class="tutor-guide-box" style="border-left-color:#FBBF24;">' +
                     '<div style="color:#FBBF24;font-size:12px;font-weight:900;margin-bottom:4px;">👑 최종 5단계 마스터 봉인 해제 (시각 애니메이션: 황금 직인 스탬프 임팩트 & 실시간 타이핑)</div>' +
                     '<div style="color:#F8FAFC;font-size:13px;line-height:1.6;font-weight:700;">' +
@@ -5904,10 +5904,10 @@ function renderStageContent() {
                 '</div>' +
                 '<div style="background:linear-gradient(135deg, rgba(120,53,15,0.55), rgba(9,13,22,0.96));border:2px solid #FBBF24;border-radius:14px;padding:16px 20px;box-shadow:0 0 28px rgba(251,191,36,0.32);">' +
                     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
-                        '<span style="background:#FBBF24;color:#090D16;font-size:11px;font-weight:900;padding:3px 10px;border-radius:6px;">🏆 장기기억 각인 완료 · 비전서 핵심 교훈</span>' +
+                        '<span style="background:#FBBF24;color:#090D16;font-size:12.5px;font-weight:900;padding:3px 10px;border-radius:6px;">🏆 장기기억 각인 완료 · 비전서 핵심 교훈</span>' +
                         '<span style="color:#34D399;font-size:12px;font-weight:900;">실제 개찰예가 ' + b.true_rate + ' | AI 추천 ' + b.rec_rate + '</span>' +
                     '</div>' +
-                    '<div id="syn-final-typewriter" style="color:#FEF08A;font-size:13.5px;font-weight:900;line-height:1.75;min-height:86px;"></div>' +
+                    '<div id="syn-final-typewriter" style="color:#FFFFFF;font-size:13.5px;font-weight:900;line-height:1.75;min-height:86px;"></div>' +
                 '</div>' +
             '</div>';
 
@@ -5989,18 +5989,18 @@ setInterval(() => {
                 '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
                     '<div><span style="background:#10B981;color:#022C22;font-size:12px;font-weight:900;padding:5px 12px;border-radius:6px;">🎯 현재 시냅스 학습관에서 선택·락온된 공고문</span>' +
                     '<span style="color:#FFFFFF;font-size:16px;font-weight:900;margin-left:10px;">[' + b.code + '] ' + b.title + '</span></div>' +
-                    '<span style="background:rgba(16,185,129,0.2);border:1px solid #34D399;color:#A7F3D0;font-size:11.5px;font-weight:800;padding:4px 10px;border-radius:6px;">✅ 제1관 시냅스 학습관 100% 일치</span>' +
+                    '<span style="background:rgba(16,185,129,0.2);border:1px solid #34D399;color:#A7F3D0;font-size:13px;font-weight:800;padding:4px 10px;border-radius:6px;">✅ 제1관 시냅스 학습관 100% 일치</span>' +
                 '</div>' +
-                '<div style="color:#FDE68A;font-size:12px;font-weight:800;margin-top:6px;">🏛️ 발주처: ' + b.agency + ' | 🏗️ 공종: ' + b.sector + ' | 💰 기초금액: ' + b.base_amt + ' | 🛡️ A값: ' + b.a_val + ' (' + b.a_ratio + ') | 🎯 목표 추천가: ' + b.rec_bid + '</div>';
+                '<div style="color:#FFFFFF;font-size:12px;font-weight:800;margin-top:6px;">🏛️ 발주처: ' + b.agency + ' | 🏗️ 공종: ' + b.sector + ' | 💰 기초금액: ' + b.base_amt + ' | 🛡️ A값: ' + b.a_val + ' (' + b.a_ratio + ') | 🎯 목표 추천가: ' + b.rec_bid + '</div>';
         }
         const tTitle = pDoc.getElementById('v12-t3-title');
         if (tTitle) tTitle.innerHTML = '[' + b.code + '] ' + b.title;
         const tAgSec = pDoc.getElementById('v12-t3-ag-sec');
         if (tAgSec) tAgSec.innerHTML = b.agency + '<br><span style="color:#7DD3FC;">' + b.sector + '</span>';
         const tBaseA = pDoc.getElementById('v12-t3-base-aval');
-        if (tBaseA) tBaseA.innerHTML = '기초 ' + b.base_amt + '<br><span style="color:#FDE68A;">A값 ' + b.a_val + ' (' + b.a_ratio + ')</span>';
+        if (tBaseA) tBaseA.innerHTML = '기초 ' + b.base_amt + '<br><span style="color:#FFFFFF;">A값 ' + b.a_val + ' (' + b.a_ratio + ')</span>';
         const tRec = pDoc.getElementById('v12-t3-rec-target');
-        if (tRec) tRec.innerHTML = b.rec_bid + '<br><span style="color:#A7F3D0;font-size:11px;">목표사정률 ' + b.rec_rate + ' (하한 ' + b.low_lim + ')</span>';
+        if (tRec) tRec.innerHTML = b.rec_bid + '<br><span style="color:#A7F3D0;font-size:12.5px;">목표사정률 ' + b.rec_rate + ' (하한 ' + b.low_lim + ')</span>';
         const tRawBox = pDoc.getElementById('v12-t3-raw-viewer');
         if (tRawBox) tRawBox.innerText = b.full_pkg;
     } catch (e) {}
@@ -6070,6 +6070,20 @@ def render_universal_typewriter_daemon_v12(trigger_seq: int = 0) -> str:
     const pDoc = pWin.document;
     if (!pDoc) return;
 
+    // 윈도우 PC 브라우저에서 입력 필드 폰트가 노란색으로 나와 안 보이는 현상을 원천 차단하는 상시 가드
+    if (!pDoc.getElementById('v12-win-input-guard-style')) {
+        const stEl = pDoc.createElement('style');
+        stEl.id = 'v12-win-input-guard-style';
+        stEl.innerHTML =
+            'input, textarea, select, div[data-baseweb="input"] input, div[data-baseweb="select"] span, div[data-baseweb="select"] div {' +
+            '  color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; background-color: #0B1324 !important; font-weight: 800 !important; font-size: 14.5px !important; text-shadow: none !important;' +
+            '}' +
+            'li[role="option"] { color: #FFFFFF !important; background-color: #0F172A !important; font-weight: 700 !important; }' +
+            'li[role="option"]:hover { background-color: #0284C7 !important; color: #FFFFFF !important; }';
+        pDoc.head.appendChild(stEl);
+    }
+
+
     pWin._v12RunBoxTypewriter = function(targetEl, linesArray, badgeLabel, borderColor, speedMs, onDone) {
         if (!targetEl) return;
         if (targetEl._v12TwTimer) pWin.clearInterval(targetEl._v12TwTimer);
@@ -6086,10 +6100,10 @@ def render_universal_typewriter_daemon_v12(trigger_seq: int = 0) -> str:
 
         targetEl.innerHTML =
             '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;border-bottom:1px solid rgba(251,191,36,0.4);padding-bottom:5px;">' +
-                '<span id="' + hId + '" style="background:linear-gradient(90deg,#FBBF24,#38BDF8);color:#090D16;font-size:11px;font-weight:900;padding:3px 10px;border-radius:99px;box-shadow:0 0 12px rgba(251,191,36,0.8);">' +
+                '<span id="' + hId + '" style="background:linear-gradient(90deg,#FBBF24,#38BDF8);color:#090D16;font-size:12.5px;font-weight:900;padding:3px 10px;border-radius:99px;box-shadow:0 0 12px rgba(251,191,36,0.8);">' +
                     '⌨️ ' + (badgeLabel || '실시간 타이핑 분석 중...') +
                 '</span>' +
-                '<span style="color:#FDE68A;font-size:11px;font-weight:900;">⚡ 작동 시각: ' + nowStr + '</span>' +
+                '<span style="color:#FFFFFF;font-size:12.5px;font-weight:900;">⚡ 작동 시각: ' + nowStr + '</span>' +
             '</div>' +
             '<div id="' + bId + '" style="line-height:1.68;color:#F8FAFC;font-size:12px;font-weight:700;min-height:48px;"></div>';
 
@@ -6206,13 +6220,13 @@ def render_universal_typewriter_daemon_v12(trigger_seq: int = 0) -> str:
                     '<div style="background:rgba(9,13,22,0.96);border:2px solid #FBBF24;border-radius:8px;padding:10px 12px;box-shadow:0 0 22px rgba(251,191,36,0.35);">' +
                         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
                             '<span style="color:#FBBF24;font-size:12px;font-weight:900;">⚡ [6차원 정밀 재분석 완료] ' + codeStr + ' 시나리오별 3단계 실전 타격 매트릭스</span>' +
-                            '<span style="background:#10B981;color:#022C22;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:4px;">재분석 완료: ' + nowT + '</span>' +
+                            '<span style="background:#10B981;color:#022C22;font-size:12px;font-weight:900;padding:2px 8px;border-radius:4px;">재분석 완료: ' + nowT + '</span>' +
                         '</div>' +
-                        '<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;text-align:center;font-size:11.5px;">' +
+                        '<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;text-align:center;font-size:13px;">' +
                             '<div id="v12-pop-c1" style="opacity:0;transform:translateY(14px);transition:all 0.35s ease;background:rgba(239,68,68,0.16);border:1px solid #F87171;border-radius:6px;padding:8px;">' +
                                 '<div style="color:#FCA5A5;font-weight:800;">🔥 1안: 공격적 하단매복</div>' +
                                 '<div style="color:#FFFFFF;font-size:13px;font-weight:900;margin:4px 0;">' + calcBid(parseFloat(rAgg)) + '</div>' +
-                                '<div style="color:#FDE68A;">목표사정률 ' + rAgg + '%</div>' +
+                                '<div style="color:#FFFFFF;">목표사정률 ' + rAgg + '%</div>' +
                             '</div>' +
                             '<div id="v12-pop-c2" style="opacity:0;transform:translateY(14px);transition:all 0.35s ease;background:rgba(16,185,129,0.25);border:2px solid #34D399;border-radius:6px;padding:8px;box-shadow:0 0 15px rgba(16,185,129,0.45);">' +
                                 '<div style="color:#6EE7B7;font-weight:900;">🎯 2안: AI 1순위 정밀영점(권장)</div>' +

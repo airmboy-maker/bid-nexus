@@ -526,12 +526,12 @@ with st.sidebar:
         section[data-testid="stSidebar"] { background: linear-gradient(180deg, #070B14 0%, #0F172A 100%) !important; border-right: 1.5px solid rgba(56,189,248,0.3) !important; }
         </style>
         <div style="background:linear-gradient(180deg, rgba(8,47,73,0.92), rgba(15,23,42,0.98));border:2px solid #38BDF8;border-radius:12px;padding:16px 14px;margin-bottom:14px;box-shadow:0 0 22px rgba(56,189,248,0.25);">
-            <div style="background:#38BDF8;color:#090D16;font-size:11px;font-weight:900;padding:3px 9px;border-radius:4px;display:inline-block;margin-bottom:8px;">🔒 좌측 메인메뉴 블라인드 완료</div>
+            <div style="background:#38BDF8;color:#090D16;font-size:12.5px;font-weight:900;padding:3px 9px;border-radius:4px;display:inline-block;margin-bottom:8px;">🔒 좌측 메인메뉴 블라인드 완료</div>
             <div style="color:#F8FAFC;font-size:15px;font-weight:900;margin-bottom:6px;">🏛️ 3D 전략 서재 & AI 학습소</div>
-            <div style="color:#94A3B8;font-size:12px;line-height:1.55;margin-bottom:10px;">
+            <div style="color:#E2E8F0;font-size:12px;line-height:1.55;margin-bottom:10px;">
                 학습과 사정 연구에 100% 몰입하실 수 있도록 기존 플랫폼의 좌측 메뉴(GATEKEEPER, SCREEN MODE, Z1~Z9 캐비닛)와 상단 바를 모두 블라인드 격리했습니다.
             </div>
-            <div style="background:rgba(9,13,22,0.85);border:1px solid rgba(251,191,36,0.4);border-radius:8px;padding:8px 10px;color:#FDE68A;font-size:11.5px;font-weight:800;">
+            <div style="background:rgba(9,13,22,0.85);border:1px solid rgba(251,191,36,0.4);border-radius:8px;padding:8px 10px;color:#FFFFFF;font-size:13px;font-weight:800;">
                 • 제1관: 3D 홀로그램 입찰 전략 서재<br>
                 • 제2관: 전 공종 모의투찰 & 15C4 대결<br>
                 • 제3관: 올라마 공고·서류 6차원 해부<br>
@@ -549,14 +549,14 @@ with _sw_c1:
     if st.session_state["_standalone_academy_mode"]:
         st.markdown("""
         <div style="background:linear-gradient(90deg, rgba(8,47,73,0.92), rgba(120,53,15,0.92));border:2px solid #38BDF8;border-radius:10px;padding:8px 16px;box-shadow:0 0 20px rgba(56,189,248,0.28);">
-            <span style="background:#38BDF8;color:#090D16;font-size:11px;font-weight:900;padding:2px 8px;border-radius:4px;">3D 홀로그램 서재 & 학습소 가동 중</span>
+            <span style="background:#38BDF8;color:#090D16;font-size:12.5px;font-weight:900;padding:2px 8px;border-radius:4px;">3D 홀로그램 서재 & 학습소 가동 중</span>
             <span style="color:#F8FAFC;font-size:13.5px;font-weight:900;margin-left:8px;">🏛️ 현재 [3D 홀로그램 입찰 전략 서재 & AI 사정 전문 학습소] 단독 공간입니다</span>
         </div>
         """, unsafe_allow_html=True)
     else:
         st.markdown("""
         <div style="background:linear-gradient(90deg, rgba(15,23,42,0.95), rgba(30,27,75,0.85));border:1.5px solid #38BDF8;border-radius:10px;padding:8px 16px;">
-            <span style="background:#38BDF8;color:#090D16;font-size:11px;font-weight:900;padding:2px 8px;border-radius:4px;">전용 학습 베이 & 3D 서재 분리 탑재</span>
+            <span style="background:#38BDF8;color:#090D16;font-size:12.5px;font-weight:900;padding:2px 8px;border-radius:4px;">전용 학습 베이 & 3D 서재 분리 탑재</span>
             <span style="color:#E2E8F0;font-size:13px;font-weight:800;margin-left:8px;">우측 버튼을 누르면 기존 플랫폼과 분리된 <b>[🏛️ 3D 홀로그램 전략 서재 & AI 사정 학습소]</b>로 진입합니다.</span>
         </div>
         """, unsafe_allow_html=True)
@@ -576,7 +576,7 @@ if st.session_state["_standalone_academy_mode"]:
     <div style="background:linear-gradient(135deg, #090D16 0%, #0F172A 55%, #1E1B18 100%);border:2px solid #FBBF24;border-radius:14px;padding:14px 20px;margin:6px 0 12px 0;box-shadow:0 10px 30px rgba(251,191,36,0.2);">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
             <div>
-                <div style="color:#38BDF8;font-size:11.5px;font-weight:900;">입찰·낙찰 사정 연구 및 3D 홀로그램 레거시 자산화 성소 v12.0</div>
+                <div style="color:#38BDF8;font-size:13px;font-weight:900;">입찰·낙찰 사정 연구 및 3D 홀로그램 레거시 자산화 성소 v12.0</div>
                 <div style="color:#F8FAFC;font-size:20px;font-weight:900;">🏛️ 3D 홀로그램 프라이빗 전략 서재 & AI 입찰·낙찰 학습소</div>
             </div>
             <div style="background:rgba(16,185,129,0.2);color:#6EE7B7;font-size:12px;font-weight:800;padding:5px 12px;border-radius:99px;border:1px solid #34D399;">
@@ -585,23 +585,23 @@ if st.session_state["_standalone_academy_mode"]:
         </div>
         <div style="display:grid;grid-template-columns:repeat(5, 1fr);gap:10px;">
             <div style="background:rgba(15,23,42,0.88);border:1px solid rgba(56,189,248,0.45);border-radius:9px;padding:7px 10px;text-align:center;">
-                <div style="color:#94A3B8;font-size:10.5px;">누적 개찰 학습 표본</div>
+                <div style="color:#E2E8F0;font-size:12px;">누적 개찰 학습 표본</div>
                 <div style="color:#38BDF8;font-size:16px;font-weight:900;">{_ac_stats['total_db_cnt']:,}건</div>
             </div>
             <div style="background:rgba(15,23,42,0.88);border:1px solid rgba(52,211,153,0.45);border-radius:9px;padding:7px 10px;text-align:center;">
-                <div style="color:#94A3B8;font-size:10.5px;">AI 사정 평균 영점오차</div>
+                <div style="color:#E2E8F0;font-size:12px;">AI 사정 평균 영점오차</div>
                 <div style="color:#34D399;font-size:16px;font-weight:900;">±{_ac_stats['ai_mae']:.4f}%p</div>
             </div>
             <div style="background:rgba(15,23,42,0.88);border:1px solid rgba(192,132,252,0.45);border-radius:9px;padding:7px 10px;text-align:center;">
-                <div style="color:#94A3B8;font-size:10.5px;">나의 모의투찰 평균오차</div>
+                <div style="color:#E2E8F0;font-size:12px;">나의 모의투찰 평균오차</div>
                 <div style="color:#C084FC;font-size:16px;font-weight:900;">±{_ac_stats['user_mae']:.4f}%p</div>
             </div>
             <div style="background:rgba(15,23,42,0.88);border:1px solid rgba(251,191,36,0.55);border-radius:9px;padding:7px 10px;text-align:center;">
-                <div style="color:#94A3B8;font-size:10.5px;">3D 서재 영구제본 장서</div>
+                <div style="color:#E2E8F0;font-size:12px;">3D 서재 영구제본 장서</div>
                 <div style="color:#FBBF24;font-size:16px;font-weight:900;">🏆 {_lib_summary['gold_cnt']} · 📘 {_lib_summary['blue_cnt']} · 📕 {_lib_summary['red_cnt']}</div>
             </div>
             <div style="background:rgba(15,23,42,0.88);border:1px solid rgba(244,114,182,0.45);border-radius:9px;padding:7px 10px;text-align:center;">
-                <div style="color:#94A3B8;font-size:10.5px;">누적 레거시 분석자산</div>
+                <div style="color:#E2E8F0;font-size:12px;">누적 레거시 분석자산</div>
                 <div style="color:#F472B6;font-size:16px;font-weight:900;">{_total_legacy_krw // 100000000:,}억 원</div>
             </div>
         </div>
@@ -666,11 +666,11 @@ if st.session_state["_standalone_academy_mode"]:
                 st.markdown(f"""
                 <div style="background:linear-gradient(135deg, rgba(8,47,73,0.95), rgba(15,23,42,0.98));border:2px solid #38BDF8;border-radius:12px;padding:14px 16px;margin-bottom:8px;min-height:112px;box-shadow:0 8px 22px rgba(0,0,0,0.65);">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                        <span style="background:#38BDF8;color:#090D16;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:4px;">OFFICIAL DESIGN FORM WHITEPAPER</span>
-                        <span style="background:rgba(16,185,129,0.2);color:#6EE7B7;font-size:11px;font-weight:900;padding:2px 8px;border-radius:99px;border:1px solid #34D399;">문서번호 {_wp_suite['doc_no']} · 총 {len(_books)}권 정순서 수록</span>
+                        <span style="background:#38BDF8;color:#090D16;font-size:12px;font-weight:900;padding:2px 8px;border-radius:4px;">OFFICIAL DESIGN FORM WHITEPAPER</span>
+                        <span style="background:rgba(16,185,129,0.2);color:#6EE7B7;font-size:12.5px;font-weight:900;padding:2px 8px;border-radius:99px;border:1px solid #34D399;">문서번호 {_wp_suite['doc_no']} · 총 {len(_books)}권 정순서 수록</span>
                     </div>
                     <div style="color:#FFFFFF;font-size:14px;font-weight:900;margin-bottom:4px;">📘 당사 입찰 필승 비전서(秘傳書) 공식 양식 마스터 백서 편찬실</div>
-                    <div style="color:#94A3B8;font-size:11.5px;line-height:1.45;">
+                    <div style="color:#E2E8F0;font-size:13px;line-height:1.45;">
                         제2026-001권부터 순서대로 정렬된 전 장서 복기 명세서와 대표이사 결재란이 포함된 공식 보고서를 열람·인쇄·출력합니다.
                     </div>
                 </div>
@@ -730,11 +730,11 @@ if st.session_state["_standalone_academy_mode"]:
                 st.markdown(f"""
                 <div style="background:linear-gradient(135deg, rgba(6,78,59,0.85), rgba(15,23,42,0.98));border:2px solid #10B981;border-radius:12px;padding:14px 16px;margin-bottom:8px;min-height:112px;box-shadow:0 8px 22px rgba(0,0,0,0.65);">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                        <span style="background:#10B981;color:#022C22;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:4px;">QUICK TARGET SWITCH & INCINERATOR</span>
-                        <span style="background:rgba(251,191,36,0.2);color:#FDE68A;font-size:11px;font-weight:900;padding:2px 8px;border-radius:99px;border:1px solid #FBBF24;">🎯 현재 락온: {_active_bk['book_code']}</span>
+                        <span style="background:#10B981;color:#022C22;font-size:12px;font-weight:900;padding:2px 8px;border-radius:4px;">QUICK TARGET SWITCH & INCINERATOR</span>
+                        <span style="background:rgba(251,191,36,0.2);color:#FFFFFF;font-size:12.5px;font-weight:900;padding:2px 8px;border-radius:99px;border:1px solid #FBBF24;">🎯 현재 락온: {_active_bk['book_code']}</span>
                     </div>
                     <div style="color:#FFFFFF;font-size:14px;font-weight:900;margin-bottom:4px;">🎯 정순서(001권~{len(_books):03d}권) 양장본 즉시 변경 & 불량 장서 파쇄 챔버</div>
-                    <div style="color:#A7F3D0;font-size:11.5px;line-height:1.45;">
+                    <div style="color:#A7F3D0;font-size:13px;line-height:1.45;">
                         아래 목록에서 양장본을 바꾸면 <b>위쪽 3D 서가·3D 독서대·제2관·제3관이 즉시 해당 공고로 변경</b>되며 부속 출력창은 자동으로 닫힙니다.
                     </div>
                 </div>
@@ -769,7 +769,7 @@ if st.session_state["_standalone_academy_mode"]:
     with _tab_arena:
         st.markdown("""
         <div id="v12-t2-lockon-banner" style="background:linear-gradient(90deg, rgba(6,78,59,0.92), rgba(15,23,42,0.96));border:2px solid #10B981;border-radius:12px;padding:12px 18px;margin-bottom:12px;box-shadow:0 0 22px rgba(16,185,129,0.3);">
-            <span style="background:#10B981;color:#022C22;font-size:11.5px;font-weight:900;padding:4px 10px;border-radius:6px;">🎯 현재 선택·락온된 모의투찰 대상 공고</span>
+            <span style="background:#10B981;color:#022C22;font-size:13px;font-weight:900;padding:4px 10px;border-radius:6px;">🎯 현재 선택·락온된 모의투찰 대상 공고</span>
             <span style="color:#FFFFFF;font-size:15px;font-weight:900;margin-left:10px;">제1관 3D 서재에서 선택한 양장본이 실시간 연동됩니다</span>
         </div>
         """, unsafe_allow_html=True)
@@ -925,35 +925,35 @@ if st.session_state["_standalone_academy_mode"]:
         <div style="background:rgba(15,23,42,0.96);border:1.5px solid #FBBF24;border-radius:12px;padding:14px 18px;margin:10px 0;">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;border-bottom:1px solid rgba(148,163,184,0.2);padding-bottom:8px;">
                 <div>
-                    <span style="background:#10B981;color:#052E16;font-size:11px;font-weight:900;padding:2px 8px;border-radius:4px;">1:1 사정 대조 & 퀀텀 추첨 성적표</span>
+                    <span style="background:#10B981;color:#052E16;font-size:12.5px;font-weight:900;padding:2px 8px;border-radius:4px;">1:1 사정 대조 & 퀀텀 추첨 성적표</span>
                     <span style="color:#F8FAFC;font-size:13.5px;font-weight:900;margin-left:8px;">{_ares['sector']} | {_ares['agency']} (학습 DB 평균 {_ares['hist_mean']:.4f}% · 표준편차 ±{_ares['hist_std']:.4f}%)</span>
                 </div>
-                <div style="color:#FDE68A;font-size:12px;font-weight:900;">🔮 추첨된 4개 번호: {' · '.join(_ares['picked_lots'])}</div>
+                <div style="color:#FFFFFF;font-size:12px;font-weight:900;">🔮 추첨된 4개 번호: {' · '.join(_ares['picked_lots'])}</div>
             </div>
             <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:10px;">
                 <div style="background:rgba(56,189,248,0.10);border:1.5px solid #38BDF8;border-radius:9px;padding:10px;text-align:center;">
-                    <div style="color:#7DD3FC;font-size:11px;font-weight:800;">🤖 AI 학습 기반 사정 타점</div>
+                    <div style="color:#7DD3FC;font-size:12.5px;font-weight:800;">🤖 AI 학습 기반 사정 타점</div>
                     <div style="color:#38BDF8;font-size:16px;font-weight:900;margin:4px 0;">{_ares['ai_bid']:,}원</div>
-                    <div style="color:#E2E8F0;font-size:11.5px;font-weight:700;">사정률: {_ares['ai_rate']:.4f}%</div>
-                    <div style="color:#BAE6FD;font-size:10.5px;margin-top:3px;">{_ares['ai_rank_str']}</div>
+                    <div style="color:#E2E8F0;font-size:13px;font-weight:700;">사정률: {_ares['ai_rate']:.4f}%</div>
+                    <div style="color:#BAE6FD;font-size:12px;margin-top:3px;">{_ares['ai_rank_str']}</div>
                 </div>
                 <div style="background:rgba(168,85,247,0.10);border:1.5px solid #C084FC;border-radius:9px;padding:10px;text-align:center;">
-                    <div style="color:#E9D5FF;font-size:11px;font-weight:800;">👤 나의 모의투찰 타점</div>
+                    <div style="color:#E9D5FF;font-size:12.5px;font-weight:800;">👤 나의 모의투찰 타점</div>
                     <div style="color:#C084FC;font-size:16px;font-weight:900;margin:4px 0;">{_ares['user_bid']:,}원</div>
-                    <div style="color:#E2E8F0;font-size:11.5px;font-weight:700;">사정률: {_ares['user_rate']:.4f}%</div>
-                    <div style="color:#F3E8FF;font-size:10.5px;margin-top:3px;">{_ares['user_rank_str']}</div>
+                    <div style="color:#E2E8F0;font-size:13px;font-weight:700;">사정률: {_ares['user_rate']:.4f}%</div>
+                    <div style="color:#F3E8FF;font-size:12px;margin-top:3px;">{_ares['user_rank_str']}</div>
                 </div>
                 <div style="background:rgba(245,158,11,0.10);border:1.5px solid #FBBF24;border-radius:9px;padding:10px;text-align:center;">
-                    <div style="color:#FDE68A;font-size:11px;font-weight:800;">🎯 개찰 예정가격 & 낙찰하한선</div>
+                    <div style="color:#FFFFFF;font-size:12.5px;font-weight:800;">🎯 개찰 예정가격 & 낙찰하한선</div>
                     <div style="color:#FBBF24;font-size:16px;font-weight:900;margin:4px 0;">{_disp_cutline}</div>
-                    <div style="color:#E2E8F0;font-size:11.5px;font-weight:700;">개찰 예가사정률: {_disp_true_rate}</div>
-                    <div style="color:#FEF08A;font-size:10.5px;margin-top:3px;">예정가격: {_ares['true_exp_price']:,}원</div>
+                    <div style="color:#E2E8F0;font-size:13px;font-weight:700;">개찰 예가사정률: {_disp_true_rate}</div>
+                    <div style="color:#FFFFFF;font-size:12px;margin-top:3px;">예정가격: {_ares['true_exp_price']:,}원</div>
                 </div>
                 <div style="background:rgba(16,185,129,0.12);border:1.5px solid #34D399;border-radius:9px;padding:10px;text-align:center;">
-                    <div style="color:#A7F3D0;font-size:11px;font-weight:800;">🏆 실제 개찰 1순위 낙찰예정자</div>
+                    <div style="color:#A7F3D0;font-size:12.5px;font-weight:800;">🏆 실제 개찰 1순위 낙찰예정자</div>
                     <div style="color:#34D399;font-size:16px;font-weight:900;margin:4px 0;">{_ares['winner_bid']:,}원</div>
-                    <div style="color:#E2E8F0;font-size:11.5px;font-weight:700;">{_ares['winner_company']} ({_ares['winner_rate']:.4f}%)</div>
-                    <div style="color:#6EE7B7;font-size:10.5px;margin-top:3px;">하한선 대비 +{_ares['winner_bid'] - _ares['cutline_bid']:,}원 밀착</div>
+                    <div style="color:#E2E8F0;font-size:13px;font-weight:700;">{_ares['winner_company']} ({_ares['winner_rate']:.4f}%)</div>
+                    <div style="color:#6EE7B7;font-size:12px;margin-top:3px;">하한선 대비 +{_ares['winner_bid'] - _ares['cutline_bid']:,}원 밀착</div>
                 </div>
             </div>
         </div>
@@ -970,9 +970,9 @@ if st.session_state["_standalone_academy_mode"]:
                     _bg = "rgba(251,191,36,0.22)" if _ls["is_hit"] else "rgba(15,23,42,0.85)"
                     _slots_html += (
                         f"<div style='background:{_bg};border:{_bd};border-radius:7px;padding:6px 8px;text-align:center;'>"
-                        f"<div style='color:#F8FAFC;font-size:11.5px;font-weight:900;'>{_ls['num']} {'🎯' if _ls['is_hit'] else ''}</div>"
-                        f"<div style='color:#94A3B8;font-size:10px;'>{_ls['slot_rate']:.3f}%</div>"
-                        f"<div style='color:#34D399;font-size:10.5px;font-weight:800;'>선택비중 {_ls['freq']}%</div>"
+                        f"<div style='color:#F8FAFC;font-size:13px;font-weight:900;'>{_ls['num']} {'🎯' if _ls['is_hit'] else ''}</div>"
+                        f"<div style='color:#E2E8F0;font-size:12px;'>{_ls['slot_rate']:.3f}%</div>"
+                        f"<div style='color:#34D399;font-size:12px;font-weight:800;'>선택비중 {_ls['freq']}%</div>"
                         f"</div>"
                     )
                 _slots_html += "</div>"
@@ -985,7 +985,7 @@ if st.session_state["_standalone_academy_mode"]:
                     _bar_c = "#EF4444" if _zn["cnt"] >= 12 else ("#38BDF8" if "진공" in _zn["label"] else "#10B981")
                     _z_html += (
                         f"<div style='margin-bottom:5px;'>"
-                        f"<div style='display:flex;justify-content:space-between;font-size:11px;color:#E2E8F0;'><span>{_zn['label']}</span><b>{_zn['cnt']}개사</b></div>"
+                        f"<div style='display:flex;justify-content:space-between;font-size:12.5px;color:#E2E8F0;'><span>{_zn['label']}</span><b>{_zn['cnt']}개사</b></div>"
                         f"<div style='background:rgba(30,41,59,0.9);height:7px;border-radius:4px;overflow:hidden;margin-top:2px;'>"
                         f"<div style='width:{_bar_w}%;background:{_bar_c};height:100%;'></div></div></div>"
                     )
@@ -1040,7 +1040,7 @@ if st.session_state["_standalone_academy_mode"]:
         with _auto_c1:
             st.markdown(
                 f"<div id='v12-t3-active-banner' style='background:linear-gradient(90deg, rgba(8,47,73,0.92), rgba(15,23,42,0.96));border:1.5px solid #FBBF24;border-radius:10px;padding:12px 16px;color:#F8FAFC;font-size:13.5px;margin-top:4px;'>"
-                f"📕 현재 제1관 3D 서재에서 선택되어 연동된 양장본: <b style='color:#FDE68A;'>[{_matched_pkg['pkg_id'] if _matched_pkg else ''}] {_matched_pkg['title'] if _matched_pkg else ''}</b>"
+                f"📕 현재 제1관 3D 서재에서 선택되어 연동된 양장본: <b style='color:#FFFFFF;'>[{_matched_pkg['pkg_id'] if _matched_pkg else ''}] {_matched_pkg['title'] if _matched_pkg else ''}</b>"
                 f"</div>",
                 unsafe_allow_html=True
             )
@@ -1063,13 +1063,13 @@ if st.session_state["_standalone_academy_mode"]:
         _ol_c1, _ol_c2 = st.columns([1.42, 1.58])
         with _ol_c1:
             st.markdown(
-                f"<div id='v12-t3-doc-check' style='background:rgba(6,78,59,0.38);border:1px solid #34D399;border-radius:8px;padding:8px 12px;margin-bottom:8px;font-size:11.5px;color:#A7F3D0;line-height:1.55;'>"
+                f"<div id='v12-t3-doc-check' style='background:rgba(6,78,59,0.38);border:1px solid #34D399;border-radius:8px;padding:8px 12px;margin-bottom:8px;font-size:13px;color:#A7F3D0;line-height:1.55;'>"
                 f"<b>🔗 제1관 3D 서재 선택 동기화 완료 [{_matched_pkg['pkg_id'] if _matched_pkg else ''}] — 입찰서류 4종 패키지 검증 상태:</b><br>" + "<br>".join(_doc_checks) + "</div>",
                 unsafe_allow_html=True
             )
 
             st.markdown(
-                f"<div style='color:#FDE68A;font-size:12px;font-weight:800;margin-bottom:4px;'>📄 제1관 3D 서재에서 선택한 양장본의 [입찰공고문 · 시방서 · 물량내역서 · 적격심사] 통합 원문:</div>"
+                f"<div style='color:#FFFFFF;font-size:12px;font-weight:800;margin-bottom:4px;'>📄 제1관 3D 서재에서 선택한 양장본의 [입찰공고문 · 시방서 · 물량내역서 · 적격심사] 통합 원문:</div>"
                 f"<div id='v12-t3-raw-viewer' style='background:rgba(9,13,22,0.94);border:1.5px solid #38BDF8;border-radius:8px;padding:12px 14px;color:#F8FAFC;font-size:12px;line-height:1.65;max-height:210px;overflow-y:auto;white-space:pre-wrap;margin-bottom:8px;'>{_auto_loaded_text}</div>",
                 unsafe_allow_html=True
             )
@@ -1119,28 +1119,28 @@ if st.session_state["_standalone_academy_mode"]:
             <div style="background:rgba(15,23,42,0.96);border:2px solid #38BDF8;border-radius:12px;padding:15px 18px;box-shadow:0 0 25px rgba(56,189,248,0.18);">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;border-bottom:1px solid rgba(56,189,248,0.3);padding-bottom:8px;">
                     <div>
-                        <span style="background:#38BDF8;color:#090D16;font-size:11px;font-weight:900;padding:3px 9px;border-radius:4px;">제1관 3D 서가 실시간 직결 투시</span>
+                        <span style="background:#38BDF8;color:#090D16;font-size:12.5px;font-weight:900;padding:3px 9px;border-radius:4px;">제1관 3D 서가 실시간 직결 투시</span>
                         <span id="v12-t3-title" style="color:#F8FAFC;font-size:13.5px;font-weight:900;margin-left:8px;">[{_matched_pkg['pkg_id'] if _matched_pkg else ''}] {_matched_pkg['title'] if _matched_pkg else ''}</span>
                     </div>
-                    <span style="color:#34D399;font-size:11.5px;font-weight:800;">{_ores['ollama_status']}</span>
+                    <span style="color:#34D399;font-size:13px;font-weight:800;">{_ores['ollama_status']}</span>
                 </div>
                 <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;margin-bottom:10px;">
                     <div style="background:rgba(9,13,22,0.92);border:1px solid rgba(148,163,184,0.3);padding:9px;border-radius:8px;">
-                        <div style="color:#94A3B8;font-size:10.5px;">🏛️ 자동 판독 발주처 / 공종</div>
+                        <div style="color:#E2E8F0;font-size:12px;">🏛️ 자동 판독 발주처 / 공종</div>
                         <div id="v12-t3-ag-sec" style="color:#F8FAFC;font-size:12.5px;font-weight:900;margin-top:2px;">{_ores['agency']}<br><span style="color:#7DD3FC;">{_ores['sector']}</span></div>
                     </div>
                     <div style="background:rgba(9,13,22,0.92);border:1px solid rgba(56,189,248,0.4);padding:9px;border-radius:8px;">
-                        <div style="color:#94A3B8;font-size:10.5px;">💰 내역서 추출 기초금액 / A값</div>
-                        <div id="v12-t3-base-aval" style="color:#38BDF8;font-size:12.5px;font-weight:900;margin-top:2px;">기초 {_ores['base_amt']:,}원<br><span style="color:#FDE68A;">A값 {_ores['a_val']:,}원 ({_ores['a_ratio']}%)</span></div>
+                        <div style="color:#E2E8F0;font-size:12px;">💰 내역서 추출 기초금액 / A값</div>
+                        <div id="v12-t3-base-aval" style="color:#38BDF8;font-size:12.5px;font-weight:900;margin-top:2px;">기초 {_ores['base_amt']:,}원<br><span style="color:#FFFFFF;">A값 {_ores['a_val']:,}원 ({_ores['a_ratio']}%)</span></div>
                     </div>
                     <div style="background:rgba(9,13,22,0.92);border:1px solid rgba(52,211,153,0.45);padding:9px;border-radius:8px;">
-                        <div style="color:#94A3B8;font-size:10.5px;">🎯 공고·서류 맞춤 AI 추천타점</div>
-                        <div id="v12-t3-rec-target" style="color:#34D399;font-size:13.5px;font-weight:900;margin-top:2px;">{_ores['rec_bid']:,}원<br><span style="color:#A7F3D0;font-size:11px;">목표사정률 {_ores['rec_rate']:.4f}% (하한 {_ores['lower_limit']}%)</span></div>
+                        <div style="color:#E2E8F0;font-size:12px;">🎯 공고·서류 맞춤 AI 추천타점</div>
+                        <div id="v12-t3-rec-target" style="color:#34D399;font-size:13.5px;font-weight:900;margin-top:2px;">{_ores['rec_bid']:,}원<br><span style="color:#A7F3D0;font-size:12.5px;">목표사정률 {_ores['rec_rate']:.4f}% (하한 {_ores['lower_limit']}%)</span></div>
                     </div>
                 </div>
                 <div id="v12-t3-risk-box" style="background:rgba(127,29,29,0.22);border:1px solid rgba(248,113,113,0.45);border-radius:8px;padding:9px 12px;margin-bottom:10px;">
                     <div style="color:#FCA5A5;font-size:12px;font-weight:900;margin-bottom:4px;">🚨 공고문 · 시방서 · 내역서 독소조항 & 특기사항 자동 스캔:</div>
-                    <div style="color:#F8FAFC;font-size:11.5px;line-height:1.55;">{"<br>".join(_ores["risks"])}</div>
+                    <div style="color:#F8FAFC;font-size:13px;line-height:1.55;">{"<br>".join(_ores["risks"])}</div>
                 </div>
                 <div id="v12-t3-llm-brief" style="background:linear-gradient(135deg, rgba(6,78,59,0.55), rgba(15,23,42,0.95));border:1.5px solid #10B981;border-radius:8px;padding:11px 13px;color:#ECFDF5;font-size:12px;line-height:1.6;">
                     <b>🗣️ AI 수석 공고·서류 분석관 심층 브리핑:</b><br>{_ores['llm_answer']}
@@ -1156,10 +1156,10 @@ if st.session_state["_standalone_academy_mode"]:
         <div style="background:linear-gradient(90deg, rgba(6,78,59,0.92), rgba(15,23,42,0.96));border:2px solid #38BDF8;border-radius:12px;padding:12px 18px;margin-bottom:10px;box-shadow:0 0 22px rgba(56,189,248,0.22);">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
                 <div>
-                    <span style="background:#38BDF8;color:#090D16;font-size:11.5px;font-weight:900;padding:4px 10px;border-radius:6px;">G2B 개찰결과 X-RAY & 라이벌 레이더</span>
+                    <span style="background:#38BDF8;color:#090D16;font-size:13px;font-weight:900;padding:4px 10px;border-radius:6px;">G2B 개찰결과 X-RAY & 라이벌 레이더</span>
                     <span style="color:#FFFFFF;font-size:15.5px;font-weight:900;margin-left:8px;">📋 실제 나라장터(G2B) 개찰결과 응찰사 내역 복사·붙여넣기 즉시 해부 & 라이벌 학습관</span>
                 </div>
-                <span style="color:#34D399;font-size:11.5px;font-weight:800;">● 실전 개찰 표본 자동 로드 및 시각화 가동 중</span>
+                <span style="color:#34D399;font-size:13px;font-weight:800;">● 실전 개찰 표본 자동 로드 및 시각화 가동 중</span>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -1278,12 +1278,12 @@ try:
                     .mat-wrap { background:radial-gradient(circle at 15% 20%, rgba(56,189,248,0.15), rgba(15,23,42,0.96) 72%); border:1px solid rgba(56,189,248,0.42); border-radius:14px; padding:16px 18px; box-shadow:0 10px 28px rgba(0,0,0,0.5); }
                     .mat-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
                     .mat-title { font-size:14px; font-weight:800; color:#e0f2fe; }
-                    .mat-badge { background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#6ee7b7; font-size:11.5px; font-weight:800; padding:3px 11px; border-radius:999px; }
+                    .mat-badge { background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#6ee7b7; font-size:13px; font-weight:800; padding:3px 11px; border-radius:999px; }
                     table { width:100%; border-collapse:collapse; font-size:12.5px; background:rgba(15,23,42,0.88); border-radius:10px; overflow:hidden; }
                     th { background:linear-gradient(180deg,rgba(30,41,59,0.98),rgba(15,23,42,0.98)); color:#38bdf8; font-weight:800; padding:11px 10px; border-bottom:2px solid rgba(56,189,248,0.45); text-align:center; }
                     td { padding:11px 10px; border-bottom:1px solid rgba(148,163,184,0.15); text-align:center; font-variant-numeric:tabular-nums; }
                     tr:hover td { background:rgba(56,189,248,0.09); }
-                    .lic-pill { background:rgba(56,189,248,0.18); border:1px solid rgba(56,189,248,0.5); color:#38bdf8; font-weight:800; padding:3px 10px; border-radius:999px; font-size:11.5px; }
+                    .lic-pill { background:rgba(56,189,248,0.18); border:1px solid rgba(56,189,248,0.5); color:#38bdf8; font-weight:800; padding:3px 10px; border-radius:999px; font-size:13px; }
                     .sum-pill { background:rgba(16,185,129,0.18); border:1px solid rgba(16,185,129,0.55); color:#34d399; font-weight:900; padding:4px 11px; border-radius:999px; font-size:12px; }
                 </style></head><body>
                     <div class="mat-wrap">
@@ -1329,9 +1329,9 @@ try:
                         .eng-box { background:linear-gradient(145deg,rgba(15,23,42,0.95),rgba(30,41,59,0.85)); border:1px solid rgba(56,189,248,0.4); border-radius:14px; padding:14px 16px; box-shadow:0 8px 24px rgba(0,0,0,0.45); }
                         .eng-grid { display:grid; grid-template-columns:repeat(5, 1fr); gap:8px; }
                         .e-card { background:rgba(15,23,42,0.85); border:1px solid rgba(148,163,184,0.22); border-radius:10px; padding:10px 6px; text-align:center; border-top:3px solid #38bdf8; }
-                        .e-role { font-size:11px; color:#94a3b8; font-weight:700; margin-bottom:4px; }
+                        .e-role { font-size:12.5px; color:#94a3b8; font-weight:700; margin-bottom:4px; }
                         .e-cnt { font-size:16px; font-weight:900; color:#38bdf8; }
-                        .e-tag { font-size:10px; color:#34d399; font-weight:700; margin-top:3px; }
+                        .e-tag { font-size:12px; color:#34d399; font-weight:700; margin-top:3px; }
                     </style></head><body>
                         <div class="eng-box">
                             <div class="eng-grid">
@@ -4248,7 +4248,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
         <div style="background:linear-gradient(135deg, rgba(15,23,42,0.96), rgba(9,13,24,0.98));border:1.5px solid rgba(16,185,129,0.60);border-radius:12px;padding:14px 18px;margin:8px 0 12px 0;">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;border-bottom:1px solid rgba(56,189,248,0.2);padding-bottom:8px;">
                 <div>
-                    <span style="background:rgba(16,185,129,0.25);color:#34D399;font-size:11px;font-weight:900;padding:3px 8px;border-radius:4px;border:1px solid rgba(16,185,129,0.5);">SNIPER-X v9.0 SUPREME COMMAND</span>
+                    <span style="background:rgba(16,185,129,0.25);color:#34D399;font-size:12.5px;font-weight:900;padding:3px 8px;border-radius:4px;border:1px solid rgba(16,185,129,0.5);">SNIPER-X v9.0 SUPREME COMMAND</span>
                     <span style="color:#F8FAFC;font-size:13.5px;font-weight:800;margin-left:8px;">{_kv7_res.get("tactical_stance")} (켈리 비중 {_kv7_res.get("kelly_fraction_pct", 0.0):.1f}%) | {_sg8_res.get("surge_badge")}</span>
                 </div>
                 <div style="color:#38BDF8;font-size:12px;font-weight:700;">
@@ -4257,34 +4257,34 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             </div>
             <div style="display:grid;grid-template-columns:repeat(6, 1fr);gap:8px;">
                 <div style="background:rgba(16,185,129,0.10);border:1.5px solid rgba(16,185,129,0.55);border-radius:8px;padding:9px;text-align:center;">
-                    <div style="color:#A7F3D0;font-size:10.5px;font-weight:800;">⚡ 마감 과열 보정 최종타점</div>
+                    <div style="color:#A7F3D0;font-size:12px;font-weight:800;">⚡ 마감 과열 보정 최종타점</div>
                     <div style="color:#34D399;font-size:15.5px;font-weight:900;margin:4px 0;">{_sg8_res.get("final_trigger_bid", 0):,}원</div>
-                    <div style="color:#6EE7B7;font-size:10.5px;">사정률: {_sg8_res.get("final_trigger_rate", 0.0):.4f}% ({_sg8_res.get("surge_shift_bp", 0.0):+.4f}%p)</div>
+                    <div style="color:#6EE7B7;font-size:12px;">사정률: {_sg8_res.get("final_trigger_rate", 0.0):.4f}% ({_sg8_res.get("surge_shift_bp", 0.0):+.4f}%p)</div>
                 </div>
                 <div style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.35);border-radius:8px;padding:9px;text-align:center;">
-                    <div style="color:#94A3B8;font-size:10.5px;font-weight:700;">🕳️ 블라인드 스팟 (진공)</div>
+                    <div style="color:#E2E8F0;font-size:12px;font-weight:700;">🕳️ 블라인드 스팟 (진공)</div>
                     <div style="color:#38BDF8;font-size:15.5px;font-weight:900;margin:4px 0;">{_sx_res.get("vacuum_bid", 0):,}원</div>
-                    <div style="color:#BAE6FD;font-size:10.5px;">사정률: {_sx_res.get("vacuum_rate", 0.0):.4f}% (회피 {_sx_res.get("crowd_avoid_score", 0.0):.0f}%)</div>
+                    <div style="color:#BAE6FD;font-size:12px;">사정률: {_sx_res.get("vacuum_rate", 0.0):.4f}% (회피 {_sx_res.get("crowd_avoid_score", 0.0):.0f}%)</div>
                 </div>
                 <div style="background:rgba(236,72,153,0.08);border:1px solid rgba(236,72,153,0.40);border-radius:8px;padding:9px;text-align:center;">
-                    <div style="color:#94A3B8;font-size:10.5px;font-weight:700;">⚔️ 워게임 타점 ({int(_wg_rivals)}개사)</div>
+                    <div style="color:#E2E8F0;font-size:12px;font-weight:700;">⚔️ 워게임 타점 ({int(_wg_rivals)}개사)</div>
                     <div style="color:#F472B6;font-size:15.5px;font-weight:900;margin:4px 0;">{_wg_res.get("optimal_war_bid", 0):,}원</div>
-                    <div style="color:#FBCFE8;font-size:10.5px;">{_wg_res.get("optimal_war_rate", 0.0):.4f}% | TOP3 {_wg_res.get("top3_zone_prob", 0.0):.1f}%</div>
+                    <div style="color:#FBCFE8;font-size:12px;">{_wg_res.get("optimal_war_rate", 0.0):.4f}% | TOP3 {_wg_res.get("top3_zone_prob", 0.0):.1f}%</div>
                 </div>
                 <div style="background:rgba(239,68,68,0.10);border:1px solid rgba(239,68,68,0.45);border-radius:8px;padding:9px;text-align:center;">
-                    <div style="color:#FCA5A5;font-size:10.5px;font-weight:700;">🦅 라이벌 핀셋 추월 타점</div>
+                    <div style="color:#FCA5A5;font-size:12px;font-weight:700;">🦅 라이벌 핀셋 추월 타점</div>
                     <div style="color:#F87171;font-size:15.5px;font-weight:900;margin:4px 0;">{_kv7_res.get("front_run_bid", 0):,}원</div>
-                    <div style="color:#FECACA;font-size:10.5px;">{_kv7_res.get("front_run_rate", 0.0):.4f}% (격차 {_kv7_res.get("win_edge_krw", 0):,}원)</div>
+                    <div style="color:#FECACA;font-size:12px;">{_kv7_res.get("front_run_rate", 0.0):.4f}% (격차 {_kv7_res.get("win_edge_krw", 0):,}원)</div>
                 </div>
                 <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.35);border-radius:8px;padding:9px;text-align:center;">
-                    <div style="color:#94A3B8;font-size:10.5px;font-weight:700;">🛡️ A값 & 98% 방어선</div>
+                    <div style="color:#E2E8F0;font-size:12px;font-weight:700;">🛡️ A값 & 98% 방어선</div>
                     <div style="color:#FBBF24;font-size:15.5px;font-weight:900;margin:4px 0;">{_sx_res.get("safe_floor_bid", 0):,}원</div>
-                    <div style="color:#FDE68A;font-size:10.5px;">방어율: {_sx_res.get("safe_floor_rate", 0.0):.4f}%</div>
+                    <div style="color:#FFFFFF;font-size:12px;">방어율: {_sx_res.get("safe_floor_rate", 0.0):.4f}%</div>
                 </div>
                 <div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.35);border-radius:8px;padding:9px;text-align:center;">
-                    <div style="color:#94A3B8;font-size:10.5px;font-weight:700;">📈 발주처 최근성 드리프트</div>
+                    <div style="color:#E2E8F0;font-size:12px;font-weight:700;">📈 발주처 최근성 드리프트</div>
                     <div style="color:#C084FC;font-size:15.5px;font-weight:900;margin:4px 0;">{_sx_res.get("ewma_drift", 0.0):+.4f}%p</div>
-                    <div style="color:#E9D5FF;font-size:10.5px;">중심: {_sx_res.get("ewma_center", 0.0):.4f}%</div>
+                    <div style="color:#E9D5FF;font-size:12px;">중심: {_sx_res.get("ewma_center", 0.0):.4f}%</div>
                 </div>
             </div>
         </div>
@@ -4304,32 +4304,32 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
         <div style="background:linear-gradient(90deg, rgba(15,23,42,0.95), rgba(30,27,75,0.85));border:1px solid rgba(168,85,247,0.45);border-radius:10px;padding:10px 16px;margin-bottom:10px;">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
                 <div>
-                    <span style="background:rgba(168,85,247,0.25);color:#DDD6FE;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:4px;border:1px solid rgba(168,85,247,0.5);">WOLF-PACK v9.0 포위망 & 백테스팅</span>
+                    <span style="background:rgba(168,85,247,0.25);color:#DDD6FE;font-size:12px;font-weight:900;padding:2px 8px;border-radius:4px;border:1px solid rgba(168,85,247,0.5);">WOLF-PACK v9.0 포위망 & 백테스팅</span>
                     <span style="color:#E2E8F0;font-size:12.5px;font-weight:800;margin-left:6px;">다중 법인/컨소시엄 3각 포위 타점 (동가 추첨 회피 프라임 끝자리 +3·+7·+9원 자동 주입)</span>
                 </div>
-                <div style="color:#34D399;font-size:11.5px;font-weight:800;">
+                <div style="color:#34D399;font-size:13px;font-weight:800;">
                     📊 AI 백테스팅 검증: 평균오차 ±{_wp9_res.get("bt_mae", 0.015):.4f}%p | 단독/TOP3 포착률 {_wp9_res.get("bt_hit_rate", 72.0):.1f}% (합산 포위 승률 {_wp9_res.get("combined_win_prob", 0.0):.1f}%)
                 </div>
             </div>
             <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;">
                 <div style="background:rgba(15,23,42,0.85);border:1px solid rgba(52,211,153,0.4);border-radius:7px;padding:7px 12px;display:flex;justify-content:space-between;align-items:center;">
                     <div>
-                        <div style="color:#6EE7B7;font-size:10.5px;font-weight:800;">🐺 제1호기 (본사 주력 · 끝자리 3원)</div>
-                        <div style="color:#94A3B8;font-size:10px;">사정률 {_wp9_res.get("wp_alpha_rate", 0.0):.4f}%</div>
+                        <div style="color:#6EE7B7;font-size:12px;font-weight:800;">🐺 제1호기 (본사 주력 · 끝자리 3원)</div>
+                        <div style="color:#E2E8F0;font-size:12px;">사정률 {_wp9_res.get("wp_alpha_rate", 0.0):.4f}%</div>
                     </div>
                     <div style="color:#34D399;font-size:14.5px;font-weight:900;">{_wp9_res.get("wp_alpha_bid", 0):,}원</div>
                 </div>
                 <div style="background:rgba(15,23,42,0.85);border:1px solid rgba(56,189,248,0.4);border-radius:7px;padding:7px 12px;display:flex;justify-content:space-between;align-items:center;">
                     <div>
-                        <div style="color:#7DD3FC;font-size:10.5px;font-weight:800;">🐺 제2호기 (하단 진공매복 · 끝자리 7원)</div>
-                        <div style="color:#94A3B8;font-size:10px;">사정률 {_wp9_res.get("wp_beta_rate", 0.0):.4f}%</div>
+                        <div style="color:#7DD3FC;font-size:12px;font-weight:800;">🐺 제2호기 (하단 진공매복 · 끝자리 7원)</div>
+                        <div style="color:#E2E8F0;font-size:12px;">사정률 {_wp9_res.get("wp_beta_rate", 0.0):.4f}%</div>
                     </div>
                     <div style="color:#38BDF8;font-size:14.5px;font-weight:900;">{_wp9_res.get("wp_beta_bid", 0):,}원</div>
                 </div>
                 <div style="background:rgba(15,23,42,0.85);border:1px solid rgba(244,114,182,0.4);border-radius:7px;padding:7px 12px;display:flex;justify-content:space-between;align-items:center;">
                     <div>
-                        <div style="color:#F9A8D4;font-size:10.5px;font-weight:800;">🐺 제3호기 (상단 라이벌차단 · 끝자리 9원)</div>
-                        <div style="color:#94A3B8;font-size:10px;">사정률 {_wp9_res.get("wp_gamma_rate", 0.0):.4f}%</div>
+                        <div style="color:#F9A8D4;font-size:12px;font-weight:800;">🐺 제3호기 (상단 라이벌차단 · 끝자리 9원)</div>
+                        <div style="color:#E2E8F0;font-size:12px;">사정률 {_wp9_res.get("wp_gamma_rate", 0.0):.4f}%</div>
                     </div>
                     <div style="color:#F472B6;font-size:14.5px;font-weight:900;">{_wp9_res.get("wp_gamma_bid", 0):,}원</div>
                 </div>
@@ -4417,7 +4417,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
         ])
 
         with _tab_copy:
-            st.markdown("<div style='font-size:12px;color:#94A3B8;margin-bottom:6px;'>💡 나라장터(G2B) 전자입찰서 입력란에 바로 붙여넣을 수 있도록 <b>콤마(,)가 제거된 순수 숫자</b>를 제공합니다. 우측 복사 아이콘을 누르면 즉시 클립보드에 복사됩니다.</div>", unsafe_allow_html=True)
+            st.markdown("<div style='font-size:12px;color:#E2E8F0;margin-bottom:6px;'>💡 나라장터(G2B) 전자입찰서 입력란에 바로 붙여넣을 수 있도록 <b>콤마(,)가 제거된 순수 숫자</b>를 제공합니다. 우측 복사 아이콘을 누르면 즉시 클립보드에 복사됩니다.</div>", unsafe_allow_html=True)
             _cp1, _cp2, _cp3, _cp4 = st.columns(4)
             with _cp1:
                 st.caption(f"⚡ 마감 과열 보정 최종타점 ({_sg8_res.get('final_trigger_rate', 0.0):.4f}%)")
@@ -4457,8 +4457,8 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                     st.markdown(f"""
                     <div style="background:rgba(15,23,42,0.9);border:1px solid rgba(56,189,248,0.4);border-radius:8px;padding:10px 12px;margin-bottom:6px;">
                         <div style="color:#38BDF8;font-size:12px;font-weight:900;">🏢 {_p_key}</div>
-                        <div style="color:#E2E8F0;font-size:11.5px;margin-top:3px;">면허: {_p_val['license']}</div>
-                        <div style="color:#34D399;font-size:11.5px;font-weight:800;">시평액: {_p_val['sipyung']:,}원 | 적격 29.5점 만점</div>
+                        <div style="color:#E2E8F0;font-size:13px;margin-top:3px;">면허: {_p_val['license']}</div>
+                        <div style="color:#34D399;font-size:13px;font-weight:800;">시평액: {_p_val['sipyung']:,}원 | 적격 29.5점 만점</div>
                     </div>
                     """, unsafe_allow_html=True)
                     if st.button(f"🔓 [{_p_key[:6]}] 스펙 즉시 장착", key=f"_btn_preset_apply_{_idx_p}", width='stretch'):
@@ -4575,26 +4575,26 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                 <div style="background:linear-gradient(90deg, rgba(6,78,59,0.65), rgba(15,23,42,0.95));border:1.5px solid #10B981;border-radius:10px;padding:12px 18px;margin:8px 0 12px 0;box-shadow:0 0 18px rgba(16,185,129,0.22);">
                     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
                         <div>
-                            <span style="background:#10B981;color:#052E16;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:4px;">PORTFOLIO PROFIT SUMMARY</span>
+                            <span style="background:#10B981;color:#052E16;font-size:12px;font-weight:900;padding:2px 8px;border-radius:4px;">PORTFOLIO PROFIT SUMMARY</span>
                             <span style="color:#F8FAFC;font-size:13.5px;font-weight:900;margin-left:8px;">📊 주간 장바구니 총 {_tot_cnt}개 공고 합산 기대수익 브리핑 (실행원가율 {_cost_ratio_pct:.1f}% 기준)</span>
                         </div>
-                        <div style="color:#A7F3D0;font-size:11.5px;font-weight:700;">평균 실행마진율: <b style="color:#34D399;font-size:14px;">{_avg_margin_pct:+.2f}%</b></div>
+                        <div style="color:#A7F3D0;font-size:13px;font-weight:700;">평균 실행마진율: <b style="color:#34D399;font-size:14px;">{_avg_margin_pct:+.2f}%</b></div>
                     </div>
                     <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:10px;">
                         <div style="background:rgba(15,23,42,0.85);border:1px solid rgba(56,189,248,0.35);border-radius:8px;padding:8px 12px;text-align:center;">
-                            <div style="color:#94A3B8;font-size:11px;">담긴 타겟 공고 수</div>
+                            <div style="color:#E2E8F0;font-size:12.5px;">담긴 타겟 공고 수</div>
                             <div style="color:#38BDF8;font-size:16px;font-weight:900;margin-top:2px;">총 {_tot_cnt}건</div>
                         </div>
                         <div style="background:rgba(15,23,42,0.85);border:1px solid rgba(148,163,184,0.35);border-radius:8px;padding:8px 12px;text-align:center;">
-                            <div style="color:#94A3B8;font-size:11px;">총 기초금액 합계</div>
+                            <div style="color:#E2E8F0;font-size:12.5px;">총 기초금액 합계</div>
                             <div style="color:#F8FAFC;font-size:16px;font-weight:900;margin-top:2px;">{_tot_base:,}원</div>
                         </div>
                         <div style="background:rgba(15,23,42,0.85);border:1px solid rgba(168,85,247,0.40);border-radius:8px;padding:8px 12px;text-align:center;">
-                            <div style="color:#94A3B8;font-size:11px;">총 1순위 투찰금액 합계</div>
+                            <div style="color:#E2E8F0;font-size:12.5px;">총 1순위 투찰금액 합계</div>
                             <div style="color:#C084FC;font-size:16px;font-weight:900;margin-top:2px;">{_tot_sniper:,}원</div>
                         </div>
                         <div style="background:rgba(16,185,129,0.14);border:1.5px solid #34D399;border-radius:8px;padding:8px 12px;text-align:center;">
-                            <div style="color:#A7F3D0;font-size:11px;font-weight:800;">💰 총 예상순이익 합계 (세전 마진)</div>
+                            <div style="color:#A7F3D0;font-size:12.5px;font-weight:800;">💰 총 예상순이익 합계 (세전 마진)</div>
                             <div style="color:#34D399;font-size:16.5px;font-weight:900;margin-top:2px;">{_tot_margin:+,}원</div>
                         </div>
                     </div>
@@ -4807,7 +4807,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                                     <span style="background:rgba(16,185,129,0.22);color:#34D399;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:800;">+{_b_num}건 실시간 고속 학습 중</span>
                                 </div>
                                 <div style="color:#F8FAFC;font-size:13.5px;font-weight:700;margin-bottom:4px;">{_s_txt}</div>
-                                <div style="color:#94A3B8;font-size:12px;margin-bottom:10px;">서브 프로세스: {_sub_txt}</div>
+                                <div style="color:#E2E8F0;font-size:12px;margin-bottom:10px;">서브 프로세스: {_sub_txt}</div>
                                 <div style="width:100%;height:10px;background:#090D16;border-radius:99px;overflow:hidden;border:1px solid rgba(255,255,255,0.15);">
                                     <div style="width:{_p_val}%;height:100%;background:linear-gradient(90deg, #0EA5E9, #10B981, #A855F7, #F472B6);background-size:200% 100%;animation:qBarWave 1s linear infinite;"></div>
                                 </div>
@@ -4891,14 +4891,14 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                     if st.session_state.get("_last_harvest_report"):
                         _rep = st.session_state["_last_harvest_report"]
                         _rec_badges = "".join([
-                            f"<span style='display:inline-block;background:rgba(15,23,42,0.95);border:1px solid rgba(52,211,153,0.5);color:#E2E8F0;font-size:11.5px;padding:4px 10px;border-radius:6px;margin-right:6px;margin-top:5px;'>🆕 <b>#{r.get('id')}</b> {r.get('agency')} | 기초 {int(float(r.get('base_amt',0) or 0))//100000000}억 | 당첨사정률 <b style='color:#34D399;'>{float(r.get('yega_rate',100.0)):.4f}%</b> ({r.get('participants')}개사)</span>"
+                            f"<span style='display:inline-block;background:rgba(15,23,42,0.95);border:1px solid rgba(52,211,153,0.5);color:#E2E8F0;font-size:13px;padding:4px 10px;border-radius:6px;margin-right:6px;margin-top:5px;'>🆕 <b>#{r.get('id')}</b> {r.get('agency')} | 기초 {int(float(r.get('base_amt',0) or 0))//100000000}억 | 당첨사정률 <b style='color:#34D399;'>{float(r.get('yega_rate',100.0)):.4f}%</b> ({r.get('participants')}개사)</span>"
                             for r in _rep.get("recent", [])
                         ])
                         st.markdown(f"""
                         <div style="background:linear-gradient(135deg, rgba(6,78,59,0.60), rgba(15,23,42,0.98));border:2px solid #10B981;border-radius:12px;padding:16px 20px;margin:12px 0;box-shadow:0 0 24px rgba(16,185,129,0.30);">
                             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
                                 <div>
-                                    <span style="background:#10B981;color:#052E16;font-size:11px;font-weight:900;padding:3px 9px;border-radius:4px;">NEURAL SYNC COMPLETE</span>
+                                    <span style="background:#10B981;color:#052E16;font-size:12.5px;font-weight:900;padding:3px 9px;border-radius:4px;">NEURAL SYNC COMPLETE</span>
                                     <span style="color:#F8FAFC;font-size:15px;font-weight:900;margin-left:8px;">🎉 신규 개찰 표본 +{_rep.get("added", 300):,}건 완전 자동 흡수 & 3중 엔진 가중치 갱신 완료!</span>
                                 </div>
                                 <div style="color:#34D399;font-size:13.5px;font-weight:800;">
@@ -4907,24 +4907,24 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                             </div>
                             <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;margin-bottom:10px;">
                                 <div style="background:rgba(15,23,42,0.88);border:1px solid rgba(16,185,129,0.4);border-radius:8px;padding:8px 12px;text-align:center;">
-                                    <div style="color:#94A3B8;font-size:11px;">Bayesian 15C4 사후분포 정밀도</div>
+                                    <div style="color:#E2E8F0;font-size:12.5px;">Bayesian 15C4 사후분포 정밀도</div>
                                     <div style="color:#34D399;font-size:15px;font-weight:900;">99.48% (실시간 수렴)</div>
                                 </div>
                                 <div style="background:rgba(15,23,42,0.88);border:1px solid rgba(56,189,248,0.4);border-radius:8px;padding:8px 12px;text-align:center;">
-                                    <div style="color:#94A3B8;font-size:11px;">Ridge(L2) 정규화 가중치</div>
+                                    <div style="color:#E2E8F0;font-size:12.5px;">Ridge(L2) 정규화 가중치</div>
                                     <div style="color:#38BDF8;font-size:15px;font-weight:900;">α=1.00 최적 수렴</div>
                                 </div>
                                 <div style="background:rgba(15,23,42,0.88);border:1px solid rgba(244,114,182,0.4);border-radius:8px;padding:8px 12px;text-align:center;">
-                                    <div style="color:#94A3B8;font-size:11px;">Gradient Boosting 잔차 보정</div>
+                                    <div style="color:#E2E8F0;font-size:12.5px;">Gradient Boosting 잔차 보정</div>
                                     <div style="color:#F472B6;font-size:15px;font-weight:900;">±0.0011%p 초정밀</div>
                                 </div>
                             </div>
-                            <div style="font-size:11.5px;color:#A7F3D0;font-weight:700;">⚡ 방금 신경망에 신규 각인된 실시간 개찰 표본 (TOP 5):</div>
+                            <div style="font-size:13px;color:#A7F3D0;font-weight:700;">⚡ 방금 신경망에 신규 각인된 실시간 개찰 표본 (TOP 5):</div>
                             <div>{_rec_badges}</div>
                         </div>
                         """, unsafe_allow_html=True)
                     # === [END FULL-WIDTH QUANTUM HARVEST ANIMATION] ===
-                    st.markdown(f"<div style='margin-top:6px;'><span style='font-size:0.75rem;color:#94A3B8;font-weight:700;'>최근 자동 학습된 개찰 표본:</span><br>{_rec_html}</div>", unsafe_allow_html=True)
+                    st.markdown(f"<div style='margin-top:6px;'><span style='font-size:0.75rem;color:#E2E8F0;font-weight:700;'>최근 자동 학습된 개찰 표본:</span><br>{_rec_html}</div>", unsafe_allow_html=True)
 
             with _at_tab2:
                 st.caption("CSV 파일을 올려두기만 하면 컬럼(발주처, 기초금액, 예정가격/사정률, 참여업체수)을 자동 인식해 일괄 적재합니다.")
@@ -4975,7 +4975,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             st.markdown(f"""<div style="margin:6px 0 12px 0;padding:14px 18px;border-radius:10px;background:linear-gradient(90deg,rgba(16,185,129,0.20),rgba(15,23,42,0.92));border-left:5px solid #10B981;border:1px solid rgba(16,185,129,0.4);">
             <div style="display:flex;justify-content:space-between;align-items:center;">
             <span style="font-size:0.95rem;font-weight:900;color:#34D399;">🏢 [Z9 기업 마스터 스펙 영구 등록 & 게이트키퍼 잠금 제어 센터]</span>
-            <span style="font-size:0.78rem;font-weight:800;color:#FDE68A;">{_status_badge}</span></div>
+            <span style="font-size:0.78rem;font-weight:800;color:#FFFFFF;">{_status_badge}</span></div>
             <div style="font-size:0.80rem;color:#E2E8F0;margin-top:3px;">기업 적격 스펙을 등록하면 좌측 상단의 <b>'적격 마스터 미등록(잠김)' 경고가 즉시 해제</b>되고 <b>[Z2] 적격심사 평점</b>에 자동 반영됩니다. 우측 초기화 버튼으로 언제든 초기 잠금 상태로 되돌릴 수 있습니다.</div></div>""", unsafe_allow_html=True)
 
             _z9_r1c1, _z9_r1c2, _z9_r1c3, _z9_r1c4 = st.columns([1.3, 1.2, 1.2, 1.5])
@@ -5098,7 +5098,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                 <span style="font-size:0.92rem;font-weight:900;color:#34D399;">🎯 [Z2 로컬 ML & Z9 마스터 직결] 추천 투찰금액별 입찰가격 평점(70점 만점) & 적격심사 95.0점 통과 자동 시뮬레이션</span>
                 <span style="font-size:0.78rem;color:#FBBF24;font-weight:800;">ML 부스팅 기준 예정가격: {_z2_pack['expected_est_price']:,}원 | 낙찰하한선: {_z2_pack['cutline_bid']:,}원</span></div>
                 <table style="width:100%;border-collapse:collapse;font-size:0.80rem;text-align:left;">
-                <thead><tr style="background:rgba(30,41,59,0.95);color:#94A3B8;border-bottom:2px solid rgba(16,185,129,0.35);">
+                <thead><tr style="background:rgba(30,41,59,0.95);color:#E2E8F0;border-bottom:2px solid rgba(16,185,129,0.35);">
                 <th style="padding:8px 10px;">투찰 전술 모델</th><th style="padding:8px 10px;">추천 사정률</th><th style="padding:8px 10px;">최적 투찰금액</th><th style="padding:8px 10px;">하한선 대비 여유액</th><th style="padding:8px 10px;">수행능력(30점)</th><th style="padding:8px 10px;">입찰가격 평점(70점)</th><th style="padding:8px 10px;">적격심사 총점</th><th style="padding:8px 10px;">적격 통과 판정</th>
                 </tr></thead><tbody>{_z2_tr}</tbody></table></div>""", unsafe_allow_html=True)
 
@@ -5119,7 +5119,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px;">
                 <div style="padding:10px;border-radius:8px;background:rgba(14,165,233,0.14);border-left:4px solid #38BDF8;"><div style="font-size:0.75rem;color:#93C5FD;font-weight:800;">{_zs1['tier']}</div><div style="font-size:1.1rem;font-weight:900;color:#FFF;margin:3px 0;">{_zs1['recommended_bid_amount']:,}원</div><div style="font-size:0.76rem;color:#38BDF8;">타겟 사정률: {_zs1['target_assess_rate']:.4f}%</div></div>
                 <div style="padding:10px;border-radius:8px;background:rgba(16,185,129,0.14);border-left:4px solid #10B981;"><div style="font-size:0.75rem;color:#6EE7B7;font-weight:800;">{_zs2['tier']}</div><div style="font-size:1.1rem;font-weight:900;color:#FFF;margin:3px 0;">{_zs2['recommended_bid_amount']:,}원</div><div style="font-size:0.76rem;color:#34D399;">타겟 사정률: {_zs2['target_assess_rate']:.4f}%</div></div>
-                <div style="padding:10px;border-radius:8px;background:rgba(245,158,11,0.14);border-left:4px solid #F59E0B;"><div style="font-size:0.75rem;color:#FDE68A;font-weight:800;">{_zs3['tier']}</div><div style="font-size:1.1rem;font-weight:900;color:#FFF;margin:3px 0;">{_zs3['recommended_bid_amount']:,}원</div><div style="font-size:0.76rem;color:#FBBF24;">타겟 사정률: {_zs3['target_assess_rate']:.4f}%</div></div>
+                <div style="padding:10px;border-radius:8px;background:rgba(245,158,11,0.14);border-left:4px solid #F59E0B;"><div style="font-size:0.75rem;color:#FFFFFF;font-weight:800;">{_zs3['tier']}</div><div style="font-size:1.1rem;font-weight:900;color:#FFF;margin:3px 0;">{_zs3['recommended_bid_amount']:,}원</div><div style="font-size:0.76rem;color:#FBBF24;">타겟 사정률: {_zs3['target_assess_rate']:.4f}%</div></div>
                 </div></div>""", unsafe_allow_html=True)
 
             if "Z4" in _cur_cab_str or "감도" in _cur_cab_str:
@@ -5142,7 +5142,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                 st.markdown(f"""<div style="margin:6px 0 14px 0;padding:14px 16px;border-radius:10px;background:rgba(15,23,42,0.94);border:1px solid rgba(16,185,129,0.35);">
                 <div style="font-size:0.90rem;font-weight:900;color:#34D399;margin-bottom:8px;">🎛️ [Z4 로컬 ML 직결] 0.001% 초정밀 감도 매트릭스 (ML 부스팅 중심 사정률 {_z4_center:.4f}% 전후 11단계 시뮬레이션)</div>
                 <table style="width:100%;border-collapse:collapse;font-size:0.80rem;text-align:left;">
-                <thead><tr style="background:rgba(30,41,59,0.95);color:#94A3B8;border-bottom:2px solid rgba(56,189,248,0.3);">
+                <thead><tr style="background:rgba(30,41,59,0.95);color:#E2E8F0;border-bottom:2px solid rgba(56,189,248,0.3);">
                 <th style="padding:8px 10px;">감도 오프셋</th><th style="padding:8px 10px;">적용 사정률</th><th style="padding:8px 10px;">예상 예정가격</th><th style="padding:8px 10px;">최적 투찰금액 (10원 절상)</th><th style="padding:8px 10px;">기준점 대비 차액</th><th style="padding:8px 10px;">전술 포지션 판정</th>
                 </tr></thead><tbody>{_tr_html}</tbody></table></div>""", unsafe_allow_html=True)
 
@@ -5156,7 +5156,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                         f'<span style="font-size:0.74rem;font-weight:900;color:{_m["color"]};">{_m["id"]}</span>'
                         f'<span style="font-size:0.70rem;padding:1px 6px;border-radius:4px;background:rgba(255,255,255,0.07);color:#CBD5E1;">가중치 {_m["weight"]}</span></div>'
                         f'<div style="font-size:0.83rem;font-weight:800;color:#F8FAFC;margin:4px 0 2px 0;">{_m["name"]}</div>'
-                        f'<div style="font-size:0.72rem;color:#94A3B8;margin-bottom:6px;">{_m["formula"]}</div>'
+                        f'<div style="font-size:0.72rem;color:#E2E8F0;margin-bottom:6px;">{_m["formula"]}</div>'
                         f'<div style="font-size:1.05rem;font-weight:900;color:#FBBF24;margin-bottom:3px;">{_m["bid_price"]:,}원</div>'
                         f'<div style="font-size:0.76rem;color:#38BDF8;font-weight:700;">사정률: {_m["rate"]:.4f}% (#{_m["grid_no"]}/1365) | 신뢰도 {_m["confidence"]}%</div>'
                         f'</div>'
@@ -5180,7 +5180,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                         f'<td style="padding:8px 10px;color:#38BDF8;font-weight:800;">{_b["assess_rate"]:.4f}%</td>'
                         f'<td style="padding:8px 10px;color:#CBD5E1;">{_b["est_price"]:,}원</td>'
                         f'<td style="padding:8px 10px;color:#FBBF24;font-size:0.88rem;font-weight:900;">{_b["bid_price"]:,}원</td>'
-                        f'<td style="padding:8px 10px;color:#94A3B8;">{_b["diff_won"]:+,}원</td>'
+                        f'<td style="padding:8px 10px;color:#E2E8F0;">{_b["diff_won"]:+,}원</td>'
                         f'<td style="padding:8px 10px;color:#A7F3D0;font-size:0.76rem;">{_b["tactic_desc"]}</td></tr>'
                     )
                 st.markdown(f"""<div style="margin:6px 0 14px 0;padding:14px 16px;border-radius:10px;background:rgba(15,23,42,0.95);border:1px solid rgba(56,189,248,0.38);">
@@ -5188,7 +5188,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                 <span style="font-size:0.92rem;font-weight:900;color:#38BDF8;">🏛️ [Z6 로컬 ML 직결] 7-BAY 전술 머신 & 상황별 스나이퍼 슬롯 배치도 ({_z_ag} 표본 {_z_bi['sample_count']:,}건 기준)</span>
                 <span style="font-size:0.80rem;color:#FBBF24;font-weight:800;">BAY-04 메인 기준 사정률: {_z6_pack['core_rate']:.4f}%</span></div>
                 <table style="width:100%;border-collapse:collapse;font-size:0.80rem;text-align:left;">
-                <thead><tr style="background:rgba(30,41,59,0.95);color:#94A3B8;border-bottom:2px solid rgba(56,189,248,0.3);">
+                <thead><tr style="background:rgba(30,41,59,0.95);color:#E2E8F0;border-bottom:2px solid rgba(56,189,248,0.3);">
                 <th style="padding:8px 10px;">슬롯</th><th style="padding:8px 10px;">전술 포지션</th><th style="padding:8px 10px;">배정 사정률</th><th style="padding:8px 10px;">예상 예정가격</th><th style="padding:8px 10px;">7-BAY 추천 투찰금액</th><th style="padding:8px 10px;">메인 대비 차액</th><th style="padding:8px 10px;">권장 투입 상황 (경쟁도 기준)</th>
                 </tr></thead><tbody>{_bay_rows}</tbody></table></div>""", unsafe_allow_html=True)
 
@@ -5201,7 +5201,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                         f'<div style="font-size:0.78rem;font-weight:900;color:{_sh["color"]};">{_sh["tier"]}</div>'
                         f'<div style="font-size:1.12rem;font-weight:900;color:#F8FAFC;margin:4px 0;">{_sh["bid_price"]:,}원</div>'
                         f'<div style="font-size:0.77rem;color:#38BDF8;font-weight:700;">방어 사정률: {_sh["assess_rate"]:.4f}% | 커트라인 생존율 {_sh["cutline_Pass_prob"]}</div>'
-                        f'<div style="font-size:0.72rem;color:#94A3B8;margin-top:3px;">{_sh["desc"]}</div></div>'
+                        f'<div style="font-size:0.72rem;color:#E2E8F0;margin-top:3px;">{_sh["desc"]}</div></div>'
                     )
 
                 _lat_cards = ""
@@ -5213,8 +5213,8 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                         f'<div style="padding:10px 12px;border-radius:8px;background:{_bg_col};border:1px solid {_bd_col};">'
                         f'<div style="display:flex;justify-content:space-between;align-items:center;">'
                         f'<span style="font-size:0.76rem;font-weight:900;color:#38BDF8;">{_nd["rank"]}</span>'
-                        f'<span style="font-size:0.68rem;padding:1px 6px;border-radius:4px;background:rgba(255,255,255,0.08);color:#FDE68A;font-weight:800;">{_badge}</span></div>'
-                        f'<div style="font-size:0.73rem;color:#94A3B8;margin:3px 0;">추첨조합: <b>{_nd["comb_tag"]}</b></div>'
+                        f'<span style="font-size:0.68rem;padding:1px 6px;border-radius:4px;background:rgba(255,255,255,0.08);color:#FFFFFF;font-weight:800;">{_badge}</span></div>'
+                        f'<div style="font-size:0.73rem;color:#E2E8F0;margin:3px 0;">추첨조합: <b>{_nd["comb_tag"]}</b></div>'
                         f'<div style="font-size:1.02rem;font-weight:900;color:#F8FAFC;margin:2px 0;">{_nd["bid_price"]:,}원</div>'
                         f'<div style="font-size:0.75rem;color:#34D399;font-weight:800;">격자 사정률: {_nd["assess_rate"]:.4f}%</div></div>'
                     )
@@ -5246,7 +5246,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                 <div style="font-size:1.08rem;font-weight:900;color:#FFF;margin:3px 0;">{_zs2['recommended_bid_amount']:,}원</div>
                 <div style="font-size:0.75rem;color:#34D399;">사정률 {_zs2['target_assess_rate']:.4f}%</div></div>
                 <div style="padding:10px 12px;border-radius:8px;background:rgba(245,158,11,0.14);border-left:4px solid #F59E0B;">
-                <div style="font-size:0.74rem;color:#FDE68A;font-weight:800;">3안 · {_zs3['tier']}</div>
+                <div style="font-size:0.74rem;color:#FFFFFF;font-weight:800;">3안 · {_zs3['tier']}</div>
                 <div style="font-size:1.08rem;font-weight:900;color:#FFF;margin:3px 0;">{_zs3['recommended_bid_amount']:,}원</div>
                 <div style="font-size:0.75rem;color:#FBBF24;">사정률 {_zs3['target_assess_rate']:.4f}%</div></div>
                 <div style="padding:10px 12px;border-radius:8px;background:rgba(236,72,153,0.16);border-left:4px solid #EC4899;">
@@ -5291,7 +5291,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             _ml_res = _ml_eng.simulate_15c4_sweet_spots(base_amount=_ml_base, a_value=_ml_aval, lower_limit_rate=_ml_low, agency_keyword=_ml_ag)
             _ml_bi = _ml_res['agency_analysis']
             _ml_s1, _ml_s2, _ml_s3 = _ml_res['strategies'][0], _ml_res['strategies'][1], _ml_res['strategies'][2]
-            st.markdown(f'''<div style="margin:6px 0 12px 0;padding:12px 16px;border-radius:10px;background:linear-gradient(135deg,rgba(15,23,42,0.95),rgba(30,41,59,0.92));border:1px solid rgba(56,189,248,0.35);"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:0.92rem;font-weight:900;color:#38BDF8;">🧠 로컬 AI · 15C4(1,365조합) 베이지안 사정률 타격 엔진 (표본 {_ml_bi['sample_count']}건 학습)</span><span style="font-size:0.80rem;color:#FBBF24;font-weight:700;">발주처 평균: {_ml_bi['mean_rate']}% ({_ml_bi['bias_direction']}) | 사정률 50% 밀집구간: {_ml_bi['iqr_zone'][0]}% ~ {_ml_bi['iqr_zone'][1]}%</span></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;"><div style="padding:10px;border-radius:8px;background:rgba(14,165,233,0.12);border-left:4px solid #38BDF8;"><div style="font-size:0.76rem;color:#93C5FD;font-weight:800;">{_ml_s1['tier']}</div><div style="font-size:1.12rem;font-weight:900;color:#F8FAFC;margin:4px 0;">{_ml_s1['recommended_bid_amount']:,}원</div><div style="font-size:0.78rem;color:#38BDF8;">타겟 사정률: <b>{_ml_s1['target_assess_rate']:.4f}%</b> (신뢰도 {_ml_s1['hit_probability_score']}%)</div></div><div style="padding:10px;border-radius:8px;background:rgba(16,185,129,0.12);border-left:4px solid #10B981;"><div style="font-size:0.76rem;color:#6EE7B7;font-weight:800;">{_ml_s2['tier']}</div><div style="font-size:1.12rem;font-weight:900;color:#F8FAFC;margin:4px 0;">{_ml_s2['recommended_bid_amount']:,}원</div><div style="font-size:0.78rem;color:#34D399;">타겟 사정률: <b>{_ml_s2['target_assess_rate']:.4f}%</b> (신뢰도 {_ml_s2['hit_probability_score']}%)</div></div><div style="padding:10px;border-radius:8px;background:rgba(245,158,11,0.12);border-left:4px solid #F59E0B;"><div style="font-size:0.76rem;color:#FDE68A;font-weight:800;">{_ml_s3['tier']}</div><div style="font-size:1.12rem;font-weight:900;color:#F8FAFC;margin:4px 0;">{_ml_s3['recommended_bid_amount']:,}원</div><div style="font-size:0.78rem;color:#FBBF24;">타겟 사정률: <b>{_ml_s3['target_assess_rate']:.4f}%</b> (신뢰도 {_ml_s3['hit_probability_score']}%)</div></div></div></div>''', unsafe_allow_html=True)
+            st.markdown(f'''<div style="margin:6px 0 12px 0;padding:12px 16px;border-radius:10px;background:linear-gradient(135deg,rgba(15,23,42,0.95),rgba(30,41,59,0.92));border:1px solid rgba(56,189,248,0.35);"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:0.92rem;font-weight:900;color:#38BDF8;">🧠 로컬 AI · 15C4(1,365조합) 베이지안 사정률 타격 엔진 (표본 {_ml_bi['sample_count']}건 학습)</span><span style="font-size:0.80rem;color:#FBBF24;font-weight:700;">발주처 평균: {_ml_bi['mean_rate']}% ({_ml_bi['bias_direction']}) | 사정률 50% 밀집구간: {_ml_bi['iqr_zone'][0]}% ~ {_ml_bi['iqr_zone'][1]}%</span></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;"><div style="padding:10px;border-radius:8px;background:rgba(14,165,233,0.12);border-left:4px solid #38BDF8;"><div style="font-size:0.76rem;color:#93C5FD;font-weight:800;">{_ml_s1['tier']}</div><div style="font-size:1.12rem;font-weight:900;color:#F8FAFC;margin:4px 0;">{_ml_s1['recommended_bid_amount']:,}원</div><div style="font-size:0.78rem;color:#38BDF8;">타겟 사정률: <b>{_ml_s1['target_assess_rate']:.4f}%</b> (신뢰도 {_ml_s1['hit_probability_score']}%)</div></div><div style="padding:10px;border-radius:8px;background:rgba(16,185,129,0.12);border-left:4px solid #10B981;"><div style="font-size:0.76rem;color:#6EE7B7;font-weight:800;">{_ml_s2['tier']}</div><div style="font-size:1.12rem;font-weight:900;color:#F8FAFC;margin:4px 0;">{_ml_s2['recommended_bid_amount']:,}원</div><div style="font-size:0.78rem;color:#34D399;">타겟 사정률: <b>{_ml_s2['target_assess_rate']:.4f}%</b> (신뢰도 {_ml_s2['hit_probability_score']}%)</div></div><div style="padding:10px;border-radius:8px;background:rgba(245,158,11,0.12);border-left:4px solid #F59E0B;"><div style="font-size:0.76rem;color:#FFFFFF;font-weight:800;">{_ml_s3['tier']}</div><div style="font-size:1.12rem;font-weight:900;color:#F8FAFC;margin:4px 0;">{_ml_s3['recommended_bid_amount']:,}원</div><div style="font-size:0.78rem;color:#FBBF24;">타겟 사정률: <b>{_ml_s3['target_assess_rate']:.4f}%</b> (신뢰도 {_ml_s3['hit_probability_score']}%)</div></div></div></div>''', unsafe_allow_html=True)
         except Exception as _ml_e:
             st.warning(f'로컬 ML 엔진 로드 대기 중: {_ml_e}')
         # === [END_LOCAL_ML_STEP0_BLOCK] ===
@@ -5745,7 +5745,7 @@ with tab_radar:
         _disp_lic_txt = '업종' if st.session_state.get('_cabinet_cleared_empty', True) else sel_lic
         _disp_reg_txt = '지역' if st.session_state.get('_cabinet_cleared_empty', True) else sel_reg
         _disp_scl_txt = '전체코드 입력' if st.session_state.get('_cabinet_cleared_empty', True) else sel_scale
-        st.markdown(f'<div style="white-space:nowrap; word-break:keep-all; overflow:hidden; text-overflow:ellipsis; font-size:1.08rem; font-weight:800; color:#F8FAFC; letter-spacing:-0.3px; padding:6px 0;">🎯 필터 매칭 결과: <span style="color:#38BDF8;">[{_disp_lic_txt} | {_disp_reg_txt} | {_disp_scl_txt}]</span> <span style="color:#94A3B8; font-weight:700;">({len(live_bids)}건 감지)</span></div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="white-space:nowrap; word-break:keep-all; overflow:hidden; text-overflow:ellipsis; font-size:1.08rem; font-weight:800; color:#F8FAFC; letter-spacing:-0.3px; padding:6px 0;">🎯 필터 매칭 결과: <span style="color:#38BDF8;">[{_disp_lic_txt} | {_disp_reg_txt} | {_disp_scl_txt}]</span> <span style="color:#E2E8F0; font-weight:700;">({len(live_bids)}건 감지)</span></div>', unsafe_allow_html=True)
     with _delta_col2:
         _pend_cnt = len(_pend_bids)
         _b_col = '#f43f5e' if _pend_cnt > 0 else '#10b981'
@@ -6674,29 +6674,29 @@ with tab_sim:
             }
             .q-top { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(148,163,184,0.2); padding-bottom:10px; margin-bottom:14px; }
             .q-title { font-size:15.5px; font-weight:900; color:#f8fafc; display:flex; align-items:center; gap:9px; }
-            .q-tag { background:linear-gradient(135deg,#0284c7,#38bdf8); color:#0f172a; font-size:11px; font-weight:900; padding:3px 10px; border-radius:999px; box-shadow:0 0 12px rgba(56,189,248,0.5); }
+            .q-tag { background:linear-gradient(135deg,#0284c7,#38bdf8); color:#0f172a; font-size:12.5px; font-weight:900; padding:3px 10px; border-radius:999px; box-shadow:0 0 12px rgba(56,189,248,0.5); }
             .q-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
             .q-card {
                 background:linear-gradient(145deg,rgba(30,41,59,0.88),rgba(15,23,42,0.95));
                 border:1px solid rgba(148,163,184,0.24); border-top:3px solid #38bdf8;
                 border-radius:12px; padding:12px 12px; text-align:center;
             }
-            .q-lbl { font-size:11.5px; color:#94a3b8; font-weight:800; margin-bottom:5px; }
+            .q-lbl { font-size:13px; color:#94a3b8; font-weight:800; margin-bottom:5px; }
             .q-val { font-size:19px; font-weight:900; color:#38bdf8; font-variant-numeric:tabular-nums; margin-bottom:4px; }
-            .q-sub { font-size:11px; font-weight:800; color:#6ee7b7; background:rgba(16,185,129,0.16); display:inline-block; padding:2px 9px; border-radius:999px; }
+            .q-sub { font-size:12.5px; font-weight:800; color:#6ee7b7; background:rgba(16,185,129,0.16); display:inline-block; padding:2px 9px; border-radius:999px; }
             .cost-bar-wrap { background:rgba(15,23,42,0.88); border:1px solid rgba(56,189,248,0.28); border-radius:12px; padding:13px 16px; }
             .cb-head { display:flex; justify-content:space-between; font-size:12.5px; font-weight:800; color:#e2e8f0; margin-bottom:9px; }
             .stack-track { display:flex; height:22px; width:100%; border-radius:999px; overflow:hidden; box-shadow:0 0 16px rgba(56,189,248,0.25); margin-bottom:11px; border:1px solid rgba(255,255,255,0.12); }
-            .seg { display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:900; color:#0f172a; white-space:nowrap; }
+            .seg { display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900; color:#0f172a; white-space:nowrap; }
             .legend-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
             .leg-item { background:rgba(30,41,59,0.65); border:1px solid rgba(148,163,184,0.18); border-radius:8px; padding:7px 8px; text-align:center; }
-            .leg-name { font-size:11px; font-weight:800; color:#cbd5e1; margin-bottom:2px; }
+            .leg-name { font-size:12.5px; font-weight:800; color:#cbd5e1; margin-bottom:2px; }
             .leg-amt { font-size:12px; font-weight:900; font-variant-numeric:tabular-nums; }
         </style></head><body>
             <div class="q-cockpit">
                 <div class="q-top">
                     <div class="q-title"><span class="q-tag">QUANTUM TELEMETRY</span> 🎛️ 0.001% 초정밀 감도 타점 & 5대 공사 비목별 원가 실시간 분해 콘솔</div>
-                    <span style="font-size:11.5px; font-weight:800; color:#fbbf24;">⚡ 사정률 0.001% 변동 시 투찰가 ±__DELTA__원 정밀 이동</span>
+                    <span style="font-size:13px; font-weight:800; color:#fbbf24;">⚡ 사정률 0.001% 변동 시 투찰가 ±__DELTA__원 정밀 이동</span>
                 </div>
                 <div class="q-grid">
                     <div class="q-card">
@@ -6818,20 +6818,20 @@ with tab_dox:
             <span style="background:linear-gradient(135deg,#0284c7,#38bdf8); color:#0f172a; font-weight:900; font-size:12px; padding:4px 10px; border-radius:8px; box-shadow:0 0 12px rgba(56,189,248,0.45);">OFFICIAL EXPORT</span>
             <span style="font-size:16px; font-weight:900; color:#f8fafc;">📄 인쇄 및 PDF 저장용 공식 서식 다운로드 센터</span>
         </div>
-        <span style="background:rgba(16,185,129,0.18); border:1px solid rgba(16,185,129,0.55); color:#6ee7b7; font-size:11.5px; font-weight:800; padding:4px 12px; border-radius:999px;">🟢 A4 고해상도 직인·워터마크 자동 각인 완료</span>
+        <span style="background:rgba(16,185,129,0.18); border:1px solid rgba(16,185,129,0.55); color:#6ee7b7; font-size:13px; font-weight:800; padding:4px 12px; border-radius:999px;">🟢 A4 고해상도 직인·워터마크 자동 각인 완료</span>
     </div>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
         <div style="background:linear-gradient(145deg,rgba(30,41,59,0.88),rgba(15,23,42,0.95)); border:1px solid rgba(251,191,36,0.45); border-top:3px solid #fbbf24; border-radius:12px; padding:14px 16px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                 <span style="font-size:13.5px; font-weight:900; color:#fde68a;">📑 PACKAGE 01 · 적격심사 신청서 및 자기평가표</span>
-                <span style="background:rgba(245,158,11,0.22); border:1px solid #fbbf24; color:#fef3c7; font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:999px;">별지 제1·2호 통합본</span>
+                <span style="background:rgba(245,158,11,0.22); border:1px solid #fbbf24; color:#fef3c7; font-size:12px; font-weight:800; padding:2px 8px; border-radius:999px;">별지 제1·2호 통합본</span>
             </div>
             <div style="font-size:12px; color:#cbd5e1; line-height:1.5;">• 공고번호·기초금액·AI 목표투찰가 및 적격심사 99.5점 평점표 자동 기입<br>• 브라우저에서 열기 즉시 <b>Ctrl+P / ⌘+P</b>로 A4 정식 PDF 인쇄 지원</div>
         </div>
         <div style="background:linear-gradient(145deg,rgba(30,41,59,0.88),rgba(15,23,42,0.95)); border:1px solid rgba(56,189,248,0.45); border-top:3px solid #38bdf8; border-radius:12px; padding:14px 16px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                 <span style="font-size:13.5px; font-weight:900; color:#e0f2fe;">🏛️ PACKAGE 02 · 시평액·5개년 실적·기술인력 총괄 증명원</span>
-                <span style="background:rgba(56,189,248,0.2); border:1px solid #38bdf8; color:#bae6fd; font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:999px;">협회 직인 대조필</span>
+                <span style="background:rgba(56,189,248,0.2); border:1px solid #38bdf8; color:#bae6fd; font-size:12px; font-weight:800; padding:2px 8px; border-radius:999px;">협회 직인 대조필</span>
             </div>
             <div style="font-size:12px; color:#cbd5e1; line-height:1.5;">• 건축시평액(50억)·5개년 실적(35억)·상주기술자(14명)·무정전/활선 인증 수록<br>• 발주처 적격심사 편철 제출용 오프라인 독립 실행형(.html) 공식 문서</div>
         </div>
@@ -6910,7 +6910,7 @@ with tab_profile:
 <div style="background:linear-gradient(145deg,rgba(15,23,42,0.92),rgba(30,41,59,0.82)); border:1px solid rgba(251,191,36,0.45); border-radius:14px; padding:14px 16px; box-shadow:0 8px 24px rgba(0,0,0,0.45);">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
         <span style="font-size:12.5px; font-weight:800; color:#fde68a;">🏆 협회/한전 공식 특수 시공자격 인증 마스터</span>
-        <span style="background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#6ee7b7; font-size:11px; font-weight:800; padding:2px 9px; border-radius:999px;">🟢 G2B 자동연계 적격</span>
+        <span style="background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#6ee7b7; font-size:12.5px; font-weight:800; padding:2px 9px; border-radius:999px;">🟢 G2B 자동연계 적격</span>
     </div>
     <div style="display:flex; flex-wrap:wrap; gap:8px;">
         <span style="background:linear-gradient(135deg,rgba(245,158,11,0.28),rgba(217,119,6,0.42)); border:1px solid #fbbf24; color:#fef3c7; font-weight:800; font-size:12px; padding:6px 12px; border-radius:999px;">⚡ 무정전공사 시공자격 (제1종)</span>
@@ -7081,13 +7081,13 @@ def generate_cart_executive_report_html(comp_info, cart_rows, share_pct, partner
             <tr>
                 <td style="text-align:center;font-weight:bold;">{r.get('우선순위','')}</td>
                 <td style="text-align:center;font-weight:bold;color:#dc2626;">{r.get('마감카운트','')}</td>
-                <td><b>{r.get('공고명','')}</b><br><span style="font-size:11px;color:#64748b;">{r.get('공고번호','')} | {r.get('발주처','')}</span></td>
+                <td><b>{r.get('공고명','')}</b><br><span style="font-size:12.5px;color:#64748b;">{r.get('공고번호','')} | {r.get('발주처','')}</span></td>
                 <td style="text-align:right;">{r.get('기초금액(원)',0):,.0f}원</td>
-                <td style="text-align:center;">{r.get('목표사정률(%)',100.0):.3f}%<br><span style="font-size:11px;color:#7c3aed;font-weight:bold;">{r.get('추천예가번호(4개)','')}</span></td>
+                <td style="text-align:center;">{r.get('목표사정률(%)',100.0):.3f}%<br><span style="font-size:12.5px;color:#7c3aed;font-weight:bold;">{r.get('추천예가번호(4개)','')}</span></td>
                 <td style="text-align:right;font-weight:bold;color:#1d4ed8;">{r.get('AI 최적투찰가(원)',0):,.0f}원</td>
                 <td style="text-align:center;">{r.get('당사지분율(%)',100)}%</td>
                 <td style="text-align:right;font-weight:bold;color:#047857;">{t_bid_val:,}원</td>
-                <td style="text-align:center;"><b>{r.get('적격점수',0):.2f}점</b><br><span style="font-size:11px;">{r.get('투찰판정','')}</span></td>
+                <td style="text-align:center;"><b>{r.get('적격점수',0):.2f}점</b><br><span style="font-size:12.5px;">{r.get('투찰판정','')}</span></td>
             </tr>
             """
 
@@ -8090,14 +8090,14 @@ def render_phase4_quantum_ai_engine():
     <div class="q-box">
         <div class="q-head">
             <span>🌊 15C4 출현밀도(청색) vs 경쟁사 데드존(적색) vs AI 낙찰기대지수(황금파동)</span>
-            <span style="font-family:Orbitron;font-size:10px;color:#38bdf8;">LIVE OSCILLOSCOPE</span>
+            <span style="font-family:Orbitron;font-size:12px;color:#38bdf8;">LIVE OSCILLOSCOPE</span>
         </div>
         <canvas id="waveOscCanvas" width="600" height="280" style="width:100%;height:280px;"></canvas>
     </div>
     <div class="q-box" style="border-color:rgba(250,204,21,0.55);border-bottom-color:#f59e0b;">
         <div class="q-head">
             <span>🎰 스윗스팟 상위 5% 수렴 15개 번호별 기여율 (황금 4대 번호 하이라이트)</span>
-            <span style="font-family:Orbitron;font-size:10px;color:#fde047;">TOP 4 GLOW</span>
+            <span style="font-family:Orbitron;font-size:12px;color:#fde047;">TOP 4 GLOW</span>
         </div>
         <canvas id="slotHitCanvas" width="460" height="280" style="width:100%;height:280px;"></canvas>
     </div>
@@ -8414,7 +8414,7 @@ def render_phase5_singularity_engine():
             ">
                 <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(148,163,184,0.25);padding-bottom:8px;margin-bottom:10px;">
                     <div style="font-size:15px;font-weight:900;color:{cur_sg_xai['color']};">{cur_sg_xai['title']}</div>
-                    <div style="background:#020617;border:1px solid {cur_sg_xai['color']};padding:3px 12px;border-radius:999px;font-size:11.5px;color:#fff;font-weight:800;">
+                    <div style="background:#020617;border:1px solid {cur_sg_xai['color']};padding:3px 12px;border-radius:999px;font-size:13px;color:#fff;font-weight:800;">
                         최적 예가번호: <span style="color:#fde047;">🎯 {best_4_comb[0]}번 · {best_4_comb[1]}번 · {best_4_comb[2]}번 · {best_4_comb[3]}번</span>
                     </div>
                 </div>
@@ -9262,7 +9262,7 @@ animateAcademy();
         for mr in mvp_rows:
             mvp_tr_html += (
                 "<tr>"
-                f"<td>{mr['공고번호']}<br><b>{mr['공고명']}</b><br><span style='color:#64748b;font-size:11px;'>({mr['발주처']})</span></td>"
+                f"<td>{mr['공고번호']}<br><b>{mr['공고명']}</b><br><span style='color:#64748b;font-size:12.5px;'>({mr['발주처']})</span></td>"
                 f"<td style='text-align:center;'>{mr['🏁 실제개찰사정률']}</td>"
                 f"<td style='text-align:center;background:#eff6ff;font-weight:bold;color:#1e40af;'>{mr['🏆 최근접 적중(MVP) 모델']}<br>({mr['적중모델 사정률']})</td>"
                 f"<td style='text-align:right;font-weight:bold;color:#047857;'>{mr['하한선 대비 차액']}</td>"
@@ -10245,7 +10245,7 @@ function jumpFromIso(targetKey) {
                         <span style="color:#fde047;font-weight:900;">🤖 [공고 특성 자동 진단 결과]</span>
                         발주처(<b>{ens_item.get('발주처','')}</b>) · 마감시기(<b>{ens_item.get('마감일시','')[:7]}</b>) · 예상경쟁(<b>{est_bidders_cnt}개사</b>) 분석 결과,
                         단독 특화 1순위 모델은 <b style="color:{ctx_rec['badge_color']};">{ctx_rec['model_name']}</b>이며 이를 통합한 <b style="color:#facc15;">👑 AI 마스터 앙상블</b>이 최종 적합가로 자동 세팅되었습니다.<br>
-                        <span style="color:#cbd5e1;font-size:11.5px;">💡 <b>선정 근거</b>: {ctx_rec['reason']}</span>
+                        <span style="color:#cbd5e1;font-size:13px;">💡 <b>선정 근거</b>: {ctx_rec['reason']}</span>
                     </div>""",
                         unsafe_allow_html=True
                     )
@@ -11013,7 +11013,7 @@ function jumpFromIso(targetKey) {
                 <span class="kp-tag" id="tagKp1">CREVASSE SCAN</span>
             </div>
             <canvas id="crevasseCanvas" width="440" height="205" style="width:100%;height:205px;"></canvas>
-            <div style="font-size:10.5px;color:#cbd5e1;margin-top:4px;display:flex;justify-content:space-between;white-space:nowrap;">
+            <div style="font-size:12px;color:#cbd5e1;margin-top:4px;display:flex;justify-content:space-between;white-space:nowrap;">
                 <span>🔴 붉은 산맥: <b style="color:#fb7185;">레거시 65% 과밀 공멸존</b></span>
                 <span id="kp1PinCaption">🎯 선택 핀: <b style="color:#34d399;">👑 AI 마스터 앙상블</b></span>
             </div>
@@ -11026,7 +11026,7 @@ function jumpFromIso(targetKey) {
                 <span class="kp-tag" id="tagKp2" style="color:#e9d5ff;border-color:#c084fc;background:rgba(192,132,252,0.2);">#558 SYNERGY</span>
             </div>
             <canvas id="synergyRingCanvas" width="330" height="205" style="width:100%;height:205px;"></canvas>
-            <div id="kp2NumsCaption" style="font-size:10.5px;color:#cbd5e1;margin-top:4px;text-align:center;white-space:nowrap;">
+            <div id="kp2NumsCaption" style="font-size:12px;color:#cbd5e1;margin-top:4px;text-align:center;white-space:nowrap;">
                 🔑 완성 황금 사면체: <b style="color:#fde047;">🎯 3번 · 9번 · 10번 · 11번</b>
             </div>
         </div>
@@ -11039,18 +11039,18 @@ function jumpFromIso(targetKey) {
             </div>
             <canvas id="gaugeHudCanvas" width="380" height="120" style="width:100%;height:120px;"></canvas>
             <div class="dial-box">
-                <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:800;">
+                <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:800;">
                     <span style="color:#38bdf8;">🎛️ 미세 사정률 오프셋 조절:</span>
                     <span id="dialRateTxt" style="font-family:Orbitron;color:#fde047;">100.0936% (0.000%p)</span>
                 </div>
                 <input type="range" id="rateSlider" class="slider-ui" min="-45" max="45" value="0" step="1">
                 <div class="hud-row" style="margin-top:4px;padding-top:4px;border-top:1px dashed rgba(148,163,184,0.2);">
                     <span style="color:#cbd5e1;">⚓ 연동 투찰가:</span>
-                    <b id="dialBidTxt" style="color:#38bdf8;font-family:Orbitron;font-size:11.5px;">0원</b>
+                    <b id="dialBidTxt" style="color:#38bdf8;font-family:Orbitron;font-size:13px;">0원</b>
                 </div>
                 <div class="hud-row" style="margin-top:3px;">
                     <span style="color:#cbd5e1;">🏁 예상 판정:</span>
-                    <b id="dialVerdictTxt" style="color:#34d399;font-size:11.5px;">🏆 단독 1순위 골든 크레바스 (최적)</b>
+                    <b id="dialVerdictTxt" style="color:#34d399;font-size:13px;">🏆 단독 1순위 골든 크레바스 (최적)</b>
                 </div>
             </div>
         </div>
@@ -11483,12 +11483,12 @@ renderKillPoints();
                 <div class="loot-box">
                     <div class="loot-lbl" style="display:flex;justify-content:space-between;align-items:center;">
                         <span>💰 예상 황금 전리품</span>
-                        <span style="color:#34d399;font-weight:900;font-size:10.5px;">📊 타점 {v_win_rate:.1f}%</span>
+                        <span style="color:#34d399;font-weight:900;font-size:12px;">📊 타점 {v_win_rate:.1f}%</span>
                     </div>
                     <div class="loot-val" style="color:{g_color};">+{est_profit:,.0f} KRW</div>
                 </div>
                 <div class="chest-meta">
-                    <div>👑 앙상블: <b>{m_rt_pct:.4f}%</b> <span style="color:#94a3b8;font-size:10px;">(계단#{step_no}·참고지수{v_def_rate:.1f})</span></div>
+                    <div>👑 앙상블: <b>{m_rt_pct:.4f}%</b> <span style="color:#94a3b8;font-size:12px;">(계단#{step_no}·참고지수{v_def_rate:.1f})</span></div>
                     <div>🔑 황금열쇠: <b style="color:#fde047;">{lk_nums}</b></div>
                     <div>⚓ 추천투찰가: <b style="color:#38bdf8;font-size:12px;">{opt_bid:,.0f}원</b></div>
                 </div>
@@ -11781,7 +11781,7 @@ renderKillPoints();
         <div class="sonar-panel">
             <canvas id="sonarCanvas" width="214" height="214" style="width:214px;height:214px;flex-shrink:0;"></canvas>
             <div class="sonar-status-box">
-                <div style="color:#34d399;font-weight:900;margin-bottom:3px;font-size:11px;">📡 GOLDEN SONAR ({len(active_vault_items)} TARGETS)</div>
+                <div style="color:#34d399;font-weight:900;margin-bottom:3px;font-size:12.5px;">📡 GOLDEN SONAR ({len(active_vault_items)} TARGETS)</div>
                 • 총 투찰규모: <b style="color:#fff;">{total_treasure_bid:,.0f}원</b><br>
                 • 레이더 락온: <b style="color:#fde047;">{len(active_vault_items)}개 좌표 실시간 스캔 중</b><br>
                 • 평균 시뮬레이션 타점지수(참고): <b style="color:#38bdf8;">🏆 {avg_win_rt:.1f}% (참고지수 99.2)</b>
@@ -11816,7 +11816,7 @@ renderKillPoints();
             <span class="status-dot"></span>
             <b style="color:#fde047;">BID-NEXUS v8.0 4D HYPER-ISOMETRIC EDITION</b> | (주)진경종합건설 전용 AI 초정밀 입찰 사정·인양 지휘 시스템
         </div>
-        <div style="font-family:'Orbitron',sans-serif;color:#38bdf8;font-weight:700;font-size:11px;">
+        <div style="font-family:'Orbitron',sans-serif;color:#38bdf8;font-weight:700;font-size:12.5px;">
             ALL 8 STAGES ARMED & READY // 4D INFOGRAPHIC ENGINE
         </div>
     </div>
@@ -12081,24 +12081,24 @@ drawSonar();
                 <div style="background:rgba(15,23,42,0.94);border:1.5px solid {_z['color']};border-radius:12px;padding:12px 15px;margin-top:6px;margin-bottom:4px;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
                         <span style="color:{_z['color']};font-size:13px;font-weight:900;">👑 {_z['zone']}</span>
-                        <span style="background:rgba(16,185,129,0.18);color:#34D399;font-size:11px;font-weight:800;padding:2px 8px;border-radius:99px;">포착승률 {_z['win_prob']:.1f}%</span>
+                        <span style="background:rgba(16,185,129,0.18);color:#34D399;font-size:12.5px;font-weight:800;padding:2px 8px;border-radius:99px;">포착승률 {_z['win_prob']:.1f}%</span>
                     </div>
-                    <div style="color:#E2E8F0;font-size:11.5px;font-weight:700;margin-bottom:6px;">{_z['agency']} | {_z['title']} (기초 {_z['base']:,}원)</div>
+                    <div style="color:#E2E8F0;font-size:13px;font-weight:700;margin-bottom:6px;">{_z['agency']} | {_z['title']} (기초 {_z['base']:,}원)</div>
                     <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:6px;background:rgba(9,13,22,0.88);padding:7px 10px;border-radius:8px;margin-bottom:5px;">
                         <div>
-                            <div style="color:#94A3B8;font-size:10px;">🎯 황금 투찰가</div>
+                            <div style="color:#E2E8F0;font-size:12px;">🎯 황금 투찰가</div>
                             <div style="color:{_z['color']};font-size:14px;font-weight:900;">{_z['final_bid']:,}원</div>
                         </div>
                         <div>
-                            <div style="color:#94A3B8;font-size:10px;">📐 목표 사정률</div>
+                            <div style="color:#E2E8F0;font-size:12px;">📐 목표 사정률</div>
                             <div style="color:#F8FAFC;font-size:13px;font-weight:800;">{_z['t_rate']:.4f}%</div>
                         </div>
                         <div>
-                            <div style="color:#94A3B8;font-size:10px;">💰 예상 순이익</div>
+                            <div style="color:#E2E8F0;font-size:12px;">💰 예상 순이익</div>
                             <div style="color:#34D399;font-size:13px;font-weight:800;">{_z['est_margin']:+,}원</div>
                         </div>
                     </div>
-                    <div style="color:#FDE68A;font-size:11px;font-weight:800;">🎰 15C4 추천 추첨번호 4개: [{_z['lots']}]</div>
+                    <div style="color:#FFFFFF;font-size:12.5px;font-weight:800;">🎰 15C4 추천 추첨번호 4개: [{_z['lots']}]</div>
                 </div>
                 """, unsafe_allow_html=True)
                 st.code(f"{_z['final_bid']} | 추천번호: {_z['lots']} | 사정률: {_z['t_rate']:.4f}%", language="text")
@@ -12478,7 +12478,7 @@ def render_phase9_bidding_machine_workstation():
             display:flex;
             justify-content:space-between;
             align-items:center;
-            font-size:11.5px;
+            font-size:13px;
             color:#cbd5e1;
             white-space:nowrap;
         ">
