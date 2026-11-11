@@ -631,36 +631,40 @@ if st.session_state["_standalone_academy_mode"]:
         if not _books:
             st.info("조건에 일치하는 장서가 없습니다. 필터를 '전체'로 바꾸거나 [제2관 모의투찰]에서 새로운 복기 결과를 제본해 보세요.")
         else:
+            # 세션에 저장된 선택 권호(_v12_synced_book_code)를 찾아 _active_bk 설정 (기본값: 제2026-001권)
             _active_bk = _books[0]
-            _active_bk = _books[0]
+            _cur_sync_code = st.session_state.get("_v12_synced_book_code", _books[0]["book_code"])
+            for _b_cand in _books:
+                if _b_cand["book_code"] == _cur_sync_code:
+                    _active_bk = _b_cand
+                    break
+
             if "3D" in _view_mode:
                 _shelf_rows = max(1, (len(_books) + 2) // 3)
-                # 3D 서가 3단 + 하단 3D 양면 펼침 독서대([제1면]~[제4면]) 전체가 겹침이나 잘림 없이 완벽히 들어오는 정밀 높이
                 _canvas_h = 560 + (_shelf_rows * 290)
                 _html_3d = _render_3d_html_v12(_books, active_code=_active_bk["book_code"])
                 _stc_v12.html(_html_3d, height=_canvas_h, scrolling=False)
             else:
-                # 초고밀도 매트릭스 표 + 4면 텔레메트리 바가 빈 여백 없이 딱 맞게 들어오는 정밀 높이
                 _mx_h = 385 + (len(_books) * 58)
-                _stc_v12.html(_render_matrix_html_v12(_books), height=_mx_h, scrolling=False)
+                _stc_v12.html(_render_matrix_html_v12(_books, active_code=_active_bk["book_code"]), height=_mx_h, scrolling=False)
 
             # [시각화 1] 공종별 레거시 영점 정밀도 성적표 & 실전 자동 보정 홀로그램 대시보드
             st.markdown(_render_sec_from_books_v12(_books), unsafe_allow_html=True)
 
-            # [시각화 2] 좌·우 대칭형 '당사 입찰 필승 비전서 편찬실' & '불량 장서 디지털 파쇄 챔버' 홀로그램 콘솔 독
             _wp_suite = _build_wp_suite_v12(_books)
 
-            _act_b1, _act_b2 = st.columns([2.05, 1.95])
+            # [시각화 2] 좌·우 대칭형 '당사 입찰 필승 비전서 편찬실' & '정순서(001권~009권) 도서 즉시 호출 및 파쇄 관제 챔버'
+            _act_b1, _act_b2 = st.columns([2.0, 2.0])
             with _act_b1:
                 st.markdown(f"""
-                <div style="background:linear-gradient(135deg, rgba(8,47,73,0.95), rgba(15,23,42,0.98));border:2px solid #38BDF8;border-radius:12px;padding:14px 16px;margin-bottom:8px;min-height:108px;box-shadow:0 8px 22px rgba(0,0,0,0.65);">
+                <div style="background:linear-gradient(135deg, rgba(8,47,73,0.95), rgba(15,23,42,0.98));border:2px solid #38BDF8;border-radius:12px;padding:14px 16px;margin-bottom:8px;min-height:112px;box-shadow:0 8px 22px rgba(0,0,0,0.65);">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="background:#38BDF8;color:#090D16;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:4px;">OFFICIAL DESIGN FORM WHITEPAPER</span>
-                        <span style="background:rgba(16,185,129,0.2);color:#6EE7B7;font-size:11px;font-weight:900;padding:2px 8px;border-radius:99px;border:1px solid #34D399;">문서번호 {_wp_suite['doc_no']} · 총 {len(_books)}권</span>
+                        <span style="background:rgba(16,185,129,0.2);color:#6EE7B7;font-size:11px;font-weight:900;padding:2px 8px;border-radius:99px;border:1px solid #34D399;">문서번호 {_wp_suite['doc_no']} · 총 {len(_books)}권 정순서 수록</span>
                     </div>
                     <div style="color:#FFFFFF;font-size:14px;font-weight:900;margin-bottom:4px;">📘 당사 입찰 필승 비전서(秘傳書) 공식 양식 마스터 백서 편찬실</div>
                     <div style="color:#94A3B8;font-size:11.5px;line-height:1.45;">
-                        단순 텍스트(.txt)를 지양하고, 대표이사 결재란·공종별 영점 기준표·전 장서 복기 명세서가 디자인 폼으로 입혀진 공식 보고서를 열람·인쇄·출력합니다.
+                        제2026-001권부터 순서대로 정렬된 전 장서 복기 명세서와 대표이사 결재란이 포함된 공식 보고서를 열람·인쇄·출력합니다.
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
@@ -687,34 +691,54 @@ if st.session_state["_standalone_academy_mode"]:
                         use_container_width=True
                     )
             with _act_b2:
-                st.markdown("""
-                <div style="background:linear-gradient(135deg, rgba(69,10,10,0.88), rgba(15,23,42,0.98));border:2px solid #F87171;border-radius:12px;padding:14px 16px;margin-bottom:8px;min-height:108px;box-shadow:0 8px 22px rgba(0,0,0,0.65);">
+                # 001권 ~ 009권 정순서 옵션 생성 (앞의 헷갈리던 DB ID 숫자 완전 제거!)
+                _ordered_labels = [f"[{b['book_code']}] {b['title']} ({b['agency']} · 기초 {b['base_amt']:,}원)" for b in _books]
+                _label_to_book = {f"[{b['book_code']}] {b['title']} ({b['agency']} · 기초 {b['base_amt']:,}원)": b for b in _books}
+
+                _cur_idx = 0
+                for _i_b, _b_item in enumerate(_books):
+                    if _b_item["book_code"] == _active_bk["book_code"]:
+                        _cur_idx = _i_b
+                        break
+
+                def _on_bottom_book_select():
+                    _sel_lbl = st.session_state.get("_del_sel_bk_v12", "")
+                    if _sel_lbl in _label_to_book:
+                        _chosen = _label_to_book[_sel_lbl]
+                        st.session_state["_v12_synced_book_code"] = _chosen["book_code"]
+                        st.session_state["_v12_ollama_base"] = int(_chosen["base_amt"])
+                        st.session_state["_v12_ollama_aval"] = int(_chosen["a_val"])
+
+                st.markdown(f"""
+                <div style="background:linear-gradient(135deg, rgba(6,78,59,0.85), rgba(15,23,42,0.98));border:2px solid #10B981;border-radius:12px;padding:14px 16px;margin-bottom:8px;min-height:112px;box-shadow:0 8px 22px rgba(0,0,0,0.65);">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                        <span style="background:#EF4444;color:#FFFFFF;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:4px;">DIGITAL INCINERATOR CHAMBER</span>
-                        <span style="background:rgba(239,68,68,0.2);color:#FCA5A5;font-size:11px;font-weight:900;padding:2px 8px;border-radius:99px;border:1px solid #F87171;">🧹 서재 순도 100% 유지</span>
+                        <span style="background:#10B981;color:#022C22;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:4px;">QUICK TARGET SWITCH & INCINERATOR</span>
+                        <span style="background:rgba(251,191,36,0.2);color:#FDE68A;font-size:11px;font-weight:900;padding:2px 8px;border-radius:99px;border:1px solid #FBBF24;">🎯 현재 락온: {_active_bk['book_code']}</span>
                     </div>
-                    <div style="color:#FFFFFF;font-size:14px;font-weight:900;margin-bottom:4px;">🔥 불량·단순 테스트 기록 디지털 파쇄 챔버</div>
-                    <div style="color:#FCA5A5;font-size:11.5px;line-height:1.45;">
-                        단순 연습용 모의투찰이나 불필요한 오답 노트를 선택하여 서재에서 영구 파쇄·정화합니다.
+                    <div style="color:#FFFFFF;font-size:14px;font-weight:900;margin-bottom:4px;">🎯 정순서(001권~{len(_books):03d}권) 양장본 즉시 변경 & 불량 장서 파쇄 챔버</div>
+                    <div style="color:#A7F3D0;font-size:11.5px;line-height:1.45;">
+                        아래 목록에서 양장본을 바꾸면 <b>위쪽 3D 서가·3D 독서대·제2관·제3관이 즉시 해당 공고로 변경</b>되며, 우측 버튼 클릭 시 해당 장서를 소각합니다.
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
-                _inc_c1, _inc_c2 = st.columns([1.75, 1.15])
+                _inc_c1, _inc_c2 = st.columns([1.85, 1.05])
                 with _inc_c1:
-                    _del_target = st.selectbox(
-                        "파쇄할 불량/테스트 장서 선택",
-                        options=[f"{b['id']}: [{b['book_code']}] {b['title']}" for b in _books],
-                        key="_del_sel_bk",
+                    _del_target_lbl = st.selectbox(
+                        "열람 또는 파쇄할 장서 선택 (001권~정순서)",
+                        options=_ordered_labels,
+                        index=_cur_idx,
+                        key="_del_sel_bk_v12",
+                        on_change=_on_bottom_book_select,
                         label_visibility="collapsed"
                     )
                 with _inc_c2:
-                    if st.button("🔥 선택 장서 즉시 소각", key="_incinerate_bk_btn", use_container_width=True):
-                        _tid = int(_del_target.split(":")[0])
-                        _del_book_v12(_tid)
-                        st.warning("🔥 디지털 파쇄기 소각 완료! 서재에서 해당 기록이 영구 제거되었습니다.")
+                    if st.button("🔥 이 장서 즉시 소각", key="_incinerate_bk_btn", use_container_width=True):
+                        _target_bk = _label_to_book.get(_del_target_lbl, _active_bk)
+                        _del_book_v12(int(_target_bk["id"]))
+                        st.session_state.pop("_v12_synced_book_code", None)
+                        st.warning(f"🔥 [{_target_bk['book_code']}] 디지털 파쇄기 소각 완료! 서재에서 영구 제거되었습니다.")
                         st.rerun()
 
-            # [전 장서 통합본 공식 양식 뷰어 & 원클릭 인쇄창 (기본 펼침으로 즉시 확인 및 출력 가능)]
             if st.session_state.get("_show_wp_official_form", True):
                 st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
                 _stc_v12.html(_wp_suite["html_doc"], height=880, scrolling=True)

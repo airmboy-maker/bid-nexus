@@ -1994,7 +1994,7 @@ def run_virtual_bid_arena_v10(
     conn = sqlite3.connect(db_path)
     cur = conn.cursor()
     ag_key = str(agency or "조달청").strip()[:2]
-    cur.execute("SELECT yega_rate FROM bid_history WHERE agency LIKE ? ORDER BY id DESC LIMIT 120", (f"%{ag_key}%",))
+    cur.execute("SELECT yega_rate FROM bid_history WHERE agency LIKE ? ORDER BY id ASC LIMIT 200", (f"%{ag_key}%",))
     hist_rates = [float(r[0]) for r in cur.fetchall() if r[0] and 97.0 <= float(r[0]) <= 103.0]
     if len(hist_rates) < 10:
         cur.execute("SELECT yega_rate FROM bid_history ORDER BY id DESC LIMIT 200")
@@ -2621,7 +2621,7 @@ def query_strategy_library_v12(
                participants, grade_tier, is_bookmarked, notice_raw_text,
                ai_commentary, ceo_footnote, picked_lots_str, created_at
         FROM strategy_library_v12
-        ORDER BY is_bookmarked DESC, id DESC
+        ORDER BY id ASC
         """
     )
     rows = cur.fetchall()
@@ -3591,14 +3591,23 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
 
     if (BOOKS.length > 0) {
         let startIdx = 0;
-        try {
-            const savedRaw = window.parent.localStorage.getItem('v12_active_book_json');
-            if (savedRaw) {
-                const sb = JSON.parse(savedRaw);
-                const found = BOOKS.findIndex(x => x.code === sb.code);
-                if (found >= 0) startIdx = found;
+        const forcedCode = '__ACTIVE_CODE__';
+        if (forcedCode) {
+            const fIdx = BOOKS.findIndex(x => x.code === forcedCode);
+            if (fIdx >= 0) {
+                startIdx = fIdx;
+                try { window.parent.localStorage.setItem('v12_active_book_json', JSON.stringify(BOOKS[fIdx])); } catch(e){}
             }
-        } catch (e) {}
+        } else {
+            try {
+                const savedRaw = window.parent.localStorage.getItem('v12_active_book_json');
+                if (savedRaw) {
+                    const sb = JSON.parse(savedRaw);
+                    const found = BOOKS.findIndex(x => x.code === sb.code);
+                    if (found >= 0) startIdx = found;
+                }
+            } catch (e) {}
+        }
         selectBook(startIdx);
     }
 
@@ -3643,7 +3652,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
     </body>
     </html>
     """
-    return template.replace("__BOOKS_JSON__", books_json)
+    return template.replace("__BOOKS_JSON__", books_json).replace("__ACTIVE_CODE__", str(active_code or ""))
 
 
 def fetch_recent_selected_bid_packages_v12(session_dict: dict = None) -> list:
@@ -3662,7 +3671,7 @@ def fetch_recent_selected_bid_packages_v12(session_dict: dict = None) -> list:
                 SELECT id, book_code, title, sector, agency, base_amt, a_val, lower_limit,
                        notice_raw_text, ai_commentary, ceo_footnote, true_yega_rate
                 FROM strategy_library_v12
-                ORDER BY is_bookmarked DESC, id DESC
+                ORDER BY id ASC
                 """
             )
             for r in cur.fetchall():
@@ -3722,7 +3731,7 @@ def fetch_recent_selected_bid_packages_v12(session_dict: dict = None) -> list:
     return packages
 
 
-def render_ultra_matrix_view_html_v12(books: list) -> str:
+def render_ultra_matrix_view_html_v12(books: list, active_code: str = "") -> str:
     """
     [초고밀도 매트릭스 표 뷰 전용 시각화 렌더러]
     - 영어 컬럼명(base_amt 등) 대신 완벽한 한글 관제 매트릭스 UI 제공
@@ -4178,14 +4187,23 @@ def render_ultra_matrix_view_html_v12(books: list) -> str:
 
     if (BOOKS.length > 0) {
         let initIdx = 0;
-        try {
-            const rawSaved = window.parent.localStorage.getItem('v12_active_book_json');
-            if (rawSaved) {
-                const sb = JSON.parse(rawSaved);
-                const found = BOOKS.findIndex(x => x.code === sb.code);
-                if (found >= 0) initIdx = found;
+        const forcedCode = '__ACTIVE_CODE__';
+        if (forcedCode) {
+            const fIdx = BOOKS.findIndex(x => x.code === forcedCode);
+            if (fIdx >= 0) {
+                initIdx = fIdx;
+                try { window.parent.localStorage.setItem('v12_active_book_json', JSON.stringify(BOOKS[fIdx])); } catch(e){}
             }
-        } catch (e) {}
+        } else {
+            try {
+                const rawSaved = window.parent.localStorage.getItem('v12_active_book_json');
+                if (rawSaved) {
+                    const sb = JSON.parse(rawSaved);
+                    const found = BOOKS.findIndex(x => x.code === sb.code);
+                    if (found >= 0) initIdx = found;
+                }
+            } catch (e) {}
+        }
         selectMatrixRow(initIdx);
     }
     </script>
@@ -4197,7 +4215,7 @@ def render_ultra_matrix_view_html_v12(books: list) -> str:
             .replace("__AVG_TRUE__", avg_true_s)
             .replace("__AVG_ERR__", avg_err_s)
             .replace("__GOLD_RATIO__", gold_ratio_s)
-            .replace("__AVG_AR__", avg_ar_s)
+            .replace("__AVG_AR__", avg_ar_s).replace("__ACTIVE_CODE__", str(active_code or ""))
     )
 
 
