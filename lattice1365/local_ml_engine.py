@@ -3336,7 +3336,8 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
 
             const tBrief = pDoc.getElementById('v12-t3-llm-brief');
             if (tBrief && !tBrief._v12TwTimer) {
-                const stateKey = b.code + '|' + userQ + '|' + reTs + '|' + sentTs;
+                const isTab3Visible = (tBrief.offsetParent !== null);
+                const stateKey = b.code + '|' + userQ + '|' + reTs + '|' + sentTs + '|' + (isTab3Visible ? 'VIS' : 'HID');
                 if (window.parent._v12LastStateKey !== stateKey) {
                     window.parent._v12LastStateKey = stateKey;
 
@@ -5511,8 +5512,77 @@ function syncBookToParent(b) {
         const nowD = new Date();
         window.parent.localStorage.setItem('v12_active_book_json', JSON.stringify(b));
         window.parent.localStorage.setItem('v12_reanalyze_ts', nowD.toLocaleTimeString('ko-KR') + '.' + String(nowD.getMilliseconds()).slice(0,2));
+        window.parent._v12LastStateKey = '';
+        if (window.parent._v12TriggerTab3Typewriter) {
+            window.parent._v12TriggerTab3Typewriter('');
+        }
     } catch (e) {}
 }
+
+// 시냅스 5단계 모드가 켜져 있을 때도 제2관·제3관 화면 동기화 및 [선택 공고 & 서류 6차원 정밀 재분석] 버튼 타이핑을 0.25초마다 상시 관장!
+setInterval(() => {
+    try {
+        const pDoc = window.parent.document;
+        if (!pDoc) return;
+        const b = BOOKS[curBookIdx];
+        if (!b) return;
+
+        // 제3관 상단 배너 및 수치 동기화
+        const t3Banner = pDoc.getElementById('v12-t3-active-banner');
+        if (t3Banner) {
+            t3Banner.innerHTML =
+                '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
+                    '<div><span style="background:#10B981;color:#022C22;font-size:12px;font-weight:900;padding:5px 12px;border-radius:6px;">🎯 현재 시냅스 학습관에서 선택·락온된 공고문</span>' +
+                    '<span style="color:#FFFFFF;font-size:16px;font-weight:900;margin-left:10px;">[' + b.code + '] ' + b.title + '</span></div>' +
+                    '<span style="background:rgba(16,185,129,0.2);border:1px solid #34D399;color:#A7F3D0;font-size:11.5px;font-weight:800;padding:4px 10px;border-radius:6px;">✅ 제1관 시냅스 학습관 100% 일치</span>' +
+                '</div>' +
+                '<div style="color:#FDE68A;font-size:12px;font-weight:800;margin-top:6px;">🏛️ 발주처: ' + b.agency + ' | 🏗️ 공종: ' + b.sector + ' | 💰 기초금액: ' + b.base_amt + ' | 🛡️ A값: ' + b.a_val + ' (' + b.a_ratio + ') | 🎯 목표 추천가: ' + b.rec_bid + '</div>';
+        }
+        const tTitle = pDoc.getElementById('v12-t3-title');
+        if (tTitle) tTitle.innerHTML = '[' + b.code + '] ' + b.title;
+        const tAgSec = pDoc.getElementById('v12-t3-ag-sec');
+        if (tAgSec) tAgSec.innerHTML = b.agency + '<br><span style="color:#7DD3FC;">' + b.sector + '</span>';
+        const tBaseA = pDoc.getElementById('v12-t3-base-aval');
+        if (tBaseA) tBaseA.innerHTML = '기초 ' + b.base_amt + '<br><span style="color:#FDE68A;">A값 ' + b.a_val + ' (' + b.a_ratio + ')</span>';
+        const tRec = pDoc.getElementById('v12-t3-rec-target');
+        if (tRec) tRec.innerHTML = b.rec_bid + '<br><span style="color:#A7F3D0;font-size:11px;">목표사정률 ' + b.rec_rate + ' (하한 ' + b.low_lim + ')</span>';
+        const tRawBox = pDoc.getElementById('v12-t3-raw-viewer');
+        if (tRawBox) tRawBox.innerText = b.full_pkg;
+
+        // 제3관 [선택 공고 & 서류 6차원 정밀 재분석] 버튼에 직접 클릭 리스너 장착
+        pDoc.querySelectorAll('button').forEach(btn => {
+            const btxt = (btn.innerText || '');
+            if (btxt.includes('선택 공고 & 서류 6차원 정밀 재분석') && !btn.dataset.v12SynBound) {
+                btn.dataset.v12SynBound = '1';
+                btn.addEventListener('click', () => {
+                    const nowD = new Date();
+                    window.parent.localStorage.setItem('v12_reanalyze_ts', nowD.toLocaleTimeString('ko-KR') + '.' + String(nowD.getMilliseconds()).slice(0,2));
+                    window.parent._v12LastStateKey = '';
+                    if (window.parent._v12TriggerTab3Typewriter) {
+                        setTimeout(() => window.parent._v12TriggerTab3Typewriter(''), 50);
+                        setTimeout(() => window.parent._v12TriggerTab3Typewriter(''), 450);
+                    }
+                });
+            }
+        });
+
+        // 제3관 화면이 현재 열려(Visible) 있고 아직 타이핑되지 않았거나 재분석 버튼이 눌렸다면 즉시 타이프라이터 가동!
+        const tBrief = pDoc.getElementById('v12-t3-llm-brief');
+        if (tBrief && tBrief.offsetParent !== null) {
+            const reTs = window.parent.localStorage.getItem('v12_reanalyze_ts') || '';
+            const curKey = b.code + '|' + reTs + '|VIS';
+            if (window.parent._v12SynTab3Key !== curKey) {
+                window.parent._v12SynTab3Key = curKey;
+                if (window.parent._v12TriggerTab3Typewriter) {
+                    window.parent._v12TriggerTab3Typewriter('');
+                }
+            }
+        } else {
+            // 제3관 탭에서 벗어나 있으면 키를 비워두어, 다시 제3관 탭을 여는 순간 눈앞에서 0글자부터 타이핑되게 함!
+            window.parent._v12SynTab3Key = '';
+        }
+    } catch (e) {}
+}, 250);
 
 function renderBookPills() {
     const root = document.getElementById('syn-book-pills');
@@ -5567,6 +5637,58 @@ function renderStepper() {
     }
 }
 
+
+// 시냅스 학습관 내부의 모든 AI 튜터 가이드 박스(.tutor-guide-box)를 한 글자씩 순차 타이핑하는 전용 엔진
+function runSynapseTutorTypewriter() {
+    const stage = document.getElementById('syn-stage-body');
+    if (!stage) return;
+    const guideBoxes = stage.querySelectorAll('.tutor-guide-box');
+    guideBoxes.forEach(box => {
+        const divs = box.querySelectorAll('div');
+        if (divs.length >= 2) {
+            const titleDiv = divs[0];
+            const bodyDiv = divs[1];
+            const fullHtml = bodyDiv.innerHTML;
+            const plainTxt = bodyDiv.innerText || '';
+            if (!plainTxt) return;
+
+            // 스포트라이트 테두리 점등
+            box.style.transition = 'all 0.3s ease';
+            box.style.boxShadow = '0 0 26px rgba(56,189,248,0.65), inset 0 0 14px rgba(16,185,129,0.3)';
+            box.style.border = '1.5px solid #38BDF8';
+            box.style.borderLeft = '5px solid #FBBF24';
+
+            const badgeId = 'syn-tw-bdg-' + Math.random().toString(36).slice(2, 7);
+            const origTitle = titleDiv.innerHTML;
+            titleDiv.innerHTML =
+                '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+                    '<span>' + origTitle + '</span>' +
+                    '<span id="' + badgeId + '" style="background:linear-gradient(90deg,#FBBF24,#38BDF8);color:#090D16;font-size:10.5px;font-weight:900;padding:2px 9px;border-radius:99px;">⌨️ 실시간 타이핑 가이드 중...</span>' +
+                '</div>';
+
+            bodyDiv.innerHTML = '';
+            let idx = 0;
+            const t = setInterval(() => {
+                idx += 2;
+                if (idx < plainTxt.length) {
+                    bodyDiv.innerHTML = plainTxt.slice(0, idx) + '<span style="color:#FBBF24;font-weight:900;font-size:15px;">▌</span>';
+                } else {
+                    clearInterval(t);
+                    bodyDiv.innerHTML = fullHtml;
+                    const bEl = document.getElementById(badgeId);
+                    if (bEl) {
+                        bEl.style.background = '#10B981';
+                        bEl.style.color = '#022C22';
+                        bEl.innerHTML = '✅ 단계 가이드 타이핑 완료';
+                    }
+                    box.style.boxShadow = 'none';
+                }
+            }, 18);
+            countTimers.push(t);
+        }
+    });
+}
+
 function renderStageContent() {
     clearAllTimers();
     const b = BOOKS[curBookIdx];
@@ -5612,6 +5734,7 @@ function renderStageContent() {
             '</div>';
         animateCountUp('cnt-base', b.base_num, '원');
         animateCountUp('cnt-aval', b.aval_num, '원');
+        runSynapseTutorTypewriter();
     } else if (curStep === 2) {
         const pickedArr = String(b.lots || '').split('·').map(s => s.trim());
         let ballsHtml = '';
@@ -5672,6 +5795,7 @@ function renderStageContent() {
             }
         }, 55);
         countTimers.push(scanTimer);
+        runSynapseTutorTypewriter();
     } else if (curStep === 3) {
         stage.innerHTML =
             '<div class="stage-content-anim">' +
@@ -5710,6 +5834,7 @@ function renderStageContent() {
         animateCountUp('cnt-cut', b.cut_num, '원');
         animateCountUp('cnt-win', b.wbid_num, '원');
         animateCountUp('cnt-usr', b.ubid_num, '원');
+        runSynapseTutorTypewriter();
     } else if (curStep === 4) {
         stage.innerHTML =
             '<div class="stage-content-anim">' +
@@ -5779,29 +5904,51 @@ function checkQuizAnswer(choice) {
     const b = BOOKS[curBookIdx];
     const fb = document.getElementById('syn-quiz-feedback');
     if (!fb || !b) return;
+    if (fb._qTimer) clearInterval(fb._qTimer);
+
+    let msgText = '';
     if (choice === 2) {
         triggerConfettiBurst();
-        fb.style.border = '2px solid #10B981';
-        fb.style.background = 'rgba(6,78,59,0.5)';
+        fb.style.border = '2.5px solid #10B981';
+        fb.style.background = 'rgba(6,78,59,0.55)';
         fb.style.color = '#ECFDF5';
-        fb.innerHTML = '🎉 <b>[정답입니다! 축포와 함께 완벽한 영점 감각이 각인되었습니다!]</b><br>이 공고의 실제 개찰예가는 <b style="color:#FBBF24;">' + b.true_rate + '</b>였고, 대표님께서는 <b style="color:#34D399;">' + b.user_rate + '</b>로 정밀 타격하셨습니다. 이제 우측 하단의 <b>[🔓 5단계 오픈하기 ⏩]</b> 버튼을 눌러 최종 비전 각주를 확인하세요!';
+        fb.style.boxShadow = '0 0 25px rgba(16,185,129,0.6)';
+        msgText = '🎉 [정답 명중! 축포와 함께 완벽한 영점 감각이 뇌에 각인되었습니다!]
+▶ 이 공고의 실제 개찰예가는 ' + b.true_rate + ' (커트라인 ' + b.cutline_price + ')였고, 대표님께서는 ' + b.user_rate + '로 정밀 타격하셨습니다. 이제 우측 하단의 [🔓 5단계 오픈하기 ⏩] 버튼을 눌러 최종 비전 각주를 확인하세요!';
     } else if (choice === 1) {
-        fb.style.border = '2px solid #F87171';
-        fb.style.background = 'rgba(127,29,29,0.45)';
+        fb.style.border = '2.5px solid #F87171';
+        fb.style.background = 'rgba(127,29,29,0.5)';
         fb.style.color = '#FECACA';
-        fb.innerHTML = '🚨 <b>[하한선 미달 탈락 위험!]</b><br>100.005%로 너무 낮게 쓰면 낙찰하한선(' + b.cutline_price + ')보다 금액이 부족해 즉시 부적격 탈락합니다. (이해가 잘 안 되셨다면 좌측 하단 <b>[⏪ 3단계로 복귀]</b> 버튼을 눌러 커트라인 절벽을 다시 확인하거나, <b>②번 골든 포켓</b>을 다시 눌러보세요!)';
+        fb.style.boxShadow = '0 0 25px rgba(248,113,113,0.5)';
+        msgText = '🚨 [경보: 하한선 미달 즉시 탈락 위험!]
+▶ 커트라인(' + b.cutline_price + ')보다 낮게 조준하면 단 1원 부족으로도 부적격 탈락합니다. 좌측 하단 [⏪ 3단계로 복귀]로 커트라인 절벽을 다시 복습하거나, 슬라이더를 올린 뒤 [②번 골든 포켓]을 눌러보세요!';
     } else {
-        fb.style.border = '2px solid #38BDF8';
-        fb.style.background = 'rgba(8,47,73,0.5)';
+        fb.style.border = '2.5px solid #38BDF8';
+        fb.style.background = 'rgba(8,47,73,0.55)';
         fb.style.color = '#E0F2FE';
-        fb.innerHTML = '🛡️ <b>[미달은 피했지만 1순위 당첨 실패!]</b><br>100.095%로 너무 높게 쓰면 ' + b.true_rate + ' 부근에 밀집한 경쟁사들에게 밀려 후순위로 탈락합니다. <b>②번 골든 포켓</b>을 다시 클릭해 보세요!';
+        fb.style.boxShadow = '0 0 25px rgba(56,189,248,0.5)';
+        msgText = '🛡️ [판정: 미달은 피했지만 1순위 당첨 실패(후순위 밀림)!]
+▶ 너무 높게 안전 방어로만 조준하면 ' + b.true_rate + ' 부근에 밀집한 경쟁사들에게 1순위를 빼앗깁니다. 슬라이더를 골든 포켓으로 낮추거나 [②번 골든 포켓]을 다시 클릭해 보세요!';
     }
+
+    let qIdx = 0;
+    fb.style.whiteSpace = 'pre-wrap';
+    fb._qTimer = setInterval(() => {
+        qIdx += 2;
+        if (qIdx < msgText.length) {
+            fb.innerHTML = msgText.slice(0, qIdx) + '<span style="color:#FBBF24;font-weight:900;">▌</span>';
+        } else {
+            clearInterval(fb._qTimer);
+            fb.innerHTML = msgText;
+        }
+    }, 18);
 }
 
 function changeBook(idx) {
     curBookIdx = idx;
     curStep = 1;
     maxUnlockedStep = 1;
+    try { window.parent.localStorage.setItem('v12_active_book_json', JSON.stringify(BOOKS[curBookIdx])); } catch(e){}
     renderBookPills();
     renderStepper();
     renderStageContent();
@@ -5846,6 +5993,7 @@ if (BOOKS.length > 0) {
         const fIdx = BOOKS.findIndex(x => x.code === forcedCode);
         if (fIdx >= 0) curBookIdx = fIdx;
     }
+    try { window.parent.localStorage.setItem('v12_active_book_json', JSON.stringify(BOOKS[curBookIdx])); } catch(e){}
     renderBookPills();
     renderStepper();
     renderStageContent();
