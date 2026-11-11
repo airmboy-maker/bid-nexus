@@ -2386,7 +2386,7 @@ def analyze_notice_3d_ollama_v12(notice_text: str, user_question: str = "") -> d
         )
 
     # 1) 금액 추출 (기초금액 / A값)
-    nums = [int(n.replace(",", "")) for n in re.findall(r"\b\d{1,3}(?:,\d{3})+\b|\b\d{8,12}\b", txt)]
+    nums = [int(n.replace(",", "")) for n in re.findall(r"\d{1,3}(?:,\d{3})+|\d{8,12}", txt)]
     big_nums = [n for n in nums if n >= 50000000]
     base_amt = big_nums[0] if big_nums else 2850000000
     a_candidates = [n for n in nums if int(base_amt * 0.015) <= n <= int(base_amt * 0.18)]
@@ -2690,7 +2690,7 @@ def delete_library_book_v12(book_id: int):
     conn.close()
 
 
-def render_interactive_3d_library_html_v12(books: list, mood: str = "로열") -> str:
+def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", active_code: str = "") -> str:
     import json
     safe_books = []
     for b in (books or []):
@@ -3064,7 +3064,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열") ->
         htmlOut += '</div><div class="wood-shelf-3d"></div></div>';
     }
     shelvesRoot.innerHTML = htmlOut;
-    if (BOOKS.length > 0) selectBook(0);
+    let initIdx = 0; const targetCode = '__ACTIVE_CODE__'; if (targetCode) { const found = BOOKS.findIndex(b => b.code === targetCode); if (found >= 0) initIdx = found; } if (BOOKS.length > 0) selectBook(initIdx);
 
     const vp = document.getElementById('viewport-3d');
     const room = document.getElementById('room-3d');
@@ -3119,7 +3119,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열") ->
     </body>
     </html>
     """
-    return template.replace("__BOOKS_JSON__", books_json)
+    return template.replace("__BOOKS_JSON__", books_json).replace("__ACTIVE_CODE__", str(active_code or ""))
 
 
 def fetch_recent_selected_bid_packages_v12(session_dict: dict = None) -> list:

@@ -3409,10 +3409,42 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             if not _books:
                 st.info("조건에 일치하는 장서가 없습니다. 필터를 '전체'로 바꾸거나 [제2관 모의투찰]에서 새로운 복기 결과를 제본해 보세요.")
             else:
+                # [제1관 ➔ 제2관 ➔ 제3관 실시간 양장본 동기화 선택 바]
+                _bk_option_map = {f"📕 [{b['book_code']}] {b['title']} ({b['agency']} · {b['sector']} · 기초 {b['base_amt']:,}원)": b for b in _books}
+                _bk_opt_keys = list(_bk_option_map.keys())
+
+                _default_bk_idx = 0
+                _saved_code = st.session_state.get("_v12_synced_book_code", "")
+                for _idx_k, _k_str in enumerate(_bk_opt_keys):
+                    if _saved_code and f"[{_saved_code}]" in _k_str:
+                        _default_bk_idx = _idx_k
+                        break
+
+                _sync_c1, _sync_c2 = st.columns([3.0, 1.2])
+                with _sync_c1:
+                    _picked_bk_label = st.selectbox(
+                        "🎯 [제1관·제2관·제3관 통합 연동 선택기] 여기서 양장본을 선택하면 3D 독서대 열람과 동시에 [제2관 모의투찰] 및 [제3관 올라마 6차원 해부관]에 똑같이 자동 세팅됩니다:",
+                        options=_bk_opt_keys,
+                        index=_default_bk_idx,
+                        key="_v12_master_book_picker"
+                    )
+                _active_bk = _bk_option_map[_picked_bk_label]
+                st.session_state["_v12_synced_book_code"] = _active_bk["book_code"]
+                st.session_state["_v12_ollama_base"] = int(_active_bk["base_amt"])
+                st.session_state["_v12_ollama_aval"] = int(_active_bk["a_val"])
+
+                with _sync_c2:
+                    st.markdown(f"""
+                    <div style="background:rgba(16,185,129,0.18);border:1.5px solid #34D399;border-radius:8px;padding:8px 12px;margin-top:4px;text-align:center;">
+                        <div style="color:#A7F3D0;font-size:10.5px;font-weight:800;">🔗 제2관·제3관 자동 동기화 완료</div>
+                        <div style="color:#34D399;font-size:12.5px;font-weight:900;">현재 고정: [{_active_bk['book_code']}]</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
                 if "3D" in _view_mode:
                     _shelf_rows = max(1, (len(_books) + 2) // 3)
                     _canvas_h = 410 + (_shelf_rows * 260)
-                    _html_3d = _render_3d_html_v12(_books)
+                    _html_3d = _render_3d_html_v12(_books, active_code=_active_bk["book_code"])
                     _stc_v12.html(_html_3d, height=_canvas_h, scrolling=True)
                 else:
                     st.dataframe(_books, use_container_width=True)
@@ -3519,10 +3551,10 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             _ar_m1, _ar_m2, _ar_m3, _ar_m4, _ar_m5 = st.columns([1.7, 1.4, 1.5, 1.5, 1.1])
             with _ar_m1:
                 _seed_b_v12 = int(st.session_state.get("_v12_ollama_base", 1500000000) or 1500000000)
-                _ar_base = st.number_input("💰 모의투찰 기초금액 (원)", min_value=50000000, max_value=500000000000, value=_seed_b_v12, step=100000000, format="%d", key="_ar_base_in")
+                _ar_base = st.number_input("💰 모의투찰 기초금액 (원)", min_value=50000000, max_value=500000000000, value=_seed_b_v12, step=100000000, format="%d", key=f"_ar_base_in_{_seed_b_v12}")
             with _ar_m2:
                 _seed_a_v12 = int(st.session_state.get("_v12_ollama_aval", int(_ar_base * 0.06)) or int(_ar_base * 0.06))
-                _ar_aval = st.number_input("🛡️ A값 (국민연금·건보·안전비)", min_value=0, max_value=100000000000, value=_seed_a_v12, step=10000000, format="%d", key="_ar_aval_in")
+                _ar_aval = st.number_input("🛡️ A값 (국민연금·건보·안전비)", min_value=0, max_value=100000000000, value=_seed_a_v12, step=10000000, format="%d", key=f"_ar_aval_in_{_seed_a_v12}")
             with _ar_m3:
                 _ar_user_rate = st.number_input("👤 나의 모의투찰 사정률 (%)", min_value=96.0000, max_value=104.0000, value=100.0320, step=0.0050, format="%.4f", key="_ar_user_rate_in")
             with _ar_m4:
@@ -3562,6 +3594,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                         ceo_footnote=st.session_state.get("_ar_chat_in", "실전 1:1 모의개찰 및 사정 복기 완료"),
                         is_bookmarked=1
                     )
+                    st.session_state["_v12_synced_book_code"] = _bk_info["book_code"]
                     st.success(f"🏛️ 황금 인장 각인 완료! 도서코드 [{_bk_info['book_code']}] 3D 양장본이 [제1관: 3D 홀로그램 전략 서재] 선반에 영구 꽂혔습니다!")
             with _ar_btn3:
                 if st.button("🔄 15C4 복수예가 재추첨", key="_ar_redraw_btn", use_container_width=True):
@@ -3701,21 +3734,30 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                 st.dataframe(_ares["ranked_board"], height=330, use_container_width=True)
 
         # ==========================================================================
-        # [제3관] 올라마(Ollama) 연동 입찰공고문 6차원 입체 해부관
+        # [제3관] 올라마(Ollama) 연동 입찰공고문 6차원 입체 해부관 (제1관 선택 항목과 100% 자동 동기화!)
         # ==========================================================================
         with _tab_ollama:
-            st.markdown("##### 🧠 올라마(Ollama 로컬 인공지능) + 선택된 최근 입찰공고·시방서·내역서·적격서류 자동 불러오기 & 6차원 입체 해부관")
+            st.markdown("##### 🧠 올라마(Ollama 로컬 인공지능) + 제1관에서 선택한 입찰공고·시방서·내역서·적격서류 자동 불러오기 & 6차원 입체 해부관")
 
             _avail_pkgs = _fetch_bid_pkgs_v12(dict(st.session_state))
             _pkg_labels = [p["label"] for p in _avail_pkgs] + ["✍️ 직접 새로운 입찰공고문/서류 붙여넣기 또는 파일 업로드"]
 
+            # 제1관(_v12_synced_book_code)에서 선택한 양장본이 제3관 드롭다운에서도 100% 똑같이 기본 선택되도록 인덱스 매칭!
+            _synced_code = st.session_state.get("_v12_synced_book_code", "")
+            _matched_idx = 0
+            if _synced_code:
+                for _i_p, _p_obj in enumerate(_avail_pkgs):
+                    if _p_obj.get("pkg_id") == _synced_code or f"[{_synced_code}]" in _p_obj.get("label", ""):
+                        _matched_idx = _i_p
+                        break
+
             _auto_c1, _auto_c2 = st.columns([2.3, 1.7])
             with _auto_c1:
                 _sel_pkg_label = st.selectbox(
-                    "📂 1. 최근 선택된 입찰 공고 & 서류 패키지 자동 불러오기 (선택 즉시 공고문·시방서·내역서·적격서류가 자동 입력 및 분석됩니다):",
+                    "📂 1. 제1관(3D 서재)에서 선택한 입찰 공고 & 서류 패키지 자동 연동 (다른 공고로 변경도 가능합니다):",
                     options=_pkg_labels,
-                    index=0,
-                    key="_v12_auto_pkg_sel"
+                    index=_matched_idx,
+                    key=f"_v12_auto_pkg_sel_{_synced_code}"
                 )
             with _auto_c2:
                 _up_file = st.file_uploader(
@@ -3728,6 +3770,9 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             for _p in _avail_pkgs:
                 if _p["label"] == _sel_pkg_label:
                     _matched_pkg = _p
+                    # 제3관에서 드롭다운을 바꾸면 제1관 선택 코드도 함께 업데이트
+                    if _p.get("pkg_id") and _p["pkg_id"] != "ACTIVE-SESSION-01":
+                        st.session_state["_v12_synced_book_code"] = _p["pkg_id"]
                     break
 
             _auto_loaded_text = ""
@@ -3741,7 +3786,6 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             elif _matched_pkg is not None:
                 _auto_loaded_text = _matched_pkg["full_package_text"]
                 _doc_checks = _matched_pkg.get("doc_checklist", [])
-                # 모의투찰 입력창에도 자동 동기화
                 st.session_state["_v12_ollama_base"] = int(_matched_pkg["base_amt"])
                 st.session_state["_v12_ollama_aval"] = int(_matched_pkg["a_val"])
 
@@ -3750,15 +3794,15 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                 if _doc_checks:
                     st.markdown(
                         "<div style='background:rgba(6,78,59,0.38);border:1px solid #34D399;border-radius:8px;padding:8px 12px;margin-bottom:8px;font-size:11.5px;color:#A7F3D0;line-height:1.55;'>"
-                        "<b>✅ 자동 로드된 입찰서류 4종 패키지 검증 상태:</b><br>" + "<br>".join(_doc_checks) + "</div>",
+                        f"<b>🔗 제1관 선택 동기화 완료 [{_matched_pkg['pkg_id'] if _matched_pkg else '직접입력'}] — 입찰서류 4종 패키지 검증 상태:</b><br>" + "<br>".join(_doc_checks) + "</div>",
                         unsafe_allow_html=True
                     )
 
                 _ol_raw = st.text_area(
-                    "📄 자동 불러온 입찰공고문 · 시방서 · 물량내역서 · 적격심사 패키지 원문 (자유롭게 수정하거나 추가 서류를 붙여넣을 수 있습니다):",
+                    "📄 자동 불러온 입찰공고문 · 시방서 · 물량내역서 · 적격심사 패키지 원문:",
                     value=_auto_loaded_text,
                     height=180,
-                    key=f"_v12_ollama_raw_txt_{_sel_pkg_label[:18]}"
+                    key=f"_v12_ollama_raw_txt_{_sel_pkg_label[:22]}"
                 )
                 _ol_q = st.text_input(
                     "💬 올라마 공고·서류 분석관에게 특별히 확인할 질문 (입력 즉시 우측 브리핑에 반영):",
@@ -3773,27 +3817,43 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                         _ores_tmp = _analyze_ollama_v12(_ol_raw, _ol_q)
                         st.session_state["_v12_ollama_base"] = int(_ores_tmp["base_amt"])
                         st.session_state["_v12_ollama_aval"] = int(_ores_tmp["a_val"])
-                        st.session_state["_ar_base_in"] = int(_ores_tmp["base_amt"])
-                        st.session_state["_ar_aval_in"] = int(_ores_tmp["a_val"])
                         st.success(f"✅ [{_ores_tmp['agency']} · {_ores_tmp['sector']}] 기초금액 {_ores_tmp['base_amt']:,}원 및 A값 {_ores_tmp['a_val']:,}원이 [제2관 모의투찰]에 즉시 세팅되었습니다!")
 
             with _ol_c2:
-                # 사용자가 드롭다운에서 공고를 바꾸거나 질문을 입력하면 버튼을 따로 안 눌러도 즉시 자동 분석!
                 _ores = _analyze_ollama_v12(_ol_raw, _ol_q)
                 if _matched_pkg is not None:
-                    _ores["agency"] = _matched_pkg["agency"]
-                    _ores["sector"] = _matched_pkg["sector"]
-                    _ores["base_amt"] = int(_matched_pkg["base_amt"])
-                    _ores["a_val"] = int(_matched_pkg["a_val"])
-                    _ores["a_ratio"] = round((_ores["a_val"] / max(1, _ores["base_amt"])) * 100.0, 2)
-                    _ores["lower_limit"] = float(_matched_pkg["lower_limit"])
+                    _b_exact = int(_matched_pkg["base_amt"])
+                    _a_exact = int(_matched_pkg["a_val"])
+                    _l_exact = float(_matched_pkg["lower_limit"])
+                    _ag_exact = _matched_pkg["agency"]
+                    _sc_exact = _matched_pkg["sector"]
+                    _ar_exact = round((_a_exact / max(1, _b_exact)) * 100.0, 2)
+                    _rec_r_exact = round(100.0315 + (0.0045 if _ar_exact >= 6.0 else -0.0025) + (0.0060 if "전기" in _sc_exact or "실내" in _sc_exact or "통신" in _sc_exact else 0.0), 4)
+                    _exp_p_exact = _b_exact * (_rec_r_exact / 100.0)
+                    _rec_b_exact = (int(((_exp_p_exact - _a_exact) * (_l_exact / 100.0)) + _a_exact) // 10) * 10 + 3
+
+                    _ores["agency"] = _ag_exact
+                    _ores["sector"] = _sc_exact
+                    _ores["base_amt"] = _b_exact
+                    _ores["a_val"] = _a_exact
+                    _ores["a_ratio"] = _ar_exact
+                    _ores["lower_limit"] = _l_exact
+                    _ores["rec_rate"] = _rec_r_exact
+                    _ores["rec_bid"] = _rec_b_exact
+                    _q_prefix = f"질문하신 [{_ol_q}]에 대한 분석 결과, " if _ol_q else ""
+                    _ores["llm_answer"] = (
+                        f"{_q_prefix}본 공고([{_matched_pkg['pkg_id']}] {_matched_pkg['title']})는 [{_ag_exact} · {_sc_exact}] 발주 건으로 "
+                        f"기초금액 {_b_exact:,}원 대비 A값 비중이 {_ar_exact:.2f}%({_a_exact:,}원)입니다. "
+                        f"적격심사 낙찰하한율 {_l_exact:.3f}% 및 A값 방어 레버리지 효과를 반영한 목표 사정률 {_rec_r_exact:.4f}% "
+                        f"(권장 투찰가 {_rec_b_exact:,}원, 끝자리 3원 동가회피) 타격을 1순위로 제안합니다."
+                    )
 
                 st.markdown(f"""
                 <div style="background:rgba(15,23,42,0.96);border:2px solid #38BDF8;border-radius:12px;padding:15px 18px;box-shadow:0 0 25px rgba(56,189,248,0.18);">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;border-bottom:1px solid rgba(56,189,248,0.3);padding-bottom:8px;">
                         <div>
-                            <span style="background:#38BDF8;color:#090D16;font-size:11px;font-weight:900;padding:3px 9px;border-radius:4px;">자동 연동 6차원 공고·서류 투시</span>
-                            <span style="color:#F8FAFC;font-size:13.5px;font-weight:900;margin-left:8px;">{_matched_pkg['title'] if _matched_pkg else '실시간 입력 공고문 분석'}</span>
+                            <span style="background:#38BDF8;color:#090D16;font-size:11px;font-weight:900;padding:3px 9px;border-radius:4px;">제1관 연동 6차원 공고·서류 투시</span>
+                            <span style="color:#F8FAFC;font-size:13.5px;font-weight:900;margin-left:8px;">[{_matched_pkg['pkg_id'] if _matched_pkg else '직접입력'}] {_matched_pkg['title'] if _matched_pkg else '실시간 입력 공고문 분석'}</span>
                         </div>
                         <span style="color:#34D399;font-size:11.5px;font-weight:800;">{_ores['ollama_status']}</span>
                     </div>
