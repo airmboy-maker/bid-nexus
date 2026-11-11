@@ -634,25 +634,39 @@ if st.session_state["_standalone_academy_mode"]:
             _active_bk = _books[0]
             if "3D" in _view_mode:
                 _shelf_rows = max(1, (len(_books) + 2) // 3)
-                _canvas_h = 450 + (_shelf_rows * 275)
+                # 3D 서가 3단 + 하단 3D 양면 펼침 독서대([제1면]~[제4면]) 전체가 겹침이나 잘림 없이 완벽히 들어오는 정밀 높이
+                _canvas_h = 560 + (_shelf_rows * 290)
                 _html_3d = _render_3d_html_v12(_books, active_code=_active_bk["book_code"])
-                _stc_v12.html(_html_3d, height=_canvas_h, scrolling=True)
+                _stc_v12.html(_html_3d, height=_canvas_h, scrolling=False)
             else:
-                _mx_h = 240 + (len(_books) * 56)
-                _stc_v12.html(_render_matrix_html_v12(_books), height=_mx_h, scrolling=True)
+                # 초고밀도 매트릭스 표 + 4면 텔레메트리 바가 빈 여백 없이 딱 맞게 들어오는 정밀 높이
+                _mx_h = 385 + (len(_books) * 58)
+                _stc_v12.html(_render_matrix_html_v12(_books), height=_mx_h, scrolling=False)
 
-            if _lib_res.get("sector_board"):
-                st.markdown("###### 📈 공종별 레거시 적중 성적표 & 대표님 맞춤형 영점 보정 가이드")
-                st.dataframe(_lib_res["sector_board"], use_container_width=True)
+            # [시각화 1] 공종별 레거시 영점 정밀도 성적표 & 실전 자동 보정 홀로그램 대시보드
+            st.markdown(_render_sec_from_books_v12(_books), unsafe_allow_html=True)
 
-            _act_b1, _act_b2 = st.columns([2.2, 1.8])
+            # [시각화 2] 좌·우 대칭형 '당사 입찰 필승 비전서 편찬실' & '불량 장서 디지털 파쇄 챔버' 홀로그램 콘솔 독
+            _act_b1, _act_b2 = st.columns([1.9, 2.1])
             with _act_b1:
+                st.markdown(f"""
+                <div style="background:linear-gradient(135deg, rgba(8,47,73,0.94), rgba(15,23,42,0.98));border:2px solid #38BDF8;border-radius:12px;padding:14px 16px;margin-bottom:8px;min-height:108px;box-shadow:0 8px 22px rgba(0,0,0,0.65);">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                        <span style="background:#38BDF8;color:#090D16;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:4px;">MASTER WHITEPAPER VAULT</span>
+                        <span style="background:rgba(56,189,248,0.2);color:#7DD3FC;font-size:11px;font-weight:900;padding:2px 8px;border-radius:99px;border:1px solid #38BDF8;">📚 총 {len(_books)}권 레거시 수록</span>
+                    </div>
+                    <div style="color:#FFFFFF;font-size:14px;font-weight:900;margin-bottom:4px;">📘 당사 입찰 필승 비전서(秘傳書) 마스터 백서 편찬실</div>
+                    <div style="color:#94A3B8;font-size:11.5px;line-height:1.45;">
+                        서재에 보관된 전 장서의 공고 스펙·개찰예가·1순위 당첨가 및 대표님 친필 각주를 단 한 권의 전략 백서로 편찬합니다.
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
                 _bible_txt = "\n\n".join([
                     f"[{b['book_code']}] {b['title']} ({b['agency']} | {b['sector']})\n- 기초금액: {b['base_amt']:,}원 | 개찰예가: {b['true_yega_rate']:.4f}% | AI사정: {b['ai_rate']:.4f}% | 나의사정: {b['user_rate']:.4f}%\n- 1순위: {b['winner_company']} ({b['winner_bid']:,}원)\n- 대표님 비전 각주: {b['ceo_footnote']}"
                     for b in _books
                 ])
                 st.download_button(
-                    "📘 [당사 입찰 필승 비전서(秘傳書) 편찬] 현재 서재 장서 전체 요약 백서 다운로드 (.txt)",
+                    "📥 [당사 입찰 필승 비전서 마스터 백서 다운로드] 전 장서 통합본 (.txt)",
                     data=_bible_txt.encode("utf-8-sig"),
                     file_name="BID_NEXUS_당사입찰필승비전서_마스터백서.txt",
                     mime="text/plain",
@@ -660,12 +674,32 @@ if st.session_state["_standalone_academy_mode"]:
                     use_container_width=True
                 )
             with _act_b2:
-                _del_target = st.selectbox("🗑️ 파쇄할 불량/테스트 장서 선택", options=[f"{b['id']}: [{b['book_code']}] {b['title']}" for b in _books], key="_del_sel_bk")
-                if st.button("🔥 선택한 장서 디지털 파쇄기 소각", key="_incinerate_bk_btn", use_container_width=True):
-                    _tid = int(_del_target.split(":")[0])
-                    _del_book_v12(_tid)
-                    st.warning("🔥 디지털 파쇄기 소각 완료! 서재에서 해당 기록이 영구 제거되었습니다.")
-                    st.rerun()
+                st.markdown("""
+                <div style="background:linear-gradient(135deg, rgba(69,10,10,0.88), rgba(15,23,42,0.98));border:2px solid #F87171;border-radius:12px;padding:14px 16px;margin-bottom:8px;min-height:108px;box-shadow:0 8px 22px rgba(0,0,0,0.65);">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                        <span style="background:#EF4444;color:#FFFFFF;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:4px;">DIGITAL INCINERATOR CHAMBER</span>
+                        <span style="background:rgba(239,68,68,0.2);color:#FCA5A5;font-size:11px;font-weight:900;padding:2px 8px;border-radius:99px;border:1px solid #F87171;">🧹 서재 순도 100% 유지</span>
+                    </div>
+                    <div style="color:#FFFFFF;font-size:14px;font-weight:900;margin-bottom:4px;">🔥 불량·단순 테스트 기록 디지털 파쇄 챔버</div>
+                    <div style="color:#FCA5A5;font-size:11.5px;line-height:1.45;">
+                        단순 연습용 모의투찰이나 불필요한 오답 노트를 선택하여 서재에서 영구 파쇄·정화합니다.
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+                _inc_c1, _inc_c2 = st.columns([1.75, 1.15])
+                with _inc_c1:
+                    _del_target = st.selectbox(
+                        "파쇄할 불량/테스트 장서 선택",
+                        options=[f"{b['id']}: [{b['book_code']}] {b['title']}" for b in _books],
+                        key="_del_sel_bk",
+                        label_visibility="collapsed"
+                    )
+                with _inc_c2:
+                    if st.button("🔥 선택 장서 즉시 소각", key="_incinerate_bk_btn", use_container_width=True):
+                        _tid = int(_del_target.split(":")[0])
+                        _del_book_v12(_tid)
+                        st.warning("🔥 디지털 파쇄기 소각 완료! 서재에서 해당 기록이 영구 제거되었습니다.")
+                        st.rerun()
 
     # ==========================================================================
     # [제2관] 전 공종 모의투찰 & 블라인드 기출 대결 & 15C4 히트맵

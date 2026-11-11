@@ -3521,7 +3521,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
             window.parent.localStorage.setItem('v12_reanalyze_ts', nowD.toLocaleTimeString('ko-KR') + '.' + String(nowD.getMilliseconds()).slice(0,2));
         } catch (e) {}
         applyBookToParentTabs(b);
-        setTimeout(() => { try { if (window.frameElement) window.frameElement.style.height = (document.body.scrollHeight + 16) + 'px'; } catch(e){} }, 60);
+        
     }
 
     setInterval(() => {
@@ -4124,13 +4124,7 @@ def render_ultra_matrix_view_html_v12(books: list) -> str:
                     '<div style="color:#CBD5E1;font-size:10.5px;line-height:1.45;">' + b.ai_comm + '</div>' +
                 '</div>';
         }
-        setTimeout(() => {
-            try {
-                if (window.frameElement) {
-                    window.frameElement.style.height = (document.body.scrollHeight + 14) + 'px';
-                }
-            } catch (e) {}
-        }, 50);
+
 
         try {
             const nowD = new Date();
