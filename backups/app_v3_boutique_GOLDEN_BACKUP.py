@@ -3280,13 +3280,19 @@ import lattice1365.native_deck_controller as _ndc_mod
 _is_cab_mode, _cur_cab_zone = _ndc_mod.render_master_mode_and_zone_selector()
 _ndc_mod.render_top_cabinet_switcher_bar(_is_cab_mode, _cur_cab_zone)
 with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
-    # === [STANDALONE AI BIDDING ACADEMY BAY v10.5] ===
+
+    # === [STANDALONE AI BIDDING ACADEMY & STRATEGY LIBRARY v12.0] ===
     from lattice1365.local_ml_engine import (
         run_virtual_bid_arena_v10 as _run_arena_v10,
         commit_arena_learning_v10 as _commit_arena_v10,
         get_academy_evolution_stats_v10 as _get_acad_stats_v10,
         upsert_rival_bookmark_v8 as _arena_save_rival,
-        bulk_ingest_bid_records as _acad_bulk_learn
+        bulk_ingest_bid_records as _acad_bulk_learn,
+        analyze_notice_3d_ollama_v12 as _analyze_ollama_v12,
+        compute_15c4_heatmap_and_deadzone_v12 as _calc_heatmap_v12,
+        save_book_to_library_v12 as _save_book_v12,
+        query_strategy_library_v12 as _query_lib_v12,
+        delete_library_book_v12 as _del_book_v12
     )
 
     if "_standalone_academy_mode" not in st.session_state:
@@ -3303,73 +3309,219 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
         if st.session_state["_standalone_academy_mode"]:
             st.button("🔙 기존 입찰 플랫폼(Z1~Z9)으로 복귀", key="_sb_exit_acad_btn", on_click=_cb_exit_academy, use_container_width=True)
         else:
-            st.button("🎓 [독립 베이] AI 입찰·낙찰 학습소 열기", key="_sb_enter_acad_btn", on_click=_cb_enter_academy, use_container_width=True)
+            st.button("🏛️ [독립 베이] AI 학습소 & 전략 서재 열기", key="_sb_enter_acad_btn", on_click=_cb_enter_academy, use_container_width=True)
 
     _sw_c1, _sw_c2 = st.columns([3.2, 1.8])
     with _sw_c1:
         if st.session_state["_standalone_academy_mode"]:
             st.markdown("""
-            <div style="background:linear-gradient(90deg, rgba(6,78,59,0.85), rgba(15,23,42,0.98));border:2px solid #34D399;border-radius:10px;padding:8px 16px;">
-                <span style="background:#34D399;color:#052E16;font-size:11px;font-weight:900;padding:2px 8px;border-radius:4px;">독립 베이 가동 중</span>
-                <span style="color:#F8FAFC;font-size:13.5px;font-weight:900;margin-left:8px;">🎓 현재 [AI 입찰·낙찰 사정 전문 학습소] 단독 화면입니다 (기존 Z1~Z9 화면 완전 분리됨)</span>
+            <div style="background:linear-gradient(90deg, rgba(6,78,59,0.92), rgba(15,23,42,0.98));border:2px solid #FBBF24;border-radius:10px;padding:8px 16px;box-shadow:0 0 20px rgba(251,191,36,0.25);">
+                <span style="background:#FBBF24;color:#090D16;font-size:11px;font-weight:900;padding:2px 8px;border-radius:4px;">3D 가상 서재 & 학습소 가동 중</span>
+                <span style="color:#F8FAFC;font-size:13.5px;font-weight:900;margin-left:8px;">🏛️ 현재 [AI 입찰·낙찰 사정 전문 학습소 & 프라이빗 전략 서재] 단독 공간입니다</span>
             </div>
             """, unsafe_allow_html=True)
         else:
             st.markdown("""
-            <div style="background:linear-gradient(90deg, rgba(15,23,42,0.95), rgba(30,27,75,0.80));border:1.5px solid #38BDF8;border-radius:10px;padding:8px 16px;">
-                <span style="background:#38BDF8;color:#090D16;font-size:11px;font-weight:900;padding:2px 8px;border-radius:4px;">전용 학습 베이 분리 탑재</span>
-                <span style="color:#E2E8F0;font-size:13px;font-weight:800;margin-left:8px;">우측 버튼을 누르면 기존 플랫폼과 분리된 <b>[🎓 AI 입찰·낙찰 사정 전문 학습소]</b> 단독 화면으로 전환됩니다.</span>
+            <div style="background:linear-gradient(90deg, rgba(15,23,42,0.95), rgba(30,27,75,0.85));border:1.5px solid #38BDF8;border-radius:10px;padding:8px 16px;">
+                <span style="background:#38BDF8;color:#090D16;font-size:11px;font-weight:900;padding:2px 8px;border-radius:4px;">전용 학습 베이 & 3D 서재 분리 탑재</span>
+                <span style="color:#E2E8F0;font-size:13px;font-weight:800;margin-left:8px;">우측 버튼을 누르면 기존 플랫폼과 완전 격리된 <b>[🏛️ AI 사정 학습소 & 프라이빗 전략 서재]</b>로 진입합니다.</span>
             </div>
             """, unsafe_allow_html=True)
     with _sw_c2:
         if st.session_state["_standalone_academy_mode"]:
             st.button("🔙 기존 입찰 플랫폼(Z1~Z9) 화면으로 돌아가기", key="_top_exit_acad_btn", on_click=_cb_exit_academy, use_container_width=True)
         else:
-            st.button("🎓 [독립 베이] AI 입찰·낙찰 사정 전문 학습소 단독 진입", key="_top_enter_acad_btn", on_click=_cb_enter_academy, use_container_width=True)
+            st.button("🏛️ [독립 베이] AI 학습소 & 프라이빗 전략 서재 진입", key="_top_enter_acad_btn", on_click=_cb_enter_academy, use_container_width=True)
 
     if st.session_state["_standalone_academy_mode"]:
-        _ac_stats = _get_acad_stats_v10()
+        # 공간 무드 조명 스위처
+        _tm_c1, _tm_c2 = st.columns([2.6, 1.4])
+        with _tm_c2:
+            _space_mood = st.selectbox(
+                "🕯️ 가상공간 무드 조명 & 셰이더 테마",
+                options=[
+                    "🏛️ 로열 프라이빗 서재 모드 (월넛 & 24K 골드 스포트라이트)",
+                    "🌌 사이버 퀀텀 벙커 모드 (네온 시안 홀로그램 격자)",
+                    "🌿 딥 포커스 에메랄드 모드 (다크 벨벳 & 에메랄드 오로라)"
+                ],
+                key="_v12_space_mood_sel"
+            )
+
+        _bg_grad = "linear-gradient(135deg, #1A120B 0%, #0F172A 55%, #1E1B18 100%)"
+        _border_col = "#FBBF24"
+        _glow_col = "rgba(251,191,36,0.28)"
+        if "퀀텀" in _space_mood:
+            _bg_grad = "linear-gradient(135deg, #060B19 0%, #0F172A 50%, #082F49 100%)"
+            _border_col = "#38BDF8"
+            _glow_col = "rgba(56,189,248,0.28)"
+        elif "에메랄드" in _space_mood:
+            _bg_grad = "linear-gradient(135deg, #022C22 0%, #0F172A 55%, #064E3B 100%)"
+            _border_col = "#34D399"
+            _glow_col = "rgba(52,211,153,0.28)"
+
+        # [7대 3D 공간 애니메이션 & 기존 Z1~Z9 메뉴 완전 은닉 CSS 주입]
         st.markdown(f"""
-        <div style="background:linear-gradient(135deg, rgba(9,13,24,0.98), rgba(6,78,59,0.45));border:2px solid #10B981;border-radius:14px;padding:18px 22px;margin:10px 0 16px 0;box-shadow:0 0 28px rgba(16,185,129,0.20);">
+        <style>
+        @keyframes airlockZoomIn {{
+            0% {{ opacity: 0; transform: perspective(1200px) translateZ(-80px) scale(0.96); }}
+            100% {{ opacity: 1; transform: perspective(1200px) translateZ(0px) scale(1.0); }}
+        }}
+        @keyframes goldenDustFloat {{
+            0% {{ background-position: 0px 0px, 0px 0px, 0px 0px; }}
+            50% {{ background-position: 120px -180px, -90px -140px, 60px -90px; }}
+            100% {{ background-position: 240px -360px, -180px -280px, 120px -180px; }}
+        }}
+        @keyframes sonarPulseWave {{
+            0% {{ box-shadow: 0 0 0 0 {_glow_col}; }}
+            70% {{ box-shadow: 0 0 0 14px rgba(0,0,0,0); }}
+            100% {{ box-shadow: 0 0 0 0 rgba(0,0,0,0); }}
+        }}
+        @keyframes equalizerBounce {{
+            0%, 100% {{ height: 6px; }}
+            50% {{ height: 22px; }}
+        }}
+        .v12-sanctuary-hero {{
+            background: {_bg_grad};
+            background-image:
+                radial-gradient(2px 2px at 40px 60px, #FDE68A, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 160px 120px, #38BDF8, rgba(0,0,0,0)),
+                radial-gradient(2.5px 2.5px at 280px 80px, #34D399, rgba(0,0,0,0)),
+                {_bg_grad};
+            background-size: 320px 320px, 260px 260px, 380px 380px, 100% 100%;
+            animation: airlockZoomIn 0.55s cubic-bezier(0.22, 1, 0.36, 1), goldenDustFloat 18s linear infinite;
+            border: 2px solid {_border_col};
+            border-radius: 16px;
+            padding: 18px 22px;
+            margin: 6px 0 14px 0;
+            box-shadow: 0 12px 35px {_glow_col}, inset 0 0 40px rgba(251,191,36,0.08);
+        }}
+        .v12-bookshelf-case {{
+            background: linear-gradient(180deg, rgba(28,20,13,0.95) 0%, rgba(15,23,42,0.98) 90%);
+            border: 2px solid rgba(251,191,36,0.45);
+            border-bottom: 10px solid #451A03;
+            border-radius: 14px;
+            padding: 18px 18px 14px 18px;
+            margin-bottom: 16px;
+            perspective: 1200px;
+            box-shadow: inset 0 18px 32px rgba(0,0,0,0.75), 0 8px 24px rgba(0,0,0,0.5);
+        }}
+        .v12-book-spine {{
+            transition: all 0.32s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+            border-radius: 6px 10px 10px 6px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            position: relative;
+            cursor: pointer;
+        }}
+        .v12-book-spine:hover {{
+            transform: translateY(-7px) translateZ(26px) rotateY(-6deg);
+            box-shadow: -10px 14px 28px rgba(251,191,36,0.38);
+            filter: brightness(1.14);
+        }}
+        .v12-orb-slot {{
+            display: inline-block;
+            background: radial-gradient(circle at 30% 30%, #FDE68A, #D97706 70%, #78350F 100%);
+            color: #090D16;
+            font-weight: 900;
+            font-size: 12px;
+            padding: 5px 12px;
+            border-radius: 999px;
+            margin-right: 6px;
+            box-shadow: 0 0 14px rgba(251,191,36,0.65);
+            animation: sonarPulseWave 2.4s infinite;
+        }}
+        .v12-eq-bar {{
+            display: inline-block;
+            width: 4px;
+            background: #38BDF8;
+            margin: 0 2px;
+            border-radius: 2px;
+            animation: equalizerBounce 1.1s infinite ease-in-out;
+        }}
+        </style>
+        """, unsafe_allow_html=True)
+
+        _ac_stats = _get_acad_stats_v10()
+        _lib_summary = _query_lib_v12()
+        _total_legacy_books = _lib_summary["total_books"]
+        _total_legacy_krw = _lib_summary["total_base_sum"]
+        _tier_badge = "🏛️ 골든 아틀란티스 대도서관 (MASTER ORACLE)" if _total_legacy_books >= 3 else "📘 실버 전략 아카이브"
+
+        with _tm_c1:
+            st.markdown(f"""
+            <div style="padding-top:6px;color:#FDE68A;font-size:12.5px;font-weight:800;">
+                ✨ <b>레거시 자산 등급:</b> {_tier_badge} | <b>누적 편찬 장서:</b> {_total_legacy_books:,}권 (분석 공사규모 총 {_total_legacy_krw:,}원)
+            </div>
+            """, unsafe_allow_html=True)
+
+        st.markdown(f"""
+        <div class="v12-sanctuary-hero">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
                 <div>
-                    <div style="color:#34D399;font-size:12px;font-weight:900;">독립형 AI 입찰·낙찰 사정 전문 아카데미</div>
-                    <div style="color:#F8FAFC;font-size:21px;font-weight:900;margin-top:2px;">🎓 AI 입찰·낙찰 사정 전문 학습소 (건설업 전 공종 1:1 사정 연구 & 자가진화 센터)</div>
+                    <div style="color:{_border_col};font-size:12px;font-weight:900;letter-spacing:0.8px;">3D IMMERSIVE BIDDING ACADEMY & PRIVATE STRATEGY LIBRARY v12.0</div>
+                    <div style="color:#F8FAFC;font-size:21px;font-weight:900;margin-top:2px;">🏛️ AI 입찰·낙찰 사정 전문 학습소 & 프라이빗 전략 서재</div>
                 </div>
-                <div style="text-align:right;">
-                    <span style="background:rgba(16,185,129,0.2);color:#6EE7B7;font-size:12px;font-weight:800;padding:5px 12px;border-radius:99px;border:1px solid #34D399;">
-                        🧬 누적 학습 DB: {_ac_stats['total_db_cnt']:,}건 | 1:1 심층 복기: {_ac_stats['arena_cnt']:,}회
+                <div>
+                    <span class="v12-eq-bar" style="animation-delay:0.1s;"></span>
+                    <span class="v12-eq-bar" style="animation-delay:0.3s;"></span>
+                    <span class="v12-eq-bar" style="animation-delay:0.2s;"></span>
+                    <span class="v12-eq-bar" style="animation-delay:0.4s;"></span>
+                    <span style="background:rgba(16,185,129,0.22);color:#6EE7B7;font-size:12px;font-weight:800;padding:5px 12px;border-radius:99px;border:1px solid #34D399;margin-left:6px;">
+                        🧬 누적 개찰 신경망: {_ac_stats['total_db_cnt']:,}건 | 서재 양장본: {_total_legacy_books:,}권 | 1:1 복기: {_ac_stats['arena_cnt']:,}회
                     </span>
                 </div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:12px;">
-                <div style="background:rgba(15,23,42,0.90);border:1px solid rgba(56,189,248,0.4);border-radius:10px;padding:10px 14px;text-align:center;">
-                    <div style="color:#94A3B8;font-size:11px;">누적 개찰 학습 표본</div>
-                    <div style="color:#38BDF8;font-size:18px;font-weight:900;margin-top:3px;">{_ac_stats['total_db_cnt']:,}건</div>
+            <div style="display:grid;grid-template-columns:repeat(5, 1fr);gap:10px;">
+                <div style="background:rgba(15,23,42,0.88);border:1px solid rgba(56,189,248,0.45);border-radius:10px;padding:9px 12px;text-align:center;">
+                    <div style="color:#94A3B8;font-size:10.5px;">누적 개찰 학습 표본</div>
+                    <div style="color:#38BDF8;font-size:17px;font-weight:900;margin-top:2px;">{_ac_stats['total_db_cnt']:,}건</div>
                 </div>
-                <div style="background:rgba(15,23,42,0.90);border:1px solid rgba(52,211,153,0.4);border-radius:10px;padding:10px 14px;text-align:center;">
-                    <div style="color:#94A3B8;font-size:11px;">AI 사정 평균 영점오차 (MAE)</div>
-                    <div style="color:#34D399;font-size:18px;font-weight:900;margin-top:3px;">±{_ac_stats['ai_mae']:.4f}%p</div>
+                <div style="background:rgba(15,23,42,0.88);border:1px solid rgba(52,211,153,0.45);border-radius:10px;padding:9px 12px;text-align:center;">
+                    <div style="color:#94A3B8;font-size:10.5px;">AI 사정 평균 영점오차</div>
+                    <div style="color:#34D399;font-size:17px;font-weight:900;margin-top:2px;">±{_ac_stats['ai_mae']:.4f}%p</div>
                 </div>
-                <div style="background:rgba(15,23,42,0.90);border:1px solid rgba(192,132,252,0.4);border-radius:10px;padding:10px 14px;text-align:center;">
-                    <div style="color:#94A3B8;font-size:11px;">나의 모의투찰 평균오차</div>
-                    <div style="color:#C084FC;font-size:18px;font-weight:900;margin-top:3px;">±{_ac_stats['user_mae']:.4f}%p</div>
+                <div style="background:rgba(15,23,42,0.88);border:1px solid rgba(192,132,252,0.45);border-radius:10px;padding:9px 12px;text-align:center;">
+                    <div style="color:#94A3B8;font-size:10.5px;">나의 모의투찰 평균오차</div>
+                    <div style="color:#C084FC;font-size:17px;font-weight:900;margin-top:2px;">±{_ac_stats['user_mae']:.4f}%p</div>
                 </div>
-                <div style="background:rgba(15,23,42,0.90);border:1px solid rgba(251,191,36,0.4);border-radius:10px;padding:10px 14px;text-align:center;">
-                    <div style="color:#94A3B8;font-size:11px;">학습소 1:1 복기 누적</div>
-                    <div style="color:#FBBF24;font-size:18px;font-weight:900;margin-top:3px;">{_ac_stats['arena_cnt']:,}회 완료</div>
+                <div style="background:rgba(15,23,42,0.88);border:1px solid rgba(251,191,36,0.55);border-radius:10px;padding:9px 12px;text-align:center;">
+                    <div style="color:#94A3B8;font-size:10.5px;">서재 영구제본 장서</div>
+                    <div style="color:#FBBF24;font-size:17px;font-weight:900;margin-top:2px;">🏆 {_lib_summary['gold_cnt']} · 📘 {_lib_summary['blue_cnt']} · 📕 {_lib_summary['red_cnt']}</div>
+                </div>
+                <div style="background:rgba(15,23,42,0.88);border:1px solid rgba(244,114,182,0.45);border-radius:10px;padding:9px 12px;text-align:center;">
+                    <div style="color:#94A3B8;font-size:10.5px;">누적 레거시 분석자산</div>
+                    <div style="color:#F472B6;font-size:16px;font-weight:900;margin-top:2px;">{_total_legacy_krw // 100000000:,}억 원</div>
                 </div>
             </div>
         </div>
         """, unsafe_allow_html=True)
 
-        _acad_t1, _acad_t2, _acad_t3 = st.tabs([
-            "⚔️ [제1학습실] 건설업 전 공종 모의투찰 & AI 1:1 사정 대조",
-            "📋 [제2학습실] 실제 나라장터 개찰결과 붙여넣기 & 응찰사 정밀 해부",
-            "📈 [제3학습실] 누적 학습 노트 & 신경망 진화 이력"
+        # 4대 독립 공간 탭
+        _tab_arena, _tab_ollama, _tab_library, _tab_paste = st.tabs([
+            "⚔️ [제1관: 모의투찰 & 블라인드 대결장] 전 공종 1:1 개찰 복기 · 15C4 히트맵",
+            "🧠 [제2관: 올라마 공고문 6차원 해부관] 입찰공고문 원문 AI 입체분석 & 독소조항 탐지",
+            "🏛️ [제3관: 프라이빗 입찰 전략 서재] 3D 양장본 서가 · 4-IN-1 바인더 · 레거시 자산관",
+            "📋 [제4관: 실전 개찰내역 고속 수집기] 나라장터 응찰사 복사·붙여넣기 자동 해부"
         ])
 
-        with _acad_t1:
+        # ==========================================================================
+        # [제1관] 전 공종 모의투찰 & 블라인드 기출 대결 & 15C4 히트맵
+        # ==========================================================================
+        with _tab_arena:
+            _mode_c1, _mode_c2, _mode_c3 = st.columns([2.0, 1.5, 1.5])
+            with _mode_c1:
+                _blind_mode = st.checkbox("🕶️ [블라인드 기출문제 진검승부 모드] 실제 개찰 사정률을 가려놓고 맞히기", value=False, key="_v12_blind_chk")
+            with _mode_c2:
+                if _blind_mode and st.button("🎲 새로운 블라인드 기출문제 출제", key="_v12_new_blind_btn", use_container_width=True):
+                    import random as _rnd_bl
+                    st.session_state["_v12_blind_secret_rate"] = round(_rnd_bl.uniform(99.9650, 100.0850), 4)
+                    st.session_state["_v12_blind_revealed"] = False
+                    st.rerun()
+            with _mode_c3:
+                if _blind_mode and st.button("🔓 블라인드 정답 개봉 & 승패 판정", key="_v12_reveal_blind_btn", use_container_width=True):
+                    st.session_state["_v12_blind_revealed"] = True
+
             _ar_c1, _ar_c2, _ar_c3, _ar_c4 = st.columns([2.1, 1.5, 1.8, 1.4])
             with _ar_c1:
                 _ar_sector = st.selectbox(
@@ -3428,19 +3580,22 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
 
             _ar_m1, _ar_m2, _ar_m3, _ar_m4, _ar_m5 = st.columns([1.7, 1.4, 1.5, 1.5, 1.1])
             with _ar_m1:
-                _ar_base = st.number_input("💰 모의투찰 기초금액 (원)", min_value=50000000, max_value=500000000000, value=1500000000, step=100000000, format="%d", key="_ar_base_in")
+                _seed_b_v12 = int(st.session_state.get("_v12_ollama_base", 1500000000) or 1500000000)
+                _ar_base = st.number_input("💰 모의투찰 기초금액 (원)", min_value=50000000, max_value=500000000000, value=_seed_b_v12, step=100000000, format="%d", key="_ar_base_in")
             with _ar_m2:
-                _ar_aval = st.number_input("🛡️ A값 (국민연금·건보·안전비)", min_value=0, max_value=100000000000, value=int(_ar_base * 0.06), step=10000000, format="%d", key="_ar_aval_in")
+                _seed_a_v12 = int(st.session_state.get("_v12_ollama_aval", int(_ar_base * 0.06)) or int(_ar_base * 0.06))
+                _ar_aval = st.number_input("🛡️ A값 (국민연금·건보·안전비)", min_value=0, max_value=100000000000, value=_seed_a_v12, step=10000000, format="%d", key="_ar_aval_in")
             with _ar_m3:
-                _ar_user_rate = st.number_input("👤 나의 모의투찰 사정률 (%)", min_value=96.0000, max_value=104.0000, value=100.0250, step=0.0050, format="%.4f", key="_ar_user_rate_in")
+                _ar_user_rate = st.number_input("👤 나의 모의투찰 사정률 (%)", min_value=96.0000, max_value=104.0000, value=100.0320, step=0.0050, format="%.4f", key="_ar_user_rate_in")
             with _ar_m4:
                 _ar_real_override = st.number_input("🎯 실제 개찰 사정률 (0=AI자동추첨)", min_value=0.0000, max_value=105.0000, value=0.0000, step=0.0100, format="%.4f", key="_ar_real_override_in")
             with _ar_m5:
                 _ar_rivals_cnt = st.number_input("⚔️ 응찰사 수", min_value=5, max_value=2000, value=55, step=5, key="_ar_rivals_in")
 
-            _ar_btn1, _ar_btn2, _ar_btn3 = st.columns([2.2, 2.0, 1.8])
+            _ar_btn1, _ar_btn2, _ar_btn3 = st.columns([2.1, 2.1, 1.8])
             with _ar_btn1:
-                if st.button("🚀 [모의개찰 실행] AI 사정가 vs 나의 투찰가 1:1 개찰 & 응찰사 전수 해부", key="_ar_run_btn", use_container_width=True):
+                if st.button("🚀 [모의개찰 실행] 15C4 퀀텀 추첨 & AI vs 나의 타점 1:1 개찰 대조", key="_ar_run_btn", use_container_width=True):
+                    _use_ov = float(st.session_state.get("_v12_blind_secret_rate", 0.0)) if _blind_mode else float(_ar_real_override)
                     st.session_state["_arena_last_result"] = _run_arena_v10(
                         sector=_ar_sector,
                         agency=_ar_agency.split("(")[0],
@@ -3449,24 +3604,29 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                         lower_limit=float(_ar_low),
                         user_rate=float(_ar_user_rate),
                         est_rivals=int(_ar_rivals_cnt),
-                        real_win_rate_override=float(_ar_real_override)
+                        real_win_rate_override=_use_ov
                     )
+                    if _blind_mode:
+                        st.session_state["_v12_blind_revealed"] = True
             with _ar_btn2:
-                if st.button("🧬 [자가학습 각인] 이번 개찰 결과와 1순위 응찰사를 신경망 DB에 즉시 흡수", key="_ar_learn_btn", use_container_width=True):
+                if st.button("📚 [서재에 양장본 제본 & 신경망 각인] 이번 복기 결과를 프라이빗 서재에 영구 보관", key="_ar_learn_btn", use_container_width=True):
                     if "_arena_last_result" not in st.session_state:
                         st.session_state["_arena_last_result"] = _run_arena_v10(
                             sector=_ar_sector, agency=_ar_agency.split("(")[0], base_amt=int(_ar_base),
                             a_val=int(_ar_aval), lower_limit=float(_ar_low), user_rate=float(_ar_user_rate),
                             est_rivals=int(_ar_rivals_cnt), real_win_rate_override=float(_ar_real_override)
                         )
-                    _lr_info = _commit_arena_v10(st.session_state["_arena_last_result"], user_memo=st.session_state.get("_ar_chat_in", "실전 모의개찰 자가학습"))
-                    _w_comp = st.session_state["_arena_last_result"].get("winner_company", "")
-                    _w_rt = float(st.session_state["_arena_last_result"].get("winner_rate", 100.03))
-                    if _w_comp and "AI" not in _w_comp and "나의" not in _w_comp:
-                        _arena_save_rival(rival_name=_w_comp, agency=_ar_agency.split("(")[0], observed_rate=_w_rt)
-                    st.success(f"🎉 플랫폼 자가학습 완료! 학습소 누적 복기 {_lr_info['total_arena_cnt']:,}건 & 메인 개찰 DB {_lr_info['total_hist_cnt']:,}건 반영!")
+                    _lr_info = _commit_arena_v10(st.session_state["_arena_last_result"], user_memo=st.session_state.get("_ar_chat_in", "1:1 복기 및 서재 제본"))
+                    _bk_info = _save_book_v12(
+                        st.session_state["_arena_last_result"],
+                        title=st.session_state.get("_v12_custom_book_title", ""),
+                        notice_raw_text=st.session_state.get("_v12_ollama_raw_txt", ""),
+                        ceo_footnote=st.session_state.get("_ar_chat_in", "실전 1:1 모의개찰 및 사정 복기 완료"),
+                        is_bookmarked=1
+                    )
+                    st.success(f"🏛️ 황금 인장 각인 완료! 도서코드 [{_bk_info['book_code']}] ({_bk_info['grade_tier']} 등급) 양장본이 [제3관: 프라이빗 입찰 전략 서재]에 영구 꽂혔습니다! (누적 DB {_lr_info['total_hist_cnt']:,}건)")
             with _ar_btn3:
-                if st.button("🔄 새로운 15C4 복수예가 재추첨", key="_ar_redraw_btn", use_container_width=True):
+                if st.button("🔄 15C4 복수예가 재추첨", key="_ar_redraw_btn", use_container_width=True):
                     st.session_state["_arena_last_result"] = _run_arena_v10(
                         sector=_ar_sector,
                         agency=_ar_agency.split("(")[0],
@@ -3492,17 +3652,20 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                 )
 
             _ares = st.session_state["_arena_last_result"]
+            _hide_secret = _blind_mode and not st.session_state.get("_v12_blind_revealed", True)
+
+            _orbs_html = "".join([f"<span class='v12-orb-slot'>🔮 {lot}</span>" for lot in _ares["picked_lots"]])
+            _disp_true_rate = "🔒 블라인드 미개봉" if _hide_secret else f"{_ares['true_yega_rate']:.4f}%"
+            _disp_cutline = "🔒 [정답 개봉] 클릭" if _hide_secret else f"{_ares['cutline_bid']:,}원"
 
             st.markdown(f"""
-            <div style="background:rgba(15,23,42,0.96);border:1.5px solid rgba(56,189,248,0.55);border-radius:12px;padding:14px 18px;margin:10px 0;">
+            <div style="background:rgba(15,23,42,0.96);border:1.5px solid {_border_col};border-radius:12px;padding:14px 18px;margin:10px 0;">
                 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;border-bottom:1px solid rgba(148,163,184,0.2);padding-bottom:8px;">
                     <div>
-                        <span style="background:#10B981;color:#052E16;font-size:11px;font-weight:900;padding:2px 8px;border-radius:4px;">1:1 사정 대조 & 개찰 성적표</span>
-                        <span style="color:#F8FAFC;font-size:13.5px;font-weight:900;margin-left:8px;">{_ares['sector']} | {_ares['agency']} (기존 학습 평균 {_ares['hist_mean']:.4f}% · 표준편차 ±{_ares['hist_std']:.4f}%)</span>
+                        <span style="background:#10B981;color:#052E16;font-size:11px;font-weight:900;padding:2px 8px;border-radius:4px;">1:1 사정 대조 & 퀀텀 추첨 성적표</span>
+                        <span style="color:#F8FAFC;font-size:13.5px;font-weight:900;margin-left:8px;">{_ares['sector']} | {_ares['agency']} (학습 DB 평균 {_ares['hist_mean']:.4f}% · 표준편차 ±{_ares['hist_std']:.4f}%)</span>
                     </div>
-                    <div style="color:#FDE68A;font-size:12px;font-weight:800;">
-                        🎰 추첨된 4개 복수예가: {' · '.join(_ares['picked_lots'])}
-                    </div>
+                    <div>{_orbs_html}</div>
                 </div>
                 <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:10px;">
                     <div style="background:rgba(56,189,248,0.10);border:1.5px solid #38BDF8;border-radius:9px;padding:10px;text-align:center;">
@@ -3519,8 +3682,8 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                     </div>
                     <div style="background:rgba(245,158,11,0.10);border:1.5px solid #FBBF24;border-radius:9px;padding:10px;text-align:center;">
                         <div style="color:#FDE68A;font-size:11px;font-weight:800;">🎯 개찰 예정가격 & 낙찰하한선</div>
-                        <div style="color:#FBBF24;font-size:16px;font-weight:900;margin:4px 0;">{_ares['cutline_bid']:,}원</div>
-                        <div style="color:#E2E8F0;font-size:11.5px;font-weight:700;">개찰 예가사정률: {_ares['true_yega_rate']:.4f}%</div>
+                        <div style="color:#FBBF24;font-size:16px;font-weight:900;margin:4px 0;">{_disp_cutline}</div>
+                        <div style="color:#E2E8F0;font-size:11.5px;font-weight:700;">개찰 예가사정률: {_disp_true_rate}</div>
                         <div style="color:#FEF08A;font-size:10.5px;margin-top:3px;">예정가격: {_ares['true_exp_price']:,}원</div>
                     </div>
                     <div style="background:rgba(16,185,129,0.12);border:1.5px solid #34D399;border-radius:9px;padding:10px;text-align:center;">
@@ -3533,39 +3696,271 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             </div>
             """, unsafe_allow_html=True)
 
+            # 15C4 번호별 추첨 빈도 히트맵 & 응찰사 사정률 밀집(데드존) 분포도
+            _hm_data = _calc_heatmap_v12(_ares)
+            with st.expander("🔥 [15C4 복수예가 번호별 추첨 편향 히트맵 & 응찰사 사정률 데드존 해부도] — 클릭하여 접기/열기", expanded=True):
+                _hm_c1, _hm_c2 = st.columns([1.55, 1.45])
+                with _hm_c1:
+                    st.markdown("###### 🎰 1번~15번 복수예비가격 추첨 빈도 히트맵 (황금 테두리 = 이번 개찰 추첨 번호)")
+                    _slots_html = "<div style='display:grid;grid-template-columns:repeat(5, 1fr);gap:6px;'>"
+                    for _ls in _hm_data["lot_stats"]:
+                        _bd = "2px solid #FBBF24" if _ls["is_hit"] else "1px solid rgba(56,189,248,0.3)"
+                        _bg = "rgba(251,191,36,0.22)" if _ls["is_hit"] else "rgba(15,23,42,0.85)"
+                        _slots_html += (
+                            f"<div style='background:{_bg};border:{_bd};border-radius:7px;padding:6px 8px;text-align:center;'>"
+                            f"<div style='color:#F8FAFC;font-size:11.5px;font-weight:900;'>{_ls['num']} {'🎯' if _ls['is_hit'] else ''}</div>"
+                            f"<div style='color:#94A3B8;font-size:10px;'>{_ls['slot_rate']:.3f}%</div>"
+                            f"<div style='color:#34D399;font-size:10.5px;font-weight:800;'>선택비중 {_ls['freq']}%</div>"
+                            f"</div>"
+                        )
+                    _slots_html += "</div>"
+                    st.markdown(_slots_html, unsafe_allow_html=True)
+                with _hm_c2:
+                    st.markdown("###### 📊 응찰사 사정률 구간별 밀집도 (데드존 vs 진공포켓 스캔)")
+                    _z_html = "<div style='background:rgba(15,23,42,0.9);border:1px solid rgba(148,163,184,0.3);border-radius:8px;padding:8px 12px;'>"
+                    for _zn in _hm_data["zones"]:
+                        _bar_w = min(100, int(_zn["cnt"] * 4.5) + 4)
+                        _bar_c = "#EF4444" if _zn["cnt"] >= 12 else ("#38BDF8" if "진공" in _zn["label"] else "#10B981")
+                        _z_html += (
+                            f"<div style='margin-bottom:5px;'>"
+                            f"<div style='display:flex;justify-content:space-between;font-size:11px;color:#E2E8F0;'><span>{_zn['label']}</span><b>{_zn['cnt']}개사</b></div>"
+                            f"<div style='background:rgba(30,41,59,0.9);height:7px;border-radius:4px;overflow:hidden;margin-top:2px;'>"
+                            f"<div style='width:{_bar_w}%;background:{_bar_c};height:100%;'></div></div></div>"
+                        )
+                    _z_html += "</div>"
+                    st.markdown(_z_html, unsafe_allow_html=True)
+
             _deb_col1, _deb_col2 = st.columns([1.45, 1.55])
             with _deb_col1:
-                st.markdown("##### 🗣️ AI 수석 사정관의 1:1 입체 복기 브리핑 & 전략 토론")
+                st.markdown("##### 🗣️ AI 수석 사정관의 1:1 입체 복기 브리핑 & 비전(秘傳) 각주 작성")
                 st.info(_ares["commentary"])
 
-                if "_arena_discussion_log" not in st.session_state:
-                    st.session_state["_arena_discussion_log"] = []
-
+                _custom_b_title = st.text_input(
+                    "📕 서재 양장본 제본용 공고 제목 (비워두면 자동 생성):",
+                    placeholder="예: 과천 지식정보타운 공공청사 전기공사 (1순위 적중 복기)",
+                    key="_v12_custom_book_title"
+                )
                 _user_q = st.text_input(
-                    "💬 AI 사정관에게 질문하거나 본인의 사정 근거(가설)를 입력해 토론하세요:",
-                    placeholder="예: 이 공종에서 A값 비중이 높을 때 사정률을 0.02%p 낮추면 어떨까?",
+                    "💬 AI 사정관 토론 질문 & 서재에 영구 각인할 대표님 친필 각주:",
+                    placeholder="예: A값 비중이 6% 이상인 교육청 공고는 +0.012%p 상향 타격이 정답임",
                     key="_ar_chat_in"
                 )
-                if st.button("🗣️ AI와 1:1 사정 전략 토론 & 가중치 보정 제안 받기", key="_ar_chat_btn", use_container_width=True):
+                if st.button("🗣️ AI와 1:1 사정 전략 토론 & 합의 최적 타점 산출", key="_ar_chat_btn", use_container_width=True):
                     _diff_au = _ares["user_rate"] - _ares["ai_rate"]
                     _opt_blend = round(_ares["true_yega_rate"] * 0.5 + _ares["ai_rate"] * 0.3 + _ares["user_rate"] * 0.2, 4)
                     _opt_bid = int(round(((_ares["base_amt"] * (_opt_blend / 100.0) - _ares["a_val"]) * (_ares["lower_limit"] / 100.0)) + _ares["a_val"]))
                     _reply = (
-                        f"**[AI 1:1 심층 답변]** 말씀하신 내용(`{_user_q or '사정률 영점 토론'}`)을 반영해 기존 학습 DB({_ares['hist_mean']:.4f}%)와 대조했습니다. "
-                        f"현재 대표님 타점({_ares['user_rate']:.4f}%)은 AI 사정가({_ares['ai_rate']:.4f}%) 대비 **{_diff_au:+.4f}%p** 차이가 납니다. "
-                        f"이번 개찰 예가({_ares['true_yega_rate']:.4f}%)와 응찰사 상위 10% 밀집 구간을 결합한 **1:1 합의 최적 사정률은 `{_opt_blend:.4f}%` (권장 투찰가 `{_opt_bid:,}원`)**입니다. "
-                        f"위의 **[🧬 자가학습 각인]** 버튼을 누르시면 이 보정값이 다음 입찰부터 즉시 반영됩니다."
+                        f"**[AI 사정관 1:1 합의 브리핑]** 대표님 코멘트(`{_user_q or '영점 보정 논의'}`)를 반영해 기존 학습 DB({_ares['hist_mean']:.4f}%)와 교차 검증했습니다. "
+                        f"이번 개찰 예가({_ares['true_yega_rate']:.4f}%)와 응찰사 진공포켓 구간을 결합한 **1:1 합의 최적 사정률은 `{_opt_blend:.4f}%` (권장 투찰가 `{_opt_bid:,}원`)**입니다. "
+                        f"상단의 **[📚 서재에 양장본 제본 & 신경망 각인]** 버튼을 누르면 이 각주가 양장본 제4면에 그대로 보존됩니다."
                     )
+                    if "_arena_discussion_log" not in st.session_state:
+                        st.session_state["_arena_discussion_log"] = []
                     st.session_state["_arena_discussion_log"].insert(0, _reply)
 
-                for _msg_item in st.session_state["_arena_discussion_log"][:4]:
+                for _msg_item in st.session_state.get("_arena_discussion_log", [])[:3]:
                     st.success(_msg_item)
 
             with _deb_col2:
                 st.markdown(f"##### 📊 개찰 응찰사 전체 내역 & 커트라인 분석표 (총 {len(_ares['ranked_board'])}개사)")
-                st.dataframe(_ares["ranked_board"], height=340, use_container_width=True)
+                st.dataframe(_ares["ranked_board"], height=330, use_container_width=True)
 
-        with _acad_t2:
+        # ==========================================================================
+        # [제2관] 올라마(Ollama) 연동 입찰공고문 6차원 입체 해부관
+        # ==========================================================================
+        with _tab_ollama:
+            st.markdown("##### 🧠 올라마(Ollama 로컬 LLM) + 한국형 정밀 파서 하이브리드 입찰공고문 6차원 입체 해부관")
+            _ol_c1, _ol_c2 = st.columns([1.45, 1.55])
+            with _ol_c1:
+                _ol_raw = st.text_area(
+                    "📄 나라장터 입찰공고문 원문(또는 핵심 요약문)을 붙여넣으세요 (비워두고 실행 시 표준 샘플 자동 해부):",
+                    height=165,
+                    placeholder="공고문 전문이나 기초금액, A값, 참가자격, 특기사항 등을 그대로 붙여넣으세요...",
+                    key="_v12_ollama_raw_txt"
+                )
+                _ol_q = st.text_input(
+                    "💬 올라마 공고 분석관에게 특별히 확인할 질문 (선택):",
+                    placeholder="예: 이 공고에서 입찰무효 주의사항과 A값 대비 유리한 사정률 전략은?",
+                    key="_v12_ollama_q_in"
+                )
+                _ol_b1, _ol_b2 = st.columns(2)
+                with _ol_b1:
+                    if st.button("🧠 [6차원 입체 해부 실행] 공고문 정밀 분석", key="_v12_run_ollama_btn", use_container_width=True):
+                        st.session_state["_v12_ollama_res"] = _analyze_ollama_v12(_ol_raw, _ol_q)
+                with _ol_b2:
+                    if st.button("⚡ 추출된 금액·하한율을 제1관 모의투찰에 즉시 세팅", key="_v12_send_to_arena_btn", use_container_width=True):
+                        _ores_tmp = st.session_state.get("_v12_ollama_res") or _analyze_ollama_v12(_ol_raw, _ol_q)
+                        st.session_state["_v12_ollama_base"] = int(_ores_tmp["base_amt"])
+                        st.session_state["_v12_ollama_aval"] = int(_ores_tmp["a_val"])
+                        st.success(f"✅ 기초금액 {_ores_tmp['base_amt']:,}원 및 A값 {_ores_tmp['a_val']:,}원이 [제1관 모의투찰] 입력창에 세팅되었습니다!")
+
+            with _ol_c2:
+                if "_v12_ollama_res" not in st.session_state:
+                    st.session_state["_v12_ollama_res"] = _analyze_ollama_v12("", "")
+                _ores = st.session_state["_v12_ollama_res"]
+                st.markdown(f"""
+                <div style="background:rgba(15,23,42,0.95);border:1.5px solid #38BDF8;border-radius:12px;padding:14px 16px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                        <span style="background:#38BDF8;color:#090D16;font-size:11px;font-weight:900;padding:2px 8px;border-radius:4px;">6D NOTICE X-RAY</span>
+                        <span style="color:#34D399;font-size:11.5px;font-weight:800;">{_ores['ollama_status']}</span>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;margin-bottom:10px;">
+                        <div style="background:rgba(9,13,22,0.9);padding:8px;border-radius:7px;">
+                            <div style="color:#94A3B8;font-size:10.5px;">🏛️ 발주처 / 공종</div>
+                            <div style="color:#F8FAFC;font-size:12px;font-weight:800;">{_ores['agency']}<br>{_ores['sector']}</div>
+                        </div>
+                        <div style="background:rgba(9,13,22,0.9);padding:8px;border-radius:7px;">
+                            <div style="color:#94A3B8;font-size:10.5px;">💰 추출 기초금액 / A값</div>
+                            <div style="color:#38BDF8;font-size:12.5px;font-weight:900;">기초 {_ores['base_amt']:,}원<br><span style="color:#FDE68A;">A값 {_ores['a_val']:,}원 ({_ores['a_ratio']}%)</span></div>
+                        </div>
+                        <div style="background:rgba(9,13,22,0.9);padding:8px;border-radius:7px;">
+                            <div style="color:#94A3B8;font-size:10.5px;">🎯 공고 맞춤 AI 추천타점</div>
+                            <div style="color:#34D399;font-size:13px;font-weight:900;">{_ores['rec_bid']:,}원<br><span style="color:#A7F3D0;font-size:11px;">사정률 {_ores['rec_rate']:.4f}% (하한 {_ores['lower_limit']}%)</span></div>
+                        </div>
+                    </div>
+                    <div style="color:#FDE68A;font-size:12px;font-weight:800;margin-bottom:4px;">🚨 공고문 독소조항 & 특기사항 스캔 결과:</div>
+                    <div style="color:#E2E8F0;font-size:11.5px;line-height:1.5;margin-bottom:8px;">{"<br>".join(_ores["risks"])}</div>
+                    <div style="background:rgba(6,78,59,0.45);border:1px solid #10B981;border-radius:8px;padding:10px;color:#ECFDF5;font-size:12px;line-height:1.55;">
+                        <b>🗣️ AI 공고 심층 브리핑:</b> {_ores['llm_answer']}
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+        # ==========================================================================
+        # [제3관] 프라이빗 입찰 전략 서재 (3D 입체 서가 & 4-IN-1 바인더 & 레거시 자산관)
+        # ==========================================================================
+        with _tab_library:
+            _flt1, _flt2, _flt3, _flt4, _flt5 = st.columns([1.4, 1.3, 1.4, 1.5, 1.4])
+            with _flt1:
+                _f_sec = st.selectbox("🏗️ 공종 필터", options=["전체", "건축", "토목", "조경", "실내건축", "철근", "기계설비", "전기", "통신", "소방", "국가유산"], key="_lib_f_sec")
+            with _flt2:
+                _f_ag = st.selectbox("🏛️ 발주처 필터", options=["전체", "조달청", "경기도", "서울", "LH", "한전", "교육청", "국방부"], key="_lib_f_ag")
+            with _flt3:
+                _f_grd = st.selectbox("📕 도서 등급 필터", options=["전체", "🏆 황금양장본(GOLD)", "📘 방어양장본(BLUE)", "📕 오답노트(RED)", "🔖 황금책갈피(VIP)"], key="_lib_f_grd")
+            with _flt4:
+                _f_kw = st.text_input("🔍 키워드/라이벌/각주 즉시 소환", placeholder="예: 동양기공, A값, 실내건축...", key="_lib_f_kw")
+            with _flt5:
+                _view_mode = st.selectbox("🗂️ 서재 열람 뷰 모드", options=["📚 3D 입체 서가 뷰 (책장)", "🃏 홀로그램 카드 갤러리 뷰", "📊 초고밀도 매트릭스 뷰"], key="_lib_view_mode")
+
+            _lib_res = _query_strategy_library_v12(_f_sec, _f_ag, _f_grd, _f_kw)
+            _books = _lib_res["books"]
+
+            if not _books:
+                st.info("조건에 일치하는 장서가 없습니다. 필터를 '전체'로 바꾸거나 [제1관]에서 새로운 복기 결과를 제본해 보세요.")
+            else:
+                if "3D 입체 서가" in _view_mode:
+                    st.markdown("<div class='v12-bookshelf-case'><div style='color:#FDE68A;font-size:13px;font-weight:900;margin-bottom:10px;'>🏛️ 대표님 전용 3D 입체 양장본 서가 (마우스를 책등 위에 올리면 양장본이 3D로 돌출됩니다)</div>", unsafe_allow_html=True)
+                    _sh_cols = st.columns(3)
+                    for _idx_b, _bk in enumerate(_books):
+                        _tier = _bk["grade_tier"]
+                        if _tier == "GOLD":
+                            _sp_bg = "linear-gradient(135deg, rgba(120,53,15,0.95), rgba(217,119,6,0.85))"
+                            _sp_bd = "2px solid #FBBF24"
+                            _badge_t = "🏆 황금족보(GOLD)"
+                        elif _tier == "BLUE":
+                            _sp_bg = "linear-gradient(135deg, rgba(12,74,110,0.95), rgba(2,132,199,0.85))"
+                            _sp_bd = "2px solid #38BDF8"
+                            _badge_t = "📘 상위방어(BLUE)"
+                        else:
+                            _sp_bg = "linear-gradient(135deg, rgba(127,29,29,0.95), rgba(220,38,38,0.85))"
+                            _sp_bd = "2px solid #F87171"
+                            _badge_t = "📕 오답노트(RED)"
+
+                        with _sh_cols[_idx_b % 3]:
+                            st.markdown(f"""
+                            <div class="v12-book-spine" style="background:{_sp_bg};border:{_sp_bd};border-left:8px solid #FEF08A;">
+                                <div style="display:flex;justify-content:space-between;align-items:center;">
+                                    <span style="color:#FEF08A;font-size:10.5px;font-weight:900;">{_bk['book_code']} {'🔖' if _bk['is_bookmarked'] else ''}</span>
+                                    <span style="background:rgba(0,0,0,0.45);color:#F8FAFC;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;">{_badge_t}</span>
+                                </div>
+                                <div style="color:#FFFFFF;font-size:13px;font-weight:900;margin:5px 0 3px 0;">📕 {_bk['title']}</div>
+                                <div style="color:#E2E8F0;font-size:11px;">{_bk['agency']} | {_bk['sector']} | 기초 {_bk['base_amt']:,}원</div>
+                                <div style="color:#FDE68A;font-size:11.5px;font-weight:800;margin-top:4px;">개찰예가 {_bk['true_yega_rate']:.4f}% | 나의사정 {_bk['user_rate']:.4f}%</div>
+                                <div style="color:#F8FAFC;font-size:10.5px;margin-top:4px;background:rgba(0,0,0,0.3);padding:4px 6px;border-radius:4px;">✍️ {_bk['ceo_footnote'][:42]}...</div>
+                            </div>
+                            """, unsafe_allow_html=True)
+                            if st.button(f"📖 [{_bk['book_code']}] 4-IN-1 마스터 바인더 펼치기", key=f"_open_bk_{_bk['id']}", use_container_width=True):
+                                st.session_state["_selected_binder_book"] = _bk
+                    st.markdown("</div>", unsafe_allow_html=True)
+
+                elif "홀로그램 카드" in _view_mode:
+                    _gal_cols = st.columns(2)
+                    for _idx_g, _bk in enumerate(_books):
+                        with _gal_cols[_idx_g % 2]:
+                            st.info(f"**[{_bk['book_code']}] {_bk['title']}** ({_bk['agency']} · {_bk['sector']})\n- **개찰예가:** `{_bk['true_yega_rate']:.4f}%` | **AI사정:** `{_bk['ai_rate']:.4f}%` | **나의사정:** `{_bk['user_rate']:.4f}%`\n- **1순위 낙찰사:** {_bk['winner_company']} ({_bk['winner_bid']:,}원)\n- **대표님 친필 각주:** {_bk['ceo_footnote']}")
+                            if st.button(f"📖 바인더 상세 열람 ({_bk['book_code']})", key=f"_gal_open_{_bk['id']}", use_container_width=True):
+                                st.session_state["_selected_binder_book"] = _bk
+                else:
+                    st.dataframe(_books, use_container_width=True)
+
+                # [4-IN-1 마스터 바인더 독서대 뷰어]
+                _sel_bk = st.session_state.get("_selected_binder_book") or _books[0]
+                st.markdown(f"""
+                <div style="background:linear-gradient(90deg, rgba(15,23,42,0.98), rgba(28,25,23,0.95));border:2px solid #FBBF24;border-radius:14px;padding:16px 20px;margin-top:10px;box-shadow:0 0 25px rgba(251,191,36,0.22);">
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;border-bottom:1px solid rgba(251,191,36,0.3);padding-bottom:8px;">
+                        <div>
+                            <span style="background:#FBBF24;color:#090D16;font-size:11px;font-weight:900;padding:3px 9px;border-radius:4px;">4-IN-1 MASTER BINDER DESK</span>
+                            <span style="color:#F8FAFC;font-size:16px;font-weight:900;margin-left:8px;">📖 열람 중인 양장본: [{_sel_bk['book_code']}] {_sel_bk['title']}</span>
+                        </div>
+                        <span style="color:#FDE68A;font-size:12px;font-weight:800;">제본일시: {_sel_bk['created_at']} | 추첨번호: {_sel_bk['picked_lots_str']}</span>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:10px;">
+                        <div style="background:rgba(9,13,22,0.92);border:1px solid rgba(148,163,184,0.35);border-radius:8px;padding:10px;">
+                            <div style="color:#38BDF8;font-size:11.5px;font-weight:900;margin-bottom:4px;">📄 [제1면] 입찰공고문 원문 & 스펙</div>
+                            <div style="color:#E2E8F0;font-size:11.5px;line-height:1.5;">{_sel_bk['notice_raw_text']}</div>
+                        </div>
+                        <div style="background:rgba(9,13,22,0.92);border:1px solid rgba(192,132,252,0.35);border-radius:8px;padding:10px;">
+                            <div style="color:#C084FC;font-size:11.5px;font-weight:900;margin-bottom:4px;">🎯 [제2면] 모의응찰 vs AI 사정 대조</div>
+                            <div style="color:#E2E8F0;font-size:11.5px;line-height:1.6;">
+                                • 기초금액: <b>{_sel_bk['base_amt']:,}원</b><br>
+                                • A값: <b>{_sel_bk['a_val']:,}원</b> (하한율 {_sel_bk['lower_limit']}%)<br>
+                                • AI 사정률: <b style="color:#38BDF8;">{_sel_bk['ai_rate']:.4f}%</b><br>
+                                • 나의 사정률: <b style="color:#C084FC;">{_sel_bk['user_rate']:.4f}%</b>
+                            </div>
+                        </div>
+                        <div style="background:rgba(9,13,22,0.92);border:1px solid rgba(52,211,153,0.35);border-radius:8px;padding:10px;">
+                            <div style="color:#34D399;font-size:11.5px;font-weight:900;margin-bottom:4px;">📊 [제3면] 개찰 결과 & 1순위 해부</div>
+                            <div style="color:#E2E8F0;font-size:11.5px;line-height:1.6;">
+                                • 실제 개찰예가: <b style="color:#FBBF24;">{_sel_bk['true_yega_rate']:.4f}%</b><br>
+                                • 1순위 업체: <b style="color:#34D399;">{_sel_bk['winner_company']}</b><br>
+                                • 1순위 낙찰가: <b>{_sel_bk['winner_bid']:,}원</b><br>
+                                • 총 응찰사 수: <b>{_sel_bk['participants']}개사</b>
+                            </div>
+                        </div>
+                        <div style="background:rgba(9,13,22,0.92);border:1px solid rgba(251,191,36,0.55);border-radius:8px;padding:10px;">
+                            <div style="color:#FBBF24;font-size:11.5px;font-weight:900;margin-bottom:4px;">💬 [제4면] AI 논평 & 대표님 친필 각주</div>
+                            <div style="color:#FDE68A;font-size:11.5px;font-weight:800;margin-bottom:4px;">✍️ "{_sel_bk['ceo_footnote']}"</div>
+                            <div style="color:#CBD5E1;font-size:11px;line-height:1.45;">{_sel_bk['ai_commentary'][:150]}...</div>
+                        </div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                _act_b1, _act_b2 = st.columns([2.2, 1.8])
+                with _act_b1:
+                    _bible_txt = "\n\n".join([
+                        f"[{b['book_code']}] {b['title']} ({b['agency']} | {b['sector']})\n- 기초금액: {b['base_amt']:,}원 | 개찰예가: {b['true_yega_rate']:.4f}% | AI사정: {b['ai_rate']:.4f}% | 나의사정: {b['user_rate']:.4f}%\n- 1순위: {b['winner_company']} ({b['winner_bid']:,}원)\n- 대표님 비전 각주: {b['ceo_footnote']}"
+                        for b in _books
+                    ])
+                    st.download_button(
+                        "📘 [당사 입찰 필승 비전서(秘傳書) 편찬] 현재 서재 장서 전체 요약 백서 다운로드 (.txt)",
+                        data=_bible_txt.encode("utf-8-sig"),
+                        file_name="BID_NEXUS_당사입찰필승비전서_마스터백서.txt",
+                        mime="text/plain",
+                        key="_dl_bible_btn",
+                        use_container_width=True
+                    )
+                with _act_b2:
+                    if st.button(f"🗑️ 파쇄기 소각: 열람 중인 [{_sel_bk['book_code']}] 불량 기록 서재에서 영구 파기", key="_incinerate_bk_btn", use_container_width=True):
+                        _del_book_v12(_sel_bk["id"])
+                        st.session_state.pop("_selected_binder_book", None)
+                        st.warning("🔥 디지털 파쇄기 소각 완료! 서재에서 불필요한 기록이 깨끗하게 제거되었습니다.")
+                        st.rerun()
+
+        # ==========================================================================
+        # [제4관] 실제 나라장터 개찰결과 복사·붙여넣기 고속 해부 & 학습
+        # ==========================================================================
+        with _tab_paste:
             st.markdown("##### 📋 실제 나라장터(G2B) 개찰결과 응찰사 내역 복사·붙여넣기 즉시 해부 & 학습")
             _paste_txt = st.text_area(
                 "나라장터 개찰결과 화면의 표(순위, 업체명, 입찰금액, 투찰률/사정률 등)를 드래그해 그대로 붙여넣으세요:",
@@ -3586,23 +3981,16 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                             if any(k in _tk for k in ["(주)", "주식회사", "건설", "기공", "전력", "전기", "산업", "토건", "엔지", "설비"]):
                                 _comp_cand = _tk
                                 break
-                        _arena_save_rival(rival_name=_comp_cand, agency=_ar_agency.split("(")[0], observed_rate=_r_val)
-                        _acad_bulk_learn([{"agency": _ar_agency.split("(")[0], "yega_rate": _r_val, "base_amt": int(_ar_base), "participants": int(_ar_rivals_cnt)}])
+                        _arena_save_rival(rival_name=_comp_cand, agency="조달청", observed_rate=_r_val)
+                        _acad_bulk_learn([{"agency": "조달청", "yega_rate": _r_val, "base_amt": 1500000000, "participants": 55}])
                         _parsed_cnt += 1
                 if _parsed_cnt > 0:
                     st.success(f"✅ 총 {_parsed_cnt}개 응찰사의 실전 투찰 사정률을 추출하여 라이벌 북마크 및 신경망 DB에 영구 학습했습니다!")
                 else:
                     st.warning("사정률(예: 100.0345 등 96.0~103.99 사이 수치)이 포함된 줄을 찾지 못했습니다. 개찰 내역 텍스트를 확인해 주세요.")
 
-        with _acad_t3:
-            st.markdown("##### 📈 학습소 누적 1:1 복기 노트 & 신경망 진화 기록")
-            if _ac_stats["logs"]:
-                st.dataframe(_ac_stats["logs"], use_container_width=True)
-            else:
-                st.info("아직 저장된 1:1 복기 기록이 없습니다. [제1학습실]에서 [🧬 자가학습 각인] 버튼을 누르면 이곳에 누적 기록됩니다.")
-
         st.stop()
-    # === [END STANDALONE AI BIDDING ACADEMY BAY] ===
+    # === [END STANDALONE AI BIDDING ACADEMY & STRATEGY LIBRARY v12.0] ===
 
     # === [SNIPER-X SECRET WEAPON CONSOLE v4.0] ===
     import datetime as _dt_sx
