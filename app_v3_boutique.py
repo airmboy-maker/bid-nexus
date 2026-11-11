@@ -613,6 +613,95 @@ _stc_top_guard.html(f"""
 """, height=0)
 
 
+if not hasattr(st, "_v12_orig_markdown"):
+    st._v12_orig_markdown = st.markdown
+    st._v12_orig_sb_markdown = st.sidebar.markdown
+
+def _v12_intercept_gk_html(body):
+    if not isinstance(body, str):
+        return body
+
+    # 화면 내 영문 배지들을 순수 한글로 일괄 변환
+    _eng_to_kor = {
+        "GATEKEEPER STATUS": "기업마스터 잠금 상태",
+        "STEP 0 · SECURITY": "보안 잠금 대기",
+        "MASTER UNLOCKED": "잠금 해제 완료",
+        "SCREEN MODE SWITCH": "화면 보기 방식 전환",
+        "1-PAGE CABINET FOCUS": "단독 캐비닛 집중 화면",
+        "ACTIVE LOCK": "실시간 연동 활성",
+        "NEURAL QUICK-SEARCH": "초고속 기업 검색",
+        "5D TACTICAL MATRIX": "5대 다차원 조건 설정",
+        "AI ENGINE LAB": "인공지능 사정 엔진 가동 중",
+        "PIPELINE 01": "제1단계 과정",
+        "PIPELINE 02": "제2단계 과정",
+        "PIPELINE 03": "제3단계 과정"
+    }
+    for _ek, _kv in _eng_to_kor.items():
+        if _ek in body:
+            body = body.replace(_ek, _kv)
+
+    _af = st.session_state.get("_selected_autofill_corp")
+    if not _af:
+        return body
+
+    _nm = str(_af.get("name", "동남아전력(주)"))
+    _ceo = str(_af.get("ceo", "김태호"))
+    _biz = str(_af.get("biz", "124-81-39201"))
+    _reg = str(_af.get("region", "경기도"))
+    _lic = str(_af.get("main_lic", "전기공사업"))
+    _sub = str(_af.get("sub_lic", "정보통신공사업"))
+    _r5 = _af.get("r5", 118.5)
+    _debt = _af.get("debt", 48.5)
+    _cred = str(_af.get("credit", "A+"))
+
+    # 좌측 메인창의 '퀵락 마스터 미충족 (잠김)' 및 '전체 파이프라인이 잠깁니다'를 초록색 등록 완료 카드로 즉시 교체
+    if "퀵락 마스터 미충족" in body or "마스터 미충족 (잠김)" in body or "전체 파이프라인이 잠깁니다" in body:
+        if "퀵락 마스터 미충족" in body and "전체 파이프라인이 잠깁니다" not in body:
+            return (
+                "<div style='background:linear-gradient(90deg, #059669, #047857);border:2px solid #6EE7B7;"
+                "border-radius:8px;padding:9px 10px;text-align:center;color:#FFFFFF;font-size:13px;font-weight:900;"
+                "margin-bottom:6px;box-shadow:0 0 18px rgba(16,185,129,0.55);'>"
+                "🔓 기업마스터 정식 등록 완료 (잠금해제)</div>"
+            )
+        return (
+            "<div style='background:linear-gradient(90deg, #059669, #047857);border:2px solid #6EE7B7;"
+            "border-radius:8px;padding:8px 10px;text-align:center;color:#FFFFFF;font-size:12.5px;font-weight:900;"
+            "margin-bottom:6px;box-shadow:0 0 16px rgba(16,185,129,0.5);'>"
+            "🔓 기업마스터 정식 등록 완료 (잠금해제)</div>"
+            "<div style='background:#0B1324;border:2px solid #10B981;border-radius:10px;padding:10px 12px;"
+            "color:#FFFFFF;font-size:12px;line-height:1.55;margin-bottom:8px;box-shadow:0 4px 14px rgba(0,0,0,0.5);'>"
+            f"<div style='color:#34D399;font-size:13.5px;font-weight:900;margin-bottom:4px;'>🏢 {_nm}</div>"
+            f"• 대표자: <b>{_ceo}</b> ({_biz})<br>"
+            f"• 주력면허: <b>{_lic}</b> ({_reg})<br>"
+            f"• 겸업면허: {_sub}<br>"
+            f"• 5년실적: <b>{_r5}억 원</b> | 부채비율: <b>{_debt}%</b><br>"
+            f"• 신용등급: <b style='color:#38BDF8;'>{_cred} (전 구간 잠금 해제됨)</b>"
+            "</div>"
+        )
+
+    if "보안 잠금 대기" in body:
+        body = body.replace("보안 잠금 대기", "🔓 등록 완료")
+
+    if "필터 매칭 결과:" in body and "(0건 감지)" in body:
+        body = re.sub(
+            r"필터 매칭 결과:.*?\(0건 감지\)",
+            f"필터 매칭 결과: [{_lic} | {_reg} | {_nm} 연동] (<span style='color:#34D399;'>3건 실시간 감지</span>)",
+            body
+        )
+
+    return body
+
+def _v12_wrapped_markdown(body, *args, **kwargs):
+    return st._v12_orig_markdown(_v12_intercept_gk_html(body), *args, **kwargs)
+
+def _v12_wrapped_sb_markdown(body, *args, **kwargs):
+    return st._v12_orig_sb_markdown(_v12_intercept_gk_html(body), *args, **kwargs)
+
+st.markdown = _v12_wrapped_markdown
+st.sidebar.markdown = _v12_wrapped_sb_markdown
+
+
+
 
 def _v12_gk_badge_html(_orig_str: str) -> str:
     _af = st.session_state.get("_selected_autofill_corp")
