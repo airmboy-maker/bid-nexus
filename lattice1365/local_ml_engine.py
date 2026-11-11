@@ -3168,7 +3168,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
                 if (btxt.includes('선택 공고 & 서류 6차원 정밀 재분석') && !btn.dataset.v12Bound) {
                     btn.dataset.v12Bound = '1';
                     btn.addEventListener('click', () => {
-                        window.parent.localStorage.setItem('v12_reanalyze_ts', new Date().toLocaleTimeString('ko-KR'));
+                        const nowD = new Date(); window.parent.localStorage.setItem('v12_reanalyze_ts', nowD.toLocaleTimeString('ko-KR') + '.' + String(nowD.getMilliseconds()).slice(0,2));
                         window.parent.localStorage.setItem('v12_reanalyze_active', '1');
                     });
                 }
@@ -3200,56 +3200,110 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
 
             const tBrief = pDoc.getElementById('v12-t3-llm-brief');
             if (tBrief) {
-                let qHtml = '';
-                if (userQ) {
-                    qHtml = '<div style="background:rgba(56,189,248,0.18);border-left:4px solid #38BDF8;padding:8px 10px;border-radius:6px;margin-bottom:8px;color:#E0F2FE;">' +
-                        '<b>💬 질문하신 [' + userQ + '] 맞춤 심층 판독:</b><br>' +
-                        '• 본 공고(' + b.agency + ' · ' + b.sector + ')는 A값 비중이 ' + b.a_ratio + '(' + b.a_val + ')로 고정되어 있어, 사정률이 0.01%p 변동할 때 투찰금액이 약 ' + Math.round(baseN * 0.0001 * (lowF / 100)).toLocaleString('ko-KR') + '원씩 이동합니다. 시방서 및 내역서상 사후정산비(A값) 원안 미반영 시 입찰무효 또는 적격심사 감점 사유가 되므로 원안 금액(' + b.a_val + ')을 1원 오차 없이 고정하고 <b>' + rStd + '% (' + calcBid(recF) + ')</b>로 타격하는 것이 가장 유리합니다.' +
-                        '</div>';
-                }
+                const stateKey = b.code + '|' + userQ + '|' + reTs + '|' + sentTs;
+                if (window.parent._v12LastStateKey !== stateKey) {
+                    window.parent._v12LastStateKey = stateKey;
 
-                let deepTableHtml = '';
-                if (reTs) {
-                    deepTableHtml =
-                        '<div style="margin-top:10px;background:rgba(9,13,22,0.92);border:1.5px solid #FBBF24;border-radius:8px;padding:10px 12px;">' +
-                            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
-                                '<span style="color:#FBBF24;font-size:12px;font-weight:900;">⚡ [6차원 정밀 재분석 완료] ' + b.code + ' 시나리오별 3단계 실전 타격 매트릭스</span>' +
-                                '<span style="background:#10B981;color:#022C22;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:4px;">재분석 시각: ' + reTs + '</span>' +
-                            '</div>' +
-                            '<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;text-align:center;font-size:11.5px;">' +
-                                '<div style="background:rgba(239,68,68,0.15);border:1px solid #F87171;border-radius:6px;padding:7px;">' +
-                                    '<div style="color:#FCA5A5;font-weight:800;">🔥 1안: 공격적 하단매복</div>' +
-                                    '<div style="color:#FFFFFF;font-size:13px;font-weight:900;margin:3px 0;">' + calcBid( parseFloat(rAgg) ) + '</div>' +
-                                    '<div style="color:#FDE68A;">목표사정률 ' + rAgg + '%</div>' +
-                                '</div>' +
-                                '<div style="background:rgba(16,185,129,0.22);border:1.5px solid #34D399;border-radius:6px;padding:7px;">' +
-                                    '<div style="color:#6EE7B7;font-weight:900;">🎯 2안: AI 1순위 정밀영점(권장)</div>' +
-                                    '<div style="color:#34D399;font-size:13.5px;font-weight:900;margin:3px 0;">' + calcBid( parseFloat(rStd) ) + '</div>' +
-                                    '<div style="color:#A7F3D0;">목표사정률 ' + rStd + '%</div>' +
-                                '</div>' +
-                                '<div style="background:rgba(56,189,248,0.15);border:1px solid #38BDF8;border-radius:6px;padding:7px;">' +
-                                    '<div style="color:#7DD3FC;font-weight:800;">🛡️ 3안: 상위 과열방어</div>' +
-                                    '<div style="color:#FFFFFF;font-size:13px;font-weight:900;margin:3px 0;">' + calcBid( parseFloat(rSafe) ) + '</div>' +
-                                    '<div style="color:#BAE6FD;">목표사정률 ' + rSafe + '%</div>' +
-                                '</div>' +
-                            '</div>' +
-                        '</div>';
-                }
+                    if (window.parent._v12TypeTimer) {
+                        clearInterval(window.parent._v12TypeTimer);
+                    }
 
-                let sentHtml = '';
-                if (sentTs) {
-                    sentHtml = '<div style="margin-top:8px;background:rgba(16,185,129,0.25);border:1px solid #34D399;border-radius:6px;padding:6px 10px;color:#A7F3D0;font-size:11.5px;font-weight:800;">' +
-                        '⚡ [' + sentTs + ' 전송 완료] 현재 락온된 [' + b.code + '] 기초금액(' + b.base_amt + ')과 A값(' + b.a_val + ')이 [제2관: 모의투찰] 입력창에 즉시 세팅되었습니다!' +
-                        '</div>';
-                }
+                    // 타이핑될 순차 텍스트 섹션 구성
+                    const linesToType = [];
+                    if (userQ) {
+                        linesToType.push('💬 [질문 맞춤 심층 판독: "' + userQ + '"]');
+                        linesToType.push('▶ 본 공고(' + b.agency + ' · ' + b.sector + ')는 A값 비중이 ' + b.a_ratio + '(' + b.a_val + ')로 고정되어 사정률 0.01%p당 투찰가가 약 ' + Math.round(baseN * 0.0001 * (lowF / 100)).toLocaleString('ko-KR') + '원씩 변동합니다. 시방서 및 내역서상 사후정산비 원안(' + b.a_val + ')을 1원 오차 없이 고정하고 목표 사정률 ' + rStd + '% (' + calcBid(recF) + ')로 타격하십시오.\n');
+                    }
+                    linesToType.push('🗣️ [AI 수석 공고·서류 분석관 6차원 정밀 재분석 브리핑]');
+                    linesToType.push('1. 타겟 공고: [' + b.code + '] ' + b.title + ' (' + b.agency + ' · ' + b.sector + ')');
+                    linesToType.push('2. 원가 구조: 기초금액 ' + b.base_amt + ' | A값 ' + b.a_val + ' (비중 ' + b.a_ratio + ') | 낙찰하한율 ' + b.low_lim);
+                    linesToType.push('3. 핵심 결론: 과거 개찰예가(' + b.true_rate + ') 신경망과 A값 방어 레버리지를 결합한 1순위 최적 사정률은 ' + b.rec_rate + ' (권장 투찰가 ' + b.rec_bid + ', 끝자리 3원 동가회피)입니다.');
+                    linesToType.push('4. 대표님 비전 각주: "' + b.footnote + '"');
 
-                tBrief.innerHTML = qHtml +
-                    '<b>🗣️ AI 수석 공고·서류 분석관 심층 브리핑:</b><br>' +
-                    '현재 선택·락온된 <b>[' + b.code + '] ' + b.title + '</b> 공고는 [' + b.agency + ' · ' + b.sector + '] 발주 건으로 기초금액 ' + b.base_amt +
-                    ' 대비 A값 비중이 ' + b.a_ratio + '(' + b.a_val + ')입니다. 적격심사 낙찰하한율 ' + b.low_lim +
-                    ' 및 과거 개찰예가(' + b.true_rate + ') 학습 데이터를 반영한 목표 사정률 <b>' + b.rec_rate +
-                    ' (권장 투찰가 ' + b.rec_bid + ')</b> 타격을 1순위로 제안합니다.<br><span style="color:#FDE68A;">✍️ 대표님 서재 각주: "' + b.footnote + '"</span>' +
-                    deepTableHtml + sentHtml;
+                    const fullText = linesToType.join('\n');
+
+                    // 우측 브리핑 박스에 스포트라이트 네온 테두리 점등 및 타이핑 영역 세팅
+                    tBrief.style.transition = 'all 0.3s ease';
+                    tBrief.style.boxShadow = '0 0 32px rgba(56,189,248,0.75), inset 0 0 18px rgba(16,185,129,0.35)';
+                    tBrief.style.borderColor = '#38BDF8';
+
+                    tBrief.innerHTML =
+                        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;border-bottom:1px solid rgba(56,189,248,0.35);padding-bottom:6px;">' +
+                            '<span id="v12-typing-badge" style="background:linear-gradient(90deg, #38BDF8, #10B981);color:#022C22;font-size:11px;font-weight:900;padding:3px 10px;border-radius:99px;">' +
+                                '⌨️ 실시간 6차원 정밀 재분석 타이핑 진행 중...' +
+                            '</span>' +
+                            '<span style="color:#FDE68A;font-size:11px;font-weight:800;">분석 시각: ' + (reTs || '실시간 연동') + '</span>' +
+                        '</div>' +
+                        '<div id="v12-typewriter-text" style="color:#ECFDF5;font-size:12.5px;line-height:1.7;white-space:pre-wrap;min-height:96px;font-weight:600;"></div>' +
+                        '<div id="v12-matrix-stage" style="margin-top:10px;"></div>';
+
+                    let charIdx = 0;
+                    const typeEl = pDoc.getElementById('v12-typewriter-text');
+                    const badgeEl = pDoc.getElementById('v12-typing-badge');
+                    const matrixEl = pDoc.getElementById('v12-matrix-stage');
+
+                    window.parent._v12TypeTimer = setInterval(() => {
+                        charIdx += 4; // 빠르고 경쾌한 타이핑 속도
+                        if (charIdx < fullText.length) {
+                            if (typeEl) {
+                                typeEl.innerHTML = fullText.slice(0, charIdx) + '<span style="color:#38BDF8;font-weight:900;">▌</span>';
+                            }
+                        } else {
+                            clearInterval(window.parent._v12TypeTimer);
+                            if (typeEl) {
+                                typeEl.innerHTML = fullText;
+                            }
+                            if (badgeEl) {
+                                badgeEl.style.background = '#10B981';
+                                badgeEl.innerHTML = '✅ 6차원 정밀 재분석 & 시나리오 산출 완료';
+                            }
+                            tBrief.style.boxShadow = '0 0 18px rgba(16,185,129,0.28)';
+                            tBrief.style.borderColor = '#10B981';
+
+                            // 타이핑 완료 즉시 3단계 시나리오 카드를 1안 ➔ 2안 ➔ 3안 순서대로 순차 점등!
+                            if (matrixEl) {
+                                matrixEl.innerHTML =
+                                    '<div style="background:rgba(9,13,22,0.94);border:1.5px solid #FBBF24;border-radius:8px;padding:10px 12px;">' +
+                                        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
+                                            '<span style="color:#FBBF24;font-size:12px;font-weight:900;">⚡ [6차원 정밀 재분석 완료] ' + b.code + ' 시나리오별 3단계 실전 타격 매트릭스</span>' +
+                                            '<span style="background:#10B981;color:#022C22;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:4px;">재분석 시각: ' + (reTs || '방금 전') + '</span>' +
+                                        '</div>' +
+                                        '<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;text-align:center;font-size:11.5px;">' +
+                                            '<div id="v12-card-step1" style="opacity:0;transform:translateY(10px);transition:all 0.35s ease;background:rgba(239,68,68,0.15);border:1px solid #F87171;border-radius:6px;padding:8px;">' +
+                                                '<div style="color:#FCA5A5;font-weight:800;">🔥 1안: 공격적 하단매복</div>' +
+                                                '<div style="color:#FFFFFF;font-size:13px;font-weight:900;margin:4px 0;">' + calcBid(parseFloat(rAgg)) + '</div>' +
+                                                '<div style="color:#FDE68A;">목표사정률 ' + rAgg + '%</div>' +
+                                            '</div>' +
+                                            '<div id="v12-card-step2" style="opacity:0;transform:translateY(10px);transition:all 0.35s ease;background:rgba(16,185,129,0.24);border:2px solid #34D399;border-radius:6px;padding:8px;box-shadow:0 0 15px rgba(16,185,129,0.4);">' +
+                                                '<div style="color:#6EE7B7;font-weight:900;">🎯 2안: AI 1순위 정밀영점(권장)</div>' +
+                                                '<div style="color:#34D399;font-size:13.5px;font-weight:900;margin:4px 0;">' + calcBid(parseFloat(rStd)) + '</div>' +
+                                                '<div style="color:#A7F3D0;">목표사정률 ' + rStd + '%</div>' +
+                                            '</div>' +
+                                            '<div id="v12-card-step3" style="opacity:0;transform:translateY(10px);transition:all 0.35s ease;background:rgba(56,189,248,0.15);border:1px solid #38BDF8;border-radius:6px;padding:8px;">' +
+                                                '<div style="color:#7DD3FC;font-weight:800;">🛡️ 3안: 상위 과열방어</div>' +
+                                                '<div style="color:#FFFFFF;font-size:13px;font-weight:900;margin:4px 0;">' + calcBid(parseFloat(rSafe)) + '</div>' +
+                                                '<div style="color:#BAE6FD;">목표사정률 ' + rSafe + '%</div>' +
+                                            '</div>' +
+                                        '</div>' +
+                                    '</div>' +
+                                    (sentTs ? '<div style="margin-top:8px;background:rgba(16,185,129,0.25);border:1px solid #34D399;border-radius:6px;padding:6px 10px;color:#A7F3D0;font-size:11.5px;font-weight:800;">⚡ [' + sentTs + ' 전송 완료] 현재 락온된 [' + b.code + '] 기초금액(' + b.base_amt + ')과 A값(' + b.a_val + ')이 [제2관: 모의투찰] 입력창에 즉시 세팅되었습니다!</div>' : '');
+
+                                setTimeout(() => {
+                                    const c1 = pDoc.getElementById('v12-card-step1');
+                                    if (c1) { c1.style.opacity = '1'; c1.style.transform = 'translateY(0)'; }
+                                }, 80);
+                                setTimeout(() => {
+                                    const c2 = pDoc.getElementById('v12-card-step2');
+                                    if (c2) { c2.style.opacity = '1'; c2.style.transform = 'translateY(0)'; }
+                                }, 260);
+                                setTimeout(() => {
+                                    const c3 = pDoc.getElementById('v12-card-step3');
+                                    if (c3) { c3.style.opacity = '1'; c3.style.transform = 'translateY(0)'; }
+                                }, 440);
+                            }
+                        }
+                    }, 18);
+                }
             }
 
             const tCheck = pDoc.getElementById('v12-t3-doc-check');
@@ -3333,7 +3387,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
             '</div>';
 
         try {
-            window.parent.localStorage.setItem('v12_active_book_json', JSON.stringify(b)); window.parent.localStorage.setItem('v12_reanalyze_ts', new Date().toLocaleTimeString('ko-KR'));
+            window.parent.localStorage.setItem('v12_active_book_json', JSON.stringify(b)); const nowD = new Date(); window.parent.localStorage.setItem('v12_reanalyze_ts', nowD.toLocaleTimeString('ko-KR') + '.' + String(nowD.getMilliseconds()).slice(0,2));
         } catch (e) {}
         applyBookToParentTabs(b);
     }
