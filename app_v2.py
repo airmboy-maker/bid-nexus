@@ -3737,101 +3737,75 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
         # [제3관] 올라마(Ollama) 연동 입찰공고문 6차원 입체 해부관 (제1관 선택 항목과 100% 자동 동기화!)
         # ==========================================================================
         with _tab_ollama:
-            st.markdown("##### 🧠 올라마(Ollama 로컬 인공지능) + 제1관에서 선택한 입찰공고·시방서·내역서·적격서류 자동 불러오기 & 6차원 입체 해부관")
+            st.markdown("##### 🧠 올라마(Ollama 로컬 인공지능) + 제1관 3D 서재에서 선택한 입찰공고·시방서·내역서·적격서류 실시간 직결 해부관")
 
             _avail_pkgs = _fetch_bid_pkgs_v12(dict(st.session_state))
-            _pkg_labels = [p["label"] for p in _avail_pkgs] + ["✍️ 직접 새로운 입찰공고문/서류 붙여넣기 또는 파일 업로드"]
+            _matched_pkg = _avail_pkgs[0] if _avail_pkgs else None
 
-            # 제1관(_v12_synced_book_code)에서 선택한 양장본이 제3관 드롭다운에서도 100% 똑같이 기본 선택되도록 인덱스 매칭!
-            _synced_code = st.session_state.get("_v12_synced_book_code", "")
-            _matched_idx = 0
-            if _synced_code:
-                for _i_p, _p_obj in enumerate(_avail_pkgs):
-                    if _p_obj.get("pkg_id") == _synced_code or f"[{_synced_code}]" in _p_obj.get("label", ""):
-                        _matched_idx = _i_p
-                        break
-
-            _auto_c1, _auto_c2 = st.columns([2.3, 1.7])
+            _auto_c1, _auto_c2 = st.columns([2.35, 1.65])
             with _auto_c1:
-                _sel_pkg_label = st.selectbox(
-                    "📂 1. 제1관(3D 서재)에서 선택한 입찰 공고 & 서류 패키지 자동 연동 (다른 공고로 변경도 가능합니다):",
-                    options=_pkg_labels,
-                    index=_matched_idx,
-                    key=f"_v12_auto_pkg_sel_{_synced_code}"
+                st.markdown(
+                    f"<div id='v12-t3-active-banner' style='background:linear-gradient(90deg, rgba(8,47,73,0.92), rgba(15,23,42,0.96));border:1.5px solid #FBBF24;border-radius:10px;padding:12px 16px;color:#F8FAFC;font-size:13.5px;margin-top:4px;'>"
+                    f"📕 현재 제1관 3D 서재에서 선택되어 연동된 양장본: <b style='color:#FDE68A;'>[{_matched_pkg['pkg_id'] if _matched_pkg else ''}] {_matched_pkg['title'] if _matched_pkg else ''}</b>"
+                    f"</div>",
+                    unsafe_allow_html=True
                 )
             with _auto_c2:
                 _up_file = st.file_uploader(
-                    "📎 입찰 서류 파일 직접 올려서 자동 추출 (.txt, .csv, .md, .html 등):",
+                    "📎 추가 입찰 서류 파일 업로드 (.txt, .csv, .md, .html 등):",
                     type=["txt", "csv", "md", "html", "json"],
                     key="_v12_doc_uploader"
                 )
 
-            _matched_pkg = None
-            for _p in _avail_pkgs:
-                if _p["label"] == _sel_pkg_label:
-                    _matched_pkg = _p
-                    # 제3관에서 드롭다운을 바꾸면 제1관 선택 코드도 함께 업데이트
-                    if _p.get("pkg_id") and _p["pkg_id"] != "ACTIVE-SESSION-01":
-                        st.session_state["_v12_synced_book_code"] = _p["pkg_id"]
-                    break
-
-            _auto_loaded_text = ""
-            _doc_checks = []
+            _auto_loaded_text = _matched_pkg["full_package_text"] if _matched_pkg else ""
+            _doc_checks = _matched_pkg.get("doc_checklist", []) if _matched_pkg else []
             if _up_file is not None:
                 try:
                     _auto_loaded_text = _up_file.read().decode("utf-8", errors="ignore")
                     _doc_checks = [f"📎 업로드된 서류 파일 [{_up_file.name}] 전문 자동 추출 완료"]
                 except Exception:
                     pass
-            elif _matched_pkg is not None:
-                _auto_loaded_text = _matched_pkg["full_package_text"]
-                _doc_checks = _matched_pkg.get("doc_checklist", [])
-                st.session_state["_v12_ollama_base"] = int(_matched_pkg["base_amt"])
-                st.session_state["_v12_ollama_aval"] = int(_matched_pkg["a_val"])
 
             _ol_c1, _ol_c2 = st.columns([1.42, 1.58])
             with _ol_c1:
-                if _doc_checks:
-                    st.markdown(
-                        "<div style='background:rgba(6,78,59,0.38);border:1px solid #34D399;border-radius:8px;padding:8px 12px;margin-bottom:8px;font-size:11.5px;color:#A7F3D0;line-height:1.55;'>"
-                        f"<b>🔗 제1관 선택 동기화 완료 [{_matched_pkg['pkg_id'] if _matched_pkg else '직접입력'}] — 입찰서류 4종 패키지 검증 상태:</b><br>" + "<br>".join(_doc_checks) + "</div>",
-                        unsafe_allow_html=True
-                    )
-
-                _ol_raw = st.text_area(
-                    "📄 자동 불러온 입찰공고문 · 시방서 · 물량내역서 · 적격심사 패키지 원문:",
-                    value=_auto_loaded_text,
-                    height=180,
-                    key=f"_v12_ollama_raw_txt_{_sel_pkg_label[:22]}"
+                st.markdown(
+                    f"<div id='v12-t3-doc-check' style='background:rgba(6,78,59,0.38);border:1px solid #34D399;border-radius:8px;padding:8px 12px;margin-bottom:8px;font-size:11.5px;color:#A7F3D0;line-height:1.55;'>"
+                    f"<b>🔗 제1관 3D 서재 선택 동기화 완료 [{_matched_pkg['pkg_id'] if _matched_pkg else ''}] — 입찰서류 4종 패키지 검증 상태:</b><br>" + "<br>".join(_doc_checks) + "</div>",
+                    unsafe_allow_html=True
                 )
+
+                st.markdown(
+                    f"<div style='color:#FDE68A;font-size:12px;font-weight:800;margin-bottom:4px;'>📄 제1관 3D 서재에서 선택한 양장본의 [입찰공고문 · 시방서 · 물량내역서 · 적격심사] 통합 원문:</div>"
+                    f"<div id='v12-t3-raw-viewer' style='background:rgba(9,13,22,0.94);border:1.5px solid #38BDF8;border-radius:8px;padding:12px 14px;color:#F8FAFC;font-size:12px;line-height:1.65;max-height:210px;overflow-y:auto;white-space:pre-wrap;margin-bottom:8px;'>{_auto_loaded_text}</div>",
+                    unsafe_allow_html=True
+                )
+
                 _ol_q = st.text_input(
-                    "💬 올라마 공고·서류 분석관에게 특별히 확인할 질문 (입력 즉시 우측 브리핑에 반영):",
+                    "💬 올라마 공고·서류 분석관에게 특별히 확인할 질문 (입력 시 우측 브리핑에 반영):",
                     placeholder="예: 이 공고의 시방서·내역서 조건에서 입찰무효 주의사항과 A값 대비 유리한 사정률 전략은?",
                     key="_v12_ollama_q_in"
                 )
                 _ol_b1, _ol_b2 = st.columns(2)
                 with _ol_b1:
-                    _force_re_btn = st.button("🧠 [선택 공고 & 서류 6차원 정밀 재분석]", key="_v12_run_ollama_btn", use_container_width=True)
+                    st.button("🧠 [선택 공고 & 서류 6차원 정밀 재분석]", key="_v12_run_ollama_btn", use_container_width=True)
                 with _ol_b2:
                     if st.button("⚡ 이 공고의 금액·하한율을 [제2관 모의투찰]로 즉시 전송", key="_v12_send_to_arena_btn", use_container_width=True):
-                        _ores_tmp = _analyze_ollama_v12(_ol_raw, _ol_q)
-                        st.session_state["_v12_ollama_base"] = int(_ores_tmp["base_amt"])
-                        st.session_state["_v12_ollama_aval"] = int(_ores_tmp["a_val"])
-                        st.success(f"✅ [{_ores_tmp['agency']} · {_ores_tmp['sector']}] 기초금액 {_ores_tmp['base_amt']:,}원 및 A값 {_ores_tmp['a_val']:,}원이 [제2관 모의투찰]에 즉시 세팅되었습니다!")
+                        if _matched_pkg:
+                            st.session_state["_v12_ollama_base"] = int(_matched_pkg["base_amt"])
+                            st.session_state["_v12_ollama_aval"] = int(_matched_pkg["a_val"])
+                            st.success(f"✅ 기초금액 및 A값이 [제2관 모의투찰]에 즉시 세팅되었습니다!")
 
             with _ol_c2:
-                _ores = _analyze_ollama_v12(_ol_raw, _ol_q)
+                _ores = _analyze_ollama_v12(_auto_loaded_text, _ol_q)
                 if _matched_pkg is not None:
                     _b_exact = int(_matched_pkg["base_amt"])
                     _a_exact = int(_matched_pkg["a_val"])
                     _l_exact = float(_matched_pkg["lower_limit"])
                     _ag_exact = _matched_pkg["agency"]
                     _sc_exact = _matched_pkg["sector"]
-                    _ar_exact = round((_a_exact / max(1, _b_exact)) * 100.0, 2)
-                    _rec_r_exact = round(100.0315 + (0.0045 if _ar_exact >= 6.0 else -0.0025) + (0.0060 if "전기" in _sc_exact or "실내" in _sc_exact or "통신" in _sc_exact else 0.0), 4)
-                    _exp_p_exact = _b_exact * (_rec_r_exact / 100.0)
-                    _rec_b_exact = (int(((_exp_p_exact - _a_exact) * (_l_exact / 100.0)) + _a_exact) // 10) * 10 + 3
-
+                    _ar_exact = float(_matched_pkg["a_ratio"])
+                    _rec_r_exact = float(_matched_pkg["rec_rate"])
+                    _rec_b_exact = int(_matched_pkg["rec_bid"])
                     _ores["agency"] = _ag_exact
                     _ores["sector"] = _sc_exact
                     _ores["base_amt"] = _b_exact
@@ -3840,9 +3814,8 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                     _ores["lower_limit"] = _l_exact
                     _ores["rec_rate"] = _rec_r_exact
                     _ores["rec_bid"] = _rec_b_exact
-                    _q_prefix = f"질문하신 [{_ol_q}]에 대한 분석 결과, " if _ol_q else ""
                     _ores["llm_answer"] = (
-                        f"{_q_prefix}본 공고([{_matched_pkg['pkg_id']}] {_matched_pkg['title']})는 [{_ag_exact} · {_sc_exact}] 발주 건으로 "
+                        f"본 공고([{_matched_pkg['pkg_id']}] {_matched_pkg['title']})는 [{_ag_exact} · {_sc_exact}] 발주 건으로 "
                         f"기초금액 {_b_exact:,}원 대비 A값 비중이 {_ar_exact:.2f}%({_a_exact:,}원)입니다. "
                         f"적격심사 낙찰하한율 {_l_exact:.3f}% 및 A값 방어 레버리지 효과를 반영한 목표 사정률 {_rec_r_exact:.4f}% "
                         f"(권장 투찰가 {_rec_b_exact:,}원, 끝자리 3원 동가회피) 타격을 1순위로 제안합니다."
@@ -3852,30 +3825,30 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
                 <div style="background:rgba(15,23,42,0.96);border:2px solid #38BDF8;border-radius:12px;padding:15px 18px;box-shadow:0 0 25px rgba(56,189,248,0.18);">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;border-bottom:1px solid rgba(56,189,248,0.3);padding-bottom:8px;">
                         <div>
-                            <span style="background:#38BDF8;color:#090D16;font-size:11px;font-weight:900;padding:3px 9px;border-radius:4px;">제1관 연동 6차원 공고·서류 투시</span>
-                            <span style="color:#F8FAFC;font-size:13.5px;font-weight:900;margin-left:8px;">[{_matched_pkg['pkg_id'] if _matched_pkg else '직접입력'}] {_matched_pkg['title'] if _matched_pkg else '실시간 입력 공고문 분석'}</span>
+                            <span style="background:#38BDF8;color:#090D16;font-size:11px;font-weight:900;padding:3px 9px;border-radius:4px;">제1관 3D 서가 실시간 직결 투시</span>
+                            <span id="v12-t3-title" style="color:#F8FAFC;font-size:13.5px;font-weight:900;margin-left:8px;">[{_matched_pkg['pkg_id'] if _matched_pkg else ''}] {_matched_pkg['title'] if _matched_pkg else ''}</span>
                         </div>
                         <span style="color:#34D399;font-size:11.5px;font-weight:800;">{_ores['ollama_status']}</span>
                     </div>
                     <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;margin-bottom:10px;">
                         <div style="background:rgba(9,13,22,0.92);border:1px solid rgba(148,163,184,0.3);padding:9px;border-radius:8px;">
                             <div style="color:#94A3B8;font-size:10.5px;">🏛️ 자동 판독 발주처 / 공종</div>
-                            <div style="color:#F8FAFC;font-size:12.5px;font-weight:900;margin-top:2px;">{_ores['agency']}<br><span style="color:#7DD3FC;">{_ores['sector']}</span></div>
+                            <div id="v12-t3-ag-sec" style="color:#F8FAFC;font-size:12.5px;font-weight:900;margin-top:2px;">{_ores['agency']}<br><span style="color:#7DD3FC;">{_ores['sector']}</span></div>
                         </div>
                         <div style="background:rgba(9,13,22,0.92);border:1px solid rgba(56,189,248,0.4);padding:9px;border-radius:8px;">
                             <div style="color:#94A3B8;font-size:10.5px;">💰 내역서 추출 기초금액 / A값</div>
-                            <div style="color:#38BDF8;font-size:12.5px;font-weight:900;margin-top:2px;">기초 {_ores['base_amt']:,}원<br><span style="color:#FDE68A;">A값 {_ores['a_val']:,}원 ({_ores['a_ratio']}%)</span></div>
+                            <div id="v12-t3-base-aval" style="color:#38BDF8;font-size:12.5px;font-weight:900;margin-top:2px;">기초 {_ores['base_amt']:,}원<br><span style="color:#FDE68A;">A값 {_ores['a_val']:,}원 ({_ores['a_ratio']}%)</span></div>
                         </div>
                         <div style="background:rgba(9,13,22,0.92);border:1px solid rgba(52,211,153,0.45);padding:9px;border-radius:8px;">
                             <div style="color:#94A3B8;font-size:10.5px;">🎯 공고·서류 맞춤 AI 추천타점</div>
-                            <div style="color:#34D399;font-size:13.5px;font-weight:900;margin-top:2px;">{_ores['rec_bid']:,}원<br><span style="color:#A7F3D0;font-size:11px;">목표사정률 {_ores['rec_rate']:.4f}% (하한 {_ores['lower_limit']}%)</span></div>
+                            <div id="v12-t3-rec-target" style="color:#34D399;font-size:13.5px;font-weight:900;margin-top:2px;">{_ores['rec_bid']:,}원<br><span style="color:#A7F3D0;font-size:11px;">목표사정률 {_ores['rec_rate']:.4f}% (하한 {_ores['lower_limit']}%)</span></div>
                         </div>
                     </div>
                     <div style="background:rgba(127,29,29,0.22);border:1px solid rgba(248,113,113,0.45);border-radius:8px;padding:9px 12px;margin-bottom:10px;">
                         <div style="color:#FCA5A5;font-size:12px;font-weight:900;margin-bottom:4px;">🚨 공고문 · 시방서 · 내역서 독소조항 & 특기사항 자동 스캔:</div>
                         <div style="color:#F8FAFC;font-size:11.5px;line-height:1.55;">{"<br>".join(_ores["risks"])}</div>
                     </div>
-                    <div style="background:linear-gradient(135deg, rgba(6,78,59,0.55), rgba(15,23,42,0.95));border:1.5px solid #10B981;border-radius:8px;padding:11px 13px;color:#ECFDF5;font-size:12px;line-height:1.6;">
+                    <div id="v12-t3-llm-brief" style="background:linear-gradient(135deg, rgba(6,78,59,0.55), rgba(15,23,42,0.95));border:1.5px solid #10B981;border-radius:8px;padding:11px 13px;color:#ECFDF5;font-size:12px;line-height:1.6;">
                         <b>🗣️ AI 수석 공고·서류 분석관 심층 브리핑:</b><br>{_ores['llm_answer']}
                     </div>
                 </div>
