@@ -4546,3 +4546,364 @@ def render_sector_board_from_books_v12(books: list) -> str:
         "</div>"
     )
 
+
+def build_formatted_whitepaper_suite_v12(books: list) -> dict:
+    """
+    .txt 양식을 완전히 지양하고,
+    1) 화면에서 바로 열람하고 [🖨️ 즉시 인쇄 / PDF 저장] 버튼을 누를 수 있는 인터랙티브 공식 마스터 백서 HTML 뷰어
+    2) 디자인 폼이 그대로 보존된 다운로드용 공식 백서 (.html)
+    3) 표 테두리와 컬러 서식이 입혀진 엑셀 호환 공식 보고서 (.xls)
+    3가지를 동시에 생성하여 반환
+    """
+    import datetime
+    now_dt = datetime.datetime.now().strftime("%Y년 %m월 %d일 %H:%M")
+    doc_no = datetime.datetime.now().strftime("BNX-WP-%Y%m%d-01")
+
+    n_b = max(1, len(books or []))
+    tot_krw = sum(int(b.get("base_amt", 0) or 0) for b in (books or []))
+    gold_c = sum(1 for b in (books or []) if str(b.get("grade_tier", "")) == "GOLD")
+    blue_c = sum(1 for b in (books or []) if str(b.get("grade_tier", "")) == "BLUE")
+    red_c = sum(1 for b in (books or []) if str(b.get("grade_tier", "")) == "RED")
+    avg_yega = sum(float(b.get("true_yega_rate", 100.03) or 100.03) for b in (books or [])) / n_b
+    avg_user_err = sum(abs(float(b.get("user_rate", 100.03) or 100.03) - float(b.get("true_yega_rate", 100.03) or 100.03)) for b in (books or [])) / n_b
+
+    # 공종별 집계
+    sec_map = {}
+    for b in (books or []):
+        s_nm = str(b.get("sector", "종합공사"))
+        t_r = float(b.get("true_yega_rate", 100.03) or 100.03)
+        a_r = float(b.get("ai_rate", 100.03) or 100.03)
+        u_r = float(b.get("user_rate", 100.03) or 100.03)
+        if s_nm not in sec_map:
+            sec_map[s_nm] = {"cnt": 0, "t_sum": 0.0, "ai_err": 0.0, "us_err": 0.0, "drift": 0.0}
+        sec_map[s_nm]["cnt"] += 1
+        sec_map[s_nm]["t_sum"] += t_r
+        sec_map[s_nm]["ai_err"] += abs(a_r - t_r)
+        sec_map[s_nm]["us_err"] += abs(u_r - t_r)
+        sec_map[s_nm]["drift"] += (t_r - u_r)
+
+    sec_rows_html = ""
+    for idx_s, (s_nm, sv) in enumerate(sec_map.items(), 1):
+        c_n = max(1, sv["cnt"])
+        drift_v = sv["drift"] / c_n
+        guide_txt = f"{drift_v:+.4f}%p ({'상향 타격 권장' if drift_v >= 0 else '하향 제어 권장'})"
+        sec_rows_html += (
+            f"<tr>"
+            f"<td style='text-align:center;font-weight:800;'>{idx_s:02d}</td>"
+            f"<td style='font-weight:900;color:#1E293B;'>{s_nm}</td>"
+            f"<td style='text-align:center;font-weight:800;'>{c_n}권</td>"
+            f"<td style='text-align:center;font-weight:900;color:#0369A1;'>{sv['t_sum']/c_n:.4f}%</td>"
+            f"<td style='text-align:center;color:#047857;font-weight:800;'>±{sv['ai_err']/c_n:.4f}%p</td>"
+            f"<td style='text-align:center;color:#6D28D9;font-weight:800;'>±{sv['us_err']/c_n:.4f}%p</td>"
+            f"<td style='text-align:center;font-weight:900;color:#B45309;background:#FEF3C7;'>{guide_txt}</td>"
+            f"</tr>"
+        )
+
+    book_rows_html = ""
+    book_cards_html = ""
+    for idx_b, b in enumerate(books or [], 1):
+        b_code = str(b.get("book_code", ""))
+        b_title = str(b.get("title", ""))
+        b_ag = str(b.get("agency", ""))
+        b_sec = str(b.get("sector", ""))
+        b_base = int(b.get("base_amt", 0) or 0)
+        b_aval = int(b.get("a_val", 0) or 0)
+        b_low = float(b.get("lower_limit", 88.745) or 88.745)
+        b_true = float(b.get("true_yega_rate", 100.03) or 100.03)
+        b_ai = float(b.get("ai_rate", 100.03) or 100.03)
+        b_user = float(b.get("user_rate", 100.03) or 100.03)
+        b_err = b_user - b_true
+        b_win = str(b.get("winner_company", ""))
+        b_wbid = int(b.get("winner_bid", 0) or 0)
+        b_tier = str(b.get("grade_tier", "GOLD"))
+        b_lots = str(b.get("picked_lots_str", ""))
+        b_foot = str(b.get("ceo_footnote", ""))
+        b_raw = str(b.get("notice_raw_text", ""))
+
+        tier_kr = "🏆 황금족보(GOLD)" if b_tier == "GOLD" else ("📘 상위방어(BLUE)" if b_tier == "BLUE" else "📕 오답노트(RED)")
+        tier_bg = "#FEF3C7" if b_tier == "GOLD" else ("#E0F2FE" if b_tier == "BLUE" else "#FEE2E2")
+        tier_col = "#92400E" if b_tier == "GOLD" else ("#075985" if b_tier == "BLUE" else "#991B1B")
+
+        book_rows_html += (
+            f"<tr>"
+            f"<td style='text-align:center;font-weight:900;background:{tier_bg};color:{tier_col};'>{tier_kr}</td>"
+            f"<td style='text-align:center;font-weight:900;'>{b_code}</td>"
+            f"<td style='font-weight:900;color:#0F172A;'>{b_title}<div style='font-size:10.5px;color:#475569;font-weight:600;'>{b_ag} | {b_sec}</div></td>"
+            f"<td style='text-align:right;font-weight:800;'>{b_base:,}원<div style='font-size:10.5px;color:#64748B;'>A값 {b_aval:,}원 ({b_low:.3f}%)</div></td>"
+            f"<td style='text-align:center;font-weight:900;color:#B45309;'>{b_true:.4f}%<div style='font-size:10px;color:#64748B;'>({b_lots})</div></td>"
+            f"<td style='text-align:center;font-weight:800;color:#0369A1;'>{b_ai:.4f}%</td>"
+            f"<td style='text-align:center;font-weight:900;color:#6D28D9;'>{b_user:.4f}%<div style='font-size:10px;color:{tier_col};'>({b_err:+.4f}%p)</div></td>"
+            f"<td style='text-align:right;font-weight:800;color:#047857;'>{b_win}<div style='font-size:10.5px;color:#0F172A;'>{b_wbid:,}원</div></td>"
+            f"<td style='font-size:11px;color:#1E293B;font-weight:700;background:#F8FAFC;'>✍️ {b_foot}</td>"
+            f"</tr>"
+        )
+
+        book_cards_html += (
+            f"<div style='border:1.5px solid #CBD5E1;border-left:6px solid {tier_col};border-radius:8px;padding:10px 14px;margin-bottom:8px;background:#FFFFFF;page-break-inside:avoid;'>"
+            f"<div style='display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #E2E8F0;padding-bottom:5px;margin-bottom:6px;'>"
+            f"<div><span style='background:{tier_bg};color:{tier_col};font-size:11px;font-weight:900;padding:2px 8px;border-radius:4px;'>{tier_kr}</span> "
+            f"<strong style='font-size:13.5px;color:#0F172A;margin-left:6px;'>[{b_code}] {b_title}</strong></div>"
+            f"<span style='font-size:11px;color:#475569;font-weight:800;'>{b_ag} · {b_sec} | 추첨번호: {b_lots}</span>"
+            f"</div>"
+            f"<div style='display:grid;grid-template-columns:1.2fr 1.2fr 1.6fr;gap:10px;font-size:11.5px;color:#1E293B;'>"
+            f"<div>• <b>기초금액:</b> {b_base:,}원<br>• <b>A값 합산:</b> {b_aval:,}원 (하한율 {b_low:.3f}%)</div>"
+            f"<div>• <b>개찰예가:</b> <b style='color:#B45309;'>{b_true:.4f}%</b> (AI {b_ai:.4f}% / 내 사정 {b_user:.4f}%)<br>• <b>1순위 당첨:</b> <b style='color:#047857;'>{b_win} ({b_wbid:,}원)</b></div>"
+            f"<div style='background:#FEFCE8;border:1px solid #FDE047;border-radius:6px;padding:6px 9px;'>"
+            f"<div style='color:#854D0E;font-weight:900;font-size:11px;'>✍️ 대표님 비전(秘傳) 친필 각주:</div>"
+            f"<div style='color:#1E293B;font-weight:800;margin-top:2px;'>\"{b_foot}\"</div>"
+            f"</div>"
+            f"</div>"
+            f"<div style='margin-top:5px;font-size:10.5px;color:#64748B;'>📄 공고 원문 스펙: {b_raw}</div>"
+            f"</div>"
+        )
+
+    master_doc_html = f"""<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>BID-NEXUS 당사 입찰 필승 비전서(秘傳書) 공식 마스터 백서</title>
+<style>
+    * {{ box-sizing: border-box; font-family: 'Pretendard', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; }}
+    body {{
+        background: #0F172A;
+        margin: 0;
+        padding: 14px;
+        color: #0F172A;
+    }}
+    .top-action-bar {{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: linear-gradient(90deg, #064E3B, #0F172A);
+        border: 2px solid #10B981;
+        border-radius: 10px;
+        padding: 10px 18px;
+        margin-bottom: 14px;
+        color: #FFFFFF;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    }}
+    .print-btn {{
+        background: linear-gradient(90deg, #F59E0B, #FBBF24);
+        color: #090D16;
+        border: none;
+        padding: 8px 18px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 900;
+        cursor: pointer;
+        box-shadow: 0 0 15px rgba(251,191,36,0.6);
+    }}
+    .print-btn:hover {{
+        filter: brightness(1.12);
+        transform: translateY(-1px);
+    }}
+    /* 공식 A4/가로 마스터 백서 디자인 폼 시트 */
+    .official-paper-sheet {{
+        background: #FFFFFF;
+        border: 3px double #B45309;
+        border-radius: 12px;
+        padding: 26px 30px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.75);
+    }}
+    .doc-header-box {{
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        border-bottom: 3px solid #0F172A;
+        padding-bottom: 14px;
+        margin-bottom: 18px;
+    }}
+    .approval-stamp-table {{
+        border-collapse: collapse;
+        font-size: 11px;
+        text-align: center;
+    }}
+    .approval-stamp-table th, .approval-stamp-table td {{
+        border: 1px solid #475569;
+        padding: 4px 12px;
+    }}
+    .approval-stamp-table th {{
+        background: #F1F5F9;
+        font-weight: 800;
+        color: #1E293B;
+    }}
+    .approval-stamp-table td {{
+        height: 44px;
+        font-weight: 900;
+        color: #B91C1C;
+    }}
+    .kpi-summary-strip {{
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+    }}
+    .kpi-box {{
+        background: #F8FAFC;
+        border: 1.5px solid #CBD5E1;
+        border-top: 4px solid #0F172A;
+        border-radius: 8px;
+        padding: 10px 12px;
+        text-align: center;
+    }}
+    .section-title {{
+        background: linear-gradient(90deg, #0F172A, #1E293B);
+        color: #FEF08A;
+        font-size: 13.5px;
+        font-weight: 900;
+        padding: 7px 14px;
+        border-radius: 6px;
+        margin: 18px 0 10px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }}
+    table.official-grid {{
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 11.5px;
+        margin-bottom: 16px;
+    }}
+    table.official-grid th {{
+        background: #E2E8F0;
+        color: #0F172A;
+        font-weight: 900;
+        padding: 8px 8px;
+        border: 1px solid #94A3B8;
+        text-align: center;
+    }}
+    table.official-grid td {{
+        padding: 8px 8px;
+        border: 1px solid #CBD5E1;
+        vertical-align: middle;
+    }}
+    @media print {{
+        body {{ background: #FFFFFF !important; padding: 0 !important; }}
+        .no-print {{ display: none !important; }}
+        .official-paper-sheet {{ border: 2px solid #000000 !important; box-shadow: none !important; padding: 12px !important; }}
+    }}
+</style>
+</head>
+<body>
+    <div class="top-action-bar no-print">
+        <div>
+            <span style="background:#10B981;color:#022C22;font-size:11px;font-weight:900;padding:3px 9px;border-radius:4px;">OFFICIAL MASTER WHITEPAPER FORM</span>
+            <span style="font-size:14px;font-weight:900;margin-left:8px;">📘 당사 입찰 필승 비전서(秘傳書) 전 장서 통합 공식 양식 뷰어</span>
+        </div>
+        <button class="print-btn" onclick="window.print()">🖨️ 이 양식 그대로 즉시 인쇄 / PDF 저장</button>
+    </div>
+
+    <div class="official-paper-sheet">
+        <div class="doc-header-box">
+            <div>
+                <div style="color:#B45309;font-size:11.5px;font-weight:900;letter-spacing:1px;">CONFIDENTIAL · CORPORATE BIDDING STRATEGY ARCHIVE</div>
+                <div style="font-size:24px;font-weight:900;color:#0F172A;margin:4px 0;">📘 당사 입찰 필승 비전서(秘傳書) — 전 장서 통합 마스터 백서</div>
+                <div style="font-size:12px;color:#475569;font-weight:700;">
+                    문서번호: <b>{doc_no}</b> &nbsp;|&nbsp; 편찬일시: <b>{now_dt}</b> &nbsp;|&nbsp; 보안등급: <b>대표이사 1급 대외비 (사정 전략 자산)</b>
+                </div>
+            </div>
+            <table class="approval-stamp-table">
+                <tr>
+                    <th>AI 사정관</th>
+                    <th>전략기획실</th>
+                    <th>대표이사</th>
+                </tr>
+                <tr>
+                    <td style="color:#0369A1;">검증필<br><span style="font-size:9px;color:#64748B;">SNIPER-X</span></td>
+                    <td style="color:#047857;">심사필<br><span style="font-size:9px;color:#64748B;">v12.0</span></td>
+                    <td>👑 승인필<br><span style="font-size:9px;color:#B91C1C;">공식직인</span></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- 제1장: 레거시 자산 총괄 KPI -->
+        <div class="kpi-summary-strip">
+            <div class="kpi-box">
+                <div style="font-size:11px;color:#475569;font-weight:800;">총 편찬 장서</div>
+                <div style="font-size:18px;color:#0F172A;font-weight:900;margin-top:3px;">총 {n_b}권</div>
+            </div>
+            <div class="kpi-box">
+                <div style="font-size:11px;color:#475569;font-weight:800;">누적 분석 공사규모</div>
+                <div style="font-size:18px;color:#0369A1;font-weight:900;margin-top:3px;">{tot_krw // 100000000:,}억 원</div>
+            </div>
+            <div class="kpi-box">
+                <div style="font-size:11px;color:#475569;font-weight:800;">등급별 분포</div>
+                <div style="font-size:15px;color:#B45309;font-weight:900;margin-top:4px;">🏆{gold_c} · 📘{blue_c} · 📕{red_c}</div>
+            </div>
+            <div class="kpi-box">
+                <div style="font-size:11px;color:#475569;font-weight:800;">전체 평균 개찰예가</div>
+                <div style="font-size:18px;color:#047857;font-weight:900;margin-top:3px;">{avg_yega:.4f}%</div>
+            </div>
+            <div class="kpi-box">
+                <div style="font-size:11px;color:#475569;font-weight:800;">당사 평균 영점오차</div>
+                <div style="font-size:18px;color:#6D28D9;font-weight:900;margin-top:3px;">±{avg_user_err:.4f}%p</div>
+            </div>
+        </div>
+
+        <!-- 제2장: 공종별 영점 보정 기준표 -->
+        <div class="section-title">
+            <span>📊 [제1장] 공종별 레거시 적중 성적표 및 실전 투찰 영점 보정 기준표</span>
+            <span style="font-size:11px;color:#CBD5E1;">단위: 사정률(%), 편차(%p)</span>
+        </div>
+        <table class="official-grid">
+            <thead>
+                <tr>
+                    <th style="width:45px;">순번</th>
+                    <th>건설업 공종명</th>
+                    <th style="width:75px;">수록 권수</th>
+                    <th style="width:110px;">평균 개찰예가</th>
+                    <th style="width:110px;">AI 평균오차</th>
+                    <th style="width:110px;">당사 평균오차</th>
+                    <th style="width:190px;">실전 권장 영점 보정치</th>
+                </tr>
+            </thead>
+            <tbody>
+                {sec_rows_html}
+            </tbody>
+        </table>
+
+        <!-- 제3장: 전 장서 통합 마스터 일람표 -->
+        <div class="section-title">
+            <span>📋 [제2장] 전 장서(제1권~제{n_b}권) 입찰·개찰·사정 결과 통합 일람표</span>
+            <span style="font-size:11px;color:#CBD5E1;">2026 개정 적격심사 낙찰하한율 반영</span>
+        </div>
+        <table class="official-grid">
+            <thead>
+                <tr>
+                    <th style="width:95px;">보존 등급</th>
+                    <th style="width:85px;">도서권호</th>
+                    <th>입찰공고명 (발주처 · 공종)</th>
+                    <th style="width:125px;">기초금액 / A값</th>
+                    <th style="width:115px;">실제 개찰예가</th>
+                    <th style="width:80px;">AI 사정률</th>
+                    <th style="width:95px;">당사 사정률(오차)</th>
+                    <th style="width:125px;">1순위 당첨사(낙찰가)</th>
+                    <th style="width:210px;">대표님 비전(秘傳) 각주</th>
+                </tr>
+            </thead>
+            <tbody>
+                {book_rows_html}
+            </tbody>
+        </table>
+
+        <!-- 제4장: 권호별 상세 복기 카드 -->
+        <div class="section-title">
+            <span>📖 [제3장] 권호별 입찰공고문 스펙 및 대표님 친필 복기 상세 명세서</span>
+            <span style="font-size:11px;color:#CBD5E1;">전 장서 개별 바인더 상세 기록</span>
+        </div>
+        {book_cards_html}
+
+        <div style="margin-top:18px;border-top:2px solid #0F172A;padding-top:10px;display:flex;justify-content:space-between;font-size:11px;color:#475569;font-weight:700;">
+            <span>발행처: BID-NEXUS 3D 프라이빗 입찰 전략 서재 & AI 사정 연구소</span>
+            <span>본 문서는 당사 고유의 입찰 레거시 지적자산이므로 외부 유출을 금합니다.</span>
+        </div>
+    </div>
+</body>
+</html>"""
+
+    return {
+        "html_doc": master_doc_html,
+        "xls_doc": master_doc_html,
+        "doc_no": doc_no
+    }
+

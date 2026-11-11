@@ -497,6 +497,7 @@ from lattice1365.local_ml_engine import (
     render_ultra_matrix_view_html_v12 as _render_matrix_html_v12,
     render_sector_board_visual_v12 as _render_sec_vis_v12,
     render_sector_board_from_books_v12 as _render_sec_from_books_v12,
+    build_formatted_whitepaper_suite_v12 as _build_wp_suite_v12,
     render_arena_ranked_board_visual_v12 as _render_arena_vis_v12,
     parse_and_render_g2b_opening_visual_v12 as _parse_g2b_vis_v12,
 fetch_recent_selected_bid_packages_v12 as _fetch_bid_pkgs_v12
@@ -647,32 +648,44 @@ if st.session_state["_standalone_academy_mode"]:
             st.markdown(_render_sec_from_books_v12(_books), unsafe_allow_html=True)
 
             # [시각화 2] 좌·우 대칭형 '당사 입찰 필승 비전서 편찬실' & '불량 장서 디지털 파쇄 챔버' 홀로그램 콘솔 독
-            _act_b1, _act_b2 = st.columns([1.9, 2.1])
+            _wp_suite = _build_wp_suite_v12(_books)
+
+            _act_b1, _act_b2 = st.columns([2.05, 1.95])
             with _act_b1:
                 st.markdown(f"""
-                <div style="background:linear-gradient(135deg, rgba(8,47,73,0.94), rgba(15,23,42,0.98));border:2px solid #38BDF8;border-radius:12px;padding:14px 16px;margin-bottom:8px;min-height:108px;box-shadow:0 8px 22px rgba(0,0,0,0.65);">
+                <div style="background:linear-gradient(135deg, rgba(8,47,73,0.95), rgba(15,23,42,0.98));border:2px solid #38BDF8;border-radius:12px;padding:14px 16px;margin-bottom:8px;min-height:108px;box-shadow:0 8px 22px rgba(0,0,0,0.65);">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                        <span style="background:#38BDF8;color:#090D16;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:4px;">MASTER WHITEPAPER VAULT</span>
-                        <span style="background:rgba(56,189,248,0.2);color:#7DD3FC;font-size:11px;font-weight:900;padding:2px 8px;border-radius:99px;border:1px solid #38BDF8;">📚 총 {len(_books)}권 레거시 수록</span>
+                        <span style="background:#38BDF8;color:#090D16;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:4px;">OFFICIAL DESIGN FORM WHITEPAPER</span>
+                        <span style="background:rgba(16,185,129,0.2);color:#6EE7B7;font-size:11px;font-weight:900;padding:2px 8px;border-radius:99px;border:1px solid #34D399;">문서번호 {_wp_suite['doc_no']} · 총 {len(_books)}권</span>
                     </div>
-                    <div style="color:#FFFFFF;font-size:14px;font-weight:900;margin-bottom:4px;">📘 당사 입찰 필승 비전서(秘傳書) 마스터 백서 편찬실</div>
+                    <div style="color:#FFFFFF;font-size:14px;font-weight:900;margin-bottom:4px;">📘 당사 입찰 필승 비전서(秘傳書) 공식 양식 마스터 백서 편찬실</div>
                     <div style="color:#94A3B8;font-size:11.5px;line-height:1.45;">
-                        서재에 보관된 전 장서의 공고 스펙·개찰예가·1순위 당첨가 및 대표님 친필 각주를 단 한 권의 전략 백서로 편찬합니다.
+                        단순 텍스트(.txt)를 지양하고, 대표이사 결재란·공종별 영점 기준표·전 장서 복기 명세서가 디자인 폼으로 입혀진 공식 보고서를 열람·인쇄·출력합니다.
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
-                _bible_txt = "\n\n".join([
-                    f"[{b['book_code']}] {b['title']} ({b['agency']} | {b['sector']})\n- 기초금액: {b['base_amt']:,}원 | 개찰예가: {b['true_yega_rate']:.4f}% | AI사정: {b['ai_rate']:.4f}% | 나의사정: {b['user_rate']:.4f}%\n- 1순위: {b['winner_company']} ({b['winner_bid']:,}원)\n- 대표님 비전 각주: {b['ceo_footnote']}"
-                    for b in _books
-                ])
-                st.download_button(
-                    "📥 [당사 입찰 필승 비전서 마스터 백서 다운로드] 전 장서 통합본 (.txt)",
-                    data=_bible_txt.encode("utf-8-sig"),
-                    file_name="BID_NEXUS_당사입찰필승비전서_마스터백서.txt",
-                    mime="text/plain",
-                    key="_dl_bible_btn",
-                    use_container_width=True
-                )
+                _wp_btn_c1, _wp_btn_c2, _wp_btn_c3 = st.columns([1.35, 1.15, 1.15])
+                with _wp_btn_c1:
+                    if st.button("📜 공식 양식서 화면 열람 & 인쇄", key="_toggle_wp_preview_btn", use_container_width=True):
+                        st.session_state["_show_wp_official_form"] = not st.session_state.get("_show_wp_official_form", True)
+                with _wp_btn_c2:
+                    st.download_button(
+                        "📘 공식 백서(.html) 출력",
+                        data=_wp_suite["html_doc"].encode("utf-8-sig"),
+                        file_name=f"BID_NEXUS_당사입찰필승비전서_공식마스터백서_{_wp_suite['doc_no']}.html",
+                        mime="text/html",
+                        key="_dl_wp_html_btn",
+                        use_container_width=True
+                    )
+                with _wp_btn_c3:
+                    st.download_button(
+                        "📊 서식 엑셀(.xls) 출력",
+                        data=_wp_suite["xls_doc"].encode("utf-8-sig"),
+                        file_name=f"BID_NEXUS_당사입찰필승비전서_공식마스터백서_{_wp_suite['doc_no']}.xls",
+                        mime="application/vnd.ms-excel",
+                        key="_dl_wp_xls_btn",
+                        use_container_width=True
+                    )
             with _act_b2:
                 st.markdown("""
                 <div style="background:linear-gradient(135deg, rgba(69,10,10,0.88), rgba(15,23,42,0.98));border:2px solid #F87171;border-radius:12px;padding:14px 16px;margin-bottom:8px;min-height:108px;box-shadow:0 8px 22px rgba(0,0,0,0.65);">
@@ -700,6 +713,11 @@ if st.session_state["_standalone_academy_mode"]:
                         _del_book_v12(_tid)
                         st.warning("🔥 디지털 파쇄기 소각 완료! 서재에서 해당 기록이 영구 제거되었습니다.")
                         st.rerun()
+
+            # [전 장서 통합본 공식 양식 뷰어 & 원클릭 인쇄창 (기본 펼침으로 즉시 확인 및 출력 가능)]
+            if st.session_state.get("_show_wp_official_form", True):
+                st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
+                _stc_v12.html(_wp_suite["html_doc"], height=880, scrolling=True)
 
     # ==========================================================================
     # [제2관] 전 공종 모의투찰 & 블라인드 기출 대결 & 15C4 히트맵
