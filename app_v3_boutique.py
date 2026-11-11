@@ -3842,7 +3842,7 @@ with _ndc_mod.make_zone_box(_is_cab_mode, _cur_cab_zone, '[Z1]'):
             with _flt5:
                 _view_mode = st.selectbox("🗂️ 서재 열람 뷰 모드", options=["📚 3D 입체 서가 뷰 (책장)", "🃏 홀로그램 카드 갤러리 뷰", "📊 초고밀도 매트릭스 뷰"], key="_lib_view_mode")
 
-            _lib_res = _query_strategy_library_v12(_f_sec, _f_ag, _f_grd, _f_kw)
+            _lib_res = _query_lib_v12(_f_sec, _f_ag, _f_grd, _f_kw)
             _books = _lib_res["books"]
 
             if not _books:
