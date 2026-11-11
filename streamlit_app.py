@@ -659,7 +659,7 @@ if st.session_state["_standalone_academy_mode"]:
 
             if "3D" in _view_mode:
                 _shelf_rows = max(1, (len(_books) + 2) // 3)
-                _canvas_h = 410 + (_shelf_rows * 260)
+                _canvas_h = 450 + (_shelf_rows * 275)
                 _html_3d = _render_3d_html_v12(_books, active_code=_active_bk["book_code"])
                 _stc_v12.html(_html_3d, height=_canvas_h, scrolling=True)
             else:
@@ -695,6 +695,12 @@ if st.session_state["_standalone_academy_mode"]:
     # [제2관] 전 공종 모의투찰 & 블라인드 기출 대결 & 15C4 히트맵
     # ==========================================================================
     with _tab_arena:
+        st.markdown("""
+        <div id="v12-t2-lockon-banner" style="background:linear-gradient(90deg, rgba(6,78,59,0.92), rgba(15,23,42,0.96));border:2px solid #10B981;border-radius:12px;padding:12px 18px;margin-bottom:12px;box-shadow:0 0 22px rgba(16,185,129,0.3);">
+            <span style="background:#10B981;color:#022C22;font-size:11.5px;font-weight:900;padding:4px 10px;border-radius:6px;">🎯 현재 선택·락온된 모의투찰 대상 공고</span>
+            <span style="color:#FFFFFF;font-size:15px;font-weight:900;margin-left:10px;">제1관 3D 서재에서 선택한 양장본이 실시간 연동됩니다</span>
+        </div>
+        """, unsafe_allow_html=True)
         _mode_c1, _mode_c2, _mode_c3 = st.columns([2.0, 1.5, 1.5])
         with _mode_c1:
             _blind_mode = st.checkbox("🕶️ [블라인드 기출문제 진검승부 모드] 실제 개찰 사정률을 가려놓고 맞히기", value=False, key="_v12_blind_chk")

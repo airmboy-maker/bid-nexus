@@ -2692,513 +2692,6 @@ def delete_library_book_v12(book_id: int):
 
 def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", active_code: str = "") -> str:
     import json
-    safe_books = []
-    for b in (books or []):
-        raw_c = str(b.get("book_code", "001")).replace("VOL-", "제")
-        if "권" not in raw_c:
-            raw_c = raw_c + "권"
-        safe_books.append({
-            "id": b.get("id", 1),
-            "code": raw_c,
-            "title": str(b.get("title", "입찰공고")),
-            "sector": str(b.get("sector", "종합공사")),
-            "agency": str(b.get("agency", "조달청")),
-            "base_amt": f"{int(b.get('base_amt', 0)):,}원",
-            "a_val": f"{int(b.get('a_val', 0)):,}원",
-            "low_lim": f"{float(b.get('lower_limit', 88.745)):.3f}%",
-            "true_rate": f"{float(b.get('true_yega_rate', 100.03)):.4f}%",
-            "ai_rate": f"{float(b.get('ai_rate', 100.03)):.4f}%",
-            "user_rate": f"{float(b.get('user_rate', 100.03)):.4f}%",
-            "winner": str(b.get("winner_company", "1순위업체")),
-            "winner_bid": f"{int(b.get('winner_bid', 0)):,}원",
-            "participants": f"{int(b.get('participants', 50))}개사",
-            "tier": str(b.get("grade_tier", "GOLD")),
-            "vip": int(b.get("is_bookmarked", 0)),
-            "raw_txt": str(b.get("notice_raw_text", "")),
-            "ai_comm": str(b.get("ai_commentary", "")),
-            "footnote": str(b.get("ceo_footnote", "")),
-            "lots": str(b.get("picked_lots_str", "02번 · 06번 · 11번 · 14번")),
-            "date": str(b.get("created_at", ""))
-        })
-
-    books_json = json.dumps(safe_books, ensure_ascii=False)
-
-    template = r"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-    <meta charset="utf-8">
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
-        body {
-            background: radial-gradient(circle at 50% 0%, #172554 0%, #090D16 68%);
-            color: #F8FAFC;
-            overflow-x: hidden;
-            padding: 10px 14px;
-        }
-        #particle-canvas {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 1;
-        }
-        .top-guide-bar {
-            position: relative;
-            z-index: 5;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: linear-gradient(90deg, rgba(8,47,73,0.85), rgba(120,53,15,0.75));
-            border: 1.5px solid #38BDF8;
-            border-radius: 10px;
-            padding: 9px 16px;
-            margin-bottom: 14px;
-            box-shadow: 0 0 25px rgba(56,189,248,0.3);
-        }
-        .scene-viewport {
-            position: relative;
-            z-index: 3;
-            perspective: 1200px;
-            width: 100%;
-            padding: 10px 8px 22px 8px;
-        }
-        .library-room-3d {
-            transform-style: preserve-3d;
-            transition: transform 0.12s ease-out;
-            background:
-                radial-gradient(ellipse at 50% -10%, rgba(56,189,248,0.28) 0%, rgba(251,191,36,0.15) 35%, rgba(0,0,0,0) 70%),
-                repeating-linear-gradient(90deg, rgba(56,189,248,0.04) 0px, rgba(56,189,248,0.04) 1px, transparent 1px, transparent 40px),
-                linear-gradient(180deg, #16100B 0%, #0F172A 55%, #070B14 100%);
-            border: 2.5px solid #F59E0B;
-            border-radius: 18px;
-            padding: 24px 26px 18px 26px;
-            box-shadow:
-                inset 0 30px 65px rgba(0,0,0,0.92),
-                0 22px 48px rgba(0,0,0,0.85),
-                0 0 32px rgba(56,189,248,0.22);
-        }
-        .shelf-tier {
-            position: relative;
-            transform-style: preserve-3d;
-            margin-bottom: 28px;
-        }
-        .shelf-label {
-            color: #FDE68A;
-            font-size: 12.5px;
-            font-weight: 900;
-            margin-bottom: 14px;
-            text-shadow: 0 0 12px rgba(251,191,36,0.75);
-        }
-        .books-row {
-            display: flex;
-            gap: 24px;
-            justify-content: space-around;
-            align-items: flex-end;
-            padding: 0 12px;
-            transform-style: preserve-3d;
-        }
-        .book-3d-wrapper {
-            width: 30%;
-            height: 188px;
-            position: relative;
-            transform-style: preserve-3d;
-            transform: rotateY(-18deg) rotateX(7deg) translateZ(12px);
-            transition: transform 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.3s;
-            cursor: pointer;
-        }
-        .book-3d-wrapper:hover {
-            transform: rotateY(-2deg) rotateX(2deg) translateZ(70px) translateY(-16px) scale(1.05);
-            filter: brightness(1.25) drop-shadow(0 0 18px rgba(56,189,248,0.65));
-            z-index: 30;
-        }
-        .book-3d-wrapper.active-book {
-            transform: rotateY(0deg) rotateX(0deg) translateZ(58px) translateY(-12px);
-            filter: brightness(1.28) drop-shadow(0 0 22px rgba(251,191,36,0.75));
-        }
-        .book-front {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 3px 10px 10px 3px;
-            padding: 13px 14px 11px 18px;
-            transform: translateZ(16px);
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.6), 12px 16px 30px rgba(0,0,0,0.88);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            backface-visibility: hidden;
-        }
-        .book-spine-3d {
-            position: absolute;
-            left: -16px;
-            top: 0;
-            width: 32px;
-            height: 100%;
-            transform: rotateY(-90deg);
-            border-radius: 4px 0 0 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            writing-mode: vertical-rl;
-            font-size: 10.5px;
-            font-weight: 900;
-            color: #FEF08A;
-            letter-spacing: 1px;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.75);
-        }
-        .book-pages-right {
-            position: absolute;
-            right: -13px;
-            top: 3px;
-            width: 26px;
-            height: calc(100% - 6px);
-            background: repeating-linear-gradient(90deg, #F8FAFC 0px, #94A3B8 2px, #F1F5F9 4px);
-            transform: rotateY(90deg);
-        }
-        .book-pages-top {
-            position: absolute;
-            top: -13px;
-            left: 3px;
-            width: calc(100% - 6px);
-            height: 26px;
-            background: repeating-linear-gradient(0deg, #F8FAFC 0px, #94A3B8 2px, #E2E8F0 4px);
-            transform: rotateX(90deg);
-        }
-        .wood-shelf-3d {
-            position: relative;
-            height: 24px;
-            margin-top: -2px;
-            background: linear-gradient(180deg, #92400E 0%, #451A03 62%, #1C0A00 100%);
-            border-top: 3px solid #FBBF24;
-            border-bottom: 4px solid #050200;
-            border-radius: 4px;
-            transform: translateZ(24px);
-            box-shadow: 0 18px 32px rgba(0,0,0,0.95), 0 0 18px rgba(56,189,248,0.28);
-        }
-        .gold-foil-line {
-            height: 2.5px;
-            background: linear-gradient(90deg, #FEF08A, #38BDF8, #FEF08A);
-            margin: 4px 0;
-        }
-        .reading-desk-stage {
-            position: relative;
-            z-index: 4;
-            perspective: 1400px;
-            margin-top: 14px;
-        }
-        .open-book-3d-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            background: linear-gradient(90deg, #1E293B 0%, #0F172A 46%, #020617 50%, #0F172A 54%, #1E293B 100%);
-            border: 3px solid #38BDF8;
-            border-bottom: 10px solid #78350F;
-            border-radius: 16px;
-            transform: rotateX(9deg);
-            transform-style: preserve-3d;
-            transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-            box-shadow:
-                0 28px 55px rgba(0,0,0,0.92),
-                0 0 38px rgba(56,189,248,0.32),
-                inset 0 0 25px rgba(0,0,0,0.7);
-        }
-        .open-book-3d-container.flip-anim {
-            transform: rotateX(22deg) scale(0.96);
-        }
-        .page-left-3d {
-            padding: 20px 24px;
-            border-right: 3px solid rgba(56,189,248,0.45);
-        }
-        .page-right-3d {
-            padding: 20px 24px;
-        }
-    </style>
-    </head>
-    <body>
-    <canvas id="particle-canvas"></canvas>
-
-    <div class="top-guide-bar">
-        <div>
-            <span style="background:#38BDF8;color:#090D16;font-size:11px;font-weight:900;padding:3px 9px;border-radius:4px;">3D 홀로그램 & 입체 원목 서재 가동</span>
-            <span style="color:#FEF08A;font-size:13.5px;font-weight:900;margin-left:8px;">🌌 서가 위에서 마우스를 움직이면 3D 공간 전체가 입체 회전하며, 양장본을 클릭하면 하단 3D 독서대에 펼쳐집니다!</span>
-        </div>
-        <div style="color:#34D399;font-size:12px;font-weight:800;">● 실시간 3D 홀로그램 파티클 가동 중</div>
-    </div>
-
-    <div class="scene-viewport" id="viewport-3d">
-        <div class="library-room-3d" id="room-3d">
-            <div id="shelves-root"></div>
-        </div>
-    </div>
-
-    <div class="reading-desk-stage">
-        <div style="color:#FDE68A;font-size:14px;font-weight:900;margin-bottom:6px;display:flex;justify-content:space-between;">
-            <span id="desk-header-title">📖 [3D 홀로그램 양면 펼침 독서대] 서가에서 양장본을 클릭해 보세요</span>
-            <span id="desk-header-meta" style="color:#38BDF8;font-size:12px;"></span>
-        </div>
-        <div class="open-book-3d-container" id="open-book-box">
-            <div class="page-left-3d" id="page-left-content"></div>
-            <div class="page-right-3d" id="page-right-content"></div>
-        </div>
-    </div>
-
-    <script>
-    const BOOKS = __BOOKS_JSON__;
-    const shelvesRoot = document.getElementById('shelves-root');
-    const shelfNames = [
-        "🪵 [제1단 3D 홀로그램 원목 서가] 종합·대형 전략 공사 황금 양장본 컬렉션",
-        "🪵 [제2단 3D 홀로그램 원목 서가] 전문·전통소(전기·통신·소방·설비) 실전 족보관",
-        "🪵 [제3단 3D 홀로그램 원목 서가] 특수공종 & 하한선 미달 집중 오답노트 보관소"
-    ];
-
-    function getTierColors(tier) {
-        if (tier === 'GOLD') {
-            return {
-                front: 'linear-gradient(135deg, #78350F 0%, #B45309 50%, #D97706 100%)',
-                spine: 'linear-gradient(180deg, #451A03, #92400E)',
-                border: '2px solid #FBBF24',
-                badge: '🏆 황금족보'
-            };
-        } else if (tier === 'BLUE') {
-            return {
-                front: 'linear-gradient(135deg, #0C4A6E 0%, #0284C7 55%, #0369A1 100%)',
-                spine: 'linear-gradient(180deg, #082F49, #0369A1)',
-                border: '2px solid #38BDF8',
-                badge: '📘 상위방어'
-            };
-        } else {
-            return {
-                front: 'linear-gradient(135deg, #7F1D1D 0%, #DC2626 55%, #991B1B 100%)',
-                spine: 'linear-gradient(180deg, #450A0A, #991B1B)',
-                border: '2px solid #F87171',
-                badge: '📕 오답노트'
-            };
-        }
-    }
-
-    function selectBook(index) {
-        const b = BOOKS[index];
-        if (!b) return;
-        document.querySelectorAll('.book-3d-wrapper').forEach((el, idx) => {
-            if (idx === index) el.classList.add('active-book');
-            else el.classList.remove('active-book');
-        });
-        const box = document.getElementById('open-book-box');
-        box.classList.add('flip-anim');
-        setTimeout(() => box.classList.remove('flip-anim'), 260);
-
-        document.getElementById('desk-header-title').innerHTML = '📖 [3D 홀로그램 양면 펼침 독서대] 현재 열람 중: <span style="color:#FFFFFF;">' + b.code + ' — ' + b.title + '</span>';
-        document.getElementById('desk-header-meta').innerHTML = '제본일시: ' + b.date + ' | 추첨번호: ' + b.lots;
-
-        document.getElementById('page-left-content').innerHTML =
-            '<div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(56,189,248,0.35);padding-bottom:6px;margin-bottom:10px;">' +
-                '<span style="color:#38BDF8;font-size:13px;font-weight:900;">📄 [좌측 페이지: 제1면 & 제2면] 입찰공고문 원문 · 사정 타점 대조</span>' +
-                '<span style="color:#FDE68A;font-size:11.5px;font-weight:800;">' + b.agency + ' | ' + b.sector + '</span>' +
-            '</div>' +
-            '<div style="background:rgba(9,13,22,0.88);border-left:4px solid #38BDF8;padding:10px 12px;border-radius:6px;margin-bottom:10px;">' +
-                '<div style="color:#7DD3FC;font-size:11px;font-weight:900;margin-bottom:4px;">[제1면] 입찰공고문 원문 & 핵심 스펙 스냅샷</div>' +
-                '<div style="color:#E2E8F0;font-size:12px;line-height:1.55;">' + b.raw_txt + '</div>' +
-            '</div>' +
-            '<div style="background:rgba(9,13,22,0.88);border-left:4px solid #C084FC;padding:10px 12px;border-radius:6px;">' +
-                '<div style="color:#E9D5FF;font-size:11px;font-weight:900;margin-bottom:4px;">[제2면] 모의응찰 사정가 vs AI 학습 사정가 대조</div>' +
-                '<div style="color:#F8FAFC;font-size:12px;line-height:1.65;">' +
-                    '• 기초금액: <b>' + b.base_amt + '</b> | A값: <b>' + b.a_val + '</b> (적용 낙찰하한율 ' + b.low_lim + ')<br>' +
-                    '• 🤖 AI 사정 타점: <b style="color:#38BDF8;font-size:13px;">' + b.ai_rate + '</b> vs 👤 대표님 모의투찰: <b style="color:#C084FC;font-size:13px;">' + b.user_rate + '</b>' +
-                '</div>' +
-            '</div>';
-
-        document.getElementById('page-right-content').innerHTML =
-            '<div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(251,191,36,0.35);padding-bottom:6px;margin-bottom:10px;">' +
-                '<span style="color:#FBBF24;font-size:13px;font-weight:900;">📊 [우측 페이지: 제3면 & 제4면] 개찰 결과 해부 · 대표님 금박 각주</span>' +
-                '<span style="color:#34D399;font-size:11.5px;font-weight:800;">응찰 ' + b.participants + '</span>' +
-            '</div>' +
-            '<div style="background:rgba(9,13,22,0.88);border-left:4px solid #34D399;padding:10px 12px;border-radius:6px;margin-bottom:10px;">' +
-                '<div style="color:#6EE7B7;font-size:11px;font-weight:900;margin-bottom:4px;">[제3면] 실제 개찰 결과 & 15C4 추첨번호 해부</div>' +
-                '<div style="color:#F8FAFC;font-size:12px;line-height:1.65;">' +
-                    '• 🎯 실제 개찰 예가사정률: <b style="color:#FBBF24;font-size:14px;">' + b.true_rate + '</b> (추첨번호: ' + b.lots + ')<br>' +
-                    '• 🏆 최종 1순위 당첨사: <b style="color:#34D399;">' + b.winner + '</b> (낙찰가 <b>' + b.winner_bid + '</b>)' +
-                '</div>' +
-            '</div>' +
-            '<div style="background:linear-gradient(135deg, rgba(120,53,15,0.55), rgba(15,23,42,0.95));border:1.5px solid #FBBF24;padding:10px 12px;border-radius:6px;">' +
-                '<div style="color:#FEF08A;font-size:11px;font-weight:900;margin-bottom:4px;">[제4면] ✍️ 대표님 비전(秘傳) 금박 각주 & AI 수석 사정관 총평</div>' +
-                '<div style="color:#FDE68A;font-size:12.5px;font-weight:900;margin-bottom:5px;">"' + b.footnote + '"</div>' +
-                '<div style="color:#CBD5E1;font-size:11.5px;line-height:1.5;">' + b.ai_comm + '</div>' +
-            '</div>';
-    }
-
-    let htmlOut = '';
-    for (let s = 0; s < Math.ceil(BOOKS.length / 3); s++) {
-        const sLabel = shelfNames[s] || ('🪵 [제' + (s+1) + '단 3D 홀로그램 원목 서가] 추가 제본 양장본 선반');
-        htmlOut += '<div class="shelf-tier"><div class="shelf-label">' + sLabel + '</div><div class="books-row">';
-        for (let k = 0; k < 3; k++) {
-            const idx = s * 3 + k;
-            if (idx < BOOKS.length) {
-                const bk = BOOKS[idx];
-                const st = getTierColors(bk.tier);
-                htmlOut +=
-                '<div class="book-3d-wrapper" onclick="selectBook(' + idx + ')">' +
-                    '<div class="book-pages-top"></div>' +
-                    '<div class="book-pages-right"></div>' +
-                    '<div class="book-spine-3d" style="background:' + st.spine + ';border-left:2px solid #FDE68A;">' +
-                        bk.code + ' · ' + bk.agency +
-                    '</div>' +
-                    '<div class="book-front" style="background:' + st.front + ';border:' + st.border + ';">' +
-                        '<div>' +
-                            '<div style="display:flex;justify-content:space-between;align-items:center;">' +
-                                '<span style="color:#FEF08A;font-size:11px;font-weight:900;">' + bk.code + (bk.vip ? ' 🔖 VIP' : '') + '</span>' +
-                                '<span style="background:rgba(0,0,0,0.55);color:#F8FAFC;font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:4px;">' + st.badge + '</span>' +
-                            '</div>' +
-                            '<div class="gold-foil-line"></div>' +
-                            '<div style="color:#FFFFFF;font-size:13.5px;font-weight:900;line-height:1.3;margin:4px 0;">📕 ' + bk.title + '</div>' +
-                            '<div style="color:#E2E8F0;font-size:10.5px;font-weight:700;">🏛️ ' + bk.agency + ' | ' + bk.sector + '</div>' +
-                            '<div style="color:#BAE6FD;font-size:10.5px;margin-top:2px;">💰 기초: ' + bk.base_amt + '</div>' +
-                        '</div>' +
-                        '<div>' +
-                            '<div style="color:#FDE68A;font-size:11px;font-weight:900;">🎯 개찰 ' + bk.true_rate + ' | 내 사정 ' + bk.user_rate + '</div>' +
-                            '<div class="gold-foil-line"></div>' +
-                            '<div style="color:#F8FAFC;font-size:10px;background:rgba(0,0,0,0.42);padding:3px 6px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">✍️ ' + bk.footnote + '</div>' +
-                        '</div>' +
-                    '</div>' +
-                '</div>';
-            }
-        }
-        htmlOut += '</div><div class="wood-shelf-3d"></div></div>';
-    }
-    shelvesRoot.innerHTML = htmlOut;
-    let initIdx = 0; const targetCode = '__ACTIVE_CODE__'; if (targetCode) { const found = BOOKS.findIndex(b => b.code === targetCode); if (found >= 0) initIdx = found; } if (BOOKS.length > 0) selectBook(initIdx);
-
-    const vp = document.getElementById('viewport-3d');
-    const room = document.getElementById('room-3d');
-    vp.addEventListener('mousemove', (e) => {
-        const rect = vp.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width - 0.5;
-        const y = (e.clientY - rect.top) / rect.height - 0.5;
-        room.style.transform = 'rotateY(' + (x * 12) + 'deg) rotateX(' + (-y * 8) + 'deg)';
-    });
-    vp.addEventListener('mouseleave', () => {
-        room.style.transform = 'rotateY(0deg) rotateX(0deg)';
-    });
-
-    const canvas = document.getElementById('particle-canvas');
-    const ctx = canvas.getContext('2d');
-    function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    const particles = Array.from({length: 65}, (_, i) => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 2.4 + 0.8,
-        dx: (Math.random() - 0.5) * 0.45,
-        dy: -Math.random() * 0.6 - 0.15,
-        color: i % 2 === 0 ? '253, 230, 138' : '56, 189, 248',
-        alpha: Math.random() * 0.65 + 0.25
-    }));
-
-    function animateParticles() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        for (const p of particles) {
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(' + p.color + ', ' + p.alpha + ')';
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = '#38BDF8';
-            ctx.fill();
-            p.x += p.dx;
-            p.y += p.dy;
-            if (p.y < 0) p.y = canvas.height;
-            if (p.x < 0) p.x = canvas.width;
-            if (p.x > canvas.width) p.x = 0;
-        }
-        requestAnimationFrame(animateParticles);
-    }
-    animateParticles();
-    </script>
-    </body>
-    </html>
-    """
-    return template.replace("__BOOKS_JSON__", books_json).replace("__ACTIVE_CODE__", str(active_code or ""))
-
-
-def fetch_recent_selected_bid_packages_v12(session_dict: dict = None) -> list:
-    import os
-    import sqlite3
-    import math
-
-    packages = []
-    db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bid_history.db")
-    if os.path.exists(db_path):
-        conn = sqlite3.connect(db_path)
-        cur = conn.cursor()
-        try:
-            cur.execute(
-                """
-                SELECT id, book_code, title, sector, agency, base_amt, a_val, lower_limit,
-                       notice_raw_text, ai_commentary, ceo_footnote, true_yega_rate
-                FROM strategy_library_v12
-                ORDER BY is_bookmarked DESC, id DESC
-                """
-            )
-            for r in cur.fetchall():
-                b_id = int(r[0])
-                b_code = str(r[1])
-                b_title = str(r[2])
-                b_sec = str(r[3])
-                b_ag = str(r[4])
-                b_base = int(r[5] or 1500000000)
-                b_aval = int(r[6] or int(b_base * 0.06))
-                b_low = float(r[7] or 88.745)
-                b_raw = str(r[8] or "")
-                b_comm = str(r[9] or "")
-                b_foot = str(r[10] or "")
-                b_yega = float(r[11] or 100.03)
-
-                a_ratio = round((b_aval / max(1, b_base)) * 100.0, 2)
-                rec_rate = round(100.0315 + (0.0045 if a_ratio >= 6.0 else -0.0025) + (0.0060 if any(k in b_sec for k in ["전기", "실내", "통신"]) else 0.0), 4)
-                exp_p = b_base * (rec_rate / 100.0)
-                rec_bid = (int(math.ceil(((exp_p - b_aval) * (b_low / 100.0)) + b_aval)) // 10) * 10 + 3
-
-                full_txt = (
-                    f"[1. 입찰공고문 원문 ({b_code})] 공고명: {b_title} | 발주처: {b_ag} | 공종: {b_sec}\n"
-                    f"• 기초금액: {b_base:,}원 | 추정가격: {int(b_base/1.1):,}원 | A값: {b_aval:,}원 (비중 {a_ratio:.2f}%) | 적용 낙찰하한율: {b_low:.3f}%\n"
-                    f"• 원문 상세: {b_raw}\n"
-                    f"[2. 시방서 · 현장설명서 · 내역서 자동 추출 요약]\n"
-                    f"• 공사시방서: {b_sec} 표준시방서 및 발주처({b_ag}) 특기시방서 적용, 현장설명서 숙지 의무 조항 포함.\n"
-                    f"• 물량내역서: 법정 사후정산비(A값 {b_aval:,}원) 원안 반영 필수, 하도급지킴이 및 노무비 구분관리제 적용 대상.\n"
-                    f"[3. 기존 사정 기록 & 대표님 각주]\n"
-                    f"• 과거 개찰 예가사정률: {b_yega:.4f}% | 대표님 각주: {b_foot}\n"
-                    f"• AI 사정관 분석록: {b_comm}"
-                )
-                packages.append({
-                    "book_id": b_id,
-                    "pkg_id": b_code,
-                    "label": f"📕 [{b_code}] {b_title} ({b_ag} · {b_sec} · 기초 {b_base:,}원)",
-                    "title": b_title,
-                    "agency": b_ag,
-                    "sector": b_sec,
-                    "base_amt": b_base,
-                    "a_val": b_aval,
-                    "a_ratio": a_ratio,
-                    "lower_limit": b_low,
-                    "rec_rate": rec_rate,
-                    "rec_bid": rec_bid,
-                    "full_package_text": full_txt,
-                    "doc_checklist": [
-                        f"📄 [입찰공고문] {b_ag} — {b_title} (기초 {b_base:,}원) 원문 로드 완료",
-                        f"📐 [물량내역서] A값 {b_aval:,}원 ({a_ratio:.2f}%) 및 원가계산서 비율 검증 완료",
-                        f"🛠️ [시방서/과업지시서] {b_sec} 면허 제한 및 특수시공 조건 스캔 완료",
-                        f"📑 [적격심사서류] 낙찰하한율 {b_low:.3f}% 및 과거 개찰예가({b_yega:.4f}%) 대조 완료"
-                    ]
-                })
-        except Exception:
-            pass
-        conn.close()
-    return packages
-
-def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", active_code: str = "") -> str:
-    import json
     import math
     safe_books = []
     for b in (books or []):
@@ -3237,6 +2730,8 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
             "title": b_title,
             "sector": b_sec,
             "agency": b_ag,
+            "base_num": b_base,
+            "aval_num": b_aval,
             "base_amt": f"{b_base:,}원",
             "a_val": f"{b_aval:,}원",
             "a_ratio": f"{a_ratio:.2f}%",
@@ -3269,10 +2764,10 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
         body {
-            background: radial-gradient(circle at 50% 0%, #172554 0%, #090D16 68%);
+            background: radial-gradient(circle at 50% 0%, #0F172A 0%, #050811 72%);
             color: #F8FAFC;
             overflow-x: hidden;
-            padding: 10px 14px;
+            padding: 8px 12px;
         }
         #particle-canvas {
             position: fixed;
@@ -3280,51 +2775,71 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
             pointer-events: none;
             z-index: 1;
         }
-        .top-guide-bar {
+        @keyframes neonPulseBorder {
+            0%, 100% { box-shadow: 0 0 22px rgba(16,185,129,0.85), inset 0 0 18px rgba(16,185,129,0.35); border-color: #10B981; }
+            50% { box-shadow: 0 0 38px rgba(56,189,248,0.95), inset 0 0 28px rgba(56,189,248,0.45); border-color: #38BDF8; }
+        }
+        @keyframes floatBeacon {
+            0%, 100% { transform: translateX(-50%) translateY(0px) translateZ(35px); }
+            50% { transform: translateX(-50%) translateY(-8px) translateZ(35px); }
+        }
+        @keyframes scanBeam {
+            0% { left: -35%; }
+            100% { left: 120%; }
+        }
+        /* 최상단 초고도화 타겟 락온(TARGET LOCKED) HUD 전광판 */
+        .lockon-hud-board {
             position: relative;
-            z-index: 5;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: linear-gradient(90deg, rgba(8,47,73,0.85), rgba(120,53,15,0.75));
-            border: 1.5px solid #38BDF8;
-            border-radius: 10px;
-            padding: 9px 16px;
-            margin-bottom: 14px;
-            box-shadow: 0 0 25px rgba(56,189,248,0.3);
+            z-index: 6;
+            background: linear-gradient(90deg, rgba(6,78,59,0.95) 0%, rgba(15,23,42,0.98) 55%, rgba(8,47,73,0.95) 100%);
+            border: 2.5px solid #10B981;
+            border-radius: 14px;
+            padding: 14px 20px;
+            margin-bottom: 18px;
+            overflow: hidden;
+            animation: neonPulseBorder 2.6s infinite ease-in-out;
+        }
+        .lockon-hud-board::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -35%;
+            width: 25%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(52,211,153,0.18), transparent);
+            transform: skewX(-25deg);
+            animation: scanBeam 3.8s infinite linear;
+            pointer-events: none;
         }
         .scene-viewport {
             position: relative;
             z-index: 3;
             perspective: 1200px;
             width: 100%;
-            padding: 10px 8px 22px 8px;
+            padding: 16px 8px 22px 8px;
         }
         .library-room-3d {
             transform-style: preserve-3d;
             transition: transform 0.12s ease-out;
             background:
-                radial-gradient(ellipse at 50% -10%, rgba(56,189,248,0.28) 0%, rgba(251,191,36,0.15) 35%, rgba(0,0,0,0) 70%),
-                repeating-linear-gradient(90deg, rgba(56,189,248,0.04) 0px, rgba(56,189,248,0.04) 1px, transparent 1px, transparent 40px),
+                radial-gradient(ellipse at 50% -10%, rgba(16,185,129,0.22) 0%, rgba(56,189,248,0.12) 40%, rgba(0,0,0,0) 70%),
+                repeating-linear-gradient(90deg, rgba(56,189,248,0.03) 0px, rgba(56,189,248,0.03) 1px, transparent 1px, transparent 40px),
                 linear-gradient(180deg, #16100B 0%, #0F172A 55%, #070B14 100%);
-            border: 2.5px solid #F59E0B;
+            border: 2.5px solid #B45309;
             border-radius: 18px;
-            padding: 24px 26px 18px 26px;
+            padding: 28px 26px 18px 26px;
             box-shadow:
                 inset 0 30px 65px rgba(0,0,0,0.92),
-                0 22px 48px rgba(0,0,0,0.85),
-                0 0 32px rgba(56,189,248,0.22);
+                0 22px 48px rgba(0,0,0,0.85);
         }
         .shelf-tier {
             position: relative;
             transform-style: preserve-3d;
-            margin-bottom: 28px;
+            margin-bottom: 34px;
         }
         .shelf-label {
             color: #FDE68A;
             font-size: 12.5px;
             font-weight: 900;
-            margin-bottom: 14px;
+            margin-bottom: 18px;
             text-shadow: 0 0 12px rgba(251,191,36,0.75);
         }
         .books-row {
@@ -3335,30 +2850,84 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
             padding: 0 12px;
             transform-style: preserve-3d;
         }
+        /* 3D 양장본 기본 상태 */
         .book-3d-wrapper {
             width: 30%;
-            height: 188px;
+            height: 192px;
             position: relative;
             transform-style: preserve-3d;
-            transform: rotateY(-18deg) rotateX(7deg) translateZ(12px);
-            transition: transform 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.3s;
+            transform: rotateY(-18deg) rotateX(7deg) translateZ(8px);
+            transition: all 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
         }
-        .book-3d-wrapper:hover {
-            transform: rotateY(-2deg) rotateX(2deg) translateZ(70px) translateY(-16px) scale(1.05);
-            filter: brightness(1.25) drop-shadow(0 0 18px rgba(56,189,248,0.65));
-            z-index: 30;
+        /* 비선택 도서 자동 Dimming (어둡게 뒤로 후퇴시켜 선택 도서를 완벽 부각!) */
+        .book-3d-wrapper.dimmed-book {
+            opacity: 0.42;
+            filter: brightness(0.58) saturate(0.65);
+            transform: rotateY(-20deg) rotateX(7deg) translateZ(-12px) scale(0.95);
         }
+        .book-3d-wrapper.dimmed-book:hover {
+            opacity: 0.92;
+            filter: brightness(1.1) saturate(1.0);
+            transform: rotateY(-6deg) rotateX(3deg) translateZ(38px) translateY(-8px) scale(1.01);
+            z-index: 25;
+        }
+        /* 선택된 도서 (초고도화 TARGET LOCKED 상태: 앞으로 강렬 돌출 + 네온 에메랄드 레이저 오라) */
         .book-3d-wrapper.active-book {
-            transform: rotateY(0deg) rotateX(0deg) translateZ(58px) translateY(-12px);
-            filter: brightness(1.28) drop-shadow(0 0 22px rgba(251,191,36,0.85));
+            opacity: 1.0 !important;
+            transform: rotateY(0deg) rotateX(0deg) translateZ(72px) translateY(-16px) scale(1.06) !important;
+            filter: brightness(1.22) drop-shadow(0 0 28px rgba(16,185,129,0.95)) !important;
+            z-index: 40 !important;
+        }
+        .book-3d-wrapper.active-book .book-front {
+            border: 3.5px solid #10B981 !important;
+            box-shadow: 0 0 32px rgba(16,185,129,0.9), inset 0 0 22px rgba(16,185,129,0.45) !important;
+        }
+        /* 선택된 책 위 공중에 둥둥 떠 있는 3D 홀로그램 타겟 비콘 */
+        .floating-lock-beacon {
+            display: none;
+            position: absolute;
+            top: -38px;
+            left: 50%;
+            transform: translateX(-50%) translateZ(35px);
+            background: linear-gradient(90deg, #059669, #10B981, #047857);
+            color: #022C22;
+            font-size: 11.5px;
+            font-weight: 900;
+            padding: 5px 14px;
+            border-radius: 999px;
+            border: 2px solid #A7F3D0;
+            white-space: nowrap;
+            box-shadow: 0 0 22px rgba(16,185,129,1), 0 6px 14px rgba(0,0,0,0.8);
+            animation: floatBeacon 1.4s infinite ease-in-out;
+            z-index: 50;
+        }
+        .book-3d-wrapper.active-book .floating-lock-beacon {
+            display: block !important;
+        }
+        /* 선택된 책 하단 네온 리본 바 */
+        .selected-neon-strip {
+            display: none;
+            background: linear-gradient(90deg, #10B981, #38BDF8);
+            color: #022C22;
+            font-size: 10.5px;
+            font-weight: 900;
+            text-align: center;
+            padding: 3px 6px;
+            border-radius: 4px;
+            margin-top: 4px;
+            letter-spacing: 0.4px;
+            box-shadow: 0 0 12px rgba(16,185,129,0.8);
+        }
+        .book-3d-wrapper.active-book .selected-neon-strip {
+            display: block !important;
         }
         .book-front {
             position: absolute;
             width: 100%;
             height: 100%;
             border-radius: 3px 10px 10px 3px;
-            padding: 13px 14px 11px 18px;
+            padding: 12px 14px 10px 18px;
             transform: translateZ(16px);
             box-shadow: inset 0 0 20px rgba(0,0,0,0.6), 12px 16px 30px rgba(0,0,0,0.88);
             display: flex;
@@ -3414,7 +2983,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
             box-shadow: 0 18px 32px rgba(0,0,0,0.95), 0 0 18px rgba(56,189,248,0.28);
         }
         .gold-foil-line {
-            height: 2.5px;
+            height: 2px;
             background: linear-gradient(90deg, #FEF08A, #38BDF8, #FEF08A);
             margin: 4px 0;
         }
@@ -3428,15 +2997,15 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
             display: grid;
             grid-template-columns: 1fr 1fr;
             background: linear-gradient(90deg, #1E293B 0%, #0F172A 46%, #020617 50%, #0F172A 54%, #1E293B 100%);
-            border: 3px solid #38BDF8;
+            border: 3px solid #10B981;
             border-bottom: 10px solid #78350F;
             border-radius: 16px;
-            transform: rotateX(9deg);
+            transform: rotateX(8deg);
             transform-style: preserve-3d;
             transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
             box-shadow:
                 0 28px 55px rgba(0,0,0,0.92),
-                0 0 38px rgba(56,189,248,0.32),
+                0 0 38px rgba(16,185,129,0.32),
                 inset 0 0 25px rgba(0,0,0,0.7);
         }
         .open-book-3d-container.flip-anim {
@@ -3444,7 +3013,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
         }
         .page-left-3d {
             padding: 20px 24px;
-            border-right: 3px solid rgba(56,189,248,0.45);
+            border-right: 3px solid rgba(16,185,129,0.45);
         }
         .page-right-3d {
             padding: 20px 24px;
@@ -3454,12 +3023,31 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
     <body>
     <canvas id="particle-canvas"></canvas>
 
-    <div class="top-guide-bar">
-        <div>
-            <span style="background:#38BDF8;color:#090D16;font-size:11px;font-weight:900;padding:3px 9px;border-radius:4px;">제1관 ➔ 제3관 상시 자동 직결</span>
-            <span id="sync-status-banner" style="color:#FEF08A;font-size:13.5px;font-weight:900;margin-left:8px;">🌌 서가에서 3D 양장본을 클릭하면 하단 3D 독서대와 [제3관: 올라마 공고문 해부관]이 동시에 해당 공고로 즉시 고정됩니다!</span>
+    <!-- 최상단 초고도화 타겟 락온(TARGET LOCKED) 전광판 -->
+    <div class="lockon-hud-board">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <span style="background:#10B981;color:#022C22;font-size:12px;font-weight:900;padding:5px 12px;border-radius:8px;box-shadow:0 0 15px rgba(16,185,129,0.8);">
+                    🎯 현재 선택·락온된 공고문
+                </span>
+                <div>
+                    <div id="hud-locked-title" style="color:#FFFFFF;font-size:17px;font-weight:900;letter-spacing:0.3px;">
+                        선택된 양장본 로딩 중...
+                    </div>
+                    <div id="hud-locked-specs" style="color:#A7F3D0;font-size:12.5px;font-weight:800;margin-top:3px;">
+                        발주처 · 공종 · 기초금액 · A값 실시간 동기화됨
+                    </div>
+                </div>
+            </div>
+            <div style="text-align:right;">
+                <div style="background:rgba(9,13,22,0.85);border:1.5px solid #38BDF8;border-radius:8px;padding:6px 12px;color:#38BDF8;font-size:11.5px;font-weight:900;">
+                    ⚡ [제2관 모의투찰] & [제3관 올라마 해부관] 100% 직결 고정됨
+                </div>
+                <div style="color:#FDE68A;font-size:11px;font-weight:800;margin-top:4px;">
+                    👇 아래 3D 서가에서 다른 책을 클릭하면 즉시 타겟이 교체됩니다
+                </div>
+            </div>
         </div>
-        <div style="color:#34D399;font-size:12px;font-weight:800;">● 0.2초 상시 동기화 가동 중</div>
     </div>
 
     <div class="scene-viewport" id="viewport-3d">
@@ -3469,9 +3057,9 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
     </div>
 
     <div class="reading-desk-stage">
-        <div style="color:#FDE68A;font-size:14px;font-weight:900;margin-bottom:6px;display:flex;justify-content:space-between;">
-            <span id="desk-header-title">📖 [3D 홀로그램 양면 펼침 독서대] 서가에서 양장본을 클릭해 보세요</span>
-            <span id="desk-header-meta" style="color:#38BDF8;font-size:12px;"></span>
+        <div style="color:#6EE7B7;font-size:14.5px;font-weight:900;margin-bottom:6px;display:flex;justify-content:space-between;">
+            <span id="desk-header-title">📖 [3D 홀로그램 양면 펼침 독서대] 현재 선택된 양장본 상세 해부</span>
+            <span id="desk-header-meta" style="color:#FDE68A;font-size:12px;"></span>
         </div>
         <div class="open-book-3d-container" id="open-book-box">
             <div class="page-left-3d" id="page-left-content"></div>
@@ -3513,15 +3101,43 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
         }
     }
 
-    // 부모 창(제3관 올라마 해부관)의 모든 화면 요소를 클릭한 양장본으로 즉시 덮어쓰는 함수
-    function applyBookToParentTab3(b) {
+    // 부모 창(제2관 모의투찰 & 제3관 올라마 해부관)의 전광판과 데이터를 실시간으로 덮어쓰는 함수
+    function applyBookToParentTabs(b) {
         try {
             const pDoc = window.parent.document;
             if (!pDoc || !b) return;
 
-            const tActiveBanner = pDoc.getElementById('v12-t3-active-banner');
-            if (tActiveBanner) {
-                tActiveBanner.innerHTML = '📕 현재 제1관 3D 서재에서 선택되어 연동된 양장본: <b style="color:#FDE68A;">[' + b.code + '] ' + b.title + '</b> (' + b.agency + ' · ' + b.sector + ' · 기초 ' + b.base_amt + ')';
+            // 제2관(모의투찰) 상단 타겟 락온 전광판 업데이트
+            const t2Banner = pDoc.getElementById('v12-t2-lockon-banner');
+            if (t2Banner) {
+                t2Banner.innerHTML =
+                    '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
+                        '<div>' +
+                            '<span style="background:#10B981;color:#022C22;font-size:11.5px;font-weight:900;padding:4px 10px;border-radius:6px;">🎯 현재 선택·락온된 모의투찰 대상 공고</span>' +
+                            '<span style="color:#FFFFFF;font-size:15.5px;font-weight:900;margin-left:10px;">[' + b.code + '] ' + b.title + '</span>' +
+                        '</div>' +
+                        '<div style="color:#FDE68A;font-size:12.5px;font-weight:900;">' +
+                            '🏛️ ' + b.agency + ' | ' + b.sector + ' | 💰 기초: ' + b.base_amt + ' | 🛡️ A값: ' + b.a_val + ' (하한율 ' + b.low_lim + ')' +
+                        '</div>' +
+                    '</div>';
+            }
+
+            // 제3관(올라마 해부관) 상단 타겟 락온 전광판 업데이트
+            const t3Banner = pDoc.getElementById('v12-t3-active-banner');
+            if (t3Banner) {
+                t3Banner.innerHTML =
+                    '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
+                        '<div>' +
+                            '<span style="background:#10B981;color:#022C22;font-size:12px;font-weight:900;padding:5px 12px;border-radius:6px;box-shadow:0 0 14px rgba(16,185,129,0.8);">🎯 현재 선택·락온되어 분석 중인 공고문</span>' +
+                            '<span style="color:#FFFFFF;font-size:16px;font-weight:900;margin-left:10px;">[' + b.code + '] ' + b.title + '</span>' +
+                        '</div>' +
+                        '<span style="background:rgba(16,185,129,0.2);border:1px solid #34D399;color:#A7F3D0;font-size:11.5px;font-weight:800;padding:4px 10px;border-radius:6px;">' +
+                            '✅ 제1관 3D 서재 선택 항목 100% 일치' +
+                        '</span>' +
+                    '</div>' +
+                    '<div style="color:#FDE68A;font-size:12px;font-weight:800;margin-top:6px;">' +
+                        '🏛️ 발주처: ' + b.agency + ' | 🏗️ 공종: ' + b.sector + ' | 💰 기초금액: ' + b.base_amt + ' | 🛡️ A값: ' + b.a_val + ' (' + b.a_ratio + ') | 🎯 목표 추천가: ' + b.rec_bid +
+                    '</div>';
             }
 
             const tTitle = pDoc.getElementById('v12-t3-title');
@@ -3539,7 +3155,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
             const tBrief = pDoc.getElementById('v12-t3-llm-brief');
             if (tBrief) {
                 tBrief.innerHTML = '<b>🗣️ AI 수석 공고·서류 분석관 심층 브리핑:</b><br>' +
-                    '본 공고([' + b.code + '] ' + b.title + ')는 [' + b.agency + ' · ' + b.sector + '] 발주 건으로 기초금액 ' + b.base_amt +
+                    '현재 선택·락온된 <b>[' + b.code + '] ' + b.title + '</b> 공고는 [' + b.agency + ' · ' + b.sector + '] 발주 건으로 기초금액 ' + b.base_amt +
                     ' 대비 A값 비중이 ' + b.a_ratio + '(' + b.a_val + ')입니다. 적격심사 낙찰하한율 ' + b.low_lim +
                     ' 및 과거 개찰예가(' + b.true_rate + ') 학습 데이터를 반영한 목표 사정률 <b>' + b.rec_rate +
                     ' (권장 투찰가 ' + b.rec_bid + ')</b> 타격을 1순위로 제안합니다.<br><span style="color:#FDE68A;">✍️ 대표님 서재 각주: "' + b.footnote + '"</span>';
@@ -3547,7 +3163,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
 
             const tCheck = pDoc.getElementById('v12-t3-doc-check');
             if (tCheck) {
-                tCheck.innerHTML = '<b>🔗 제1관 3D 서재 선택 동기화 완료 [' + b.code + ' ' + b.title + '] — 입찰서류 4종 패키지 검증 상태:</b><br>' +
+                tCheck.innerHTML = '<b>🎯 현재 락온된 [' + b.code + ' — ' + b.title + '] 입찰서류 4종 패키지 자동 검증 완료:</b><br>' +
                     '📄 [입찰공고문] ' + b.agency + ' — ' + b.title + ' (기초 ' + b.base_amt + ') 원문 로드 완료<br>' +
                     '📐 [물량내역서] A값 ' + b.a_val + ' (' + b.a_ratio + ') 및 원가계산서 비율 검증 완료<br>' +
                     '🛠️ [시방서/과업지시서] ' + b.sector + ' 면허 제한 및 특수시공 조건 스캔 완료<br>' +
@@ -3564,25 +3180,39 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
     function selectBook(index) {
         const b = BOOKS[index];
         if (!b) return;
+
+        // 선택된 책은 active-book(초고휘도 네온 에메랄드 돌출 + 플로팅 비콘), 나머지 책들은 전부 dimmed-book(어둡게 후퇴) 처리!
         document.querySelectorAll('.book-3d-wrapper').forEach((el, idx) => {
-            if (idx === index) el.classList.add('active-book');
-            else el.classList.remove('active-book');
+            if (idx === index) {
+                el.classList.add('active-book');
+                el.classList.remove('dimmed-book');
+            } else {
+                el.classList.remove('active-book');
+                el.classList.add('dimmed-book');
+            }
         });
+
         const box = document.getElementById('open-book-box');
         box.classList.add('flip-anim');
         setTimeout(() => box.classList.remove('flip-anim'), 260);
 
-        document.getElementById('sync-status-banner').innerHTML = '✅ 현재 선택된 [' + b.code + ' ' + b.title + '] 공고문이 [제3관: 올라마 공고문 6차원 해부관]에 실시간 반영되었습니다!';
-        document.getElementById('desk-header-title').innerHTML = '📖 [3D 홀로그램 양면 펼침 독서대] 현재 열람 중: <span style="color:#FFFFFF;">' + b.code + ' — ' + b.title + '</span>';
+        // 상단 타겟 락온 HUD 전광판 즉시 업데이트
+        document.getElementById('hud-locked-title').innerHTML =
+            '<span style="color:#FDE68A;">[' + b.code + ']</span> ' + b.title;
+        document.getElementById('hud-locked-specs').innerHTML =
+            '🏛️ 발주처: <b>' + b.agency + '</b> &nbsp;|&nbsp; 🏗️ 공종: <b>' + b.sector + '</b> &nbsp;|&nbsp; 💰 기초금액: <b style="color:#38BDF8;">' + b.base_amt + '</b> &nbsp;|&nbsp; 🛡️ A값: <b style="color:#FDE68A;">' + b.a_val + ' (' + b.a_ratio + ')</b> &nbsp;|&nbsp; 🎯 개찰예가: <b>' + b.true_rate + '</b>';
+
+        document.getElementById('desk-header-title').innerHTML =
+            '📖 [3D 홀로그램 양면 펼침 독서대] 현재 락온되어 펼쳐진 양장본: <span style="color:#10B981;">[' + b.code + '] ' + b.title + '</span>';
         document.getElementById('desk-header-meta').innerHTML = '제본일시: ' + b.date + ' | 추첨번호: ' + b.lots;
 
         document.getElementById('page-left-content').innerHTML =
-            '<div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(56,189,248,0.35);padding-bottom:6px;margin-bottom:10px;">' +
-                '<span style="color:#38BDF8;font-size:13px;font-weight:900;">📄 [좌측 페이지: 제1면 & 제2면] 입찰공고문 원문 · 사정 타점 대조</span>' +
+            '<div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(16,185,129,0.45);padding-bottom:6px;margin-bottom:10px;">' +
+                '<span style="color:#34D399;font-size:13px;font-weight:900;">📄 [좌측 페이지: 제1면 & 제2면] 입찰공고문 원문 · 사정 타점 대조</span>' +
                 '<span style="color:#FDE68A;font-size:11.5px;font-weight:800;">' + b.agency + ' | ' + b.sector + '</span>' +
             '</div>' +
-            '<div style="background:rgba(9,13,22,0.88);border-left:4px solid #38BDF8;padding:10px 12px;border-radius:6px;margin-bottom:10px;">' +
-                '<div style="color:#7DD3FC;font-size:11px;font-weight:900;margin-bottom:4px;">[제1면] 입찰공고문 원문 & 핵심 스펙 스냅샷</div>' +
+            '<div style="background:rgba(9,13,22,0.88);border-left:4px solid #10B981;padding:10px 12px;border-radius:6px;margin-bottom:10px;">' +
+                '<div style="color:#6EE7B7;font-size:11px;font-weight:900;margin-bottom:4px;">[제1면] 입찰공고문 원문 & 핵심 스펙 스냅샷</div>' +
                 '<div style="color:#E2E8F0;font-size:12px;line-height:1.55;">' + b.raw_txt + '</div>' +
             '</div>' +
             '<div style="background:rgba(9,13,22,0.88);border-left:4px solid #C084FC;padding:10px 12px;border-radius:6px;">' +
@@ -3614,19 +3244,18 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
         try {
             window.parent.localStorage.setItem('v12_active_book_json', JSON.stringify(b));
         } catch (e) {}
-        applyBookToParentTab3(b);
+        applyBookToParentTabs(b);
     }
 
-    // 탭 전환 시 리액트가 제3관 DOM을 다시 그려도 0.2초마다 localStorage의 선택된 양장본으로 제3관을 강제 유지!
     setInterval(() => {
         try {
             const rawSaved = window.parent.localStorage.getItem('v12_active_book_json');
             if (rawSaved) {
                 const savedBook = JSON.parse(rawSaved);
-                applyBookToParentTab3(savedBook);
+                applyBookToParentTabs(savedBook);
             }
         } catch (e) {}
-    }, 220);
+    }, 200);
 
     let htmlOut = '';
     for (let s = 0; s < Math.ceil(BOOKS.length / 3); s++) {
@@ -3639,6 +3268,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
                 const st = getTierColors(bk.tier);
                 htmlOut +=
                 '<div class="book-3d-wrapper" onclick="selectBook(' + idx + ')">' +
+                    '<div class="floating-lock-beacon">🎯 현재 선택된 공고 ▼</div>' +
                     '<div class="book-pages-top"></div>' +
                     '<div class="book-pages-right"></div>' +
                     '<div class="book-spine-3d" style="background:' + st.spine + ';border-left:2px solid #FDE68A;">' +
@@ -3657,8 +3287,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
                         '</div>' +
                         '<div>' +
                             '<div style="color:#FDE68A;font-size:11px;font-weight:900;">🎯 개찰 ' + bk.true_rate + ' | 내 사정 ' + bk.user_rate + '</div>' +
-                            '<div class="gold-foil-line"></div>' +
-                            '<div style="color:#F8FAFC;font-size:10px;background:rgba(0,0,0,0.42);padding:3px 6px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">✍️ ' + bk.footnote + '</div>' +
+                            '<div class="selected-neon-strip">⚡ 현재 선택됨 · 제2·3관 직결 분석 중</div>' +
                         '</div>' +
                     '</div>' +
                 '</div>';
@@ -3708,7 +3337,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
         r: Math.random() * 2.4 + 0.8,
         dx: (Math.random() - 0.5) * 0.45,
         dy: -Math.random() * 0.6 - 0.15,
-        color: i % 2 === 0 ? '253, 230, 138' : '56, 189, 248',
+        color: i % 2 === 0 ? '253, 230, 138' : '16, 185, 129',
         alpha: Math.random() * 0.65 + 0.25
     }));
 
@@ -3719,7 +3348,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
             ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
             ctx.fillStyle = 'rgba(' + p.color + ', ' + p.alpha + ')';
             ctx.shadowBlur = 10;
-            ctx.shadowColor = '#38BDF8';
+            ctx.shadowColor = '#10B981';
             ctx.fill();
             p.x += p.dx;
             p.y += p.dy;
