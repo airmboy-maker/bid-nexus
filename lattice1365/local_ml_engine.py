@@ -2780,14 +2780,13 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
             50% { box-shadow: 0 0 38px rgba(56,189,248,0.95), inset 0 0 28px rgba(56,189,248,0.45); border-color: #38BDF8; }
         }
         @keyframes floatBeacon {
-            0%, 100% { transform: translateX(-50%) translateY(0px) translateZ(35px); }
-            50% { transform: translateX(-50%) translateY(-8px) translateZ(35px); }
+            0%, 100% { transform: translateX(-50%) translateY(0px) translateZ(45px); }
+            50% { transform: translateX(-50%) translateY(-7px) translateZ(45px); }
         }
         @keyframes scanBeam {
             0% { left: -35%; }
             100% { left: 120%; }
         }
-        /* 최상단 초고도화 타겟 락온(TARGET LOCKED) HUD 전광판 */
         .lockon-hud-board {
             position: relative;
             z-index: 6;
@@ -2812,13 +2811,12 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
         .scene-viewport {
             position: relative;
             z-index: 3;
-            perspective: 1200px;
+            perspective: 1350px;
             width: 100%;
-            padding: 16px 8px 22px 8px;
+            padding: 14px 8px 22px 8px;
         }
         .library-room-3d {
             transform-style: preserve-3d;
-            transition: transform 0.12s ease-out;
             background:
                 radial-gradient(ellipse at 50% -10%, rgba(16,185,129,0.22) 0%, rgba(56,189,248,0.12) 40%, rgba(0,0,0,0) 70%),
                 repeating-linear-gradient(90deg, rgba(56,189,248,0.03) 0px, rgba(56,189,248,0.03) 1px, transparent 1px, transparent 40px),
@@ -2833,7 +2831,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
         .shelf-tier {
             position: relative;
             transform-style: preserve-3d;
-            margin-bottom: 34px;
+            margin-bottom: 36px;
         }
         .shelf-label {
             color: #FDE68A;
@@ -2844,52 +2842,226 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
         }
         .books-row {
             display: flex;
-            gap: 24px;
+            gap: 28px;
             justify-content: space-around;
             align-items: flex-end;
-            padding: 0 12px;
+            padding: 0 16px;
             transform-style: preserve-3d;
         }
-        /* 3D 양장본 기본 상태 */
-        .book-3d-wrapper {
+
+        /* =====================================================================
+           [핵심 해결 1] 고정 마우스 히트박스 슬롯(.book-hitbox-slot)
+           슬롯 자체는 절대 움직이지 않으므로 마우스가 닿는 즉시 100% 일괄 반응하며
+           절대로 판정이 씹히거나 떨리지 않음!
+           ===================================================================== */
+        .book-hitbox-slot {
             width: 30%;
-            height: 192px;
+            height: 204px;
+            position: relative;
+            perspective: 1100px;
+            cursor: pointer;
+            z-index: 10;
+            padding: 4px;
+        }
+        .book-hitbox-slot:hover {
+            z-index: 35;
+        }
+        .book-hitbox-slot.active-slot {
+            z-index: 45;
+        }
+
+        /* =====================================================================
+           [핵심 해결 2] 실제 3D 가죽 양장본 & 황동 바인더 파일철 메쉬(.book-3d-mesh)
+           pointer-events: none 처리하여 마우스 히트박스를 방해하지 않고 순수 3D 입체 기하학만 수행!
+           ===================================================================== */
+        .book-3d-mesh {
+            width: 100%;
+            height: 100%;
             position: relative;
             transform-style: preserve-3d;
-            transform: rotateY(-18deg) rotateX(7deg) translateZ(8px);
-            transition: all 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
+            pointer-events: none;
+            /* 비선택 기본 상태: 서가에 비스듬히 꽂힌 두꺼운 입체 파일철/양장본 각도 */
+            transform: rotateY(-22deg) rotateX(6deg) translateZ(4px);
+            transition: transform 0.26s cubic-bezier(0.22, 1, 0.36, 1), filter 0.22s ease;
+            filter: brightness(0.88) contrast(1.06);
         }
-        /* 비선택 도서 자동 Dimming (어둡게 뒤로 후퇴시켜 선택 도서를 완벽 부각!) */
-        .book-3d-wrapper.dimmed-book {
-            opacity: 0.42;
-            filter: brightness(0.58) saturate(0.65);
-            transform: rotateY(-20deg) rotateX(7deg) translateZ(-12px) scale(0.95);
+
+        /* 마우스가 고정 슬롯에 닿는 즉시 9권 모두 0.01초 만에 일괄 반응하여 앞으로 쑥 빠져나옴! */
+        .book-hitbox-slot:hover .book-3d-mesh {
+            transform: rotateY(-5deg) rotateX(2deg) translateZ(54px) translateY(-12px) scale(1.03);
+            filter: brightness(1.18) drop-shadow(0 18px 28px rgba(56,189,248,0.55));
         }
-        .book-3d-wrapper.dimmed-book:hover {
-            opacity: 0.92;
-            filter: brightness(1.1) saturate(1.0);
-            transform: rotateY(-6deg) rotateX(3deg) translateZ(38px) translateY(-8px) scale(1.01);
-            z-index: 25;
-        }
-        /* 선택된 도서 (초고도화 TARGET LOCKED 상태: 앞으로 강렬 돌출 + 네온 에메랄드 레이저 오라) */
-        .book-3d-wrapper.active-book {
-            opacity: 1.0 !important;
+
+        /* 선택(락온)된 공고문: 정면 돌출 + 네온 에메랄드 레이저 홀로그램 조명 */
+        .book-hitbox-slot.active-slot .book-3d-mesh {
             transform: rotateY(0deg) rotateX(0deg) translateZ(72px) translateY(-16px) scale(1.06) !important;
-            filter: brightness(1.22) drop-shadow(0 0 28px rgba(16,185,129,0.95)) !important;
-            z-index: 40 !important;
+            filter: brightness(1.24) drop-shadow(0 0 28px rgba(16,185,129,0.95)) !important;
         }
-        .book-3d-wrapper.active-book .book-front {
+
+        /* 1) 좌측 두꺼운 입체 책등(Spine, 폭 38px) + 제본 마디(Raised Ribs) + 황동 인출 링 */
+        .book-spine-3d {
+            position: absolute;
+            left: -19px;
+            top: 0;
+            width: 38px;
+            height: 100%;
+            transform: rotateY(-90deg);
+            border-radius: 5px 0 0 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 2px;
+            box-shadow: inset -4px 0 12px rgba(0,0,0,0.85), inset 3px 0 6px rgba(255,255,255,0.18);
+            border-left: 2.5px solid #FDE68A;
+            border-top: 1px solid rgba(253,230,138,0.5);
+            border-bottom: 2px solid #451A03;
+        }
+        .spine-rib {
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(180deg, #FDE68A 0%, #B45309 60%, #270E02 100%);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            border-radius: 2px;
+        }
+        .spine-title-vertical {
+            writing-mode: vertical-rl;
+            font-size: 10.5px;
+            font-weight: 900;
+            color: #FEF08A;
+            letter-spacing: 1.2px;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+        }
+        .binder-brass-hole {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #090D16 42%, #F59E0B 48%, #FEF08A 70%, #78350F 100%);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.9);
+        }
+
+        /* 2) 우측 두꺼운 종이 페이지 단면 결(Stacked Pages, 폭 32px) */
+        .book-pages-right {
+            position: absolute;
+            right: -15px;
+            top: 4px;
+            width: 32px;
+            height: calc(100% - 8px);
+            background:
+                repeating-linear-gradient(90deg,
+                    #F8FAFC 0px, #CBD5E1 1.5px,
+                    #E2E8F0 3px, #94A3B8 4.5px);
+            transform: rotateY(90deg);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.55);
+            border-top: 1px solid #CBD5E1;
+            border-bottom: 1px solid #64748B;
+        }
+
+        /* 3) 상단 두꺼운 종이 단면 결(Top Pages, 두께 32px) */
+        .book-pages-top {
+            position: absolute;
+            top: -15px;
+            left: 3px;
+            width: calc(100% - 6px);
+            height: 32px;
+            background:
+                repeating-linear-gradient(0deg,
+                    #F8FAFC 0px, #CBD5E1 1.5px,
+                    #E2E8F0 3px, #94A3B8 4.5px);
+            transform: rotateX(90deg);
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.45);
+        }
+
+        /* 4) 뒤표지 하드보드지(Back Cover) — 책의 입체 두께감을 완성 */
+        .book-back-cover {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 3px 10px 10px 3px;
+            background: #1C130B;
+            border: 2px solid #78350F;
+            transform: translateZ(-16px);
+            box-shadow: 18px 22px 32px rgba(0,0,0,0.92);
+        }
+
+        /* 5) 우측 파일철 색인 인덱스 탭(Index Tabs: 공고·내역·복기) */
+        .binder-index-tabs {
+            position: absolute;
+            right: -10px;
+            top: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transform: translateZ(4px);
+        }
+        .binder-tab-item {
+            background: linear-gradient(90deg, #D97706, #FDE68A);
+            color: #090D16;
+            font-size: 8.5px;
+            font-weight: 900;
+            padding: 3px 4px;
+            border-radius: 0 4px 4px 0;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.75);
+            writing-mode: vertical-rl;
+        }
+
+        /* 6) 앞표지(Front Hardcover) + 좌측 책등 접힘 홈(Hinge Groove) + 가죽 금실 스티치 + 황동 코너 장식 */
+        .book-front {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 3px 10px 10px 3px;
+            padding: 12px 14px 10px 22px;
+            transform: translateZ(18px);
+            box-shadow:
+                inset 12px 0 14px -6px rgba(0,0,0,0.82), /* 책등 연결부 깊은 접힘 홈 음영 */
+                inset 0 0 18px rgba(0,0,0,0.55),
+                8px 14px 26px rgba(0,0,0,0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            backface-visibility: hidden;
+            overflow: hidden;
+        }
+        /* 가죽 표지 안쪽 금실 박음질(Stitching) 테두리 */
+        .book-front::before {
+            content: '';
+            position: absolute;
+            top: 5px; left: 14px; right: 5px; bottom: 5px;
+            border: 1px dashed rgba(253, 230, 138, 0.42);
+            border-radius: 2px 7px 7px 2px;
+            pointer-events: none;
+        }
+        /* 우측 상·하단 황동 코너 보호대(Brass Corner Protectors) */
+        .brass-corner-tr {
+            position: absolute;
+            top: 0; right: 0;
+            width: 18px; height: 18px;
+            background: linear-gradient(225deg, #FEF08A 0%, #D97706 55%, transparent 56%);
+            pointer-events: none;
+        }
+        .brass-corner-br {
+            position: absolute;
+            bottom: 0; right: 0;
+            width: 18px; height: 18px;
+            background: linear-gradient(315deg, #FEF08A 0%, #D97706 55%, transparent 56%);
+            pointer-events: none;
+        }
+
+        .book-hitbox-slot.active-slot .book-front {
             border: 3.5px solid #10B981 !important;
-            box-shadow: 0 0 32px rgba(16,185,129,0.9), inset 0 0 22px rgba(16,185,129,0.45) !important;
+            box-shadow:
+                inset 12px 0 14px -6px rgba(0,0,0,0.82),
+                0 0 32px rgba(16,185,129,0.92),
+                inset 0 0 22px rgba(16,185,129,0.45) !important;
         }
-        /* 선택된 책 위 공중에 둥둥 떠 있는 3D 홀로그램 타겟 비콘 */
+
         .floating-lock-beacon {
             display: none;
             position: absolute;
             top: -38px;
             left: 50%;
-            transform: translateX(-50%) translateZ(35px);
+            transform: translateX(-50%) translateZ(45px);
             background: linear-gradient(90deg, #059669, #10B981, #047857);
             color: #022C22;
             font-size: 11.5px;
@@ -2902,10 +3074,10 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
             animation: floatBeacon 1.4s infinite ease-in-out;
             z-index: 50;
         }
-        .book-3d-wrapper.active-book .floating-lock-beacon {
+        .book-hitbox-slot.active-slot .floating-lock-beacon {
             display: block !important;
         }
-        /* 선택된 책 하단 네온 리본 바 */
+
         .selected-neon-strip {
             display: none;
             background: linear-gradient(90deg, #10B981, #38BDF8);
@@ -2919,72 +3091,40 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
             letter-spacing: 0.4px;
             box-shadow: 0 0 12px rgba(16,185,129,0.8);
         }
-        .book-3d-wrapper.active-book .selected-neon-strip {
+        .book-hitbox-slot.active-slot .selected-neon-strip {
             display: block !important;
         }
-        .book-front {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 3px 10px 10px 3px;
-            padding: 12px 14px 10px 18px;
-            transform: translateZ(16px);
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.6), 12px 16px 30px rgba(0,0,0,0.88);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            backface-visibility: hidden;
+        .unselected-Footnote-strip {
+            display: block;
+            color: #F8FAFC;
+            font-size: 10px;
+            background: rgba(0,0,0,0.48);
+            padding: 3px 6px;
+            border-radius: 4px;
+            margin-top: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border-left: 2px solid #FBBF24;
         }
-        .book-spine-3d {
-            position: absolute;
-            left: -16px;
-            top: 0;
-            width: 32px;
-            height: 100%;
-            transform: rotateY(-90deg);
-            border-radius: 4px 0 0 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            writing-mode: vertical-rl;
-            font-size: 10.5px;
-            font-weight: 900;
-            color: #FEF08A;
-            letter-spacing: 1px;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.75);
+        .book-hitbox-slot.active-slot .unselected-Footnote-strip {
+            display: none !important;
         }
-        .book-pages-right {
-            position: absolute;
-            right: -13px;
-            top: 3px;
-            width: 26px;
-            height: calc(100% - 6px);
-            background: repeating-linear-gradient(90deg, #F8FAFC 0px, #94A3B8 2px, #F1F5F9 4px);
-            transform: rotateY(90deg);
-        }
-        .book-pages-top {
-            position: absolute;
-            top: -13px;
-            left: 3px;
-            width: calc(100% - 6px);
-            height: 26px;
-            background: repeating-linear-gradient(0deg, #F8FAFC 0px, #94A3B8 2px, #E2E8F0 4px);
-            transform: rotateX(90deg);
-        }
+
         .wood-shelf-3d {
             position: relative;
-            height: 24px;
+            height: 26px;
             margin-top: -2px;
             background: linear-gradient(180deg, #92400E 0%, #451A03 62%, #1C0A00 100%);
             border-top: 3px solid #FBBF24;
-            border-bottom: 4px solid #050200;
+            border-bottom: 5px solid #050200;
             border-radius: 4px;
-            transform: translateZ(24px);
-            box-shadow: 0 18px 32px rgba(0,0,0,0.95), 0 0 18px rgba(56,189,248,0.28);
+            transform: translateZ(26px);
+            box-shadow: 0 20px 34px rgba(0,0,0,0.95), 0 0 18px rgba(56,189,248,0.28);
         }
         .gold-foil-line {
             height: 2px;
-            background: linear-gradient(90deg, #FEF08A, #38BDF8, #FEF08A);
+            background: linear-gradient(90deg, #FEF08A, #D97706, #FEF08A);
             margin: 4px 0;
         }
         .reading-desk-stage {
@@ -3044,7 +3184,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
                     ⚡ [제2관 모의투찰] & [제3관 올라마 해부관] 100% 직결 고정됨
                 </div>
                 <div style="color:#FDE68A;font-size:11px;font-weight:800;margin-top:4px;">
-                    👇 아래 3D 서가에서 다른 책을 클릭하면 즉시 타겟이 교체됩니다
+                    👇 마우스를 올리면 3D 바인더 책자가 즉시 반응하며 클릭 시 타겟이 교체됩니다
                 </div>
             </div>
         </div>
@@ -3071,43 +3211,41 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
     const BOOKS = __BOOKS_JSON__;
     const shelvesRoot = document.getElementById('shelves-root');
     const shelfNames = [
-        "🪵 [제1단 3D 홀로그램 원목 서가] 종합·대형 전략 공사 황금 양장본 컬렉션",
-        "🪵 [제2단 3D 홀로그램 원목 서가] 전문·전통소(전기·통신·소방·설비) 실전 족보관",
-        "🪵 [제3단 3D 홀로그램 원목 서가] 특수공종 & 하한선 미달 집중 오답노트 보관소"
+        "🪵 [제1단 3D 홀로그램 원목 서가] 종합·대형 전략 공사 황금 양장본 바인더 컬렉션",
+        "🪵 [제2단 3D 홀로그램 원목 서가] 전문·전통소(전기·통신·소방·설비) 실전 족보 바인더관",
+        "🪵 [제3단 3D 홀로그램 원목 서가] 특수공종 & 하한선 미달 집중 오답노트 바인더 보관소"
     ];
 
     function getTierColors(tier) {
         if (tier === 'GOLD') {
             return {
-                front: 'linear-gradient(135deg, #78350F 0%, #B45309 50%, #D97706 100%)',
-                spine: 'linear-gradient(180deg, #451A03, #92400E)',
+                front: 'linear-gradient(135deg, #5C2808 0%, #92400E 48%, #B45309 100%)',
+                spine: 'linear-gradient(90deg, #270E02 0%, #78350F 50%, #451A03 100%)',
                 border: '2px solid #FBBF24',
                 badge: '🏆 황금족보'
             };
         } else if (tier === 'BLUE') {
             return {
-                front: 'linear-gradient(135deg, #0C4A6E 0%, #0284C7 55%, #0369A1 100%)',
-                spine: 'linear-gradient(180deg, #082F49, #0369A1)',
+                front: 'linear-gradient(135deg, #082F49 0%, #0369A1 50%, #0284C7 100%)',
+                spine: 'linear-gradient(90deg, #041929 0%, #075985 50%, #082F49 100%)',
                 border: '2px solid #38BDF8',
                 badge: '📘 상위방어'
             };
         } else {
             return {
-                front: 'linear-gradient(135deg, #7F1D1D 0%, #DC2626 55%, #991B1B 100%)',
-                spine: 'linear-gradient(180deg, #450A0A, #991B1B)',
+                front: 'linear-gradient(135deg, #450A0A 0%, #991B1B 50%, #B91C1C 100%)',
+                spine: 'linear-gradient(90deg, #260404 0%, #7F1D1D 50%, #450A0A 100%)',
                 border: '2px solid #F87171',
                 badge: '📕 오답노트'
             };
         }
     }
 
-    // 부모 창(제2관 모의투찰 & 제3관 올라마 해부관)의 전광판과 데이터를 실시간으로 덮어쓰는 함수
     function applyBookToParentTabs(b) {
         try {
             const pDoc = window.parent.document;
             if (!pDoc || !b) return;
 
-            // 제2관(모의투찰) 상단 타겟 락온 전광판 업데이트
             const t2Banner = pDoc.getElementById('v12-t2-lockon-banner');
             if (t2Banner) {
                 t2Banner.innerHTML =
@@ -3122,7 +3260,6 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
                     '</div>';
             }
 
-            // 제3관(올라마 해부관) 상단 타겟 락온 전광판 업데이트
             const t3Banner = pDoc.getElementById('v12-t3-active-banner');
             if (t3Banner) {
                 t3Banner.innerHTML =
@@ -3152,7 +3289,6 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
             const tRec = pDoc.getElementById('v12-t3-rec-target');
             if (tRec) tRec.innerHTML = b.rec_bid + '<br><span style="color:#A7F3D0;font-size:11px;">목표사정률 ' + b.rec_rate + ' (하한 ' + b.low_lim + ')</span>';
 
-            // 제3관 질문 입력창 값 읽기
             let userQ = '';
             const allInputs = pDoc.querySelectorAll('input[type="text"]');
             allInputs.forEach(inp => {
@@ -3161,14 +3297,14 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
                 }
             });
 
-            // 제3관 [선택 공고 & 서류 6차원 정밀 재분석] 및 [제2관 모의투찰 전송] 버튼에 실시간 클릭 이벤트 바인딩
             const allBtns = pDoc.querySelectorAll('button');
             allBtns.forEach(btn => {
                 const btxt = (btn.innerText || '');
                 if (btxt.includes('선택 공고 & 서류 6차원 정밀 재분석') && !btn.dataset.v12Bound) {
                     btn.dataset.v12Bound = '1';
                     btn.addEventListener('click', () => {
-                        const nowD = new Date(); window.parent.localStorage.setItem('v12_reanalyze_ts', nowD.toLocaleTimeString('ko-KR') + '.' + String(nowD.getMilliseconds()).slice(0,2));
+                        const nowD = new Date();
+                        window.parent.localStorage.setItem('v12_reanalyze_ts', nowD.toLocaleTimeString('ko-KR') + '.' + String(nowD.getMilliseconds()).slice(0,2));
                         window.parent.localStorage.setItem('v12_reanalyze_active', '1');
                     });
                 }
@@ -3208,7 +3344,6 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
                         clearInterval(window.parent._v12TypeTimer);
                     }
 
-                    // 타이핑될 순차 텍스트 섹션 구성
                     const linesToType = [];
                     if (userQ) {
                         linesToType.push('💬 [질문 맞춤 심층 판독: "' + userQ + '"]');
@@ -3222,7 +3357,6 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
 
                     const fullText = linesToType.join('\n');
 
-                    // 우측 브리핑 박스에 스포트라이트 네온 테두리 점등 및 타이핑 영역 세팅
                     tBrief.style.transition = 'all 0.3s ease';
                     tBrief.style.boxShadow = '0 0 32px rgba(56,189,248,0.75), inset 0 0 18px rgba(16,185,129,0.35)';
                     tBrief.style.borderColor = '#38BDF8';
@@ -3243,7 +3377,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
                     const matrixEl = pDoc.getElementById('v12-matrix-stage');
 
                     window.parent._v12TypeTimer = setInterval(() => {
-                        charIdx += 4; // 빠르고 경쾌한 타이핑 속도
+                        charIdx += 4;
                         if (charIdx < fullText.length) {
                             if (typeEl) {
                                 typeEl.innerHTML = fullText.slice(0, charIdx) + '<span style="color:#38BDF8;font-weight:900;">▌</span>';
@@ -3260,7 +3394,6 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
                             tBrief.style.boxShadow = '0 0 18px rgba(16,185,129,0.28)';
                             tBrief.style.borderColor = '#10B981';
 
-                            // 타이핑 완료 즉시 3단계 시나리오 카드를 1안 ➔ 2안 ➔ 3안 순서대로 순차 점등!
                             if (matrixEl) {
                                 matrixEl.innerHTML =
                                     '<div style="background:rgba(9,13,22,0.94);border:1.5px solid #FBBF24;border-radius:8px;padding:10px 12px;">' +
@@ -3326,14 +3459,11 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
         const b = BOOKS[index];
         if (!b) return;
 
-        // 선택된 책은 active-book(초고휘도 네온 에메랄드 돌출 + 플로팅 비콘), 나머지 책들은 전부 dimmed-book(어둡게 후퇴) 처리!
-        document.querySelectorAll('.book-3d-wrapper').forEach((el, idx) => {
+        document.querySelectorAll('.book-hitbox-slot').forEach((el, idx) => {
             if (idx === index) {
-                el.classList.add('active-book');
-                el.classList.remove('dimmed-book');
+                el.classList.add('active-slot');
             } else {
-                el.classList.remove('active-book');
-                el.classList.add('dimmed-book');
+                el.classList.remove('active-slot');
             }
         });
 
@@ -3341,7 +3471,6 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
         box.classList.add('flip-anim');
         setTimeout(() => box.classList.remove('flip-anim'), 260);
 
-        // 상단 타겟 락온 HUD 전광판 즉시 업데이트
         document.getElementById('hud-locked-title').innerHTML =
             '<span style="color:#FDE68A;">[' + b.code + ']</span> ' + b.title;
         document.getElementById('hud-locked-specs').innerHTML =
@@ -3387,7 +3516,9 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
             '</div>';
 
         try {
-            window.parent.localStorage.setItem('v12_active_book_json', JSON.stringify(b)); const nowD = new Date(); window.parent.localStorage.setItem('v12_reanalyze_ts', nowD.toLocaleTimeString('ko-KR') + '.' + String(nowD.getMilliseconds()).slice(0,2));
+            const nowD = new Date();
+            window.parent.localStorage.setItem('v12_active_book_json', JSON.stringify(b));
+            window.parent.localStorage.setItem('v12_reanalyze_ts', nowD.toLocaleTimeString('ko-KR') + '.' + String(nowD.getMilliseconds()).slice(0,2));
         } catch (e) {}
         applyBookToParentTabs(b);
     }
@@ -3412,27 +3543,42 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
                 const bk = BOOKS[idx];
                 const st = getTierColors(bk.tier);
                 htmlOut +=
-                '<div class="book-3d-wrapper" onclick="selectBook(' + idx + ')">' +
-                    '<div class="floating-lock-beacon">🎯 현재 선택된 공고 ▼</div>' +
-                    '<div class="book-pages-top"></div>' +
-                    '<div class="book-pages-right"></div>' +
-                    '<div class="book-spine-3d" style="background:' + st.spine + ';border-left:2px solid #FDE68A;">' +
-                        bk.code + ' · ' + bk.agency +
-                    '</div>' +
-                    '<div class="book-front" style="background:' + st.front + ';border:' + st.border + ';">' +
-                        '<div>' +
-                            '<div style="display:flex;justify-content:space-between;align-items:center;">' +
-                                '<span style="color:#FEF08A;font-size:11px;font-weight:900;">' + bk.code + (bk.vip ? ' 🔖 VIP' : '') + '</span>' +
-                                '<span style="background:rgba(0,0,0,0.55);color:#F8FAFC;font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:4px;">' + st.badge + '</span>' +
-                            '</div>' +
-                            '<div class="gold-foil-line"></div>' +
-                            '<div style="color:#FFFFFF;font-size:13.5px;font-weight:900;line-height:1.3;margin:4px 0;">📕 ' + bk.title + '</div>' +
-                            '<div style="color:#E2E8F0;font-size:10.5px;font-weight:700;">🏛️ ' + bk.agency + ' | ' + bk.sector + '</div>' +
-                            '<div style="color:#BAE6FD;font-size:10.5px;margin-top:2px;">💰 기초: ' + bk.base_amt + '</div>' +
+                '<div class="book-hitbox-slot" onclick="selectBook(' + idx + ')">' +
+                    '<div class="book-3d-mesh">' +
+                        '<div class="floating-lock-beacon">🎯 현재 선택된 공고 ▼</div>' +
+                        '<div class="book-back-cover"></div>' +
+                        '<div class="book-pages-top"></div>' +
+                        '<div class="book-pages-right"></div>' +
+                        '<div class="binder-index-tabs">' +
+                            '<div class="binder-tab-item">공고</div>' +
+                            '<div class="binder-tab-item" style="background:linear-gradient(90deg,#0284C7,#7DD3FC);">내역</div>' +
+                            '<div class="binder-tab-item" style="background:linear-gradient(90deg,#059669,#6EE7B7);">복기</div>' +
                         '</div>' +
-                        '<div>' +
-                            '<div style="color:#FDE68A;font-size:11px;font-weight:900;">🎯 개찰 ' + bk.true_rate + ' | 내 사정 ' + bk.user_rate + '</div>' +
-                            '<div class="selected-neon-strip">⚡ 현재 선택됨 · 제2·3관 직결 분석 중</div>' +
+                        '<div class="book-spine-3d" style="background:' + st.spine + ';">' +
+                            '<div class="spine-rib"></div>' +
+                            '<div class="spine-rib"></div>' +
+                            '<div class="spine-title-vertical">' + bk.code + ' · ' + bk.agency + '</div>' +
+                            '<div class="spine-rib"></div>' +
+                            '<div class="binder-brass-hole"></div>' +
+                        '</div>' +
+                        '<div class="book-front" style="background:' + st.front + ';border:' + st.border + ';">' +
+                            '<div class="brass-corner-tr"></div>' +
+                            '<div class="brass-corner-br"></div>' +
+                            '<div>' +
+                                '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+                                    '<span style="color:#FEF08A;font-size:11px;font-weight:900;">' + bk.code + (bk.vip ? ' 🔖 VIP' : '') + '</span>' +
+                                    '<span style="background:rgba(0,0,0,0.62);color:#F8FAFC;font-size:9.5px;font-weight:800;padding:2px 7px;border-radius:4px;border:1px solid rgba(253,230,138,0.4);">' + st.badge + '</span>' +
+                                '</div>' +
+                                '<div class="gold-foil-line"></div>' +
+                                '<div style="color:#FFFFFF;font-size:13.5px;font-weight:900;line-height:1.3;margin:5px 0;">📕 ' + bk.title + '</div>' +
+                                '<div style="color:#E2E8F0;font-size:10.5px;font-weight:700;">🏛️ ' + bk.agency + ' | ' + bk.sector + '</div>' +
+                                '<div style="color:#BAE6FD;font-size:10.5px;margin-top:2px;">💰 기초: ' + bk.base_amt + '</div>' +
+                            '</div>' +
+                            '<div>' +
+                                '<div style="color:#FDE68A;font-size:11px;font-weight:900;">🎯 개찰 ' + bk.true_rate + ' | 내 사정 ' + bk.user_rate + '</div>' +
+                                '<div class="unselected-Footnote-strip">✍️ ' + bk.footnote + '</div>' +
+                                '<div class="selected-neon-strip">⚡ 현재 선택됨 · 제2·3관 직결 분석 중</div>' +
+                            '</div>' +
                         '</div>' +
                     '</div>' +
                 '</div>';
@@ -3455,18 +3601,6 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
         selectBook(startIdx);
     }
 
-    const vp = document.getElementById('viewport-3d');
-    const room = document.getElementById('room-3d');
-    vp.addEventListener('mousemove', (e) => {
-        const rect = vp.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width - 0.5;
-        const y = (e.clientY - rect.top) / rect.height - 0.5;
-        room.style.transform = 'rotateY(' + (x * 12) + 'deg) rotateX(' + (-y * 8) + 'deg)';
-    });
-    vp.addEventListener('mouseleave', () => {
-        room.style.transform = 'rotateY(0deg) rotateX(0deg)';
-    });
-
     const canvas = document.getElementById('particle-canvas');
     const ctx = canvas.getContext('2d');
     function resizeCanvas() {
@@ -3476,14 +3610,14 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    const particles = Array.from({length: 65}, (_, i) => ({
+    const particles = Array.from({length: 55}, (_, i) => ({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        r: Math.random() * 2.4 + 0.8,
-        dx: (Math.random() - 0.5) * 0.45,
-        dy: -Math.random() * 0.6 - 0.15,
+        r: Math.random() * 2.2 + 0.8,
+        dx: (Math.random() - 0.5) * 0.4,
+        dy: -Math.random() * 0.5 - 0.15,
         color: i % 2 === 0 ? '253, 230, 138' : '16, 185, 129',
-        alpha: Math.random() * 0.65 + 0.25
+        alpha: Math.random() * 0.6 + 0.2
     }));
 
     function animateParticles() {
@@ -3492,7 +3626,7 @@ def render_interactive_3d_library_html_v12(books: list, mood: str = "로열", ac
             ctx.beginPath();
             ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
             ctx.fillStyle = 'rgba(' + p.color + ', ' + p.alpha + ')';
-            ctx.shadowBlur = 10;
+            ctx.shadowBlur = 8;
             ctx.shadowColor = '#10B981';
             ctx.fill();
             p.x += p.dx;
