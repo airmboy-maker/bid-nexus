@@ -495,6 +495,7 @@ from lattice1365.local_ml_engine import (
     delete_library_book_v12 as _del_book_v12,
     render_interactive_3d_library_html_v12 as _render_3d_html_v12,
     render_ultra_matrix_view_html_v12 as _render_matrix_html_v12,
+    render_synapse_mastery_view_html_v12 as _render_synapse_html_v12,
     render_sector_board_visual_v12 as _render_sec_vis_v12,
     render_sector_board_from_books_v12 as _render_sec_from_books_v12,
     build_formatted_whitepaper_suite_v12 as _build_wp_suite_v12,
@@ -623,7 +624,7 @@ if st.session_state["_standalone_academy_mode"]:
         with _flt4:
             _f_kw = st.text_input("🔍 키워드/라이벌/각주 즉시 소환", placeholder="예: 동양기공, A값, 반도체, 실내건축...", key="_lib_f_kw")
         with _flt5:
-            _view_mode = st.selectbox("🗂️ 서재 공간 뷰 전환", options=["🌌 3D 홀로그램 입체 원목 서가 & 3D 독서대", "📊 초고밀도 매트릭스 표 뷰"], key="_lib_view_mode")
+            _view_mode = st.selectbox("🗂️ 서재 공간 뷰 전환", options=["🌌 3D 홀로그램 입체 원목 서가 & 3D 독서대", "📊 초고밀도 매트릭스 표 뷰", "🧬 시냅스 5단계 점진적 각인 학습관 (초보자 마스터리 뷰)"], key="_lib_view_mode")
 
         _lib_res = _query_lib_v12(_f_sec, _f_ag, _f_grd, _f_kw)
         _books = _lib_res["books"]
